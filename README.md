@@ -1,5 +1,9 @@
 # MicroDuck Web 观测台 · 0.3.0
 
+![MicroDuck 主页：IMU、3D 鸭子姿态与 15 个舵机信息](docs/images/dashboard.png)
+
+> 实机 IMU 观测界面；舵机反馈尚未接入。
+
 前后端分离的机器人观测平台。支持电脑上的模拟后端和主控上的真实 BNO085 后端，不发送运动控制指令。
 
 支持本地模拟调试与 Radxa ZERO 3W / BNO085 实机采集。前端使用 Vue 3、TypeScript、Three.js 和 ECharts，后端使用 FastAPI 与 WebSocket。
