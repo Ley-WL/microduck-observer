@@ -55,3 +55,11 @@ DeviceAllow=char-ttyACM rw
 ```
 
 若适配器为 ttyUSB 则将设备类别改为 char-ttyUSB。SupplementaryGroups 与原 service 的 i2c 组累加。然后执行 `sudo systemctl restart microduck-observer`。无设备、无应答或拔线会在页面显示异常；重新连接后自动重试。该配置仅开启读取，不改变扭矩或机械位置。服务重启会使页面初始 IMU 标定失效，需重新标定。
+
+全部 15 颗已接线时，将上面的 ID 配置替换为：
+
+```ini
+Environment=MICRODUCK_SERVO_IDS=10,11,12,13,14,20,21,22,23,24,30,31,32,33,34
+```
+
+2026-09-22 实机只读验证：15 个 ID 在约 8 秒、112 组反馈中均在线且故障位为 0；完整总线推送约 13.8 Hz。20 Hz 是目标上限，实际速率受串行读取耗时和网络影响。此结果仅验证反馈通信，不代表机械运动已验证。
