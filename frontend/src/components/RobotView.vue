@@ -2,6 +2,10 @@
 import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { useJointPose } from "../jointPose";
+import { createJointNode, applyJointAngle } from "../jointModel";
+const jointPose = useJointPose();
+const jointNodes = new Map<number, { pivot: THREE.Group; axis: THREE.Vector3 }>();
 const props = defineProps<{
   quaternion: number[] | null;
   paused: boolean;
@@ -68,7 +72,10 @@ onMounted(async () => {
     });
     observer.observe(host.value!);
     const render = () => {
-      if (!props.paused) root.quaternion.slerp(target, 0.22);
+      if (!props.paused) {
+        root.quaternion.slerp(target, 0.22);
+        for (const [id, joint] of jointNodes) applyJointAngle(joint.pivot, joint.axis, jointPose.angles[id]);
+      }
       controls.update();
       renderer.render(scene, camera);
       frame = requestAnimationFrame(render);
@@ -106,9 +113,8 @@ onMounted(async () => {
     const nodes: THREE.Group[] = [];
     const quat = (v: number[]) => new THREE.Quaternion(v[1], v[2], v[3], v[0]);
     for (const body of model.bodies) {
-      const node = new THREE.Group();
-      node.position.fromArray(body.pos);
-      node.quaternion.copy(quat(body.quat));
+      const { node, inner, axis } = createJointNode(body);
+      if (body.joint && axis) jointNodes.set(body.joint.id, { pivot: inner, axis });
       // Rotate about the trunk, not about the model's placement in the world.
       if (body.parent < 0) node.position.set(0, 0, 0);
       for (const geom of body.geoms) {
@@ -126,10 +132,10 @@ onMounted(async () => {
         );
         mesh.position.fromArray(geom.pos);
         mesh.quaternion.copy(quat(geom.quat));
-        node.add(mesh);
+        inner.add(mesh);
       }
       (body.parent < 0 ? root : nodes[body.parent]).add(node);
-      nodes.push(node);
+      nodes.push(inner);
     }
     loaded.value = true;
   } catch (e) {

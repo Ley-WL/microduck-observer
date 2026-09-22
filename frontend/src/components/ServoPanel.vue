@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useTelemetry } from "../store";
+import { useJointPose } from "../jointPose";
+const pose = useJointPose();
 defineProps<{ compact?: boolean }>();
 const state = useTelemetry();
 const rows = computed(() => state.joints?.data.servos || []);
@@ -107,7 +109,7 @@ const groups = [
             <th v-if="!compact" scope="col">
               实测位置<small>编码器步数</small>
             </th>
-            <th scope="col">编码器<small>步</small></th>
+            <th scope="col">{{ compact ? "编码器" : "关节角度" }}<small>{{ compact ? "步" : "° · 未校准" }}</small></th>
             <th scope="col">电压<small>V</small></th>
             <th scope="col">温度<small>°C</small></th>
             <th scope="col">电流<small>原始值</small></th>
@@ -124,10 +126,11 @@ const groups = [
               {{ group.name }} <span>ID {{ group.range }} · 5 个</span>
             </th>
           </tr>
-          <tr v-for="joint in group.joints" :key="joint.id" class="servo-row">
+          <tr v-for="joint in group.joints" :key="joint.id" class="servo-row" :class="{ selected: pose.selected === joint.id }">
             <th scope="row">
-              <span class="servo-id">{{ joint.id }}</span
-              >{{ joint.name }}
+              <button class="joint-select" :aria-label="'选择舵机 ' + joint.id + ' ' + joint.name" :aria-pressed="pose.selected === joint.id" @click="pose.selected = joint.id">
+                <span class="servo-id">{{ joint.id }}</span>{{ joint.name }}<span v-if="pose.references[joint.id] !== undefined" class="joint-calibrated" title="已标定显示零点">●</span>
+              </button>
             </th>
             <td v-if="!compact">
               <span class="servo-unavailable" :data-status="status(joint.id)">{{ status(joint.id) }}</span>
@@ -158,12 +161,19 @@ const groups = [
         </tbody>
       </table>
     </div>
-    <div v-if="compact" class="servo-footnote">
-      {{ state.joints?.data.error || "只读观测 · 未配置的舵机显示未接入" }}<br />编码器未换算关节角度；电流单位待核实。
-    </div>
-    <div v-else class="servo-footnote">
-      未接入不代表离线或故障。15 个实物舵机包含嘴部（ID 34）；当前 3D 模型仅有
-      14 个关节，嘴部反馈单独展示。
+    <div class="joint-calibration" aria-label="单颗舵机显示标定">
+      <div class="joint-calibration-heading">
+        <strong>#{{ pose.selected }} 初始位置</strong>
+        <span>{{ pose.references[pose.selected] === undefined ? '未标定' : '基准 ' + pose.references[pose.selected] + ' 步' }}</span>
+        <span>Δ {{ pose.references[pose.selected] !== undefined && pose.fresh(pose.selected) ? ((pose.angles[pose.selected] ?? 0) * 180 / Math.PI).toFixed(1) + '°' : '—' }}</span>
+      </div>
+      <div class="joint-calibration-actions">
+        <button :disabled="!pose.canCalibrate(pose.selected)" @click="pose.calibrate(pose.selected)">{{ pose.references[pose.selected] === undefined ? '标定初始位置' : '重新标定' }}</button>
+        <button :disabled="state.paused" @click="pose.reverse(pose.selected)" :title="'只改变3D显示方向，当前系数 ' + pose.direction(pose.selected)">方向 {{ pose.direction(pose.selected) === 1 ? '+' : '−' }} ↔</button>
+        <button :disabled="state.paused || pose.references[pose.selected] === undefined" @click="pose.clear(pose.selected)">清除</button>
+      </div>
+      <p>{{ state.joints?.data.error || '选关节 → 摆到模型参考姿势 → 标定；仅本页有效。' }}</p>
+      <p>仅显示标定，不写舵机。掉线保持模型；电流为原始值。</p>
     </div>
   </section>
 </template>
@@ -456,4 +466,18 @@ const groups = [
     font-size: 9px;
   }
 }
+</style>
+
+<style scoped>
+.joint-select { border: 0; background: transparent; color: inherit; font: inherit; text-align: left; padding: 2px 0; cursor: pointer; width: 100%; }
+.joint-select:focus-visible { outline: 2px solid #4f8e6c; }
+.joint-calibrated { color: #16834a; font-size: 6px; margin-left: 2px; }
+.servo-row.selected { background: #eaf4ee; }
+.joint-calibration { flex-shrink: 0; border-top: 1px solid #dce8df; padding: 8px; background: #f8fbf8; }
+.joint-calibration-heading { display: flex; justify-content: space-between; gap: 4px; font-size: 9px; color: #56715e; }
+.joint-calibration-heading strong { font-weight: 600; }
+.joint-calibration-actions { display: flex; gap: 5px; margin: 6px 0; }
+.joint-calibration-actions button { border: 1px solid #b5ccbc; background: white; color: #315f43; border-radius: 4px; padding: 4px 6px; font-size: 10px; cursor: pointer; }
+.joint-calibration-actions button:disabled { opacity: .45; cursor: default; }
+.joint-calibration p { margin: 3px 0 0; font-size: 8px; color: #788978; line-height: 1.4; }
 </style>

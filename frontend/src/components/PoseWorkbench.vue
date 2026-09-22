@@ -4,6 +4,8 @@ import { useTelemetry } from "../store";
 import RobotView from "./RobotView.vue";
 import SignalChart from "./SignalChart.vue";
 import ServoPanel from "./ServoPanel.vue";
+import { useJointPose } from "../jointPose";
+const jointPose = useJointPose();
 const props = defineProps<{
   modelOrientation: number[] | null;
   quaternion: number[] | null;
@@ -107,7 +109,7 @@ const value = (values: number[] | undefined, i: number) =>
           >
         </div>
         <div class="bench-model-note">
-          IMU 相对旋转预览 · 关节为参考姿势<br />初始标定仅本页有效，不替代安装轴向校准。
+          IMU 相对旋转 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />初始标定仅本页有效，不替代安装轴向校准。
         </div>
       </section>
       <section class="panel bench-imu">
@@ -154,7 +156,7 @@ const value = (values: number[] | undefined, i: number) =>
     </div>
     <div class="bench-statusbar">
       <span>观测模式 · 不发送运动指令</span
-      ><span>15 个舵机 / 14 个模型关节 · 舵机只读反馈</span>
+      ><span>15 个舵机 · 已标定关节跟随反馈（嘴部为简化模型）</span>
     </div>
   </section>
 </template>
