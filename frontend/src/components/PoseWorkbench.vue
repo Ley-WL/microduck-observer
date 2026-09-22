@@ -154,7 +154,7 @@ const value = (values: number[] | undefined, i: number) =>
     </div>
     <div class="bench-statusbar">
       <span>观测模式 · 不发送运动指令</span
-      ><span>15 个舵机 / 14 个模型关节 · 舵机反馈待接入</span>
+      ><span>15 个舵机 / 14 个模型关节 · 舵机只读反馈</span>
     </div>
   </section>
 </template>

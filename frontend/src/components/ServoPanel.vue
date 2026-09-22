@@ -1,5 +1,31 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { useTelemetry } from "../store";
 defineProps<{ compact?: boolean }>();
+const state = useTelemetry();
+const rows = computed(() => state.joints?.data.servos || []);
+const fresh = computed(() => state.connection === "在线" && !!state.joints?.valid && state.jointsAge < 1500);
+const online = computed(() => fresh.value ? rows.value.filter((r: any) => r.online && r.ageMs + state.jointsAge < 1500) : []);
+const summary = computed(() => ({
+  voltage: online.value.length ? (online.value.reduce((n: number, r: any) => n+r.voltage, 0)/online.value.length).toFixed(1) : "—",
+  temperature: online.value.length ? Math.max(...online.value.map((r: any) => r.temperature)) : "—",
+  faults: online.value.length ? online.value.filter((r: any) => r.fault !== 0).length : "—",
+}));
+function status(id: number) {
+  if (!state.joints?.data.configuredIds.includes(id)) return "未接入";
+  if (state.paused) return "已暂停";
+  if (!fresh.value) return "已过期";
+  const r = rows.value.find((r: any) => r.id === id);
+  return !r?.online ? "无应答" : r.ageMs + state.jointsAge >= 1500 ? "已过期" : r.fault ? "异常" : "在线";
+}
+function value(id: number, field: string) {
+  const r = online.value.find((r: any) => r.id === id);
+  if (!r) return "—";
+  if (field === "age") return Math.round(r.ageMs + state.jointsAge);
+  if (field === "voltage") return r.voltage.toFixed(1);
+  if (field === "torque") return r.torque === 0 ? "关闭" : r.torque === 1 ? "开启" : "模式 " + r.torque;
+  return r[field] ?? "—";
+}
 // Physical IDs match the existing servo-web tool; no bus access in this panel.
 const groups = [
   {
@@ -49,20 +75,20 @@ const groups = [
         <h2 id="servo-title">舵机反馈</h2>
         <span class="count">15 个舵机</span>
       </div>
-      <span class="subtle-tag">反馈未接入</span>
+      <span class="subtle-tag">{{ state.joints ? (state.paused ? "显示暂停" : fresh ? "只读采集" : "反馈过期") : "反馈未接入" }}</span>
     </div>
     <div class="servo-summary">
       <div>
-        <span>在线数量</span><strong>— <small>/ 15</small></strong>
+        <span>在线数量</span><strong>{{ state.joints ? online.length : "—" }} <small>/ 15</small></strong>
       </div>
       <div>
-        <span>平均电压</span><strong>— <small>V</small></strong>
+        <span>平均电压</span><strong>{{ summary.voltage }} <small>V</small></strong>
       </div>
       <div>
-        <span>最高温度</span><strong>— <small>°C</small></strong>
+        <span>最高温度</span><strong>{{ summary.temperature }} <small>°C</small></strong>
       </div>
-      <div><span>故障数量</span><strong>—</strong></div>
-      <p>位置与健康信息展示区已预留，等待主控提供真实舵机反馈。</p>
+      <div><span>故障数量</span><strong>{{ summary.faults }}</strong></div>
+      <p>只读反馈，不发送运动、扭矩或校准指令。</p>
     </div>
     <div
       class="servo-table-scroll"
@@ -81,10 +107,10 @@ const groups = [
             <th v-if="!compact" scope="col">
               实测位置<small>编码器步数</small>
             </th>
-            <th scope="col">关节角度<small>°</small></th>
+            <th scope="col">编码器<small>步</small></th>
             <th scope="col">电压<small>V</small></th>
             <th scope="col">温度<small>°C</small></th>
-            <th scope="col">电流<small>mA</small></th>
+            <th scope="col">电流<small>原始值</small></th>
             <th scope="col">负载<small>原始值</small></th>
             <th v-if="!compact" scope="col">扭矩状态</th>
             <th v-if="!compact" scope="col">故障</th>
@@ -104,17 +130,17 @@ const groups = [
               >{{ joint.name }}
             </th>
             <td v-if="!compact">
-              <span class="servo-unavailable">未接入</span>
+              <span class="servo-unavailable">{{ status(joint.id) }}</span>
             </td>
             <td
               v-for="field in compact
-                ? ['angle', 'voltage', 'temperature', 'current', 'load']
+                ? ['position', 'voltage', 'temperature', 'currentRaw', 'load']
                 : [
                     'position',
                     'angle',
                     'voltage',
                     'temperature',
-                    'current',
+                    'currentRaw',
                     'load',
                     'torque',
                     'fault',
@@ -123,18 +149,17 @@ const groups = [
               :key="field"
               class="servo-empty"
             >
-              —
+              {{ value(joint.id, field) }}
             </td>
             <td v-if="compact">
-              <span class="servo-unavailable">未接入</span>
+              <span class="servo-unavailable">{{ status(joint.id) }}</span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
     <div v-if="compact" class="servo-footnote">
-      反馈尚未接入 · 15 个舵机全部展示<br />包含嘴部
-      #34；编码器、扭矩、故障明细待接入。
+      {{ state.joints?.data.error || "只读观测 · 未配置的舵机显示未接入" }}<br />编码器未换算关节角度；电流单位待核实。
     </div>
     <div v-else class="servo-footnote">
       未接入不代表离线或故障。15 个实物舵机包含嘴部（ID 34）；当前 3D 模型仅有

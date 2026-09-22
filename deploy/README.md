@@ -41,3 +41,17 @@ sudo systemctl stop microduck-observer
 更新时解压到新的 release 目录，安装对应依赖，再执行安装脚本。previous-release.txt 保存上一版本路径；回滚时停止服务，恢复对应依赖和 current 链接，再启动。
 
 服务面向可信局域网，未实现身份认证，不应直接暴露到公网。实机发布传感器坐标姿态，未完成安装轴向校准，也没有舵机控制。页面刷新后需重新标定初始姿态。
+
+## 可选：URT-2 舵机反馈
+
+先关闭其他占用串口的软件。使用 `ls -l /dev/serial/by-id/` 核对实际适配器路径；下方 SERIAL_PATH 必须替换为你的设备路径。运行 `sudo systemctl edit microduck-observer` 添加：
+
+```ini
+[Service]
+Environment=MICRODUCK_SERVO_PORT=SERIAL_PATH
+Environment=MICRODUCK_SERVO_IDS=11,12,13,14,21,22,23,24
+SupplementaryGroups=dialout
+DeviceAllow=char-ttyACM rw
+```
+
+若适配器为 ttyUSB 则将设备类别改为 char-ttyUSB。SupplementaryGroups 与原 service 的 i2c 组累加。然后执行 `sudo systemctl restart microduck-observer`。无设备、无应答或拔线会在页面显示异常；重新连接后自动重试。该配置仅开启读取，不改变扭矩或机械位置。服务重启会使页面初始 IMU 标定失效，需重新标定。

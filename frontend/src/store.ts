@@ -26,6 +26,12 @@ export const useTelemetry = defineStore("telemetry", () => {
   const pose = shallowRef<Sample | null>(null),
     sensorOrientation = shallowRef<Sample | null>(null),
     imu = shallowRef<Sample | null>(null);
+  const joints = shallowRef<Sample | null>(null);
+  const jointsReceived = ref(0);
+  const jointsAge = computed(() => joints.value
+    ? joints.value.ageMs + Math.max(0, now.value - jointsReceived.value) : Infinity);
+  let pendingJoints: Sample | null = null;
+  let pendingJointsReceived = 0;
   const orientation = computed(() => pose.value || sensorOrientation.value);
   const sensorOnly = computed(
     () =>
@@ -81,6 +87,8 @@ export const useTelemetry = defineStore("telemetry", () => {
   function reset(nextBoot: string) {
     boot.value = nextBoot;
     sequences = {};
+    joints.value = null;
+    pendingJoints = null;
     pose.value = null;
     sensorOrientation.value = null;
     imu.value = null;
@@ -130,6 +138,19 @@ export const useTelemetry = defineStore("telemetry", () => {
         });
         if (history.length > 600) history.splice(0, history.length - 600);
       }
+    } else if (item.topic === "joints") {
+      const rows = item.data.servos;
+      const ids = item.data.configuredIds;
+      if (!Array.isArray(ids) || !ids.every(Number.isInteger) ||
+          !Array.isArray(rows) || !rows.every((r: any) =>
+            Number.isInteger(r.id) && ids.includes(r.id) && typeof r.online === "boolean" &&
+            (!r.online || [r.position, r.voltage, r.temperature, r.currentRaw, r.load,
+              r.torque, r.fault, r.ageMs].every(Number.isFinite)))) {
+        rejected.value++;
+        return;
+      }
+      pendingJoints = item;
+      pendingJointsReceived = performance.now();
     } else if (item.topic === "logs") {
       if (
         typeof item.data.message !== "string" ||
@@ -148,7 +169,11 @@ export const useTelemetry = defineStore("telemetry", () => {
       logs.value = [...logs.value, ...pendingLogs].slice(-5000);
       pendingLogs = [];
     }
-    if (!paused.value) chart.value = [...history];
+    if (!paused.value) {
+      chart.value = [...history];
+      joints.value = pendingJoints;
+      jointsReceived.value = pendingJointsReceived;
+    }
     if (now.value - lastHz >= 1000) {
       hz.value = (frameCount * 1000) / (now.value - lastHz);
       frameCount = 0;
@@ -235,6 +260,7 @@ export const useTelemetry = defineStore("telemetry", () => {
               pose: 50,
               "imu.orientation": 50,
               "imu.raw": 50,
+              joints: 5,
               system: 1,
               logs: null,
             },
@@ -289,6 +315,8 @@ export const useTelemetry = defineStore("telemetry", () => {
   }
   onScopeDispose(dispose);
   return {
+    joints,
+    jointsAge,
     endpoint,
     connection,
     error,

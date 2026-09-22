@@ -54,3 +54,7 @@ source 可为 simulation、hardware、replay。服务根据 `MICRODUCK_SOURCE=si
 实机样本 `timestampBasis: host_receive`，时间取自主控接收到报告的单调时钟，尚未重建 SH-2 设备采样时间。`imu.raw` 在收到新角速度后组合最近加速度，时间采用两者中较早值；加速度超过 500 ms 未更新即标记无效，不会被新角速度刷新成新鲜数据。
 
 `health.imu` 和 `system.data.imu` 包含 device、address、productId、state、sampleAgeMs、counts、observedHz、ioErrors、unparsedReports、droppedEvents、mountingCalibrated。observedHz 是服务采集线程启动以来平均报告率；浏览器另行计算自身接收率。
+
+## v0.4 joints 只读反馈
+
+配置串口后订阅 `joints: 5`。sample.source 为 hardware，data 包含 configuredIds、servos 和串口 error。每行包含 id、online；在线行另含 position（编码器原始步数）、voltage（V）、temperature（℃）、currentRaw（单位待核实）、load（带符号原始值）、torque、fault（状态位）、target、ageMs（相对发布时刻）。angle 为 null，未完成机械零位与方向校准。行年龄需叠加样本 ageMs 及客户端接收后的时间。缺失字段不是零值；无应答不保留假实时读数。

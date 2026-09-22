@@ -1,4 +1,4 @@
-"""Read-only observer: simulation or BNO085; never opens motor devices."""
+"""Read-only observer: simulation or BNO085; optional read-only servo feedback."""
 import asyncio
 import os
 import math
@@ -17,8 +17,13 @@ from typing import Literal
 SOURCE = os.environ.get('MICRODUCK_SOURCE', 'simulation')
 if SOURCE not in ('simulation', 'hardware'):
     raise ValueError('MICRODUCK_SOURCE must be simulation or hardware')
-TOPICS = {"pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None}
+SERVO_PORT = os.environ.get("MICRODUCK_SERVO_PORT", "")
+from servos import ServoSource, parse_ids
+SERVO_IDS = parse_ids(os.environ.get("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24"))
+TOPICS = {"pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None, "joints": 5}
 ACTIVE_TOPICS = {k: v for k, v in TOPICS.items() if k != ('pose' if SOURCE == 'hardware' else 'imu.orientation')}
+if not SERVO_PORT:
+    ACTIVE_TOPICS.pop("joints", None)
 
 
 class Simulator:
@@ -71,15 +76,19 @@ class Simulator:
 
 sim = Simulator(SOURCE)
 hardware = None
+servos = None
 
 
 @asynccontextmanager
 async def lifespan(app):
-    global hardware
+    global hardware, servos
     if SOURCE == 'hardware':
         from hardware import HardwareSource
         hardware = HardwareSource(sim)
         hardware.thread.start()
+    if SERVO_PORT:
+        servos = ServoSource(sim, SERVO_PORT, SERVO_IDS)
+        servos.thread.start()
     async def producer():
         count = 0
         deadline = time.monotonic()
@@ -88,6 +97,8 @@ async def lifespan(app):
                 hardware.drain()
             else:
                 sim.tick()
+            if servos:
+                servos.drain()
             if count % 50 == 0:
                 sim.sample("system", dict(uptimeSeconds=time.monotonic()-sim.start,
                     imu=hardware.health() if hardware else None, scenario=sim.mode if not hardware else None))
@@ -110,6 +121,11 @@ async def lifespan(app):
         await asyncio.to_thread(hardware.thread.join, 5)
         hardware = None
 
+    if servos:
+        servos.stop.set()
+        await asyncio.to_thread(servos.thread.join, 5)
+        servos = None
+
 
 app = FastAPI(title="MicroDuck Observer", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -121,7 +137,7 @@ def info():
     return dict(name="MicroDuck · BNO085" if SOURCE == 'hardware' else "MicroDuck Lab",
                 protocolVersion=1, bootId=sim.boot, source=SOURCE,
                 topics=ACTIVE_TOPICS, capabilities={"pose": SOURCE != 'hardware', "imu": True,
-                "sensorOrientation": SOURCE == 'hardware', "joints": False,
+                "sensorOrientation": SOURCE == 'hardware', "joints": bool(SERVO_PORT),
                 "camera": False, "tof": False, "scenarios": SOURCE != 'hardware'})
 
 
@@ -129,7 +145,7 @@ def info():
 def health():
     imu = hardware.health() if hardware else None
     return dict(status="degraded" if SOURCE == 'hardware' and (not imu or imu['state'] != 'streaming') else "ok",
-                source=SOURCE, imu=imu, logCount=len(sim.logs))
+                source=SOURCE, imu=imu, joints=sim.stamp(sim.latest["joints"]) if "joints" in sim.latest else None, logCount=len(sim.logs))
 
 
 @app.get("/api/v1/snapshot")

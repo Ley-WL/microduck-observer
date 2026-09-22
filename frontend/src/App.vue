@@ -147,7 +147,7 @@ onMounted(() => state.connect());
           state.info?.source === "hardware" ? "主控实机观测" : "独立调试环境"
         }}
         <p>连接数据，理解每一次运动。</p>
-        <small>OBSERVER / v0.3.0</small>
+        <small>OBSERVER / v0.4.0</small>
       </div>
     </aside>
     <div class="main-shell">
