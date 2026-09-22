@@ -1,0 +1,26 @@
+[Unit]
+Description=MicroDuck read-only BNO085 web observer
+After=network.target
+
+[Service]
+Type=simple
+User=radxa
+Group=radxa
+SupplementaryGroups=i2c
+WorkingDirectory=/home/radxa/microduck-observer/current/debug-server
+Environment=MICRODUCK_SOURCE=hardware
+Environment=MICRODUCK_STATIC_DIR=/home/radxa/microduck-observer/current/frontend/dist
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/radxa/microduck-observer/venv/bin/python -m uvicorn server:app --host 0.0.0.0 --port 8877 --workers 1
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+DevicePolicy=closed
+DeviceAllow=/dev/i2c-4 rw
+
+[Install]
+WantedBy=multi-user.target

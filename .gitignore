@@ -1,0 +1,13 @@
+frontend/node_modules/
+frontend/dist/
+debug-server/.venv/
+*.log
+*.tsbuildinfo
+deploy/staging/
+
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.pem
+*.key
