@@ -1,5 +1,11 @@
 import * as THREE from "three";
 
+// Frame-rate independent smoothing; interpolate scalar angles to preserve turns.
+export function smoothJointAngle(current: number, target: number | null | undefined, dt: number) {
+  if (typeof target !== "number" || !Number.isFinite(target)) return current;
+  return current + (target - current) * (1 - Math.exp(-Math.max(0, Math.min(dt, 0.1)) / 0.08));
+}
+
 export function createJointNode(body: { pos: number[]; quat: number[]; joint?: { axis: number[]; id: number } }) {
   const node = new THREE.Group();
   node.position.fromArray(body.pos);

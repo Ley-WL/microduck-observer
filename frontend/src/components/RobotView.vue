@@ -3,9 +3,9 @@ import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { useJointPose } from "../jointPose";
-import { createJointNode, applyJointAngle } from "../jointModel";
+import { createJointNode, applyJointAngle, smoothJointAngle } from "../jointModel";
 const jointPose = useJointPose();
-const jointNodes = new Map<number, { pivot: THREE.Group; axis: THREE.Vector3 }>();
+const jointNodes = new Map<number, { pivot: THREE.Group; axis: THREE.Vector3; angle: number }>();
 const props = defineProps<{
   quaternion: number[] | null;
   paused: boolean;
@@ -71,10 +71,17 @@ onMounted(async () => {
       camera.updateProjectionMatrix();
     });
     observer.observe(host.value!);
+    let lastFrame = performance.now();
     const render = () => {
+      const now = performance.now();
+      const dt = Math.min((now - lastFrame) / 1000, 0.1);
+      lastFrame = now;
       if (!props.paused) {
-        root.quaternion.slerp(target, 0.22);
-        for (const [id, joint] of jointNodes) applyJointAngle(joint.pivot, joint.axis, jointPose.angles[id]);
+        root.quaternion.slerp(target, 1 - Math.exp(-dt / 0.067));
+        for (const [id, joint] of jointNodes) {
+          joint.angle = smoothJointAngle(joint.angle, jointPose.angles[id], dt);
+          applyJointAngle(joint.pivot, joint.axis, joint.angle);
+        }
       }
       controls.update();
       renderer.render(scene, camera);
@@ -114,7 +121,7 @@ onMounted(async () => {
     const quat = (v: number[]) => new THREE.Quaternion(v[1], v[2], v[3], v[0]);
     for (const body of model.bodies) {
       const { node, inner, axis } = createJointNode(body);
-      if (body.joint && axis) jointNodes.set(body.joint.id, { pivot: inner, axis });
+      if (body.joint && axis) jointNodes.set(body.joint.id, { pivot: inner, axis, angle: 0 });
       // Rotate about the trunk, not about the model's placement in the world.
       if (body.parent < 0) node.position.set(0, 0, 0);
       for (const geom of body.geoms) {
