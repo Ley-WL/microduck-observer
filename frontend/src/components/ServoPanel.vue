@@ -130,7 +130,7 @@ const groups = [
               >{{ joint.name }}
             </th>
             <td v-if="!compact">
-              <span class="servo-unavailable">{{ status(joint.id) }}</span>
+              <span class="servo-unavailable" :data-status="status(joint.id)">{{ status(joint.id) }}</span>
             </td>
             <td
               v-for="field in compact
@@ -152,7 +152,7 @@ const groups = [
               {{ value(joint.id, field) }}
             </td>
             <td v-if="compact">
-              <span class="servo-unavailable">{{ status(joint.id) }}</span>
+              <span class="servo-unavailable" :data-status="status(joint.id)">{{ status(joint.id) }}</span>
             </td>
           </tr>
         </tbody>
@@ -279,6 +279,32 @@ const groups = [
   padding: 3px 7px;
   color: #8f9c81;
   font-size: 9px;
+}
+.servo-unavailable[data-status="在线"] {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86c99b;
+}
+.servo-unavailable[data-status="无应答"],
+.servo-unavailable[data-status="异常"] {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #f0a4a4;
+}
+.servo-unavailable[data-status="已过期"] {
+  color: #92400e;
+  background: #fef3c7;
+  border-color: #e7bc63;
+}
+.servo-unavailable[data-status="已暂停"] {
+  color: #1e40af;
+  background: #dbeafe;
+  border-color: #93b6e5;
+}
+.servo-unavailable[data-status="未接入"] {
+  color: #5b6470;
+  background: #f1f3f5;
+  border-color: #d1d5db;
 }
 .servo-empty {
   color: #a7b09e;
