@@ -5,6 +5,8 @@ import { relativeJointAngle, useJointPose } from "./jointPose";
 const { state } = vi.hoisted(() => ({ state: { current: null as any } }));
 vi.mock("./store", () => ({ useTelemetry: () => state.current }));
 beforeEach(() => {
+  const saved = new Map<string, string>();
+  vi.stubGlobal("localStorage", { getItem: (k: string) => saved.get(k) ?? null, setItem: (k: string, v: string) => saved.set(k,v) });
   setActivePinia(createPinia());
   state.current = reactive({ endpoint: "robot", connection: "在线", paused: false, jointsAge: 0, joints: null });
 });
@@ -34,7 +36,7 @@ it("calibrates independently, follows feedback, reverses and clears", () => {
   pose.clear(12);
   expect(pose.angles[12]).toBe(0);
 });
-it("blocks unsafe references, holds stale poses and resets for a new boot", () => {
+it("blocks unsafe references, holds stale poses and retains servo references across a new boot", () => {
   const pose = useJointPose();
   state.current.joints = sample();
   pose.calibrate(12);
@@ -51,5 +53,20 @@ it("blocks unsafe references, holds stale poses and resets for a new boot", () =
   state.current.connection = "离线";
   expect(pose.angles[12]).toBeNull();
   state.current.joints = sample(4971, "b");
+  expect(pose.calibratedCount).toBe(1);
+});
+
+it("restores after refresh, isolates devices and persists clearing", () => {
+  let pose = useJointPose(); state.current.joints = sample(); pose.calibrate(12); pose.reverse(12);
+  setActivePinia(createPinia()); pose = useJointPose(); state.current.joints = sample();
+  expect(pose.references[12]).toBe(4971); expect(pose.direction(12)).toBe(1);
+  state.current.endpoint = "another-robot"; expect(pose.calibratedCount).toBe(0);
+  state.current.endpoint = "robot"; expect(pose.references[12]).toBe(4971);
+  pose.clear(12); setActivePinia(createPinia()); pose = useJointPose(); state.current.joints = sample();
   expect(pose.calibratedCount).toBe(0);
+});
+it("reports storage failure without losing the current reference", () => {
+  const pose = useJointPose(); state.current.joints = sample();
+  vi.stubGlobal("localStorage", { setItem() { throw new Error("quota"); } });
+  pose.calibrate(12); expect(pose.saveError).toBe(true); expect(pose.references[12]).toBe(4971);
 });

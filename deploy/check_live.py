@@ -29,7 +29,7 @@ async def check():
     start = time.monotonic()
     before = get('/api/v1/health')
     async with websockets.connect(base.replace('http', 'ws', 1) + '/api/v1/stream', origin=base) as ws:
-        await ws.send(json.dumps({'type':'subscribe', 'topics':{'imu.orientation':50,'imu.raw':50,'system':1,'logs':None}}))
+        await ws.send(json.dumps({'type':'subscribe', 'topics':{'imu.orientation':50,'imu.raw':50,'system':1,'logs':None,'joints':20}}))
         while time.monotonic() - start < args.seconds:
             message = json.loads(await asyncio.wait_for(ws.recv(), 5))
             if message['type'] != 'sample':
@@ -39,6 +39,8 @@ async def check():
             assert message['seq'] > sequences.get(topic, -1)
             assert message['valid']
             assert 0 <= message['ageMs'] < 1500
+            if topic == 'joints':
+                assert all(r['online'] for r in message['data']['servos'])
             if topic == 'imu.orientation':
                 assert message['data']['frame'] == 'sensor'
                 assert abs(math.hypot(*message['data']['quaternion'])-1) < .05

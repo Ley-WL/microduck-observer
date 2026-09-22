@@ -26,6 +26,7 @@ export const useTelemetry = defineStore("telemetry", () => {
   const pose = shallowRef<Sample | null>(null),
     sensorOrientation = shallowRef<Sample | null>(null),
     imu = shallowRef<Sample | null>(null);
+  const system = shallowRef<Sample | null>(null);
   const joints = shallowRef<Sample | null>(null);
   const jointsReceived = ref(0);
   const jointsAge = computed(() => joints.value
@@ -88,6 +89,7 @@ export const useTelemetry = defineStore("telemetry", () => {
     boot.value = nextBoot;
     sequences = {};
     joints.value = null;
+    system.value = null;
     pendingJoints = null;
     pose.value = null;
     sensorOrientation.value = null;
@@ -151,6 +153,12 @@ export const useTelemetry = defineStore("telemetry", () => {
       }
       pendingJoints = item;
       pendingJointsReceived = performance.now();
+      if (!paused.value) {
+        joints.value = pendingJoints;
+        jointsReceived.value = pendingJointsReceived;
+      }
+    } else if (item.topic === "system") {
+      system.value = item;
     } else if (item.topic === "logs") {
       if (
         typeof item.data.message !== "string" ||
@@ -260,7 +268,7 @@ export const useTelemetry = defineStore("telemetry", () => {
               pose: 50,
               "imu.orientation": 50,
               "imu.raw": 50,
-              joints: 5,
+              joints: 20,
               system: 1,
               logs: null,
             },
@@ -315,6 +323,7 @@ export const useTelemetry = defineStore("telemetry", () => {
   }
   onScopeDispose(dispose);
   return {
+    system,
     joints,
     jointsAge,
     endpoint,

@@ -89,23 +89,28 @@ class ServoSource:
             bus = None
             try:
                 bus = ReadOnlyBus(self.port)
+                retry_after = {}
                 while not self.stop.is_set():
                     start = time.monotonic()
                     rows = []
                     for sid in self.ids:
                         if self.stop.is_set():
                             break
+                        if time.monotonic() < retry_after.get(sid, 0):
+                            rows.append(dict(id=sid, online=False))
+                            continue
                         try:
                             values = bus.read_feedback(sid)
                             rows.append(dict(id=sid, online=True, **values,
                                              received=time.monotonic()))
                         except TimeoutError:
+                            retry_after[sid] = time.monotonic() + 1
                             rows.append(dict(id=sid, online=False))
                     now = time.monotonic()
                     for row in rows:
                         row['ageMs'] = max(0, (now-row.pop('received', now))*1000)
                     self.publish(rows)
-                    self.stop.wait(max(0, .2-(time.monotonic()-start)))
+                    self.stop.wait(max(0, .05-(time.monotonic()-start)))
             except Exception as exc:
                 self.publish([dict(id=sid, online=False) for sid in self.ids],
                              'Serial unavailable: ' + type(exc).__name__)

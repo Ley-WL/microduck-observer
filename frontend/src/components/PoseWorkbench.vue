@@ -13,6 +13,7 @@ const props = defineProps<{
   calibrated: boolean;
   calibrationTime: string;
   canCalibrate: boolean;
+  calibrationSaveError: boolean;
 }>();
 defineEmits<{ calibrate: []; clear: []; pause: [] }>();
 const state = useTelemetry();
@@ -88,7 +89,7 @@ const value = (values: number[] | undefined, i: number) =>
             清除标定
           </button>
           <span>{{
-            calibrated ? "已标定 " + calibrationTime : "摆正实物并静止后标定"
+            calibrationSaveError ? "保存失败，刷新会丢失" : calibrated ? "已保存 " + calibrationTime : "摆正实物并静止后标定"
           }}</span>
         </div>
         <div class="bench-angles">
@@ -109,7 +110,7 @@ const value = (values: number[] | undefined, i: number) =>
           >
         </div>
         <div class="bench-model-note">
-          IMU 相对旋转 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />初始标定仅本页有效，不替代安装轴向校准。
+          IMU 相对旋转 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />标定刷新保留；IMU 服务重启后需重标。
         </div>
       </section>
       <section class="panel bench-imu">

@@ -4,9 +4,15 @@ import { useTelemetry } from "./store";
 import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
-import { euler, type Sample } from "./protocol";
+import { validQuaternion, euler, type Sample } from "./protocol";
 import { relativeQuaternion } from "./calibration";
+import { calibrationKey, loadCalibration, saveCalibration } from "./savedCalibration";
 const state = useTelemetry();
+let orientationKey = "";
+const calibrationSaveError = ref(false);
+function persistOrientation() {
+  calibrationSaveError.value = !orientationKey || !saveCalibration(orientationKey, { quaternion: initialOrientation.value, time: calibrationTime.value });
+}
 const page = ref("姿态与 IMU"),
   kind = ref<"gyro" | "accel">("gyro"),
   level = ref("ALL"),
@@ -44,19 +50,24 @@ function calibrateInitial() {
   calibrationTime.value = new Date().toLocaleTimeString("zh-CN", {
     hour12: false,
   });
+  persistOrientation();
 }
 function clearCalibration() {
   initialOrientation.value = null;
   calibrationTime.value = "";
+  persistOrientation();
 }
 watch(
-  [
-    () => state.info?.bootId,
-    () => state.orientation?.data.frame,
-    () => state.orientation?.source,
-  ],
+  [() => state.endpoint, () => state.orientation?.bootId,
+   () => state.orientation?.data.frame, () => state.orientation?.source],
   () => {
-    clearCalibration();
+    if (!state.orientation) return;
+    orientationKey = calibrationKey("imu", [state.endpoint.replace(/\/$/, ""), state.orientation.bootId,
+      state.orientation.data.frame, state.orientation.source]);
+    const saved = loadCalibration(orientationKey);
+    initialOrientation.value = validQuaternion(saved?.quaternion) ? saved.quaternion : null;
+    calibrationTime.value = initialOrientation.value && typeof saved?.time === "string" ? saved.time : "";
+    calibrationSaveError.value = false;
     frozenPose.value = null;
     frozenAngles.value = null;
     state.paused = false;
@@ -147,7 +158,7 @@ onMounted(() => state.connect());
           state.info?.source === "hardware" ? "主控实机观测" : "独立调试环境"
         }}
         <p>连接数据，理解每一次运动。</p>
-        <small>OBSERVER / v0.5.0</small>
+        <small>OBSERVER / v0.6.0</small>
       </div>
     </aside>
     <div class="main-shell">
@@ -171,6 +182,7 @@ onMounted(() => state.connect());
           :calibrated="Boolean(initialOrientation)"
           :calibration-time="calibrationTime"
           :can-calibrate="canCalibrate"
+          :calibration-save-error="calibrationSaveError"
           @calibrate="calibrateInitial"
           @clear="clearCalibration"
           @pause="pause"
@@ -419,10 +431,11 @@ onMounted(() => state.connect());
                   </div>
                 </div>
                 <div class="calibration-note">
+                  <span v-if="calibrationSaveError">浏览器保存失败，刷新会丢失。</span>
                   <template v-if="initialOrientation"
                     >初始姿态已标定 · {{ calibrationTime
                     }}<small
-                      >仅当前页面有效；刷新或服务重启需重新标定。</small
+                      >当前浏览器刷新保留；服务重启需重新标定。</small
                     ></template
                   >
                   <template v-else

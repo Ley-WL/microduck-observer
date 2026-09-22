@@ -20,7 +20,7 @@ if SOURCE not in ('simulation', 'hardware'):
 SERVO_PORT = os.environ.get("MICRODUCK_SERVO_PORT", "")
 from servos import ServoSource, parse_ids
 SERVO_IDS = parse_ids(os.environ.get("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24"))
-TOPICS = {"pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None, "joints": 5}
+TOPICS = {"pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None, "joints": 20}
 ACTIVE_TOPICS = {k: v for k, v in TOPICS.items() if k != ('pose' if SOURCE == 'hardware' else 'imu.orientation')}
 if not SERVO_PORT:
     ACTIVE_TOPICS.pop("joints", None)
