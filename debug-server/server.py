@@ -8,7 +8,7 @@ from pathlib import Path
 from collections import deque
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -75,6 +75,8 @@ class Simulator:
 
 
 sim = Simulator(SOURCE)
+from calibrations import CalibrationStore, Conflict
+calibrations = CalibrationStore(os.environ.get('MICRODUCK_CALIBRATION_FILE', str(Path.home()/'.microduck-observer/calibration.json')))
 hardware = None
 servos = None
 
@@ -150,7 +152,30 @@ def health():
 
 @app.get("/api/v1/snapshot")
 def snapshot():
-    return {topic: sim.stamp(item) for topic, item in sim.latest.items()}
+    return {**{topic: sim.stamp(item) for topic, item in sim.latest.items()}, 'calibration':calibrations.read(sim.boot)}
+
+
+@app.get('/api/v1/calibration')
+def get_calibration():
+    return calibrations.read(sim.boot)
+
+
+@app.post('/api/v1/calibration')
+async def set_calibration(request: Request):
+    origin=request.headers.get('origin')
+    same_origin=str(request.base_url).rstrip('/')
+    if origin is not None and origin not in (same_origin,'http://localhost:5173','http://127.0.0.1:5173'):
+        raise HTTPException(403,'Origin not allowed')
+    if request.headers.get('content-type','').split(';')[0]!='application/json': raise HTTPException(415,'JSON required')
+    raw=await request.body()
+    if len(raw)>16384: raise HTTPException(413,'Calibration too large')
+    try:
+        import json
+        body=json.loads(raw)
+        if not isinstance(body,dict): raise ValueError('Invalid request')
+        return calibrations.update(body.get('revision'),body.get('patch'),sim.boot,body.get('migrate') is True)
+    except Conflict as exc: raise HTTPException(409,str(exc))
+    except (ValueError,TypeError) as exc: raise HTTPException(422,str(exc))
 
 
 @app.get("/api/v1/logs")

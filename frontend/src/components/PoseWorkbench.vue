@@ -89,7 +89,7 @@ const value = (values: number[] | undefined, i: number) =>
             清除标定
           </button>
           <span>{{
-            calibrationSaveError ? "保存失败，刷新会丢失" : calibrated ? "已保存 " + calibrationTime : "摆正实物并静止后标定"
+            calibrationSaveError ? "主板同步失败" : calibrated ? "已保存到主板 " + calibrationTime : "摆正实物并静止后标定"
           }}</span>
         </div>
         <div class="bench-angles">
@@ -110,7 +110,7 @@ const value = (values: number[] | undefined, i: number) =>
           >
         </div>
         <div class="bench-model-note">
-          IMU 相对旋转 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />标定刷新保留；IMU 服务重启后需重标。
+          IMU 相对旋转 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />关节标定由主板共享；IMU 会话重启后需重新归零。
         </div>
       </section>
       <section class="panel bench-imu">

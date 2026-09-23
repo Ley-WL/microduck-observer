@@ -172,7 +172,7 @@ const groups = [
         <button :disabled="state.paused" @click="pose.reverse(pose.selected)" :title="'只改变3D显示方向，当前系数 ' + pose.direction(pose.selected)">方向 {{ pose.direction(pose.selected) === 1 ? '+' : '−' }} ↔</button>
         <button :disabled="state.paused || pose.references[pose.selected] === undefined" @click="pose.clear(pose.selected)">清除</button>
       </div>
-      <p>{{ (pose.saveError ? '保存失败：刷新会丢失标定。' : '') || state.joints?.data.error || '选关节 → 摆到模型参考姿势 → 标定；已保存到本浏览器。' }}</p>
+      <p>{{ (pose.saveError ? '主板标定同步失败，请检查连接。' : '') || state.joints?.data.error || '选关节 → 摆到模型参考姿势 → 标定；保存到主板，网页与 App 共用。' }}</p>
       <p>仅显示标定，不写舵机。掉线保持模型；电流为原始值。</p>
     </div>
   </section>

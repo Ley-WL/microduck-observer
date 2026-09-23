@@ -11,6 +11,9 @@ WorkingDirectory=/home/radxa/microduck-observer/current/debug-server
 Environment=MICRODUCK_SOURCE=hardware
 Environment=MICRODUCK_STATIC_DIR=/home/radxa/microduck-observer/current/frontend/dist
 Environment=PYTHONUNBUFFERED=1
+Environment=MICRODUCK_CALIBRATION_FILE=/var/lib/microduck-observer/calibration.json
+StateDirectory=microduck-observer
+StateDirectoryMode=0700
 ExecStart=/home/radxa/microduck-observer/venv/bin/python -m uvicorn server:app --host 0.0.0.0 --port 8877 --workers 1
 Restart=on-failure
 RestartSec=3

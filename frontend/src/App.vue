@@ -6,13 +6,10 @@ import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
 import { relativeQuaternion } from "./calibration";
-import { calibrationKey, loadCalibration, saveCalibration } from "./savedCalibration";
+import { useBoardCalibration } from "./boardCalibration";
 const state = useTelemetry();
-let orientationKey = "";
-const calibrationSaveError = ref(false);
-function persistOrientation() {
-  calibrationSaveError.value = !orientationKey || !saveCalibration(orientationKey, { quaternion: initialOrientation.value, time: calibrationTime.value });
-}
+const board = useBoardCalibration();
+const calibrationSaveError = computed(() => !!board.error);
 const page = ref("姿态与 IMU"),
   kind = ref<"gyro" | "accel">("gyro"),
   level = ref("ALL"),
@@ -23,11 +20,14 @@ const robot = ref<InstanceType<typeof RobotView>>(),
 const frozenPose = shallowRef<number[] | null>(null),
   frozenAngles = shallowRef<number[] | null>(null);
 const shownLogs = shallowRef<Sample[]>([]);
-const initialOrientation = shallowRef<number[] | null>(null);
-const calibrationTime = ref("");
+const initialOrientation = computed<number[] | null>(() => {
+  const imu = board.data?.imu;
+  return imu?.bootId === state.orientation?.bootId && validQuaternion(imu?.quaternion) ? imu.quaternion : null;
+});
+const calibrationTime = computed(() => initialOrientation.value ? board.data.imu.time : "");
 const canCalibrate = computed(
   () =>
-    state.connection === "在线" &&
+    board.ready && !board.saving && state.connection === "在线" &&
     state.poseState === "实时" &&
     !state.paused &&
     !!state.orientation?.valid,
@@ -46,33 +46,12 @@ const modelOrientation = computed(() =>
 );
 function calibrateInitial() {
   if (!canCalibrate.value) return;
-  initialOrientation.value = [...state.orientation!.data.quaternion];
-  calibrationTime.value = new Date().toLocaleTimeString("zh-CN", {
-    hour12: false,
-  });
-  persistOrientation();
+  void board.orientation([...state.orientation!.data.quaternion], state.orientation!.bootId, new Date().toLocaleTimeString("zh-CN", { hour12:false }));
 }
-function clearCalibration() {
-  initialOrientation.value = null;
-  calibrationTime.value = "";
-  persistOrientation();
-}
-watch(
-  [() => state.endpoint, () => state.orientation?.bootId,
-   () => state.orientation?.data.frame, () => state.orientation?.source],
-  () => {
-    if (!state.orientation) return;
-    orientationKey = calibrationKey("imu", [state.endpoint.replace(/\/$/, ""), state.orientation.bootId,
-      state.orientation.data.frame, state.orientation.source]);
-    const saved = loadCalibration(orientationKey);
-    initialOrientation.value = validQuaternion(saved?.quaternion) ? saved.quaternion : null;
-    calibrationTime.value = initialOrientation.value && typeof saved?.time === "string" ? saved.time : "";
-    calibrationSaveError.value = false;
-    frozenPose.value = null;
-    frozenAngles.value = null;
-    state.paused = false;
-  },
-);
+function clearCalibration() { void board.orientation(null, state.orientation?.bootId || "", ""); }
+watch([() => state.endpoint, () => state.orientation?.bootId], () => {
+  frozenPose.value=null; frozenAngles.value=null; state.paused=false;
+});
 const quaternion = computed(() =>
   state.paused ? frozenPose.value : displayOrientation.value,
 );
@@ -431,11 +410,11 @@ onMounted(() => state.connect());
                   </div>
                 </div>
                 <div class="calibration-note">
-                  <span v-if="calibrationSaveError">浏览器保存失败，刷新会丢失。</span>
+                  <span v-if="calibrationSaveError">主板标定同步失败，请检查连接。</span>
                   <template v-if="initialOrientation"
                     >初始姿态已标定 · {{ calibrationTime
                     }}<small
-                      >当前浏览器刷新保留；服务重启需重新标定。</small
+                      >已保存到主板，网页与 App 共用；IMU 会话重启需重新归零。</small
                     ></template
                   >
                   <template v-else
