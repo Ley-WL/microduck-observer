@@ -23,3 +23,25 @@ export function relativeQuaternion(
   const n = Math.hypot(...q);
   return q.map((value) => value / n);
 }
+
+/** Change relative sensor rotation into the robot frame: C * q * inverse(C).
+ * C rotates sensor axes around +Z. Unlike subtracting Euler angles, this also
+ * preserves coupled rotations and keeps the calibrated identity unchanged.
+ */
+export function mountingQuaternion(q: number[], yawDegrees: number): number[] {
+  if (!validQuaternion(q) || ![0, -90, 90].includes(yawDegrees)) {
+    throw new Error("无效的安装方向或四元数");
+  }
+  const n = Math.hypot(...q);
+  const [x, y, z, w] = q.map((v) => v / n);
+  const angle = yawDegrees * Math.PI / 180;
+  return [Math.cos(angle) * x - Math.sin(angle) * y,
+          Math.sin(angle) * x + Math.cos(angle) * y, z, w];
+}
+
+/** Persisted display reference may be previewed across service sessions.
+ * Consumers must separately require matching boot IDs before policy inference.
+ */
+export function savedDisplayReference(imu: any): number[] | null {
+  return validQuaternion(imu?.quaternion) ? [...imu.quaternion] : null;
+}

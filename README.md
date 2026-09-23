@@ -103,7 +103,7 @@ cd debug-server
 
 ## 舵机只读反馈
 
-后端设置 `MICRODUCK_SERVO_PORT` 为 URT-2 串口路径即可启用，默认 1 Mbps、目标 20 Hz 轮询和 WebSocket 推送，实际速率取决于串口响应与网络。离线 ID 每秒重试，避免每轮都等待超时。`MICRODUCK_SERVO_IDS` 默认为 `11,12,13,14,21,22,23,24`。留空串口配置时不访问舵机。配置示例见部署说明。可在页面逐颗标定显示参考零点，并检查旋转方向。
+后端设置 `MICRODUCK_SERVO_PORT` 为 URT-2 串口路径即可启用，默认 1 Mbps、独立进程 SYNC_READ 批量只读、目标 50 Hz 采集和 WebSocket 推送上限，实际速率取决于串口响应与网络。离线 ID 每秒重试，避免每轮都等待超时。`MICRODUCK_SERVO_IDS` 默认为 `11,12,13,14,21,22,23,24`。留空串口配置时不访问舵机。配置示例见部署说明。可在页面逐颗标定显示参考零点，并检查旋转方向。
 
 ## 主控共享标定
 
@@ -112,3 +112,14 @@ cd debug-server
 systemd 部署保存到 `/var/lib/microduck-observer/calibration.json`，由 `StateDirectory` 创建持久目录；本地运行默认保存到 `~/.microduck-observer/calibration.json`，可通过 `MICRODUCK_CALIBRATION_FILE` 指定路径。升级已有部署时需要更新 service 并执行 daemon-reload、重启服务，使持久目录配置生效。保存使用临时文件替换并保留上一版本备份。
 
 首次连接时，若主控尚无对应标定，可迁移当前浏览器的旧标定；主控已有数据时不会覆盖。IMU 旧标定仅在同一后端启动期间迁移。
+
+
+### 2026-09-23 采集优化验证
+
+串口独立进程隔离 IMU/Web 的 Python 调度干扰；一条 `SYNC_READ (0x82)` 读取 15 个 ID 的 40..70 寄存器，逐包校验 ID、长度和校验和。只发送 READ/SYNC_READ，不包含写寄存器、扭矩或运动指令。参考飞特官方协议和本项目相邻 microduck-replica 的同步读实现。
+
+每轮采集目标 20 ms；主进程每 10 ms 消费最新反馈，队列容量为 1，不累计旧帧。`joints.data` 增加 `scanMs`、`targetHz`、`readMode`；每行增加 `readMs`（同步请求发出至本 ID 回包解析的时间，不是单个 READ 往返时间）。离线 ID 每秒重试，缺失 ID 不会抹去其他 ID 的有效回包。关闭服务会停止并回收串口进程。
+
+主控本机 30 秒快照验证：49.36 Hz 发布，整组扫描 P50 8.50 ms / P95 9.14 ms；最老关节数据 P95 30.53 ms / 最大 41.05 ms，IMU 数据年龄 P95 39.46 ms；2297 次请求零超时，1453 组观测零缺失舵机回包。主进程约 49 MB RSS，采集子进程约 14 MB RSS，另有 multiprocessing 资源管理进程。结果仅验证只读采集，不证明运动控制效果。网页仍可按自身显示频率订阅，不等于采集频率。
+
+测试：`python -m unittest discover -s debug-server -p 'test_*.py'`（26 项通过）。

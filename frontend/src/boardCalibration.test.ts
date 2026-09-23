@@ -46,3 +46,17 @@ it("does not overwrite board data with another browser legacy data",async()=>{
   saved.set(calibrationKey("joints",["http://duck","hardware"]),JSON.stringify({references:{12:4971},directions:{}}));
   useBoardCalibration();await flush();expect(server.joints.references[12]).toBe(8000);expect(server.revision).toBe(0);
 });
+
+it("saves mounting independently and confirms an existing IMU reference without changing servo values",async()=>{
+  server.joints={initialized:true,references:{12:8000},directions:{12:-1}};
+  server.imu={initialized:true,quaternion:[0,0,0,1],bootId:"old",time:"12:00"};
+  const board=useBoardCalibration();await flush();
+  await board.mounting(90);
+  expect(server.imu.bootId).toBe("old");
+  expect(server.joints.references[12]).toBe(8000);
+  await board.orientation([...board.data.imu.quaternion],"boot",board.data.imu.time);
+  expect(server.imu.quaternion).toEqual([0,0,0,1]);
+  expect(server.imu.bootId).toBe("boot");
+  expect(server.mounting.yaw).toBe(90);
+  expect(server.joints.references[12]).toBe(8000);
+});

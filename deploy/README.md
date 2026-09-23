@@ -54,7 +54,7 @@ SupplementaryGroups=dialout
 DeviceAllow=char-ttyACM rw
 ```
 
-若适配器为 ttyUSB 则将设备类别改为 char-ttyUSB。SupplementaryGroups 与原 service 的 i2c 组累加。然后执行 `sudo systemctl restart microduck-observer`。无设备、无应答或拔线会在页面显示异常；重新连接后自动重试。该配置仅开启读取，不改变扭矩或机械位置。服务重启会使页面初始 IMU 标定失效，需重新标定。
+若适配器为 ttyUSB 则将设备类别改为 char-ttyUSB。SupplementaryGroups 与原 service 的 i2c 组累加。然后执行 `sudo systemctl restart microduck-observer`。无设备、无应答或拔线会在页面显示异常；重新连接后自动重试。该配置仅开启读取，不改变扭矩或机械位置。服务重启会恢复已有 IMU 参考显示；核对方向后可确认沿用，无需强制重标。
 
 全部 15 颗已接线时，将上面的 ID 配置替换为：
 
@@ -65,3 +65,5 @@ Environment=MICRODUCK_SERVO_IDS=10,11,12,13,14,20,21,22,23,24,30,31,32,33,34
 2026-09-22 实机只读验证：15 个 ID 在约 8 秒、112 组反馈中均在线且故障位为 0；完整总线推送约 13.8 Hz。20 Hz 是目标上限，实际速率受串行读取耗时和网络影响。此结果仅验证反馈通信，不代表机械运动已验证。
 
 共享标定持久目录由 service 的 `StateDirectory=microduck-observer` 创建，文件路径为 `/var/lib/microduck-observer/calibration.json`。从旧版升级须同步更新 service，再执行 daemon-reload 和重启；仅替换前端不会启用后端持久化接口。
+
+2026-09-23 更新：独立进程同步只读采集已实测约 49.36 Hz，最新测量与字段说明见 README 的采集优化验证。上述 13.8 Hz 为旧版本历史结果。

@@ -20,7 +20,7 @@ if SOURCE not in ('simulation', 'hardware'):
 SERVO_PORT = os.environ.get("MICRODUCK_SERVO_PORT", "")
 from servos import ServoSource, parse_ids
 SERVO_IDS = parse_ids(os.environ.get("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24"))
-TOPICS = {"pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None, "joints": 20}
+TOPICS = {"pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None, "joints": 50}
 ACTIVE_TOPICS = {k: v for k, v in TOPICS.items() if k != ('pose' if SOURCE == 'hardware' else 'imu.orientation')}
 if not SERVO_PORT:
     ACTIVE_TOPICS.pop("joints", None)
@@ -93,6 +93,7 @@ async def lifespan(app):
         servos.thread.start()
     async def producer():
         count = 0
+        period = .01 if hardware and servos else .02
         deadline = time.monotonic()
         while True:
             if hardware:
@@ -101,13 +102,13 @@ async def lifespan(app):
                 sim.tick()
             if servos:
                 servos.drain()
-            if count % 50 == 0:
+            if count % round(1 / period) == 0:
                 sim.sample("system", dict(uptimeSeconds=time.monotonic()-sim.start,
                     imu=hardware.health() if hardware else None, scenario=sim.mode if not hardware else None))
             if not hardware and count % 250 == 0:
                 sim.log("INFO", "telemetry", "模拟数据源运行中 · " + sim.mode)
             count += 1
-            deadline += .02
+            deadline += period
             if deadline < time.monotonic() - .1:
                 deadline = time.monotonic()
             await asyncio.sleep(max(0, deadline - time.monotonic()))
@@ -124,8 +125,7 @@ async def lifespan(app):
         hardware = None
 
     if servos:
-        servos.stop.set()
-        await asyncio.to_thread(servos.thread.join, 5)
+        await asyncio.to_thread(servos.close)
         servos = None
 
 
@@ -135,7 +135,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http
 
 
 @app.get("/api/v1/info")
-def info():
+async def info():
     return dict(name="MicroDuck · BNO085" if SOURCE == 'hardware' else "MicroDuck Lab",
                 protocolVersion=1, bootId=sim.boot, source=SOURCE,
                 topics=ACTIVE_TOPICS, capabilities={"pose": SOURCE != 'hardware', "imu": True,
@@ -144,19 +144,19 @@ def info():
 
 
 @app.get("/api/v1/health")
-def health():
+async def health():
     imu = hardware.health() if hardware else None
     return dict(status="degraded" if SOURCE == 'hardware' and (not imu or imu['state'] != 'streaming') else "ok",
                 source=SOURCE, imu=imu, joints=sim.stamp(sim.latest["joints"]) if "joints" in sim.latest else None, logCount=len(sim.logs))
 
 
 @app.get("/api/v1/snapshot")
-def snapshot():
+async def snapshot():
     return {**{topic: sim.stamp(item) for topic, item in sim.latest.items()}, 'calibration':calibrations.read(sim.boot)}
 
 
 @app.get('/api/v1/calibration')
-def get_calibration():
+async def get_calibration():
     return calibrations.read(sim.boot)
 
 

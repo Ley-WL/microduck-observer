@@ -5,10 +5,12 @@ import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
-import { relativeQuaternion } from "./calibration";
+import { mountingQuaternion, relativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
 const state = useTelemetry();
 const board = useBoardCalibration();
+// Display-only mounting selection; shared servo/IMU references stay on the board.
+const mountingYaw = computed(() => board.data?.mounting?.yaw ?? -90);
 const calibrationSaveError = computed(() => !!board.error);
 const page = ref("姿态与 IMU"),
   kind = ref<"gyro" | "accel">("gyro"),
@@ -22,8 +24,13 @@ const frozenPose = shallowRef<number[] | null>(null),
 const shownLogs = shallowRef<Sample[]>([]);
 const initialOrientation = computed<number[] | null>(() => {
   const imu = board.data?.imu;
-  return imu?.bootId === state.orientation?.bootId && validQuaternion(imu?.quaternion) ? imu.quaternion : null;
+  return savedDisplayReference(imu);
 });
+const referenceRestored = computed(() => Boolean(initialOrientation.value) && board.data?.imu?.bootId !== state.orientation?.bootId);
+function confirmReference() {
+  if (!canCalibrate.value || !initialOrientation.value) return;
+  void board.orientation([...initialOrientation.value], state.orientation!.bootId, board.data.imu.time);
+}
 const calibrationTime = computed(() => initialOrientation.value ? board.data.imu.time : "");
 const canCalibrate = computed(
   () =>
@@ -36,7 +43,9 @@ const displayOrientation = computed(() => {
   if (!state.orientation?.valid) return null;
   const raw = state.orientation.data.quaternion;
   return initialOrientation.value
-    ? relativeQuaternion(initialOrientation.value, raw)
+    ? state.sensorOnly
+      ? mountingQuaternion(relativeQuaternion(initialOrientation.value, raw), mountingYaw.value)
+      : relativeQuaternion(initialOrientation.value, raw)
     : raw;
 });
 const modelOrientation = computed(() =>
@@ -162,6 +171,10 @@ onMounted(() => state.connect());
           :calibration-time="calibrationTime"
           :can-calibrate="canCalibrate"
           :calibration-save-error="calibrationSaveError"
+          :mounting-yaw="mountingYaw"
+          @mounting="board.mounting($event)"
+          :reference-restored="referenceRestored"
+          @confirm-reference="confirmReference"
           @calibrate="calibrateInitial"
           @clear="clearCalibration"
           @pause="pause"
