@@ -1,4 +1,4 @@
-"""Pose-guided calibration. Hardware commands run only on the collector thread."""
+"""Pose-guided calibration. Hardware commands run only on the collector process."""
 import asyncio
 import copy
 import json
@@ -223,7 +223,7 @@ class PoseCalibration:
             source=self.source()
             if not source: raise ValueError('舵机串口未启用')
             path=self.store.path.parent/'calibration-backups'/(plan['token']+'.json')
-            future=source.submit(lambda bus: calibrate_hardware(bus,plan,path))
+            future=source.submit_calibration(plan,path)
             try: results=await asyncio.wait_for(asyncio.shield(asyncio.wrap_future(future)),30)
             except asyncio.TimeoutError:
                 # Do not release the calibration lock while a serial job can still write.

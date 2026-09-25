@@ -1,0 +1,24 @@
+{
+  "request_ms": {
+    "n": 391,
+    "p50": 13.8,
+    "p95": 19.84,
+    "max": 117.35
+  },
+  "joint_oldest_ms": {
+    "n": 391,
+    "p50": 100.31,
+    "p95": 131.41,
+    "max": 151.26
+  },
+  "imu_ms": {
+    "n": 391,
+    "p50": 29.82,
+    "p95": 48.82,
+    "max": 66.07
+  },
+  "unique_joint_frames": 124,
+  "duration": 8.011067786999774,
+  "timeouts": 0,
+  "joint_calibration_unchanged": true
+}

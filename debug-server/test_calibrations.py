@@ -39,3 +39,18 @@ class CalibrationTests(unittest.TestCase):
             self.assertEqual(client.post('/api/v1/calibration',json=body).status_code,409)
             self.assertEqual(client.get('/api/v1/calibration').json()['joints']['references']['12'],4971)
             self.assertEqual(client.get('/api/v1/snapshot').json()['calibration']['revision'],1)
+
+    def test_mounting_and_reference_persist_without_changing_joints(self):
+        self.store.update(0, {**self.joints(), 'imu': {'quaternion':[0,0,0,1], 'bootId':'a','time':'12:00'}}, 'a')
+        self.store.update(1, {'mounting':{'yaw':90}}, 'a')
+        restarted=CalibrationStore(self.path)
+        saved=restarted.read('b')
+        self.assertEqual(saved['mounting']['yaw'],90)
+        self.assertEqual(saved['imu']['quaternion'],[0,0,0,1])
+        self.assertFalse(saved['imu']['validForBoot'])
+        confirmed=restarted.update(2, {'imu':{'quaternion':saved['imu']['quaternion'],'bootId':'b','time':'12:00'}}, 'b')
+        self.assertTrue(confirmed['imu']['validForBoot'])
+        self.assertEqual(confirmed['joints'],saved['joints'])
+        self.assertEqual(confirmed['mounting'],saved['mounting'])
+        for value in (True,91,float('nan')):
+            with self.assertRaises(ValueError):restarted.update(3,{'mounting':{'yaw':value}},'b')

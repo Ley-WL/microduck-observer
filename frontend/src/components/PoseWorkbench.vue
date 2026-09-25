@@ -6,6 +6,8 @@ import RobotView from "./RobotView.vue";
 import SignalChart from "./SignalChart.vue";
 import ServoPanel from "./ServoPanel.vue";
 import { useJointPose } from "../jointPose";
+import { useBoardCalibration } from "../boardCalibration";
+const board = useBoardCalibration();
 const jointPose = useJointPose();
 const calibrationDialog=ref<HTMLDialogElement>();
 const calibrationOpen=ref(false), calibrationBusy=ref(false), calibrationDone=ref(false);
@@ -30,8 +32,10 @@ const props = defineProps<{
   calibrationTime: string;
   canCalibrate: boolean;
   calibrationSaveError: boolean;
+  mountingYaw: number;
+  referenceRestored: boolean;
 }>();
-defineEmits<{ calibrate: []; clear: []; pause: [] }>();
+defineEmits<{ calibrate: []; clear: []; pause: []; mounting: [value: number]; confirmReference: [] }>();
 const state = useTelemetry();
 const robot = ref<InstanceType<typeof RobotView>>();
 const lastImu = computed(() => state.chart.at(-1));
@@ -115,6 +119,20 @@ const value = (values: number[] | undefined, i: number) =>
             calibrationSaveError ? "主板同步失败" : calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择"
           }}</span>
         </div>
+        <div v-if="referenceRestored" class="bench-calibration" role="status">
+          <span>已恢复主板参考姿态 · 新会话待核对。实物与模型方向一致可直接沿用，无需重新归零。</span>
+          <button class="button compact" :disabled="!canCalibrate" @click="$emit('confirmReference')">确认沿用已存参考</button>
+        </div>
+        <label v-if="state.sensorOnly && !board.data?.imu.mountingQuaternion" class="bench-mounting">
+          安装方向
+          <select :value="mountingYaw" :disabled="state.paused || !canCalibrate"
+            @change="$emit('mounting', Number(($event.target as HTMLSelectElement).value))">
+            <option :value="-90">躯干安装修正 −90°</option>
+            <option :value="0">原始传感器方向</option>
+            <option :value="90">反向安装修正 +90°</option>
+          </select>
+          <small>安装方向保存到主板；更改后核对前倾与左倾。</small>
+        </label>
         <div class="bench-angles">
           <div
             v-for="(name, i) in ['Roll 横滚', 'Pitch 俯仰', 'Yaw 偏航']"
@@ -133,7 +151,7 @@ const value = (values: number[] | undefined, i: number) =>
           >
         </div>
         <div class="bench-model-note">
-          IMU 相对旋转 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />关节标定由主板共享；IMU 会话重启后需重新归零。
+          IMU 安装方向修正 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />关节与安装方向由主板保存；IMU 参考重启后恢复，新会话需核对。
         </div>
       </section>
       <section class="panel bench-imu">
@@ -186,6 +204,9 @@ const value = (values: number[] | undefined, i: number) =>
 </template>
 
 <style>
+.bench-mounting { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:0 16px 10px; font-size:12px; }
+.bench-mounting select { padding:5px 8px; border:1px solid #bccdc6; border-radius:6px; background:transparent; color:inherit; }
+.bench-mounting small { color:#62786f; }
 .workbench {
   height: 100%;
   min-height: 0;

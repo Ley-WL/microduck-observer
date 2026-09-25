@@ -19,7 +19,7 @@ class CalibrationStore:
         self.path = Path(path); self.lock = threading.RLock()
         if self.path.exists():
             self.state = json.loads(self.path.read_text(encoding='utf-8'))
-            self.validate({'joints':self.state['joints'], 'imu':self.state['imu']})
+            self.validate({k:self.state[k] for k in ('joints','imu','mounting') if k in self.state})
         else:
             self.state = dict(schema=1, deviceId=str(uuid.uuid4()), revision=0, updatedAt=0,
                 joints=dict(initialized=False,references={},directions={}),
@@ -28,7 +28,11 @@ class CalibrationStore:
 
     @staticmethod
     def validate(patch):
-        if not isinstance(patch,dict) or not patch or set(patch)-{'joints','imu'}: raise ValueError('Invalid calibration section')
+        if not isinstance(patch,dict) or not patch or set(patch)-{'joints','imu','mounting'}: raise ValueError('Invalid calibration section')
+        if 'mounting' in patch:
+            m = patch['mounting']
+            if not isinstance(m, dict) or set(m) != {'yaw'} or type(m['yaw']) not in (int, float) or m['yaw'] not in (-90, 0, 90):
+                raise ValueError('Invalid mounting yaw')
         if 'joints' in patch:
             j = patch['joints']
             if not isinstance(j,dict) or set(j)-{'initialized','references','directions'}: raise ValueError('Invalid joint calibration')
@@ -57,6 +61,7 @@ class CalibrationStore:
     def read(self, boot):
         with self.lock:
             value=copy.deepcopy(self.state)
+        value.setdefault('mounting', {'yaw': -90})
         value['imu']['validForBoot']=value['imu'].get('bootId')==boot
         value['bootId']=boot
         return value
@@ -65,10 +70,10 @@ class CalibrationStore:
         self.validate(patch)
         with self.lock:
             if type(revision) is not int or revision!=self.state['revision']: raise Conflict('标定已被其他页面更新，请重试')
-            if migrate and any(self.state[k].get('initialized') for k in patch): raise Conflict('主板已有标定，未覆盖旧数据')
+            if migrate and any(self.state.get(k,{}).get('initialized') for k in patch): raise Conflict('主板已有标定，未覆盖旧数据')
             if 'imu' in patch and patch['imu'].get('quaternion') is not None and patch['imu'].get('bootId')!=boot: raise Conflict('IMU 会话已改变，请重新归零')
             candidate=copy.deepcopy(self.state)
-            for key,value in patch.items(): candidate[key]={**copy.deepcopy(value),'initialized':True}
+            for key,value in patch.items(): candidate[key]=copy.deepcopy(value) if key=='mounting' else {**copy.deepcopy(value),'initialized':True}
             candidate.update(revision=candidate['revision']+1,updatedAt=int(time.time()*1000))
             self.persist(candidate)
             self.state=candidate

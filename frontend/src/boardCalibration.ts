@@ -48,6 +48,16 @@ export const useBoardCalibration = defineStore("board-calibration", () => {
   function orientation(quaternion: number[] | null, bootId: string, time: string) {
     return write(() => ({ imu: { quaternion, bootId, time } }));
   }
+  function confirmReference(bootId: string) {
+    return write(current => {
+      const { validForBoot: _validForBoot, ...imu } = current.imu;
+      return { imu: { ...imu, bootId } };
+    });
+  }
+  function mounting(yaw: number) {
+    if (![0, -90, 90].includes(yaw)) return;
+    return write(() => ({ mounting: { yaw } }));
+  }
   let migrationKey = "";
   function migrateLegacy() {
     if (!ready.value || !data.value || saving.value) return;
@@ -69,5 +79,5 @@ export const useBoardCalibration = defineStore("board-calibration", () => {
   watch(() => telemetry.endpoint, () => { generation++; loading=false; data.value=null; ready.value=false; saving.value=false; error.value=""; migrationKey=""; void refresh(); }, { immediate:true });
   watch([data, () => telemetry.joints?.source, () => telemetry.orientation?.bootId], migrateLegacy);
   const timer=setInterval(()=>{void refresh();},1500);onScopeDispose(()=>clearInterval(timer));
-  return { data, ready, saving, error, refresh, joints, orientation };
+  return { data, ready, saving, error, refresh, joints, orientation, mounting, confirmReference };
 });

@@ -46,3 +46,27 @@ it("does not overwrite board data with another browser legacy data",async()=>{
   saved.set(calibrationKey("joints",["http://duck","hardware"]),JSON.stringify({references:{12:4971},directions:{}}));
   useBoardCalibration();await flush();expect(server.joints.references[12]).toBe(8000);expect(server.revision).toBe(0);
 });
+
+it("saves mounting independently and confirms an existing IMU reference without changing servo values",async()=>{
+  server.joints={initialized:true,references:{12:8000},directions:{12:-1}};
+  server.imu={initialized:true,quaternion:[0,0,0,1],bootId:"old",time:"12:00"};
+  const board=useBoardCalibration();await flush();
+  await board.mounting(90);
+  expect(server.imu.bootId).toBe("old");
+  expect(server.joints.references[12]).toBe(8000);
+  await board.orientation([...board.data.imu.quaternion],"boot",board.data.imu.time);
+  expect(server.imu.quaternion).toEqual([0,0,0,1]);
+  expect(server.imu.bootId).toBe("boot");
+  expect(server.mounting.yaw).toBe(90);
+  expect(server.joints.references[12]).toBe(8000);
+});
+
+it("keeps supine target and measured axes when confirming a restored session",async()=>{
+  const target=[0,-Math.SQRT1_2,0,Math.SQRT1_2];
+  const axes=[0,0,Math.SQRT1_2,Math.SQRT1_2];
+  server.imu={initialized:true,quaternion:[0,0,0,1],bootId:"old",time:"12:00",validForBoot:false,targetQuaternion:target,mountingQuaternion:axes,mountingSamples:{roll:[1,0,0]}};
+  const board=useBoardCalibration();await flush();await board.confirmReference("boot");
+  expect(server.imu).toEqual({...server.imu,bootId:"boot",targetQuaternion:target,mountingQuaternion:axes,mountingSamples:{roll:[1,0,0]}});
+  expect(server.imu.time).toBe("12:00");
+  expect(server.imu).not.toHaveProperty("validForBoot");
+});

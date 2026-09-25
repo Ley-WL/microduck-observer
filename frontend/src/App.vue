@@ -6,10 +6,12 @@ import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
 import CameraView from "./components/CameraView.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
-import { bodyRelativeQuaternion } from "./calibration";
+import { bodyRelativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
 const state = useTelemetry();
 const board = useBoardCalibration();
+// Display-only mounting selection; shared servo/IMU references stay on the board.
+const mountingYaw = computed(() => board.data?.mounting?.yaw ?? -90);
 const calibrationSaveError = computed(() => !!board.error);
 const page = ref("姿态与 IMU"),
   kind = ref<"gyro" | "accel">("gyro"),
@@ -23,8 +25,13 @@ const frozenPose = shallowRef<number[] | null>(null),
 const shownLogs = shallowRef<Sample[]>([]);
 const initialOrientation = computed<number[] | null>(() => {
   const imu = board.data?.imu;
-  return imu?.bootId === state.orientation?.bootId && validQuaternion(imu?.quaternion) ? imu.quaternion : null;
+  return savedDisplayReference(imu);
 });
+const referenceRestored = computed(() => Boolean(initialOrientation.value) && board.data?.imu?.bootId !== state.orientation?.bootId);
+function confirmReference() {
+  if (!canCalibrate.value || !initialOrientation.value) return;
+  void board.confirmReference(state.orientation!.bootId);
+}
 const calibrationTime = computed(() => initialOrientation.value ? board.data.imu.time : "");
 const canCalibrate = computed(
   () =>
@@ -37,7 +44,9 @@ const displayOrientation = computed(() => {
   if (!state.orientation?.valid) return null;
   const raw = state.orientation.data.quaternion;
   return initialOrientation.value
-    ? bodyRelativeQuaternion(initialOrientation.value, raw, board.data?.imu.mountingQuaternion, board.data?.imu.targetQuaternion)
+    ? bodyRelativeQuaternion(initialOrientation.value, raw,
+        board.data?.imu.mountingQuaternion ?? (state.sensorOnly ? [0, 0, Math.sin(-mountingYaw.value * Math.PI / 360), Math.cos(-mountingYaw.value * Math.PI / 360)] : undefined),
+        board.data?.imu.targetQuaternion)
     : raw;
 });
 const modelOrientation = computed(() =>
@@ -163,6 +172,10 @@ onMounted(() => state.connect());
           :calibration-time="calibrationTime"
           :can-calibrate="canCalibrate"
           :calibration-save-error="calibrationSaveError"
+          :mounting-yaw="mountingYaw"
+          @mounting="board.mounting($event)"
+          :reference-restored="referenceRestored"
+          @confirm-reference="confirmReference"
           @calibrate="calibrateInitial"
           @clear="clearCalibration"
           @pause="pause"
