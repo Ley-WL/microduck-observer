@@ -4,6 +4,7 @@ import { useTelemetry } from "./store";
 import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
+import CameraView from "./components/CameraView.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
 import { bodyRelativeQuaternion } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
@@ -128,7 +129,7 @@ onMounted(() => state.connect());
           @click="page = label"
         >
           <span class="nav-symbol">{{ ["◫", "⌁", "≡", "◉", "▣"][i] }}</span
-          >{{ label }}<span v-if="i > 2" class="later">后续</span>
+          >{{ label }}<span v-if="i === 3" class="later">后续</span>
         </button>
       </nav>
       <div class="sidebar-note">
@@ -166,6 +167,7 @@ onMounted(() => state.connect());
           @clear="clearCalibration"
           @pause="pause"
         />
+        <CameraView v-else-if="page === '画面'" />
         <template v-else>
           <div class="page-heading">
             <div>
@@ -545,24 +547,11 @@ onMounted(() => state.connect());
             </div>
           </section>
 
-          <section
-            v-if="page === '传感器' || page === '画面'"
-            class="panel future-panel"
-          >
-            <div class="future-icon">{{ page === "画面" ? "▣" : "◉" }}</div>
-            <div class="eyebrow">
-              {{ page === "画面" ? "CAMERA STREAM" : "DISTANCE SENSING" }}
-            </div>
-            <h2>
-              {{ page === "画面" ? "等待摄像头数据源" : "等待 ToF 数据源" }}
-            </h2>
-            <p>
-              {{
-                page === "画面"
-                  ? "后续通过独立媒体通道接入视频，展示画面、帧率与流状态。"
-                  : "后续接入单点距离或多区深度热图，显示量程、有效性和测量时间。"
-              }}
-            </p>
+          <section v-if="page === '传感器'" class="panel future-panel">
+            <div class="future-icon">◉</div>
+            <div class="eyebrow">DISTANCE SENSING</div>
+            <h2>等待 ToF 数据源</h2>
+            <p>后续接入单点距离或多区深度热图，显示量程、有效性和测量时间。</p>
             <span class="subtle-tag">当前版本未接入</span>
           </section>
 
