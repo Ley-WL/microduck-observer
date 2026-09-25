@@ -1,11 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { useTelemetry } from "../store";
+import CalibrationStudio from "./CalibrationStudio.vue";
 import RobotView from "./RobotView.vue";
 import SignalChart from "./SignalChart.vue";
 import ServoPanel from "./ServoPanel.vue";
 import { useJointPose } from "../jointPose";
 const jointPose = useJointPose();
+const calibrationDialog=ref<HTMLDialogElement>();
+const calibrationOpen=ref(false), calibrationBusy=ref(false), calibrationDone=ref(false);
+async function openCalibration(){
+  calibrationDone.value=false;calibrationOpen.value=true;
+  await nextTick();calibrationDialog.value?.showModal();
+}
+function closeCalibration(){
+  if(calibrationBusy.value)return;
+  calibrationDialog.value?.close();calibrationOpen.value=false;
+}
+function completed(){
+  calibrationBusy.value=false;calibrationDone.value=true;
+  calibrationDialog.value?.close();calibrationOpen.value=false;
+}
+
 const props = defineProps<{
   modelOrientation: number[] | null;
   quaternion: number[] | null;
@@ -46,6 +62,13 @@ const value = (values: number[] | undefined, i: number) =>
         {{ state.paused ? "▶ 恢复显示" : "Ⅱ 暂停显示" }}
       </button>
     </div>
+    <dialog ref="calibrationDialog" class="calibration-dialog" aria-label="姿态与 IMU 标定" @cancel.prevent="closeCalibration">
+      <template v-if="calibrationOpen">
+        <div class="dialog-toolbar"><span>姿态与 IMU · 仰卧标定</span><button :disabled="calibrationBusy" @click="closeCalibration">返回实时姿态 ×</button></div>
+        <CalibrationStudio @busy="calibrationBusy=$event" @completed="completed" />
+      </template>
+    </dialog>
+    <div v-if="calibrationDone" class="bench-alert" role="status">标定已保存，3D 已切回实时反馈；移动实物即可查看姿态与关节变化。</div>
     <div v-if="state.error || state.paused" class="bench-alert" role="status">
       {{ state.error || "显示已暂停 · 后台继续接收数据" }}
     </div>
@@ -76,20 +99,20 @@ const value = (values: number[] | undefined, i: number) =>
         <div class="bench-calibration">
           <button
             class="button compact"
-            :disabled="!canCalibrate"
-            @click="$emit('calibrate')"
+            :disabled="state.paused"
+            @click="openCalibration"
           >
-            {{ calibrated ? "重新标定初始姿态" : "标定初始姿态" }}
+            仰卧一键标定
           </button>
           <button
             class="text-button"
             :disabled="!calibrated || state.paused"
             @click="$emit('clear')"
           >
-            清除标定
+            清除 IMU 参考
           </button>
           <span>{{
-            calibrationSaveError ? "主板同步失败" : calibrated ? "已保存到主板 " + calibrationTime : "摆正实物并静止后标定"
+            calibrationSaveError ? "主板同步失败" : calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择"
           }}</span>
         </div>
         <div class="bench-angles">
@@ -478,4 +501,13 @@ const value = (values: number[] | undefined, i: number) =>
   .bench-axis-values b { font-size: 12px; }
   .bench-quaternion { padding: 8px; gap: 3px; }
 }
+</style>
+
+<style scoped>
+.calibration-dialog{width:calc(100vw - 40px);max-width:1500px;height:calc(100dvh - 32px);max-height:none;border:1px solid #bed0c1;border-radius:12px;padding:12px;background:#f4f7f1;color:#284637;box-sizing:border-box;overflow:hidden}
+.calibration-dialog::backdrop{background:#102b22aa}
+.dialog-toolbar{height:30px;display:flex;align-items:center;justify-content:space-between;font-size:11px}
+.dialog-toolbar button{background:white;border:1px solid #c4d3c4;padding:5px 10px;border-radius:5px;color:#365e42;cursor:pointer}
+.dialog-toolbar button:disabled{opacity:.4;cursor:default}
+.calibration-dialog :deep(.calibration-studio){height:calc(100% - 30px)}
 </style>

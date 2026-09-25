@@ -3,7 +3,6 @@ import { computed, onMounted, ref, shallowRef, watch, nextTick } from "vue";
 import { useTelemetry } from "./store";
 import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
-import CalibrationStudio from "./components/CalibrationStudio.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
 import { bodyRelativeQuaternion } from "./calibration";
@@ -123,13 +122,13 @@ onMounted(() => state.connect());
       </div>
       <nav>
         <button
-          v-for="(label, i) in ['总览', '姿态与 IMU', '姿势标定', '日志', '传感器', '画面']"
+          v-for="(label, i) in ['总览', '姿态与 IMU', '日志', '传感器', '画面']"
           :key="label" :title="label"
           :class="{ active: page === label }"
           @click="page = label"
         >
-          <span class="nav-symbol">{{ ["◫", "⌁", "◎", "≡", "◉", "▣"][i] }}</span
-          >{{ label }}<span v-if="i > 3" class="later">后续</span>
+          <span class="nav-symbol">{{ ["◫", "⌁", "≡", "◉", "▣"][i] }}</span
+          >{{ label }}<span v-if="i > 2" class="later">后续</span>
         </button>
       </nav>
       <div class="sidebar-note">
@@ -167,7 +166,6 @@ onMounted(() => state.connect());
           @clear="clearCalibration"
           @pause="pause"
         />
-        <CalibrationStudio v-else-if="page === '姿势标定'" />
         <template v-else>
           <div class="page-heading">
             <div>

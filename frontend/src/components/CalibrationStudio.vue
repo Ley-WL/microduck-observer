@@ -3,10 +3,12 @@ import { computed, ref, onMounted, watch } from "vue";
 import RobotView from "./RobotView.vue";
 import { useTelemetry } from "../store";
 import { useBoardCalibration } from "../boardCalibration";
+const emit=defineEmits<{completed: []; busy: [value:boolean]}>();
 const telemetry=useTelemetry(), board=useBoardCalibration();
 const poses=ref<Record<string,any>>({}), pose=ref('supine'), selected=ref<number[]>([]);
 const position=ref(true), hardware=ref(false), imu=ref(true), confirmed=ref(false);
 const busy=ref(false), stage=ref('准备'), error=ref(''), plan=ref<any>(null), result=ref<any>(null);
+watch(busy,value=>emit('busy',value));
 const names:Record<number,string>={10:'右髋偏航',11:'右髋横滚',12:'右髋俯仰',13:'右膝',14:'右踝',20:'左髋偏航',21:'左髋横滚',22:'左髋俯仰',23:'左膝',24:'左踝',30:'颈俯仰',31:'头俯仰',32:'头偏航',33:'头横滚',34:'嘴'};
 const advanced=ref(false);
 const visiblePoses=computed(()=>advanced.value?poses.value:Object.fromEntries(Object.entries(poses.value).filter(([key])=>key==='supine')));
@@ -43,7 +45,9 @@ async function capture(){
 async function execute(){
  if(!plan.value || !confirmed.value)return;
  busy.value=true;stage.value=hardware.value?'写入中 · 请勿断电或移动':'保存中';error.value='';
- try{result.value=await api('execute',{token:plan.value.token,confirm:true});stage.value=result.value.ok?'已完成':'部分失败 · 查看逐颗结果';await board.refresh();}
+ try{result.value=await api('execute',{token:plan.value.token,confirm:true});stage.value=result.value.ok?'已完成':'部分失败 · 查看逐颗结果';board.data=result.value.calibration;
+ if(result.value.ok)emit('completed');
+ }
  catch(e){error.value=String(e);stage.value='执行未完成 · 重新采样前检查状态';}
  finally{busy.value=false;plan.value=null;confirmed.value=false;}
 }
