@@ -9,6 +9,7 @@ const jointNodes = new Map<number, { pivot: THREE.Group; axis: THREE.Vector3; an
 const props = defineProps<{
   quaternion: number[] | null;
   paused: boolean;
+  previewAngles?: Record<number, number>;
 }>();
 const host = ref<HTMLDivElement>(),
   problem = ref(""),
@@ -79,7 +80,7 @@ onMounted(async () => {
       if (!props.paused) {
         root.quaternion.slerp(target, 1 - Math.exp(-dt / 0.067));
         for (const [id, joint] of jointNodes) {
-          joint.angle = smoothJointAngle(joint.angle, jointPose.angles[id], dt);
+          joint.angle = smoothJointAngle(joint.angle, (props.previewAngles ?? jointPose.angles)[id], dt);
           applyJointAngle(joint.pivot, joint.axis, joint.angle);
         }
       }

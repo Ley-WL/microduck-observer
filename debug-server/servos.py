@@ -1,5 +1,6 @@
-"""Read-only Feetech telemetry. The only transmitted instruction is READ (0x02)."""
+"""Read-only telemetry loop; explicit calibration jobs share its serial owner."""
 import os
+import concurrent.futures
 import queue
 import threading
 import time
@@ -72,9 +73,15 @@ class ReadOnlyBus:
 class ServoSource:
     def __init__(self, store, port, ids):
         self.store, self.port, self.ids = store, port, ids
+        self.commands = queue.Queue(maxsize=1)
         self.stop = threading.Event()
         self.events = queue.Queue(maxsize=1)
         self.thread = threading.Thread(target=self.run, daemon=True, name='servo-observer')
+
+    def submit(self, action):
+        future = concurrent.futures.Future()
+        self.commands.put_nowait((action, future))
+        return future
 
     def publish(self, rows, error=''):
         event = (dict(configuredIds=list(self.ids), servos=rows, error=error), time.monotonic())
@@ -91,6 +98,14 @@ class ServoSource:
                 bus = ReadOnlyBus(self.port)
                 retry_after = {}
                 while not self.stop.is_set():
+                    try:
+                        action, future = self.commands.get_nowait()
+                    except queue.Empty:
+                        pass
+                    else:
+                        if future.set_running_or_notify_cancel():
+                            try: future.set_result(action(bus))
+                            except Exception as exc: future.set_exception(exc)
                     start = time.monotonic()
                     rows = []
                     for sid in self.ids:

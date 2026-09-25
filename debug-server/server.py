@@ -1,4 +1,4 @@
-"""Read-only observer: simulation or BNO085; optional read-only servo feedback."""
+"""Live observer with explicit pose calibration; no automatic motor movement."""
 import asyncio
 import os
 import math
@@ -130,6 +130,8 @@ async def lifespan(app):
 
 
 app = FastAPI(title="MicroDuck Observer", lifespan=lifespan)
+from pose_calibration import PoseCalibration, POSES
+pose_calibration = PoseCalibration(sim, calibrations, lambda: servos)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
                    allow_methods=["GET", "POST"], allow_headers=["Content-Type"])
 
@@ -173,9 +175,36 @@ async def set_calibration(request: Request):
         import json
         body=json.loads(raw)
         if not isinstance(body,dict): raise ValueError('Invalid request')
-        return calibrations.update(body.get('revision'),body.get('patch'),sim.boot,body.get('migrate') is True)
+        async with pose_calibration.lock:
+            return calibrations.update(body.get('revision'),body.get('patch'),sim.boot,body.get('migrate') is True)
     except Conflict as exc: raise HTTPException(409,str(exc))
     except (ValueError,TypeError) as exc: raise HTTPException(422,str(exc))
+
+
+@app.get('/api/v1/calibration/poses')
+def calibration_poses():
+    return POSES
+
+
+@app.post('/api/v1/calibration/{action}')
+async def guided_calibration(action: str, request: Request):
+    if action not in ('preview','execute'): raise HTTPException(404)
+    origin=request.headers.get('origin')
+    if origin is not None and origin not in (str(request.base_url).rstrip('/'),'http://localhost:5173','http://127.0.0.1:5173'):
+        raise HTTPException(403,'Origin not allowed')
+    if request.headers.get('content-type','').split(';')[0]!='application/json': raise HTTPException(415,'JSON required')
+    raw=await request.body()
+    if len(raw)>16384: raise HTTPException(413)
+    if pose_calibration.lock.locked(): raise HTTPException(409,'已有标定任务正在执行')
+    try:
+        import json
+        body=json.loads(raw)
+        if not isinstance(body,dict): raise ValueError('Invalid request')
+        async with pose_calibration.lock:
+            if action=='preview': return await pose_calibration.preview(body)
+            if body.get('confirm') is not True: raise ValueError('请确认姿势和写入预览')
+            return await pose_calibration.execute(body.get('token'))
+    except (ValueError,TypeError,KeyError,TimeoutError) as exc: raise HTTPException(409,str(exc))
 
 
 @app.get("/api/v1/logs")

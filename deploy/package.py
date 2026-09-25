@@ -8,7 +8,7 @@ output.parent.mkdir(exist_ok=True)
 if not (root / 'frontend/dist/index.html').is_file():
     raise SystemExit('Build frontend first: npm run build')
 with tarfile.open(output, 'w:gz') as archive:
-    for name in ('server.py', 'calibrations.py', 'hardware.py', 'bno085.py', 'servos.py', 'requirements.txt'):
+    for name in ('server.py', 'calibrations.py', 'pose_calibration.py', 'hardware.py', 'bno085.py', 'servos.py', 'requirements.txt'):
         archive.add(root / 'debug-server' / name, arcname='debug-server/' + name)
     archive.add(root / 'frontend/dist', arcname='frontend/dist')
     for name in ('microduck-observer.service', 'install-service.sh'):

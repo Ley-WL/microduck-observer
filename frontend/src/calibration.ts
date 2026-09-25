@@ -1,4 +1,12 @@
 import { validQuaternion } from "./protocol";
+import { Quaternion } from "three";
+
+export function bodyRelativeQuaternion(reference: number[], current: number[], mounting?: number[]) {
+  const relative = relativeQuaternion(reference, current);
+  if (!validQuaternion(mounting)) return relative;
+  const m = new Quaternion().fromArray(mounting).normalize();
+  return m.clone().invert().multiply(new Quaternion().fromArray(relative)).multiply(m).normalize().toArray();
+}
 
 /** Display rotation in the initial sensor frame: inverse(reference) * current.
  * This zeroes orientation only; it does not determine the sensor mounting axes.

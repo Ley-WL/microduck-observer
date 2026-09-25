@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { relativeQuaternion } from "./calibration";
+import { relativeQuaternion, bodyRelativeQuaternion } from "./calibration";
 import { euler } from "./protocol";
 
 describe("initial orientation reference", () => {
+  it("maps sensor-axis rotation into the calibrated body frame", () => {
+    const h=Math.SQRT1_2;
+    const result=euler(bodyRelativeQuaternion([0,0,0,1],[0,h,0,h],[0,0,h,h]));
+    expect(result[0]).toBeCloseTo(90);expect(result[1]).toBeCloseTo(0);expect(result[2]).toBeCloseTo(0);
+  });
   it("zeroes any initial mounting attitude", () => {
     const q = [0.2, 0.3, 0.4, Math.sqrt(0.71)];
     const r = relativeQuaternion(q, q);
