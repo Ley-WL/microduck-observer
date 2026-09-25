@@ -3,6 +3,11 @@ import { relativeQuaternion, bodyRelativeQuaternion } from "./calibration";
 import { euler } from "./protocol";
 
 describe("initial orientation reference", () => {
+  it("shows a supine body at the captured reference instead of standing upright", () => {
+    const q=[.5,.5,.5,.5], target=[0,-Math.SQRT1_2,0,Math.SQRT1_2];
+    const result=bodyRelativeQuaternion(q,q,undefined,target);
+    result.forEach((v,i)=>expect(v).toBeCloseTo(target[i]));
+  });
   it("maps sensor-axis rotation into the calibrated body frame", () => {
     const h=Math.SQRT1_2;
     const result=euler(bodyRelativeQuaternion([0,0,0,1],[0,h,0,h],[0,0,h,h]));

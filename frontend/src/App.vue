@@ -37,7 +37,7 @@ const displayOrientation = computed(() => {
   if (!state.orientation?.valid) return null;
   const raw = state.orientation.data.quaternion;
   return initialOrientation.value
-    ? bodyRelativeQuaternion(initialOrientation.value, raw, board.data?.imu.mountingQuaternion)
+    ? bodyRelativeQuaternion(initialOrientation.value, raw, board.data?.imu.mountingQuaternion, board.data?.imu.targetQuaternion)
     : raw;
 });
 const modelOrientation = computed(() =>

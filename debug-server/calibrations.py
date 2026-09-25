@@ -41,10 +41,12 @@ class CalibrationStore:
                     if key=='references' and abs(value)>2147483647: raise ValueError('Encoder reference out of range')
         if 'imu' in patch:
             i=patch['imu']
-            if not isinstance(i,dict) or set(i)-{'initialized','quaternion','bootId','time','mountingQuaternion','mountingSamples'}: raise ValueError('Invalid IMU calibration')
+            if not isinstance(i,dict) or set(i)-{'initialized','quaternion','bootId','time','mountingQuaternion','mountingSamples','targetQuaternion'}: raise ValueError('Invalid IMU calibration')
             q=i.get('quaternion')
             if q is not None and (not isinstance(q,list) or len(q)!=4 or not all(type(x) in (int,float) and math.isfinite(x) for x in q) or not .81<=sum(x*x for x in q)<=1.21): raise ValueError('Invalid unit quaternion')
             if not isinstance(i.get('bootId'),str) or len(i['bootId'])>100 or not isinstance(i.get('time',''),str) or len(i.get('time',''))>100: raise ValueError('Invalid IMU context')
+            target=i.get('targetQuaternion')
+            if target is not None and (not isinstance(target,list) or len(target)!=4 or not all(type(x) in (int,float) and math.isfinite(x) for x in target) or not .99<sum(x*x for x in target)<1.01): raise ValueError('Invalid target quaternion')
             m=i.get('mountingQuaternion')
             if m is not None and (not isinstance(m,list) or len(m)!=4 or not all(type(x) in (int,float) and math.isfinite(x) for x in m) or not .99<sum(x*x for x in m)<1.01): raise ValueError('Invalid mounting quaternion')
             samples=i.get('mountingSamples',{})

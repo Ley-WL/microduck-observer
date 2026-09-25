@@ -1,11 +1,14 @@
 import { validQuaternion } from "./protocol";
 import { Quaternion } from "three";
 
-export function bodyRelativeQuaternion(reference: number[], current: number[], mounting?: number[]) {
-  const relative = relativeQuaternion(reference, current);
-  if (!validQuaternion(mounting)) return relative;
-  const m = new Quaternion().fromArray(mounting).normalize();
-  return m.clone().invert().multiply(new Quaternion().fromArray(relative)).multiply(m).normalize().toArray();
+export function bodyRelativeQuaternion(reference: number[], current: number[], mounting?: number[], target?: number[]) {
+  const result = new Quaternion().fromArray(relativeQuaternion(reference, current));
+  if (validQuaternion(mounting)) {
+    const m = new Quaternion().fromArray(mounting).normalize();
+    result.premultiply(m.clone().invert()).multiply(m);
+  }
+  if (validQuaternion(target)) result.premultiply(new Quaternion().fromArray(target).normalize());
+  return result.normalize().toArray();
 }
 
 /** Display rotation in the initial sensor frame: inverse(reference) * current.

@@ -91,6 +91,10 @@ class PoseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(rows[0]['position'],4971);self.assertEqual(q,[0,0,0,1])
 
 class ImuMountingTests(unittest.TestCase):
+    def test_supine_reference_preserves_target_orientation(self):
+        result=imu_patch({'imu':{}},'supine',[0,0,0,1],'a')
+        self.assertAlmostEqual(result['targetQuaternion'][1],-math.sqrt(.5))
+        with self.assertRaises(ValueError):imu_patch({'imu':result},'imu-roll',[0,0,0,1],'a')
     def test_three_pose_mounting_reconstructs_rotated_sensor_axes(self):
         identity=[0,0,0,1];h=math.sqrt(.5)
         # Body +X maps to sensor +Y, body +Y maps to sensor -X.

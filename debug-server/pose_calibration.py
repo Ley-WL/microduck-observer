@@ -12,6 +12,7 @@ from servos import ALL_IDS
 FOLD = {sid: 0.0 for sid in ALL_IDS}
 FOLD.update({22: 1.57, 23: 1.57, 12: -1.57, 13: -1.57})
 POSES = {
+    'supine': dict(name='仰卧躺平 · 一次标定', ids=list(ALL_IDS), angles={sid:0.0 for sid in ALL_IDS}),
     'fold': dict(name='折叠支撑 · 全身', ids=list(ALL_IDS), angles=FOLD),
     'left': dict(name='折叠支撑 · 左腿', ids=list(range(20,25)), angles=FOLD),
     'right': dict(name='折叠支撑 · 右腿', ids=list(range(10,15)), angles=FOLD),
@@ -49,9 +50,10 @@ def mounting_quaternion(x,y):
 
 def imu_patch(state, pose, q, boot):
     if pose not in ('imu-roll','imu-pitch'):
-        return dict(quaternion=q,bootId=boot,time=time.strftime('%Y-%m-%d %H:%M:%S'))
+        return dict(quaternion=q,bootId=boot,time=time.strftime('%Y-%m-%d %H:%M:%S'),
+                    targetQuaternion=[0,-math.sqrt(.5),0,math.sqrt(.5)] if pose=='supine' else [0,0,0,1])
     old=state['imu']
-    if old.get('bootId')!=boot or not old.get('quaternion'): raise ValueError('请先采集本次会话的躯干水平参考')
+    if old.get('bootId')!=boot or not old.get('quaternion') or old.get('targetQuaternion',[0,0,0,1])!=[0,0,0,1]: raise ValueError('请先采集本次会话的躯干水平参考')
     axis=mounting_axis(old['quaternion'],q)
     samples=copy.deepcopy(old.get('mountingSamples',{}));samples['roll' if pose=='imu-roll' else 'pitch']=axis
     result={**old,'mountingSamples':samples};result.pop('validForBoot',None)

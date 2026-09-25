@@ -4,10 +4,13 @@ import RobotView from "./RobotView.vue";
 import { useTelemetry } from "../store";
 import { useBoardCalibration } from "../boardCalibration";
 const telemetry=useTelemetry(), board=useBoardCalibration();
-const poses=ref<Record<string,any>>({}), pose=ref('fold'), selected=ref<number[]>([]);
-const position=ref(true), hardware=ref(false), imu=ref(false), confirmed=ref(false);
+const poses=ref<Record<string,any>>({}), pose=ref('supine'), selected=ref<number[]>([]);
+const position=ref(true), hardware=ref(false), imu=ref(true), confirmed=ref(false);
 const busy=ref(false), stage=ref('准备'), error=ref(''), plan=ref<any>(null), result=ref<any>(null);
 const names:Record<number,string>={10:'右髋偏航',11:'右髋横滚',12:'右髋俯仰',13:'右膝',14:'右踝',20:'左髋偏航',21:'左髋横滚',22:'左髋俯仰',23:'左膝',24:'左踝',30:'颈俯仰',31:'头俯仰',32:'头偏航',33:'头横滚',34:'嘴'};
+const advanced=ref(false);
+const visiblePoses=computed(()=>advanced.value?poses.value:Object.fromEntries(Object.entries(poses.value).filter(([key])=>key==='supine')));
+watch(advanced,value=>{if(!value)pose.value='supine';});
 const preset=computed(()=>poses.value[pose.value]);
 const modes=computed(()=>[...(position.value?['position']:[]),...(hardware.value?['hardware']:[]),...(imu.value?['imu']:[])]);
 const rows=computed(()=>telemetry.joints?.data.servos || []);
@@ -15,7 +18,9 @@ const online=(id:number)=>telemetry.connection==='在线' && telemetry.joints?.v
 const baseline=(id:number)=>board.data?.joints.references[id]!==undefined;
 const count=computed(()=>Object.keys(board.data?.joints.references || {}).length);
 const canCapture=computed(()=>!busy.value && board.ready && !telemetry.paused && telemetry.connection==='在线' && modes.value.length>0 && (!(position.value || hardware.value) || selected.value.length>0));
-const instructions=computed(()=>pose.value==='head'
+const instructions=computed(()=>pose.value==='supine'
+ ? ['躯干背面平放在平整支撑面上，胸口朝上，头部方向保持固定。','双腿与脚踝按中间模型对齐，头摆正、嘴轻合；不要压住突出部件或硬推关节。','位置标定和 IMU 可一次采样；要做硬件中位再勾选对应选项。']
+ : pose.value==='head'
  ? ['支撑躯干；颈部摆正，头平视正前方，嘴轻合。','头部偏航与横滚居中；不要借机械限位强行掰头。','只采集头颈与嘴，不覆盖已完成的腿部标定。']
  : pose.value.startsWith('imu')
  ? ['先把躯干放在水平支撑面上，面朝你选定的正前方。','躯干固定在支撑面上，不依靠头或脚承重；保持静止。','先水平采集，再按需做侧放和低头姿势，识别安装轴向。']
@@ -42,24 +47,25 @@ async function execute(){
  catch(e){error.value=String(e);stage.value='执行未完成 · 重新采样前检查状态';}
  finally{busy.value=false;plan.value=null;confirmed.value=false;}
 }
-const targetOrientation=computed(()=>pose.value==='imu-roll'?[Math.SQRT1_2,0,0,Math.SQRT1_2]:pose.value==='imu-pitch'?[0,Math.SQRT1_2,0,Math.SQRT1_2]:[0,0,0,1]);
+const targetOrientation=computed(()=>pose.value==='supine'?[0,-Math.SQRT1_2,0,Math.SQRT1_2]:pose.value==='imu-roll'?[Math.SQRT1_2,0,0,Math.SQRT1_2]:pose.value==='imu-pitch'?[0,Math.SQRT1_2,0,Math.SQRT1_2]:[0,0,0,1]);
 </script>
 <template>
  <section class="calibration-studio">
   <div class="studio-heading"><div><h1>姿势标定</h1><span>摆好姿势，采样一次，批量保存</span></div><b>{{stage}}</b><span>位置参考 {{count}} / 15</span></div>
   <div class="studio-grid">
    <section class="studio-panel setup"><h2>01 选择姿势与项目</h2>
-    <label>标定姿势<select v-model="pose" :disabled="busy"><option v-for="(p,key) in poses" :value="key">{{p.name}}</option></select></label>
+    <label>标定姿势<select v-model="pose" :disabled="busy"><option v-for="(p,key) in visiblePoses" :value="key">{{p.name}}</option></select></label>
+    <label class="hint"><input type="checkbox" v-model="advanced" :disabled="busy"/>高级：分组与安装轴向标定</label>
     <div class="mode-options">
      <label><input type="checkbox" v-model="position" :disabled="busy || pose.startsWith('imu')"/>位置标定 <small>主控保存显示零点，不改编码器</small></label>
      <label><input type="checkbox" v-model="hardware" :disabled="busy || pose.startsWith('imu')"/>硬件中位校准 <small>写舵机 EEPROM；零位统一为 2048</small></label>
-     <label><input type="checkbox" v-model="imu" :disabled="busy"/>IMU 姿态标定 <small>水平参考；可追加两姿势安装轴向校准</small></label>
+     <label><input type="checkbox" v-model="imu" :disabled="busy"/>IMU 姿态标定 <small>以当前仰卧姿势作为模型参考</small></label>
     </div>
     <h2>摆放指南</h2><ol><li v-for="line in instructions">{{line}}</li></ol>
     <p v-if="pose==='imu-roll'" class="notice">从水平参考姿势向右侧放：绕身体前向 +X 旋转 +90°，左侧朝上。保持原来朝向，不额外转动躯干。</p>
     <p v-if="pose==='imu-pitch'" class="notice">从水平参考姿势低头：绕身体左向 +Y 旋转 +90°，头朝下。用支架支撑，保持静止。</p>
     <p v-if="hardware" class="notice">所选舵机必须扭矩关闭并有支撑。不会自动运动或开关扭矩；中位校准同步更新显示零点，防止模型沿用旧坐标。</p>
-    <p class="hint">折叠姿势来自项目上游 FOLD_CALIB。它是参考姿势，不是已经验证适合你这台装配的机械夹具。</p>
+    <p class="hint">按模型对齐关节，仅躯干躺平不足以确定各个舵机零点。仰卧 IMU 标定记录初始参考；单一静止姿势不能自动识别全部安装轴向。</p>
    </section>
    <section class="studio-panel reference"><div class="reference-head"><h2>02 对照目标姿势</h2><span>目标预览 · 不驱动实物</span></div>
     <div class="reference-model"><RobotView :quaternion="targetOrientation" :paused="false" :preview-angles="preset?.angles || {}" /></div>
