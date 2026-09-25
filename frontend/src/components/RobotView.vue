@@ -23,14 +23,40 @@ let scene: THREE.Scene,
   observer: ResizeObserver,
   disposed = false;
 const target = new THREE.Quaternion();
+let grid: THREE.GridHelper;
+function fitPreview() {
+  if (!loaded.value || !props.previewAngles || !camera || !root) return;
+  root.quaternion.copy(target);
+  for (const [id, joint] of jointNodes) {
+    joint.angle = props.previewAngles[id] ?? 0;
+    applyJointAngle(joint.pivot, joint.axis, joint.angle);
+  }
+  root.updateMatrixWorld(true);
+  const bounds = new THREE.Box3().setFromObject(root);
+  if (bounds.isEmpty()) return;
+  const sphere = bounds.getBoundingSphere(new THREE.Sphere());
+  const halfVertical = THREE.MathUtils.degToRad(camera.fov / 2);
+  const halfHorizontal = Math.atan(Math.tan(halfVertical) * camera.aspect);
+  const distance = sphere.radius * 1.18 / Math.sin(Math.min(halfVertical, halfHorizontal));
+  // Look down across the body rather than along the soles of a supine robot.
+  const direction = new THREE.Vector3(.65, -1, 1.4).normalize();
+  controls.target.copy(sphere.center);
+  camera.position.copy(sphere.center).addScaledVector(direction, distance);
+  controls.maxDistance = Math.max(2, distance * 2);
+  grid.position.z = bounds.min.z - .01;
+  controls.update();
+}
 if (props.quaternion) target.fromArray(props.quaternion).normalize();
 watch(
   () => props.quaternion,
   (q) => {
     if (q && !props.paused) target.fromArray(q).normalize();
+    fitPreview();
   },
 );
+watch(() => props.previewAngles, fitPreview, { deep: true });
 function home() {
+  if (props.previewAngles && loaded.value) { fitPreview(); return; }
   // The model faces +X; use a front view with a 20-degree azimuth offset.
   const azimuth = THREE.MathUtils.degToRad(20);
   const distance = 0.69;
@@ -57,7 +83,7 @@ onMounted(async () => {
     const key = new THREE.DirectionalLight(0xffffff, 3);
     key.position.set(1, -2, 3);
     scene.add(key);
-    const grid = new THREE.GridHelper(1.4, 28, 0xacc1b5, 0xdce5df);
+    grid = new THREE.GridHelper(1.4, 28, 0xacc1b5, 0xdce5df);
     grid.rotation.x = Math.PI / 2;
     scene.add(grid);
     root = new THREE.Group();
@@ -67,9 +93,11 @@ onMounted(async () => {
     observer = new ResizeObserver(() => {
       const w = host.value!.clientWidth,
         h = host.value!.clientHeight;
+      if (w <= 0 || h <= 0) return;
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      fitPreview();
     });
     observer.observe(host.value!);
     let lastFrame = performance.now();
@@ -146,6 +174,7 @@ onMounted(async () => {
       nodes.push(inner);
     }
     loaded.value = true;
+    fitPreview();
   } catch (e) {
     problem.value = String(e);
   }
