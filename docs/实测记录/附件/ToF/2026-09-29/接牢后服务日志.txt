@@ -1,0 +1,8 @@
+Sep 29 19:38:00 microduck tofd[2864]: 2026-09-29T11:38:00.615205Z  WARN tofd: ranging sensor="VL53L5CX" hz=15
+Sep 29 19:41:12 microduck tofd[2864]: 2026-09-29T11:41:12.942644Z  WARN tofd: lost the sensor error=the sensor stopped answering
+Sep 29 19:41:27 microduck tofd[2864]: 2026-09-29T11:41:27.835522Z  INFO tofd: sensor found bus=/dev/i2c-4 address="0x29"
+Sep 29 19:41:28 microduck tofd[2864]: 2026-09-29T11:41:28.149259Z  WARN tofd: ranging sensor="VL53L5CX" hz=15
+Sep 29 19:41:28 microduck tofd[2864]: 2026-09-29T11:41:28.161010Z  WARN tofd: lost the sensor error=the sensor stopped answering
+Sep 29 19:41:34 microduck tofd[2864]: 2026-09-29T11:41:34.437559Z  WARN tofd: no ToF sensor; retrying in the background error=nothing answered at 0x52 on /dev/i2c-4
+Sep 29 19:43:44 microduck tofd[2864]: 2026-09-29T11:43:44.819085Z  INFO tofd: sensor found bus=/dev/i2c-4 address="0x29"
+Sep 29 19:43:45 microduck tofd[2864]: 2026-09-29T11:43:45.134288Z  WARN tofd: ranging sensor="VL53L5CX" hz=15

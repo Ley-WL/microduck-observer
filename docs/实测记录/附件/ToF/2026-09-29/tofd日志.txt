@@ -1,0 +1,14 @@
+Sep 29 08:00:02 microduck tofd[795]: 2026-09-29T00:00:02.881658Z  INFO tofd: the head IMU is off; set [head_imu] enabled = true to read it config=/etc/robot/robotd.toml
+Sep 29 08:00:02 microduck tofd[795]: 2026-09-29T00:00:02.883001Z  INFO tofd: serving tof.stream path=/run/tofd/tof.sock mode="660"
+Sep 29 19:37:51 microduck tofd[795]: 2026-09-29T11:37:51.497233Z  WARN tofd: SIGTERM; stopping
+Sep 29 19:37:51 microduck systemd[1]: Stopping tofd.service - Robot head ToF sensor daemon...
+Sep 29 19:37:51 microduck systemd[1]: tofd.service: Deactivated successfully.
+Sep 29 19:37:51 microduck systemd[1]: Stopped tofd.service - Robot head ToF sensor daemon.
+Sep 29 19:37:51 microduck systemd[1]: Starting tofd.service - Robot head ToF sensor daemon...
+Sep 29 19:37:51 microduck systemd[1]: Started tofd.service - Robot head ToF sensor daemon.
+Sep 29 19:37:51 microduck tofd[2864]: 2026-09-29T11:37:51.885099Z  WARN tofd: starting service="tofd" build=0.15.0 (rev a9ec4b2079ef8ee7904014089c885bb07d57d63c, built 2026-09-23T13:12:38Z) exe=/opt/robot/daemon/releases/0.15.0/bin/tofd pid=2864
+Sep 29 19:37:51 microduck tofd[2864]: 2026-09-29T11:37:51.886115Z  INFO tofd: starting socket=/run/tofd/tof.sock hz=15
+Sep 29 19:37:51 microduck tofd[2864]: 2026-09-29T11:37:51.887875Z  INFO tofd: the head IMU is off; set [head_imu] enabled = true to read it config=/etc/robot/robotd.toml
+Sep 29 19:37:51 microduck tofd[2864]: 2026-09-29T11:37:51.888967Z  INFO tofd: serving tof.stream path=/run/tofd/tof.sock mode="660"
+Sep 29 19:38:00 microduck tofd[2864]: 2026-09-29T11:38:00.302106Z  INFO tofd: sensor found bus=/dev/i2c-4 address="0x29"
+Sep 29 19:38:00 microduck tofd[2864]: 2026-09-29T11:38:00.615205Z  WARN tofd: ranging sensor="VL53L5CX" hz=15

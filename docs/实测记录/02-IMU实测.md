@@ -86,3 +86,76 @@
 - 请求用户翻面，用户确认放稳；随后9秒内4次检查加速度仍为完全相同的三个值，四元数相较翻面前改变。序号和时间戳持续更新。
 - 停止观测服务，原独立诊断8.001秒确认512份加速度、397份角速度和四元数、I/O错误0；加速度仍[1.01172,5.10547,1.79297]，排除仅网页显示/观测服务缓存旧加速度。诊断后恢复服务。
 - 结论：不能认为IMU完全恢复；加速度测量/报告链路异常，可能导致融合姿态不可靠。尚未定位内部硬件、固件状态或底层协议原因，不应仅用归零或90度欧拉角奇异解释。
+
+## 2026-09-29 蓝色串口 IMU：用户交换 RX/TX 后检查
+
+- 用户反馈已交换RX/TX，请求读取。此次针对用户图片中的蓝色TTL串口IMU，具体型号未知；不是上述紫色GY-BNO085，不沿用旧I²C协议与故障结论。实际四线连接、电平及模块工作模式未实物核对。
+- 工具实测主控192.168.31.193在线；uart2-m0已启用，Pin8/10对应ttyS2，内核pinmux为uart2m0-xfer。robotd仍为fake模式。ttyS1被蓝牙hciattach占用，未操作它。
+- 发现ttyS2的serial-getty为active，内核命令行还有console=ttyS2,1500000。临时停止serial-getty，保存原termios后，以8N1、无流控依次测试9600/115200/57600/38400/19200/4800/230400，各接收2秒，全部0字节；未向IMU发送配置或查询命令。通用0x55/11字节协议校验只作为候选检测，并未认定模块采用该协议。
+- 结束在finally恢复原termios并启动原serial-getty，复核为active；未修改启动配置，内核串口控制台未解除。读取/proc/tty/driver/serial显示ttyS2累计rx:0，未见硬件接收字节。
+- 结论：交换后仍没有收到数据，不能仅归因于波特率或认定模块损坏。需核对模块VCC/GND、模块TX到主控物理Pin10的实际连接、3.3V信号电平，以及是否为主动输出模式；推荐后续只接VCC/GND/TX→主控RX三线进行只读验证，暂不接模块RX以隔离主控控制台输出。实际供电及型号资料尚缺。
+- 证据：[各波特率接收结果](附件/IMU/2026-09-29/交换RX-TX后串口检查.json)。本轮无新有效IMU测量。
+
+### 2026-09-29 接入后无法启动反馈与接线照片核对
+
+- 用户反馈“接上去就开不了机”，尚未确认是指示灯不亮还是网络不可达，亦未确认拔掉IMU后的启动对照。不能据此认定供电短路或启动串口受干扰。
+- 用户提供[蓝色串口IMU接线照片](附件/IMU/2026-09-29/蓝色串口IMU接线照片.jpg)。照片芯片面朝上、USB在上、天线在右、40Pin在下：从右侧天线端往左编号，靠芯片内排1/3/5…，靠下方板边外排2/4/6…。
+- 照片目视：IMU上排丝印从左到右D0/VCC/RX/TX/GND/D1，四个插头看起来覆盖VCC/RX/TX/GND；TX为紫线、GND为蓝线，两根浅色线接VCC/RX，但跨线遮挡使两端对应不可可靠确认。未发现足以确认整体错一位的证据，也未实测焊点是否短路。
+- 主控插头遮挡针位且透视较大，不能确认紫线/蓝线具体孔号，不能宣布接线正确。按此照片方向，计划VCC接内排右起第1个Pin1、GND接外排右起第3个Pin6、IMU TX接外排右起第5个Pin10，IMU RX先不接。下一步保持断电，提供主控40Pin垂直俯拍核对电源孔位；未核对前不建议盲目换线或反复上电。
+
+### 2026-09-29 主控40Pin近照复核
+
+- 新照片：[主控40Pin近照](附件/IMU/2026-09-29/主控40Pin近照.jpg)。正面朝上、排针左、USB右、天线下，为标准编号方向。
+- 按可见排针间距及底端定位，最下方内排浅灰线看起来位于Pin1（3.3V）；蓝线位于外排由下往上第3排Pin6（GND）；紫线位于外排第5排Pin10（UART2 RX）。与上一张模块端蓝线GND、紫线TX相符，照片未显示这三根线有明显编号/方向错误。另一根浅色线的黑色端子看似悬空，不能仅凭图确认其端到端对应。
+- 此为照片判断，不是万用表导通或电平验证；焊点短路、接触和实际供电未排除。建议不再盲目交换RX/TX；若接入影响启动，断电后先拔开IMU TX到Pin10的紫线，仅保留确认的供电与地线做启动对照，以区分供电负载与串口相关因素。该对照尚未执行，启动串口干扰仍是待验证假设。
+
+### 2026-09-29 仅接Pin1/6启动对照
+
+- 用户明确当前仅连接Pin1（3.3V）和Pin6（GND），请求检查。工具通过SSH成功登录192.168.31.193，hostname=microduck；uptime复查80.51秒，boot_id=33e26c93-3095-499f-9257-93b43aa78000，说明此接线条件下主控已进入Linux并可联网。microduck-observer及tofd均active。
+- systemctl仍为starting、failed单元0；启动作业等待dev-ttyFIQ0.device及serial-getty@ttyFIQ0.service，不把SSH可达表述成所有启动作业完成。此次未更改系统配置。
+- 仅供电接线下可进入系统，尚不能证明IMU自身正常或供电电气指标合格；此前接信号线后的启动问题仍待对照，串口干扰并未被证实。没有信号线时不进行IMU数据读取。
+
+### 2026-09-29 释放Linux UART2并重启验证
+
+- 在用户反馈仅接Pin1/6、主控SSH可达的条件下，按用户请求处理串口占用。备份于主控`/home/radxa/microduck-debug/uart2-console-backup-20260929-215254/`，含原armbianEnv.txt及两项服务原状态JSON（原均enabled）。
+- `/boot/armbianEnv.txt`仅将`console=both`改为`console=display`，保留uart2-m0及其他overlay；mask --now serial-getty@ttyS2.service。另mask --now原先等待不存在ttyFIQ0设备的serial-getty@ttyFIQ0.service，避免启动作业等待。
+- 执行正常systemctl reboot后SSH重新可达，boot_id=9de78e31-4121-4347-9b58-39def15b0aba；/proc/cmdline仅console=tty1，无ttyS2控制台；两项getty均masked，ttyS2为root:dialout；系统running，观测及tofd均active。
+- 此次仅验证Linux串口占用解除及仅供电条件下重启成功；没有修改U-Boot环境或固件，不保证启动加载器阶段不受IMU输入影响。尚未重接TX复测，不代表收到IMU数据。
+- 后续：断电后只增加IMU TX（紫线）到主控Pin10，模块RX仍不接，启动后尝试接收；若接TX又不能启动，停止反复上电，转查U-Boot输入或改用独立串口/USB-TTL方案。
+- 回退：从上述备份恢复armbianEnv.txt，unmask两项serial-getty，按service-state.json恢复原启用状态，再正常重启。
+
+### 2026-09-29 官方资料核对：建议迁移UART4_M1
+
+- 用户询问Pin8/10替代方案。重新读取Radxa官方radxa-docs/docs仓库hardware-interface.md：明确警告UART2_M0同时为U-Boot控制台，输入会中断启动，不建议作普通串口。此前仅关闭Linux控制台无法解决此启动阶段问题；当前用户现象与该机制一致，但尚未独立证明唯一原因。
+- 官方40Pin表：Pin16=UART4_RX_M1(GPIO3_B1)，Pin18=UART4_TX_M1(GPIO3_B2)。建议IMU TX→Pin16，IMU RX→Pin18（只读测试可先不接RX），VCC/GND沿用Pin1/6。标准正面方向外排由下向上第8/9个。与ToF Pin27/28无针脚冲突。
+- 此为拟采用方案，尚未检查主控uart4-m1 overlay文件、启用或实测；不可只换线就宣称可读。此次SSH到192.168.31.193超时，需要用户断电拔开紫色TX线后恢复主板上线，再配置UART4。
+- 官方来源：https://docs.radxa.com/zero/zero3/hardware-design/hardware-interface 。未采用官方针对Radxa OS的rsetup/u-boot-update步骤修改当前Armbian引导器。
+
+### 2026-09-29 用户接线后联网复核
+
+- 用户回复“接上了”并请求检查在线状态，未逐脚重述实际接法。工具SSH成功连接192.168.31.193，hostname=microduck、刚启动不足1分钟，systemctl为running。不能仅由“接上了”将Pin16/18实物接线认定为已验收。
+- 当前仅见ttyS1/ttyS2，armbianEnv.txt尚无uart4-m1；UART4尚未启用，本轮只确认主控在线，未读取新串口IMU数据、未更改配置。
+
+## 2026-09-29 UART4启用成功，蓝色串口IMU连续数据验证通过
+
+- 系统自带rk3568-uart4-m1.dtbo，dtc反编译metadata明确ZERO3 RX物理Pin16、TX物理Pin18，目标uart4与uart4m1_xfer；启用前Pin16为MUX/GPIO未占用。
+- 将uart4-m1追加到/boot/armbianEnv.txt的overlays，保留其他配置；原文件备份`/home/radxa/microduck-debug/armbianEnv.before-uart4-20260929-221314.txt`。正常重启后SSH可达，系统running、观测和tofd均active，出现/dev/ttyS4；debugfs确认GPIO3_B1/B2复用到fe680000.serial的uart4m1-xfer。回退：恢复该备份并正常重启（会恢复到已禁用Linux串口控制台的状态，不回退更早变更）。
+- 只接收不发送IMU命令，以8N1无流控测试9600和115200。9600收到乱码；115200两秒21472字节，随后10秒107491字节。测试关闭端口并恢复原termios，没有配置持久IMU采集服务。
+- 初始通用0x55/11字节探测误将本模块部分55 55帧视作type55，不能把输出的valid_wit_11byte_frames当作标准WIT协议识别。随后对全部原始数据按实测结构`55 55 type length payload checksum`重新校验，checksum为末字节前整帧字节和低8位。
+- 十秒数据得到7961个完整校验通过帧，校验失败候选0；type01/length6为1990帧，type02/length8为1991帧，type03/length12及type06/length8各1990帧，约每类199Hz。开头10字节/末尾8字节为采集边界未完整成帧的字节，不能用本结果宣称有序号丢帧率验证。
+- 最新结论：Pin16/18对应UART4已启用，115200下收到连续且校验一致的IMU串口数据；当前接线条件下主板可以重启。模块具体型号、载荷物理单位/轴向、静态精度及运动响应尚未核对；未将原始数值解释为已验证角度/加速度，也未接入观测平台。不能沿用此前紫色BNO085解析器。
+- 原接线方案：VCC→Pin1、GND→Pin6、模块TX→Pin16，模块RX→Pin18（只读可不接）。用户未给出换线后的照片，当前只确认UART4通路实测成功，不认定RX线也已逐脚验收。
+- 证据：[波特率探测](附件/IMU/2026-09-29/UART4波特率探测.json)、[10秒原始二进制](附件/IMU/2026-09-29/UART4-115200-10秒.bin)、[变长帧校验统计](附件/IMU/2026-09-29/UART4-115200-10秒.json)。
+
+## 2026-09-29 MS901M接入独立观测平台并部署
+
+- 用户确认品牌为正点原子，未提供型号；结合板上MS901M丝印、帧格式与公开镜像中的正点原子`atk_ms901m.c` V1.0（2022-06-21）核对，按MS901M协议实现。协议依据为 https://github.com/jyyy3901/esp-drone-ms901m 的 `hardware/ATK-IMU901模块资料（新资料）/2，程序源码/ATK-MS901M模块测试实验/精英STM32F103开发板/Drivers/BSP/ATK_MS901M/atk_ms901m.c`。这是厂商示例的第三方镜像，不把镜像仓库本身称为官方发布源。
+- 工具直接读取寄存器：只发送量程读取请求，返回`55af0301030b`、`55af0401010a`，确认gyro索引3=±2000°/s、accel索引1=±4g。无模块配置、Flash保存、校准或运动指令。两向串口通信已能得到查询应答，但换线后具体物理接法仍无新照片逐线验收。
+- 实现：新增ms901m.py增量帧解析、校验失败重同步、串口独占、断流重连；UART4 115200/8N1。四元数由Q0/Q1/Q2/Q3转平台xyzw；加速度按读取量程换算m/s²，角速度换算rad/s；量程未读回时不发布猜测单位的imu.raw。accuracy=null，不伪造BNO085精度级别。实际安装方向未校准，不发布身体姿态pose。
+- 新release `/home/radxa/microduck-observer/releases/20260929-ms901m`。新增systemd drop-in `/etc/systemd/system/microduck-observer.service.d/imu-ms901m.conf`，设置MICRODUCK_IMU_DRIVER=ms901m、MICRODUCK_IMU_PORT=/dev/ttyS4、SupplementaryGroups=dialout、DeviceAllow=/dev/ttyS4 rw。只重启观测平台，未重启tofd/robotd或控制舵机。
+- 前端型号显示由固定BNO085改为info.imuModel，复用现有实时姿态/IMU曲线。旧BNO085姿态参考及安装轴样本不适用于新模块，已备份后将共享标定imu参考清空、mounting.yaw设0；initialized=true作为已清除标记，防止旧浏览器本地标定重新迁入；舵机标定内容保留。
+- 备份：主控`/home/radxa/microduck-observer/ms901m-backup-20260929/`含`previous-release.txt`和`calibration.json`。旧release为20260929-tof，未删除。回退：停止microduck-observer，移除本次新增imu-ms901m.conf，将current恢复指向previous-release.txt记录路径，恢复备份calibration.json及原文件属主/权限，daemon-reload后启动服务。若期间有新标定，应先保存当前标定再决定是否恢复旧文件。
+- 软件验证：46项后端测试、28项前端测试通过，生产构建通过；涵盖真实107491字节回放、7961帧校验、坏帧重同步、单位/四元数顺序、未知量程抑制和过期状态。最后health有效性补充后，4项MS901M测试再次通过。测试不替代真实轴向和精度校准。
+- 工具直接部署验证：首页、当前JS/CSS均HTTP200；health显示MS901M streaming、量程confirmed、底层各报告约198Hz，I/O错误、未解析报告、校验错误、丢弃事件均0。WebSocket实采12.024秒，imu.orientation 598条（49.736Hz）、imu.raw 597条（49.652Hz）、ToF162条（13.474Hz）；IMU样本最大ageMs 24.845（后端采样年龄，不代表端到端显示延迟）。序号严格递增；推送有意降采样，未宣称硬件无序号丢帧。
+- 本轮加速度模长9.908–10.009m/s²、中位9.959；没有完成已知姿态旋转、动态响应或精度测试，不能据此宣布完整校准。浏览器自动打开超时，未目视确认页面渲染与交互；HTTP/WS与生产资源已验证。舵机仍报告Serial unavailable，本次仅恢复IMU观测，不代表整机可运动。
+- 证据：[平台MS901M WebSocket及health验证](附件/IMU/2026-09-29/平台MS901M验证.json)。

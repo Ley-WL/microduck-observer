@@ -84,3 +84,28 @@ quality = "1080p30"
 2026-09-25 实机验证：IMX219 1920×1080，浏览器约30fps；使用此前实测的固定曝光/白平衡，自动曝光/白平衡尚未恢复。停止、重新连接及切页释放会话通过浏览器验证。
 
 2026-09-23 更新：独立进程同步只读采集已实测约 49.36 Hz，最新测量与字段说明见 README 的采集优化验证。上述 13.8 Hz 为旧版本历史结果。
+
+## ToF 距离热图（VL53L5CX / tofd）
+
+硬件模式默认订阅 `/run/tofd/tof.sock` 的 `tof.stream`，不新增 I²C 采集进程。使用 `MICRODUCK_TOF_SOCKET` 可指定路径，设为空字符串可禁用。运行用户需要 socket 所属 `robot` 组权限；本次主控 radxa 已属于该组。不要为了接入热图重启 tofd 或改写传感器参数。
+
+浏览器“传感器”页经平台原有 WebSocket 接收 `tof` 主题，显示 8×8 距离、状态、有效区域统计和实际频率。只将 status=5 计为有效；原始分区顺序未经安装方向标定。断流3秒后后端重新订阅，页面超过1.5秒标记过期。全局暂停冻结热图，恢复后显示最新帧。模拟模式默认不生成 ToF 假数据。
+
+2026-09-29 已部署 `releases/20260929-tof`，只切换平台 release 并重启 microduck-observer，现有 systemd 配置和 tofd 保留。旧 release 路径保存在主控 `previous-release-tof-20260929.txt`；标定文件已备份为 `/var/lib/microduck-observer/calibration.pre-tof-20260929.json`。回退可将 current 重新链接到该旧 release 再重启平台。现有安装脚本的 I²C 独占检查不适用于已经运行 tofd 的更新场景，此次更新没有调用它。
+
+## MS901M 串口IMU（UART4）
+
+当前实机使用MS901M。启用Armbian的uart4-m1后，物理Pin16为主控RX（接IMU TX）、Pin18为主控TX（接IMU RX）。Pin8/10是U-Boot启动串口，不用于该主动输出模块。引脚接线与电平核对见实测文档。
+
+设置观测服务drop-in：
+```ini
+[Service]
+Environment=MICRODUCK_IMU_DRIVER=ms901m
+Environment=MICRODUCK_IMU_PORT=/dev/ttyS4
+SupplementaryGroups=dialout
+DeviceAllow=/dev/ttyS4 rw
+```
+
+默认仍支持bno085驱动。MS901M以115200/8N1接收；仅发送量程寄存器读取请求，不写配置。模块RX回路需接通才能查询量程；未收到合法量程应答时仍可发布四元数，但不输出猜测倍率的加速度/角速度。health显示rangeState、ranges、checksumErrors和报告计数。替换传感器后须备份并清除旧IMU参考/安装校准，不能照搬旧BNO085参数；保留舵机标定。
+
+2026-09-29部署到20260929-ms901m，备份和回退步骤见实测记录02-IMU实测.md。本次更新未调用原安装脚本（它的I²C独占检查针对BNO085，不适用于当前UART4/ToF并行运行）。

@@ -58,3 +58,12 @@ source 可为 simulation、hardware、replay。服务根据 `MICRODUCK_SOURCE=si
 ## v0.4 joints 只读反馈
 
 配置串口后订阅 `joints: 5`。sample.source 为 hardware，data 包含 configuredIds、servos 和串口 error。每行包含 id、online；在线行另含 position（编码器原始步数）、voltage（V）、temperature（℃）、currentRaw（单位待核实）、load（带符号原始值）、torque、fault（状态位）、target、ageMs（相对发布时刻）。angle 为 null，未完成机械零位与方向校准。行年龄需叠加样本 ageMs 及客户端接收后的时间。缺失字段不是零值；无应答不保留假实时读数。
+
+
+### ToF 实机扩展
+
+订阅 `tof: 20`（推送上限20Hz，当前硬件配置15Hz、实收约13.5Hz）。样本保持 protocolVersion=1；source 为 hardware，data 包含 rows/cols=8、distanceMm[64]、status[64]、sensorSeq、sensorTimeNs、hz、sequenceGap 和 sensor。valid 表示帧结构有效，各区是否可用由 status=5 判断，不能将整个帧的 valid 当成64区均有效。数组按 tofd 原始顺序，无镜像或旋转。ageMs 从平台接收时刻起计算，不包括未知的传感器到平台传输延迟；sensorTimeNs 保留原始时钟，不与平台相对时钟混用。system.data.tof 和 health.tof 提供 streaming/stale/offline 状态、错误和接收年龄。重连可接受重新开始的传感器序号，平台自身 seq 继续递增。
+
+### MS901M硬件源
+
+`info.imuModel`提供当前型号。MS901M沿用`imu.orientation`的xyzw四元数和`imu.raw`的m/s²加速度、rad/s角速度；frame=sensor，accuracy字段为null（无对应精度报告），timestampBasis=host_receive。量程通过寄存器读取确认，未知时不发布imu.raw；不将IMU传感器姿态宣称为已标定身体pose。

@@ -1,0 +1,54 @@
+{
+  "getty_restored": false,
+  "results": [
+    {
+      "baud": 9600,
+      "seconds": 2,
+      "bytes": 1940,
+      "valid_wit_11byte_frames": 0,
+      "types": {},
+      "head_hex": "12d24aea62a86ef850eadbe0fe4a56b01a7268a4837873f55a705cf5b0d4f30ae0f06a6c30f0a06af810f432c00470d09a41adf9fce844aff1fce8c5a0fe784ec520fe5c6ac0288f9c6af2a10e0ddb38573d229604e0f76892f4cb94928085d09a052ff8",
+      "last_valid_frames": []
+    },
+    {
+      "baud": 115200,
+      "seconds": 2,
+      "bytes": 21472,
+      "valid_wit_11byte_frames": 397,
+      "types": {
+        "0x55": 397
+      },
+      "head_hex": "2e3e3b955555030c53e56f052deefbff010002007d55550608a203b803be039e037a5555010609742c27aad60155550208f00daa99fa2e3e3b955555030c53e56f0532ee0100fefffdff7f555506081a05bf0485049b05c3555501060a742c27aad60255",
+      "last_valid_frames": [
+        "5555010607742c27a8d6fd",
+        "5555010607742c27a8d6fd",
+        "5555010608742c27a8d6fe",
+        "5555010607742c27a8d6fd",
+        "5555010607742c27a8d6fd",
+        "5555010607742c27a8d6fd",
+        "5555010607742c27a8d6fd",
+        "5555010607742c27a8d6fd"
+      ]
+    },
+    {
+      "baud": 115200,
+      "seconds": 10,
+      "bytes": 107491,
+      "valid_wit_11byte_frames": 1999,
+      "types": {
+        "0x55": 1999
+      },
+      "head_hex": "55010607742c27a8d6fd55550208ee0dab99fb2e3f3b965555030c44e5560526eefbfffefffeff455555060826041d0409044404585555010607742b27a8d6fc55550208ee0dab99fb2e3f3b965555030c5ce560052deefefffdffffff71555506084c02",
+      "last_valid_frames": [
+        "5555010612742b27b2d611",
+        "5555010612742b27b2d611",
+        "5555010612742b27b2d611",
+        "5555010611742b27b2d610",
+        "5555010611742b27b2d610",
+        "5555010611742b27b2d610",
+        "5555010611742b27b2d610",
+        "5555010611742b27b2d610"
+      ]
+    }
+  ]
+}

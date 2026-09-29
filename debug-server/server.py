@@ -15,13 +15,20 @@ from pydantic import BaseModel
 from typing import Literal
 
 SOURCE = os.environ.get('MICRODUCK_SOURCE', 'simulation')
+IMU_DRIVER = os.environ.get('MICRODUCK_IMU_DRIVER', 'bno085')
+if IMU_DRIVER not in ('bno085', 'ms901m'):
+    raise ValueError('Unknown MICRODUCK_IMU_DRIVER')
+IMU_MODEL = 'MS901M' if IMU_DRIVER == 'ms901m' else 'BNO085'
 if SOURCE not in ('simulation', 'hardware'):
     raise ValueError('MICRODUCK_SOURCE must be simulation or hardware')
 SERVO_PORT = os.environ.get("MICRODUCK_SERVO_PORT", "")
 from servos import ServoSource, parse_ids
 SERVO_IDS = parse_ids(os.environ.get("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24"))
-TOPICS = {"pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None, "joints": 50}
+TOF_SOCKET = os.environ.get("MICRODUCK_TOF_SOCKET", "/run/tofd/tof.sock" if SOURCE == "hardware" else "")
+TOPICS = {"tof": 20, "pose": 50, "imu.orientation": 50, "imu.raw": 50, "system": 1, "logs": None, "joints": 50}
 ACTIVE_TOPICS = {k: v for k, v in TOPICS.items() if k != ('pose' if SOURCE == 'hardware' else 'imu.orientation')}
+if not TOF_SOCKET:
+    ACTIVE_TOPICS.pop("tof", None)
 if not SERVO_PORT:
     ACTIVE_TOPICS.pop("joints", None)
 
@@ -35,7 +42,7 @@ class Simulator:
         self.seq = dict.fromkeys(TOPICS, 0)
         self.latest = {}
         self.logs = deque(maxlen=2000)
-        self.log("INFO", "server", "BNO085 实机观测服务启动" if source == 'hardware' else "独立模拟服务已启动，未连接真实硬件")
+        self.log("INFO", "server", f"{IMU_MODEL} 实机观测服务启动" if source == 'hardware' else "独立模拟服务已启动，未连接真实硬件")
 
     def sample(self, topic, data, valid=True, timestamp=None):
         self.seq[topic] += 1
@@ -79,13 +86,18 @@ from calibrations import CalibrationStore, Conflict
 calibrations = CalibrationStore(os.environ.get('MICRODUCK_CALIBRATION_FILE', str(Path.home()/'.microduck-observer/calibration.json')))
 hardware = None
 servos = None
+from tof import TofSource
+tof = TofSource(sim, TOF_SOCKET) if TOF_SOCKET else None
 
 
 @asynccontextmanager
 async def lifespan(app):
     global hardware, servos
     if SOURCE == 'hardware':
-        from hardware import HardwareSource
+        if IMU_DRIVER == 'ms901m':
+            from ms901m import Ms901mSource as HardwareSource
+        else:
+            from hardware import HardwareSource
         hardware = HardwareSource(sim)
         hardware.thread.start()
     if SERVO_PORT:
@@ -104,7 +116,7 @@ async def lifespan(app):
                 servos.drain()
             if count % round(1 / period) == 0:
                 sim.sample("system", dict(uptimeSeconds=time.monotonic()-sim.start,
-                    imu=hardware.health() if hardware else None, scenario=sim.mode if not hardware else None))
+                    tof=tof.health() if tof else None, imu=hardware.health() if hardware else None, scenario=sim.mode if not hardware else None))
             if not hardware and count % 250 == 0:
                 sim.log("INFO", "telemetry", "模拟数据源运行中 · " + sim.mode)
             count += 1
@@ -112,8 +124,15 @@ async def lifespan(app):
             if deadline < time.monotonic() - .1:
                 deadline = time.monotonic()
             await asyncio.sleep(max(0, deadline - time.monotonic()))
+    tof_task = asyncio.create_task(tof.run()) if tof else None
     task = asyncio.create_task(producer())
     yield
+    if tof_task:
+        tof_task.cancel()
+        try:
+            await tof_task
+        except asyncio.CancelledError:
+            pass
     task.cancel()
     try:
         await task
@@ -138,18 +157,19 @@ app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http
 
 @app.get("/api/v1/info")
 async def info():
-    return dict(name="MicroDuck · BNO085" if SOURCE == 'hardware' else "MicroDuck Lab",
+    return dict(name=f"MicroDuck · {IMU_MODEL}" if SOURCE == 'hardware' else "MicroDuck Lab",
+                imuModel=IMU_MODEL if SOURCE == 'hardware' else None,
                 protocolVersion=1, bootId=sim.boot, source=SOURCE,
                 topics=ACTIVE_TOPICS, capabilities={"pose": SOURCE != 'hardware', "imu": True,
                 "sensorOrientation": SOURCE == 'hardware', "joints": bool(SERVO_PORT),
-                "camera": False, "tof": False, "scenarios": SOURCE != 'hardware'})
+                "camera": False, "tof": bool(TOF_SOCKET), "scenarios": SOURCE != 'hardware'})
 
 
 @app.get("/api/v1/health")
 async def health():
     imu = hardware.health() if hardware else None
     return dict(status="degraded" if SOURCE == 'hardware' and (not imu or imu['state'] != 'streaming') else "ok",
-                source=SOURCE, imu=imu, joints=sim.stamp(sim.latest["joints"]) if "joints" in sim.latest else None, logCount=len(sim.logs))
+                source=SOURCE, imu=imu, tof=tof.health() if tof else None, joints=sim.stamp(sim.latest["joints"]) if "joints" in sim.latest else None, logCount=len(sim.logs))
 
 
 @app.get("/api/v1/snapshot")

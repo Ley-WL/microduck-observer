@@ -1,3 +1,4 @@
+import { validTof } from "./tof";
 import { computed, ref, shallowRef, onScopeDispose } from "vue";
 import { defineStore } from "pinia";
 import {
@@ -26,6 +27,11 @@ export const useTelemetry = defineStore("telemetry", () => {
   const pose = shallowRef<Sample | null>(null),
     sensorOrientation = shallowRef<Sample | null>(null),
     imu = shallowRef<Sample | null>(null);
+  const tof = shallowRef<Sample | null>(null);
+  const tofReceived = ref(0);
+  let pendingTof: Sample | null = null;
+  let pendingTofReceived = 0;
+  const tofAge = computed(() => tof.value ? tof.value.ageMs + Math.max(0, now.value - tofReceived.value) : Infinity);
   const system = shallowRef<Sample | null>(null);
   const joints = shallowRef<Sample | null>(null);
   const jointsReceived = ref(0);
@@ -88,6 +94,8 @@ export const useTelemetry = defineStore("telemetry", () => {
   function reset(nextBoot: string) {
     boot.value = nextBoot;
     sequences = {};
+    tof.value = null;
+    pendingTof = null;
     joints.value = null;
     system.value = null;
     pendingJoints = null;
@@ -157,6 +165,11 @@ export const useTelemetry = defineStore("telemetry", () => {
         joints.value = pendingJoints;
         jointsReceived.value = pendingJointsReceived;
       }
+    } else if (item.topic === "tof") {
+      if (!validTof(item.data)) { rejected.value++; return; }
+      pendingTof = item;
+      pendingTofReceived = performance.now();
+      if (!paused.value) { tof.value = item; tofReceived.value = pendingTofReceived; }
     } else if (item.topic === "system") {
       system.value = item;
     } else if (item.topic === "logs") {
@@ -178,6 +191,8 @@ export const useTelemetry = defineStore("telemetry", () => {
       pendingLogs = [];
     }
     if (!paused.value) {
+      tof.value = pendingTof;
+      tofReceived.value = pendingTofReceived;
       chart.value = [...history];
       joints.value = pendingJoints;
       jointsReceived.value = pendingJointsReceived;
@@ -269,6 +284,7 @@ export const useTelemetry = defineStore("telemetry", () => {
               "imu.orientation": 50,
               "imu.raw": 50,
               joints: 20,
+              tof: 20,
               system: 1,
               logs: null,
             },
@@ -323,6 +339,8 @@ export const useTelemetry = defineStore("telemetry", () => {
   }
   onScopeDispose(dispose);
   return {
+    tof,
+    tofAge,
     system,
     joints,
     jointsAge,

@@ -1,0 +1,22 @@
+{
+  "bytes": 107491,
+  "seconds": 10,
+  "frame_format": "55 55 type length payload checksum; checksum=sum(all preceding frame bytes)&255",
+  "valid_frames": 7961,
+  "types": {
+    "02/len8": 1991,
+    "03/len12": 1990,
+    "06/len8": 1990,
+    "01/len6": 1990
+  },
+  "bad_checksum_candidates": 0,
+  "leading_or_unframed_bytes": 10,
+  "trailing_bytes": 8,
+  "last_packets": {
+    "02": "55550208f30da699f62e3a3b8c",
+    "03": "5555030c5ae5670529eef7ff0400feff72",
+    "06": "55550608250351035b03da026e",
+    "01": "5555010611742b27b2d610"
+  },
+  "interpretation": "Framing verified; payload physical units and axes not yet verified against module manual."
+}
