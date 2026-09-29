@@ -13,3 +13,16 @@ export function tofStats(data: { distanceMm: number[]; status: number[] } | unde
   return { count: n, min: n ? distances[0] : null, max: n ? distances[n-1] : null,
     median: n ? (distances[Math.floor((n-1)/2)] + distances[Math.floor(n/2)]) / 2 : null };
 }
+
+export type DepthCell = { distance: number | undefined; valid: boolean };
+export function tofColumns(cells: DepthCell[]) {
+  return Array.from({ length: 8 }, (_, column) => {
+    let nearest: { index: number; column: number; distance: number } | null = null;
+    for (let row = 0; row < 8; row++) {
+      const index = row * 8 + column, cell = cells[index];
+      if (cell?.valid && cell.distance != null && Number.isFinite(cell.distance) && cell.distance >= 0 &&
+          (!nearest || cell.distance < nearest.distance)) nearest = { index, column, distance: cell.distance };
+    }
+    return nearest;
+  });
+}

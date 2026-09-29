@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-29",
+  "assets": {
+    "/assets/index-JzWXY56n.js": 200,
+    "/assets/index-CYhWMGXp.css": 200
+  },
+  "elapsedSeconds": 5.000158499999088,
+  "frames": {
+    "imu.raw": 251,
+    "imu.orientation": 250,
+    "tof": 69
+  },
+  "camera": "8443 connection refused; mediad exits: no imx219 entity; kernel imx219 probe error -5",
+  "browserVisualVerified": false
+}

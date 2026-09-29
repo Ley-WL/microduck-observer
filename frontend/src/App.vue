@@ -4,8 +4,7 @@ import { useTelemetry } from "./store";
 import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
-import TofView from "./components/TofView.vue";
-import CameraView from "./components/CameraView.vue";
+import SensorWorkbench from "./components/SensorWorkbench.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
 import { bodyRelativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
@@ -121,7 +120,7 @@ function time(ms: number) {
 onMounted(() => state.connect());
 </script>
 <template>
-  <div class="shell" :class="{ 'workbench-shell': ['姿态与 IMU','姿势标定'].includes(page) }">
+  <div class="shell" :class="{ 'workbench-shell': ['姿态与 IMU','姿势标定','联合观测'].includes(page) }">
     <aside class="sidebar">
       <a class="brand" href="#" @click.prevent="page = '总览'"
         ><span class="brand-mark">μ</span
@@ -133,12 +132,12 @@ onMounted(() => state.connect());
       </div>
       <nav>
         <button
-          v-for="(label, i) in ['总览', '姿态与 IMU', '日志', '传感器', '画面']"
+          v-for="(label, i) in ['总览', '姿态与 IMU', '联合观测', '日志']"
           :key="label" :title="label"
           :class="{ active: page === label }"
           @click="page = label"
         >
-          <span class="nav-symbol">{{ ["◫", "⌁", "≡", "◉", "▣"][i] }}</span
+          <span class="nav-symbol">{{ ["◫", "⌁", "⊞", "≡"][i] }}</span
           >{{ label }}
         </button>
       </nav>
@@ -181,7 +180,7 @@ onMounted(() => state.connect());
           @clear="clearCalibration"
           @pause="pause"
         />
-        <CameraView v-else-if="page === '画面'" />
+        <SensorWorkbench v-else-if="page === '联合观测'" :quaternion="quaternion" :angles="angles" :calibrated="Boolean(initialOrientation)" @navigate="page = $event" />
         <template v-else>
           <div class="page-heading">
             <div>
@@ -561,7 +560,6 @@ onMounted(() => state.connect());
             </div>
           </section>
 
-          <TofView v-if="page === '传感器'" />
 
           <section
             v-if="state.info?.capabilities?.scenarios"
