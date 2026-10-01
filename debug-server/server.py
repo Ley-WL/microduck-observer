@@ -116,6 +116,7 @@ async def lifespan(app):
                 servos.drain()
             if count % round(1 / period) == 0:
                 sim.sample("system", dict(uptimeSeconds=time.monotonic()-sim.start,
+                    servoControl=servos.control if servos else None,
                     tof=tof.health() if tof else None, imu=hardware.health() if hardware else None, scenario=sim.mode if not hardware else None))
             if not hardware and count % 250 == 0:
                 sim.log("INFO", "telemetry", "模拟数据源运行中 · " + sim.mode)
@@ -225,6 +226,61 @@ async def guided_calibration(action: str, request: Request):
             if body.get('confirm') is not True: raise ValueError('请确认姿势和写入预览')
             return await pose_calibration.execute(body.get('token'))
     except (ValueError,TypeError,KeyError,TimeoutError) as exc: raise HTTPException(409,str(exc))
+
+
+@app.get('/api/v1/servos/limits')
+def servo_limits():
+    from servo_control import OFFICIAL_LIMITS_DEG
+    return dict(limits=OFFICIAL_LIMITS_DEG, unit='deg')
+
+
+@app.post('/api/v1/servos/{action}')
+async def servo_action(action: str, request: Request):
+    if action not in ('enable', 'disable', 'stand', 'angle', 'profile'): raise HTTPException(404)
+    origin = request.headers.get('origin')
+    if origin is not None and origin not in (str(request.base_url).rstrip('/'), 'http://localhost:5173', 'http://127.0.0.1:5173'):
+        raise HTTPException(403, 'Origin not allowed')
+    if request.headers.get('content-type', '').split(';')[0] != 'application/json': raise HTTPException(415, 'JSON required')
+    raw = await request.body()
+    if len(raw) > 1024: raise HTTPException(413)
+    if not servos: raise HTTPException(409, '未连接实机舵机服务')
+    try:
+        import json
+        body = json.loads(raw)
+        if not isinstance(body, dict): raise ValueError('Invalid request')
+        if action == 'disable':
+            return await asyncio.shield(asyncio.wrap_future(servos.submit_off()))
+        if pose_calibration.lock.locked(): raise ValueError('已有标定或运动任务正在执行')
+        async with pose_calibration.lock:
+            state = calibrations.read(sim.boot)
+            if action == 'stand':
+                if body.get('confirmCalibration') is not True: raise ValueError('请确认位置标定正确并托住机器人')
+                if body.get('revision') != state['revision']: raise ValueError('标定已更新，请重新确认')
+                from servo_control import STAND
+                if any(str(sid) not in state['joints']['references'] for sid in STAND):
+                    raise ValueError('请先完成双腿及头颈 14 个关节的位置标定')
+            command = dict(action=action, calibration=state)
+            if action == 'profile':
+                from servo_control import validate_angle_request
+                validate_angle_request(body.get('id'), 0)
+                command.update(id=body['id'])
+            if action == 'angle':
+                from servo_control import validate_angle_request
+                validate_angle_request(body.get('id'), body.get('angleDeg'))
+                if body.get('revision') != state['revision']: raise ValueError('标定已更新，请刷新角度后重试')
+                command.update(id=body['id'], angleDeg=body['angleDeg'])
+            future = servos.submit_control(command)
+            # Keep references locked even when the initiating browser disconnects.
+            wrapped = asyncio.wrap_future(future)
+            try: result = await asyncio.shield(wrapped)
+            except asyncio.CancelledError:
+                await asyncio.shield(wrapped)
+                raise
+            sim.log('INFO', 'servo-control', result['message'])
+            return result
+    except (ValueError, TypeError, KeyError) as exc:
+        sim.log('WARN', 'servo-control', str(exc))
+        raise HTTPException(409, str(exc))
 
 
 @app.get("/api/v1/logs")

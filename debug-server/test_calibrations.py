@@ -54,3 +54,17 @@ class CalibrationTests(unittest.TestCase):
         self.assertEqual(confirmed['mounting'],saved['mounting'])
         for value in (True,91,float('nan')):
             with self.assertRaises(ValueError):restarted.update(3,{'mounting':{'yaw':value}},'b')
+
+class InstallationPersistenceTests(unittest.TestCase):
+    def test_position_persists_and_does_not_change_joint_references(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'calibration.json'
+            store=CalibrationStore(path)
+            before=store.read('boot')
+            store.update(0, {'mounting':{'yaw':0,'positionMm':[12,-25,40]}}, 'boot')
+            after=CalibrationStore(path).read('boot')
+            self.assertEqual(after['mounting']['positionMm'], [12,-25,40])
+            self.assertEqual(after['joints'],before['joints'])
+            for value in ([301,0,0],[float('nan'),0,0],[True,0,0],[1,2]):
+                with self.assertRaises(ValueError):
+                    store.update(1,{'mounting':{'yaw':0,'positionMm':value}},'boot')

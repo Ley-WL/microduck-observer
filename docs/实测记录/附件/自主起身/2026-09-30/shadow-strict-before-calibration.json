@@ -1,0 +1,60 @@
+{
+  "mode": "read-only shadow; NO motor execution",
+  "bench": {
+    "recovery": {
+      "synthetic_input": true,
+      "p50_ms": 1.0860369993679342,
+      "p95_ms": 1.6174483494978609,
+      "max_ms": 2.057157000308507
+    },
+    "recovery_stand": {
+      "synthetic_input": true,
+      "p50_ms": 1.1198715010323212,
+      "p95_ms": 1.549502849593409,
+      "max_ms": 1.7978609994315775
+    },
+    "rise": {
+      "synthetic_input": true,
+      "p50_ms": 1.125850999414979,
+      "p95_ms": 1.5517052984250757,
+      "max_ms": 1.8378209988441085
+    },
+    "seat": {
+      "synthetic_input": true,
+      "p50_ms": 1.033536499562615,
+      "p95_ms": 1.4725903001817642,
+      "max_ms": 1.7558600011398084
+    },
+    "sit_down": {
+      "synthetic_input": true,
+      "p50_ms": 0.9852659995885915,
+      "p95_ms": 1.223429400488385,
+      "max_ms": 1.5648160006094258
+    },
+    "stand": {
+      "synthetic_input": true,
+      "p50_ms": 1.0135575003005215,
+      "p95_ms": 1.3095884502945407,
+      "max_ms": 1.5525660001003416
+    },
+    "walk": {
+      "synthetic_input": true,
+      "p50_ms": 1.0252239990222733,
+      "p95_ms": 1.325134949547646,
+      "max_ms": 2.1916170007898472
+    }
+  },
+  "live_policy": "stand",
+  "live_success": 0,
+  "live_rejected": 78,
+  "reasons": {
+    "IMU physical mounting axes not calibrated; autonomy input blocked": 78
+  },
+  "limitations": [
+    "Open-loop sensor shadow does not validate balance or action feedback.",
+    "Uses display-zero pose and board mounting direction; not a hardware control calibration.",
+    "Joint velocities are finite differences of asynchronous polling, not measured motor velocities.",
+    "Previous action is the previous prediction, never an executed command."
+  ],
+  "require_mounting_calibration": true
+}

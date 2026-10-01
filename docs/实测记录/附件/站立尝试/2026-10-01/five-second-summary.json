@@ -1,0 +1,334 @@
+{
+  "response": {
+    "http": 409,
+    "result": {
+      "detail": "5 秒内未确认到位，停止并失能；最后反馈（41ms前）：#30 目标2041 / 反馈2018，差23步（2.02°），负载-188，电压7.3V，输出上限1000；#12 目标1748 / 反馈1759，差-11步（-0.97°），负载92，电压6.9V，输出上限1000；15 个舵机已失能（卸力）"
+    }
+  },
+  "httpElapsedSeconds": 5.416742900008103,
+  "calibrationRevision": 91,
+  "jointFrames": 103,
+  "lastEnabledFrame": {
+    "type": "sample",
+    "protocolVersion": 1,
+    "bootId": "15b776f8-6866-4e8f-80e1-9b09e3bead07",
+    "topic": "joints",
+    "seq": 1627,
+    "sampleMonoMs": 37855.084687999806,
+    "source": "hardware",
+    "valid": true,
+    "data": {
+      "configuredIds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        20,
+        21,
+        22,
+        23,
+        24,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "servos": [
+        {
+          "id": 10,
+          "online": true,
+          "position": 2042,
+          "voltage": 6.9,
+          "temperature": 39,
+          "currentRaw": -57,
+          "load": -52,
+          "torque": 1,
+          "fault": 0,
+          "target": 2048,
+          "angle": null,
+          "readMs": 1.3475579999067122,
+          "ageMs": 6.355397999868728
+        },
+        {
+          "id": 11,
+          "online": true,
+          "position": 2000,
+          "voltage": 7.0,
+          "temperature": 34,
+          "currentRaw": 18,
+          "load": 28,
+          "torque": 1,
+          "fault": 0,
+          "target": 1997,
+          "angle": null,
+          "readMs": 2.3360590002994286,
+          "ageMs": 5.366896999476012
+        },
+        {
+          "id": 12,
+          "online": true,
+          "position": 1759,
+          "voltage": 6.9,
+          "temperature": 36,
+          "currentRaw": 136,
+          "load": 92,
+          "torque": 1,
+          "fault": 0,
+          "target": 1748,
+          "angle": null,
+          "readMs": 3.319600999930117,
+          "ageMs": 4.383354999845324
+        },
+        {
+          "id": 13,
+          "online": true,
+          "position": 2031,
+          "voltage": 6.9,
+          "temperature": 36,
+          "currentRaw": -25,
+          "load": -36,
+          "torque": 1,
+          "fault": 0,
+          "target": 2035,
+          "angle": null,
+          "readMs": 3.4065210002154345,
+          "ageMs": 4.296434999560006
+        },
+        {
+          "id": 14,
+          "online": true,
+          "position": 2282,
+          "voltage": 7.0,
+          "temperature": 32,
+          "currentRaw": 0,
+          "load": 0,
+          "torque": 1,
+          "fault": 0,
+          "target": 2282,
+          "angle": null,
+          "readMs": 3.449105999607127,
+          "ageMs": 4.253850000168313
+        },
+        {
+          "id": 20,
+          "online": true,
+          "position": 2057,
+          "voltage": 7.2,
+          "temperature": 37,
+          "currentRaw": 78,
+          "load": 52,
+          "torque": 1,
+          "fault": 0,
+          "target": 2051,
+          "angle": null,
+          "readMs": 4.245098999490438,
+          "ageMs": 3.457857000285003
+        },
+        {
+          "id": 21,
+          "online": true,
+          "position": 2110,
+          "voltage": 7.0,
+          "temperature": 34,
+          "currentRaw": 0,
+          "load": 0,
+          "torque": 1,
+          "fault": 0,
+          "target": 2109,
+          "angle": null,
+          "readMs": 4.334352999649127,
+          "ageMs": 3.3686030001263134
+        },
+        {
+          "id": 22,
+          "online": true,
+          "position": 2339,
+          "voltage": 7.2,
+          "temperature": 37,
+          "currentRaw": -73,
+          "load": -68,
+          "torque": 1,
+          "fault": 0,
+          "target": 2347,
+          "angle": null,
+          "readMs": 4.374021000330686,
+          "ageMs": 3.328934999444755
+        },
+        {
+          "id": 23,
+          "online": true,
+          "position": 2052,
+          "voltage": 7.1,
+          "temperature": 35,
+          "currentRaw": -1,
+          "load": 0,
+          "torque": 1,
+          "fault": 0,
+          "target": 2051,
+          "angle": null,
+          "readMs": 4.415440000229864,
+          "ageMs": 3.287515999545576
+        },
+        {
+          "id": 24,
+          "online": true,
+          "position": 1753,
+          "voltage": 7.1,
+          "temperature": 33,
+          "currentRaw": -2,
+          "load": 0,
+          "torque": 1,
+          "fault": 0,
+          "target": 1753,
+          "angle": null,
+          "readMs": 5.193056000280194,
+          "ageMs": 2.5098999994952464
+        },
+        {
+          "id": 30,
+          "online": true,
+          "position": 2018,
+          "voltage": 7.3,
+          "temperature": 39,
+          "currentRaw": -319,
+          "load": -188,
+          "torque": 1,
+          "fault": 0,
+          "target": 2041,
+          "angle": null,
+          "readMs": 6.2536019995604875,
+          "ageMs": 1.449354000214953
+        },
+        {
+          "id": 31,
+          "online": true,
+          "position": 2036,
+          "voltage": 7.2,
+          "temperature": 36,
+          "currentRaw": 100,
+          "load": 60,
+          "torque": 1,
+          "fault": 0,
+          "target": 2029,
+          "angle": null,
+          "readMs": 6.360065000080795,
+          "ageMs": 1.3428909996946459
+        },
+        {
+          "id": 32,
+          "online": true,
+          "position": 2006,
+          "voltage": 7.3,
+          "temperature": 34,
+          "currentRaw": 0,
+          "load": 0,
+          "torque": 1,
+          "fault": 0,
+          "target": 2007,
+          "angle": null,
+          "readMs": 6.401482999535801,
+          "ageMs": 1.301473000239639
+        },
+        {
+          "id": 33,
+          "online": true,
+          "position": 2049,
+          "voltage": 7.3,
+          "temperature": 32,
+          "currentRaw": 2,
+          "load": 0,
+          "torque": 1,
+          "fault": 0,
+          "target": 2049,
+          "angle": null,
+          "readMs": 7.298980000086885,
+          "ageMs": 0.403975999688555
+        },
+        {
+          "id": 34,
+          "online": true,
+          "position": 2048,
+          "voltage": 7.2,
+          "temperature": 32,
+          "currentRaw": 2,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2048,
+          "angle": null,
+          "readMs": 7.371900000180176,
+          "ageMs": 0.33105599959526444
+        }
+      ],
+      "error": "",
+      "scanMs": null,
+      "targetHz": 50.0,
+      "readMode": "sync-read"
+    },
+    "ageMs": 15.580043000227306
+  },
+  "torqueAfter": [
+    [
+      10,
+      0
+    ],
+    [
+      11,
+      0
+    ],
+    [
+      12,
+      0
+    ],
+    [
+      13,
+      0
+    ],
+    [
+      14,
+      0
+    ],
+    [
+      20,
+      0
+    ],
+    [
+      21,
+      0
+    ],
+    [
+      22,
+      0
+    ],
+    [
+      23,
+      0
+    ],
+    [
+      24,
+      0
+    ],
+    [
+      30,
+      0
+    ],
+    [
+      31,
+      0
+    ],
+    [
+      32,
+      0
+    ],
+    [
+      33,
+      0
+    ],
+    [
+      34,
+      0
+    ]
+  ]
+}

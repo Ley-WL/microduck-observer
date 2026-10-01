@@ -2,6 +2,8 @@
 
 入口：`scripts/shadow_policy.py`。它仅 GET 观测台 `/api/v1/snapshot`，无串口/I2C 驱动、无运动 API、无扭矩使能或目标写入路径。输出是诊断日志，不能用来驱动机器人。
 
+自主控制准备检查使用 `--require-mounting-calibration`：必须有共享标定中的 `imu.mountingQuaternion`，仅有显示yaw或静态归零不足以通过。仍不赋予任何运动能力，不证明动力学匹配、动态轴向或关节标定已实测通过。省略参数保留历史显示参考诊断用途。
+
 ## 主控运行
 
 ```bash

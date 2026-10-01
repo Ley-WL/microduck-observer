@@ -27,11 +27,6 @@ const initialOrientation = computed<number[] | null>(() => {
   const imu = board.data?.imu;
   return savedDisplayReference(imu);
 });
-const referenceRestored = computed(() => Boolean(initialOrientation.value) && board.data?.imu?.bootId !== state.orientation?.bootId);
-function confirmReference() {
-  if (!canCalibrate.value || !initialOrientation.value) return;
-  void board.confirmReference(state.orientation!.bootId);
-}
 const calibrationTime = computed(() => initialOrientation.value ? board.data.imu.time : "");
 const canCalibrate = computed(
   () =>
@@ -174,8 +169,6 @@ onMounted(() => state.connect());
           :calibration-save-error="calibrationSaveError"
           :mounting-yaw="mountingYaw"
           @mounting="board.mounting($event)"
-          :reference-restored="referenceRestored"
-          @confirm-reference="confirmReference"
           @calibrate="calibrateInitial"
           @clear="clearCalibration"
           @pause="pause"

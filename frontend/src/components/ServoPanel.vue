@@ -1,16 +1,85 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, reactive, watch, onBeforeUnmount } from "vue";
+import { latestCommand } from "../latestCommand";
+import { useBoardCalibration } from "../boardCalibration";
 import { useTelemetry } from "../store";
 import { useJointPose } from "../jointPose";
 const pose = useJointPose();
 defineProps<{ compact?: boolean }>();
 const state = useTelemetry();
+const board = useBoardCalibration();
+const limits = ref<Record<number, [number, number]>>({});
+const drafts = reactive<Record<number, number | string>>({});
+const pending = ref(false), message = ref(''), failed = ref(false);
+const busy = computed(() => {
+  const control = state.system?.data.servoControl;
+  return ['preflight', 'moving', 'disabling'].includes(control?.state) && control?.action !== 'angle';
+});
+const commands = latestCommand<{ id: number; angle: number; endpoint: string; boot: string | undefined; revision: number | undefined }>(async command => {
+  if (!allowed(command.id) || command.endpoint !== state.endpoint || command.boot !== state.joints?.bootId || command.revision !== board.data?.revision) return;
+  await sendAngle(command);
+});
+onBeforeUnmount(() => commands.clear());
+watch(() => [state.endpoint, state.joints?.bootId, board.data?.revision, state.paused, state.connection, state.system?.data.servoControl?.state], () => {
+  const control = state.system?.data.servoControl;
+  if (state.paused || state.connection !== '在线' || busy.value || ['disabled', 'failed'].includes(control?.state)) commands.clear();
+});
+watch(() => state.endpoint, async endpoint => {
+  limits.value = {}; message.value = '';
+  try {
+    const response = await fetch(endpoint.replace(/\/$/, '') + '/api/v1/servos/limits');
+    if (!response.ok) throw new Error('角度范围加载失败');
+    const data = await response.json();
+    if (state.endpoint === endpoint) limits.value = data.limits;
+  } catch { if (state.endpoint === endpoint) message.value = '官方角度范围未加载'; }
+}, { immediate: true });
+watch(() => [state.endpoint, state.joints?.bootId, board.data?.revision], () => {
+  commands.clear();
+  for (const key of Object.keys(drafts)) delete drafts[Number(key)];
+});
+function measured(id: number) {
+  const angle = pose.angles[id];
+  return pose.references[id] !== undefined && pose.fresh(id) && angle != null ? angle * 180 / Math.PI : null;
+}
+function draft(id: number) { return drafts[id] ?? (measured(id)?.toFixed(1) ?? ''); }
+function canControl(id: number) {
+  return !!limits.value[id] && board.ready && !board.saving && pose.references[id] !== undefined && pose.fresh(id) && !state.paused &&
+    state.joints?.source === 'hardware' && status(id) === '在线' && !busy.value;
+}
+function allowed(id: number) {
+  const raw = draft(id), angle = Number(raw), range = limits.value[id];
+  return canControl(id) && !!range && raw !== '' && Number.isFinite(angle) && angle >= range[0] && angle <= range[1];
+}
+function dragAngle(id: number, event: Event) {
+  drafts[id] = Number((event.target as HTMLInputElement).value);
+  if (!allowed(id)) return;
+  commands.push({ id, angle: Number(draft(id)), endpoint: state.endpoint, boot: state.joints?.bootId, revision: board.data?.revision });
+}
+async function sendAngle(command: { id: number; angle: number; endpoint: string; boot: string | undefined; revision: number | undefined }) {
+  const { id, angle, endpoint, boot, revision } = command;
+  pending.value = true; failed.value = false; message.value = '';
+  try {
+    const response = await fetch(endpoint.replace(/\/$/, '') + '/api/v1/servos/angle', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, angleDeg: angle, revision }),
+      signal: AbortSignal.timeout(10000),
+    });
+    const result = await response.json();
+    if (endpoint !== state.endpoint || boot !== state.joints?.bootId || revision !== board.data?.revision) return;
+    if (!response.ok) throw new Error(result.detail || '操作被拒绝');
+    message.value = ''; // Live angle feedback is enough; no per-drag success banner.
+  } catch (error) {
+    if (endpoint === state.endpoint && boot === state.joints?.bootId) {
+      failed.value = true; message.value = error instanceof Error ? error.message : '未收到操作结果，请核对实时角度与使能状态';
+    }
+    throw error;
+  } finally { pending.value = false; }
+}
 const rows = computed(() => state.joints?.data.servos || []);
 const fresh = computed(() => state.connection === "在线" && !!state.joints?.valid && state.jointsAge < 1500);
 const online = computed(() => fresh.value ? rows.value.filter((r: any) => r.online && r.ageMs + state.jointsAge < 1500) : []);
 const summary = computed(() => ({
   voltage: online.value.length ? (online.value.reduce((n: number, r: any) => n+r.voltage, 0)/online.value.length).toFixed(1) : "—",
-  temperature: online.value.length ? Math.max(...online.value.map((r: any) => r.temperature)) : "—",
   faults: online.value.length ? online.value.filter((r: any) => r.fault !== 0).length : "—",
 }));
 function status(id: number) {
@@ -28,7 +97,7 @@ function value(id: number, field: string) {
   if (field === "torque") return r.torque === 0 ? "关闭" : r.torque === 1 ? "开启" : "模式 " + r.torque;
   return r[field] ?? "—";
 }
-// Physical IDs match the existing servo-web tool; no bus access in this panel.
+// All writes go through the backend serial owner.
 const groups = [
   {
     name: "左腿",
@@ -77,7 +146,7 @@ const groups = [
         <h2 id="servo-title">舵机反馈</h2>
         <span class="count">15 个舵机</span>
       </div>
-      <span class="subtle-tag">{{ state.joints ? (state.paused ? "显示暂停" : fresh ? "只读采集" : "反馈过期") : "反馈未接入" }}</span>
+      <span class="subtle-tag">{{ state.joints ? (state.paused ? "显示暂停" : fresh ? "实时反馈" : "反馈过期") : "反馈未接入" }}</span>
     </div>
     <div class="servo-summary">
       <div>
@@ -86,11 +155,8 @@ const groups = [
       <div>
         <span>平均电压</span><strong>{{ summary.voltage }} <small>V</small></strong>
       </div>
-      <div>
-        <span>最高温度</span><strong>{{ summary.temperature }} <small>°C</small></strong>
-      </div>
       <div><span>故障数量</span><strong>{{ summary.faults }}</strong></div>
-      <p>只读反馈，不发送运动、扭矩或校准指令。</p>
+      <p>拖动即控制对应关节并使能。</p>
     </div>
     <div
       class="servo-table-scroll"
@@ -102,65 +168,36 @@ const groups = [
         <caption>
           飞特 HD-1910 · 未采集到数据的项目显示 —
         </caption>
-        <thead>
-          <tr>
-            <th scope="col">ID / 关节</th>
-            <th v-if="!compact" scope="col">在线状态</th>
-            <th v-if="!compact" scope="col">
-              实测位置<small>编码器步数</small>
-            </th>
-            <th scope="col">{{ compact ? "编码器" : "关节角度" }}<small>{{ compact ? "步" : "° · 未校准" }}</small></th>
-            <th scope="col">电压<small>V</small></th>
-            <th scope="col">温度<small>°C</small></th>
-            <th scope="col">电流<small>原始值</small></th>
-            <th scope="col">负载<small>原始值</small></th>
-            <th v-if="!compact" scope="col">扭矩状态</th>
-            <th v-if="!compact" scope="col">故障</th>
-            <th v-if="!compact" scope="col">样本年龄<small>ms</small></th>
-            <th v-if="compact" scope="col">状态</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th scope="col">ID / 关节</th>
+          <th scope="col">实测角度<small>°</small></th>
+          <th scope="col" class="angle-heading">目标角度<small>角度范围 · °</small></th>
+          <th scope="col">电压<small>V</small></th>
+          <th scope="col">状态</th>
+        </tr></thead>
         <tbody v-for="group in groups" :key="group.name">
-          <tr class="servo-group">
-            <th :colspan="compact ? 7 : 11" scope="rowgroup">
-              {{ group.name }} <span>ID {{ group.range }} · 5 个</span>
-            </th>
-          </tr>
+          <tr class="servo-group"><th colspan="5" scope="rowgroup">{{ group.name }} <span>ID {{ group.range }} · 5 个</span></th></tr>
           <tr v-for="joint in group.joints" :key="joint.id" class="servo-row" :class="{ selected: pose.selected === joint.id }">
-            <th scope="row">
-              <button class="joint-select" :aria-label="'选择舵机 ' + joint.id + ' ' + joint.name" :aria-pressed="pose.selected === joint.id" @click="pose.selected = joint.id">
-                <span class="servo-id">{{ joint.id }}</span>{{ joint.name }}<span v-if="pose.references[joint.id] !== undefined" class="joint-calibrated" title="已标定显示零点">●</span>
-              </button>
-            </th>
-            <td v-if="!compact">
-              <span class="servo-unavailable" :data-status="status(joint.id)">{{ status(joint.id) }}</span>
+            <th scope="row"><button class="joint-select" :aria-label="'选择舵机 ' + joint.id + ' ' + joint.name" :aria-pressed="pose.selected === joint.id" @click="pose.selected = joint.id">
+              <span class="servo-id">{{ joint.id }}</span>{{ joint.name }}<span v-if="pose.references[joint.id] !== undefined" class="joint-calibrated">●</span>
+            </button></th>
+            <td>{{ measured(joint.id)?.toFixed(1) ?? '—' }}<small class="position-label">{{ value(joint.id, 'position') }} 步</small></td>
+            <td class="angle-cell">
+              <div v-if="limits[joint.id]" class="angle-slider" :title="joint.id === 34 ? '用户确认范围：0–30°' : '官方关节范围'">
+                <input type="range" step="0.1" :min="limits[joint.id]![0]" :max="limits[joint.id]![1]" :value="draft(joint.id)"
+                  :aria-label="joint.name + '目标角度'" :disabled="!canControl(joint.id)"
+                  @input="dragAngle(joint.id, $event)" />
+                <small><span>{{ limits[joint.id]![0] }}°</span><strong>{{ draft(joint.id) }}°</strong><span>{{ limits[joint.id]![1] }}°</span></small>
+              </div>
+              <span v-else class="range-missing">加载范围…</span>
             </td>
-            <td
-              v-for="field in compact
-                ? ['position', 'voltage', 'temperature', 'currentRaw', 'load']
-                : [
-                    'position',
-                    'angle',
-                    'voltage',
-                    'temperature',
-                    'currentRaw',
-                    'load',
-                    'torque',
-                    'fault',
-                    'age',
-                  ]"
-              :key="field"
-              class="servo-empty"
-            >
-              {{ value(joint.id, field) }}
-            </td>
-            <td v-if="compact">
-              <span class="servo-unavailable" :data-status="status(joint.id)">{{ status(joint.id) }}</span>
-            </td>
+            <td>{{ value(joint.id, 'voltage') }}</td>
+            <td><span class="servo-unavailable" :data-status="status(joint.id)">{{ status(joint.id) }}</span><small class="torque-label">{{ value(joint.id, 'torque') }}</small></td>
           </tr>
         </tbody>
       </table>
     </div>
+    <p class="angle-message" :class="{ failed }" role="status" :title="message">{{ message }}</p>
     <div class="joint-calibration" aria-label="单颗舵机显示标定">
       <div class="joint-calibration-heading">
         <strong>#{{ pose.selected }} 初始位置</strong>
@@ -169,11 +206,11 @@ const groups = [
       </div>
       <div class="joint-calibration-actions">
         <button :disabled="!pose.canCalibrate(pose.selected)" @click="pose.calibrate(pose.selected)">{{ pose.references[pose.selected] === undefined ? '标定初始位置' : '重新标定' }}</button>
-        <button :disabled="state.paused" @click="pose.reverse(pose.selected)" :title="'只改变3D显示方向，当前系数 ' + pose.direction(pose.selected)">方向 {{ pose.direction(pose.selected) === 1 ? '+' : '−' }} ↔</button>
+        <button :disabled="state.paused" @click="pose.reverse(pose.selected)" :title="'改变标定角度方向（显示与角度控制共用），当前系数 ' + pose.direction(pose.selected)">方向 {{ pose.direction(pose.selected) === 1 ? '+' : '−' }} ↔</button>
         <button :disabled="state.paused || pose.references[pose.selected] === undefined" @click="pose.clear(pose.selected)">清除</button>
       </div>
       <p>{{ (pose.saveError ? '主板标定同步失败，请检查连接。' : '') || state.joints?.data.error || '选关节 → 摆到模型参考姿势 → 标定；保存到主板，网页与 App 共用。' }}</p>
-      <p>仅显示标定，不写舵机。掉线保持模型；电流为原始值。</p>
+      <p>标定用于模型与角度控制换算；拖动滑块实时控制，实测角度下方为编码器位置。</p>
     </div>
   </section>
 </template>
@@ -222,7 +259,7 @@ const groups = [
 .servo-table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 1000px;
+  min-width: 0;
   text-align: left;
   font-size: 11px;
   white-space: nowrap;
@@ -480,4 +517,26 @@ const groups = [
 .joint-calibration-actions button { border: 1px solid #b5ccbc; background: white; color: #315f43; border-radius: 4px; padding: 4px 6px; font-size: 10px; cursor: pointer; }
 .joint-calibration-actions button:disabled { opacity: .45; cursor: default; }
 .joint-calibration p { margin: 3px 0 0; font-size: 8px; color: #788978; line-height: 1.4; }
+</style>
+
+<style scoped>
+.angle-heading { width: 34%; }
+.angle-cell form { display: grid; grid-template-columns: minmax(0, 1fr) 30px; gap: 2px; }
+.angle-cell input { min-width: 0; width: 100%; box-sizing: border-box; border: 1px solid #bfcebd; border-radius: 4px; padding: 2px; font-size: 11px; color: #315f43; background: white; }
+.angle-cell button { border: 0; border-radius: 4px; background: #dceee2; color: #315f43; padding: 2px; font-size: 9px; cursor: pointer; }
+.angle-cell button:disabled { opacity: .4; cursor: default; }
+.angle-cell small { grid-column: 1 / -1; font-size: 8px; color: #879580; }
+.range-missing { font-size: 9px; color: #879580; }
+.torque-label { display: block; font-size: 8px; color: #879580; }
+.angle-message { box-sizing: border-box; height: 24px; flex: 0 0 24px; margin: 0; padding: 5px 8px; font-size: 10px; line-height: 14px; color: #315f43; white-space: nowrap; overflow: auto; }
+.angle-message.failed { color: #a33e2e; }
+.servo-compact .servo-table th:first-child { width: 27%; }
+.servo-compact .servo-table .angle-heading { width: 34%; }
+</style>
+
+<style scoped>
+.angle-slider input[type="range"] { width: 100%; padding: 0; margin: 2px 0; height: 15px; accent-color: #428561; cursor: ew-resize; }
+.angle-slider small { display: flex; justify-content: space-between; gap: 2px; }
+.angle-slider strong { color: #315f43; font-weight: 600; }
+.position-label { display: block; color: #879580; font-size: 8px; margin-top: 2px; white-space: nowrap; }
 </style>

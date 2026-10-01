@@ -1,0 +1,142 @@
+{
+  "status": "preview-only-no-motion",
+  "upstreamCommit": "46a380b70e70c5eb859107f4a4b529a0cb9548fc",
+  "revision": 68,
+  "rows": [
+    {
+      "id": 20,
+      "reference": 84.0,
+      "direction": -1,
+      "angleRad": 0,
+      "position": 48,
+      "target": 84.0,
+      "deltaSteps": 36.0
+    },
+    {
+      "id": 21,
+      "reference": 852.4102564102565,
+      "direction": -1,
+      "angleRad": -0.0873,
+      "position": 832,
+      "target": 909.0,
+      "deltaSteps": 77.0
+    },
+    {
+      "id": 22,
+      "reference": 2062.0,
+      "direction": -1,
+      "angleRad": -0.4579,
+      "position": 1869,
+      "target": 2361.0,
+      "deltaSteps": 492.0
+    },
+    {
+      "id": 23,
+      "reference": 2001.0,
+      "direction": -1,
+      "angleRad": -0.0049,
+      "position": 1652,
+      "target": 2004.0,
+      "deltaSteps": 352.0
+    },
+    {
+      "id": 24,
+      "reference": 470.7692307692308,
+      "direction": -1,
+      "angleRad": 0.453,
+      "position": -297,
+      "target": 175.0,
+      "deltaSteps": 472.0
+    },
+    {
+      "id": 30,
+      "reference": 2832.4102564102564,
+      "direction": -1,
+      "angleRad": 0.3491,
+      "position": 2189,
+      "target": 2605.0,
+      "deltaSteps": 416.0
+    },
+    {
+      "id": 31,
+      "reference": 858.0,
+      "direction": -1,
+      "angleRad": 0.3491,
+      "position": -134,
+      "target": 630.0,
+      "deltaSteps": 764.0
+    },
+    {
+      "id": 32,
+      "reference": 1181.0,
+      "direction": -1,
+      "angleRad": 0,
+      "position": 668,
+      "target": 1181.0,
+      "deltaSteps": 513.0
+    },
+    {
+      "id": 33,
+      "reference": 2892.0,
+      "direction": -1,
+      "angleRad": 0,
+      "position": 2716,
+      "target": 2892.0,
+      "deltaSteps": 176.0
+    },
+    {
+      "id": 34,
+      "reference": 255.0,
+      "direction": -1,
+      "angleRad": 0,
+      "position": 254,
+      "target": 255.0,
+      "deltaSteps": 1.0
+    },
+    {
+      "id": 10,
+      "reference": 2236.0,
+      "direction": -1,
+      "angleRad": 0,
+      "position": 2234,
+      "target": 2236.0,
+      "deltaSteps": 2.0
+    },
+    {
+      "id": 11,
+      "reference": 1276.0,
+      "direction": -1,
+      "angleRad": 0.0873,
+      "position": 1381,
+      "target": 1219.0,
+      "deltaSteps": -162.0
+    },
+    {
+      "id": 12,
+      "reference": 3641.0,
+      "direction": -1,
+      "angleRad": 0.4579,
+      "position": 3815,
+      "target": 3342.0,
+      "deltaSteps": -473.0
+    },
+    {
+      "id": 13,
+      "reference": 2597.0,
+      "direction": -1,
+      "angleRad": 0.0049,
+      "position": 2869,
+      "target": 2594.0,
+      "deltaSteps": -275.0
+    },
+    {
+      "id": 14,
+      "reference": 2546.0,
+      "direction": -1,
+      "angleRad": -0.453,
+      "position": 3307,
+      "target": 2841.0,
+      "deltaSteps": -466.0
+    }
+  ]
+}

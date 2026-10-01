@@ -42,6 +42,16 @@ class ServoTests(unittest.TestCase):
         self.assertEqual(result['fault'], 4)
         self.assertIsNone(result['angle'])
 
+    def test_hd1910_control_registers_are_reported_without_extra_io(self):
+        data = bytearray(31)
+        data[1] = 5
+        for offset, value in ((2,2048),(4,0x8002),(6,500),(8,1000)):
+            data[offset:offset+2] = value.to_bytes(2,'little')
+        data[10:13] = bytes([32,8,0])
+        result = decode(data)
+        self.assertEqual([result[k] for k in ('accelerationRaw','goalPositionRaw','goalCurrentRaw','speedLimitRaw','torqueLimitRaw','kpRaw','kdRaw','kiRaw')],
+                         [5,2048,-2,500,1000,32,8,0])
+
     def test_only_read_and_discard_wrong_id_corruption_and_echo(self):
         payload = bytes(31)
         valid = reply(24, payload)

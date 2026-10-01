@@ -2,15 +2,30 @@
 import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { TransformControls } from "three/addons/controls/TransformControls.js";
+import { useBoardCalibration } from "../boardCalibration";
+import { sensorToTrunk } from "../imuInstallation";
 import { useJointPose } from "../jointPose";
 import { createJointNode, applyJointAngle, smoothJointAngle } from "../jointModel";
+const board = useBoardCalibration();
 const jointPose = useJointPose();
 const jointNodes = new Map<number, { pivot: THREE.Group; axis: THREE.Vector3; angle: number }>();
 const props = defineProps<{
   quaternion: number[] | null;
   paused: boolean;
   previewAngles?: Record<number, number>;
+  installation?: { positionMm: number[]; quaternion: number[] };
+  editMode?: 'translate' | 'rotate';
 }>();
+const emit = defineEmits<{ installationChange: [value: { positionMm: number[]; quaternion: number[] }] }>();
+let marker: THREE.Group | undefined, transform: TransformControls | undefined;
+function updateMarker() {
+  if (!marker || transform?.dragging) return;
+  marker.position.fromArray((props.installation?.positionMm ?? board.data?.mounting?.positionMm ?? [0,0,0]).map((n: number) => n/1000));
+  marker.quaternion.fromArray(props.installation?.quaternion ?? sensorToTrunk(board.data?.imu, board.data?.mounting?.yaw ?? -90));
+}
+watch(() => [props.installation, board.data], updateMarker, { deep:true });
+watch(() => props.editMode, mode => { if (transform && mode) { transform.setMode(mode); transform.setSpace(mode==='translate' ? 'world' : 'local'); } });
 const host = ref<HTMLDivElement>(),
   problem = ref(""),
   loaded = ref(false);
@@ -90,6 +105,23 @@ onMounted(async () => {
     root.position.z = 0.12;
     scene.add(root);
     root.add(new THREE.AxesHelper(0.12));
+    marker = new THREE.Group();
+    const chip = new THREE.Mesh(new THREE.BoxGeometry(.023,.016,.005), new THREE.MeshStandardMaterial({color:0x16a6ac,emissive:0x083a3c,depthTest:false,transparent:true,opacity:.85}));
+    chip.renderOrder=20; marker.add(chip);
+    const axes = new THREE.AxesHelper(.045); axes.renderOrder=21;
+    (axes.material as THREE.Material).depthTest=false;
+    marker.add(axes);root.add(marker);updateMarker();
+    if (props.editMode) {
+      transform = new TransformControls(camera, renderer.domElement);
+      transform.setMode(props.editMode); transform.setSpace(props.editMode==='translate'?'world':'local');
+      transform.setSize(.8);transform.attach(marker);scene.add(transform.getHelper());
+      transform.addEventListener('dragging-changed', event => { controls.enabled=!event.value; });
+      transform.addEventListener('objectChange', () => {
+        if (!marker) return;
+        marker.position.clampScalar(-.3,.3);
+        emit('installationChange',{positionMm:marker.position.toArray().map(n=>n*1000),quaternion:marker.quaternion.toArray()});
+      });
+    }
     observer = new ResizeObserver(() => {
       const w = host.value!.clientWidth,
         h = host.value!.clientHeight;
@@ -183,6 +215,7 @@ onBeforeUnmount(() => {
   disposed = true;
   cancelAnimationFrame(frame);
   observer?.disconnect();
+  transform?.dispose();
   controls?.dispose();
   scene?.traverse((o) => {
     if (o instanceof THREE.Mesh) {

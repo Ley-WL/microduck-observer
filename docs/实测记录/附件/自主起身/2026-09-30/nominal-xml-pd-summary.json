@@ -1,0 +1,41 @@
+{
+  "mode": "CPU MuJoCo official XML PD; no hardware IO",
+  "limitations": [
+    "Uses XML position actuators, not trained BAM or measured HD1910 dynamics.",
+    "A nominal rollout cannot establish real-robot balance or transfer."
+  ],
+  "cases": [
+    {
+      "policy": "alpha_stand",
+      "initialPose": "STAND",
+      "simSeconds": 10,
+      "finalZ": 0.11624447944560871,
+      "finalTiltDeg": 0.48706196406284274,
+      "lastSecondMaxTiltDeg": 0.4890197879866217
+    },
+    {
+      "policy": "alpha_stand",
+      "initialPose": "SIT",
+      "simSeconds": 10,
+      "finalZ": 0.11624266639303621,
+      "finalTiltDeg": 0.48674376686113896,
+      "lastSecondMaxTiltDeg": 0.4877753098098519
+    },
+    {
+      "policy": "alpha_sitstand",
+      "initialPose": "STAND",
+      "simSeconds": 10,
+      "finalZ": 0.11592794192564607,
+      "finalTiltDeg": 3.529083229963493,
+      "lastSecondMaxTiltDeg": 3.5366982379160112
+    },
+    {
+      "policy": "alpha_sitstand",
+      "initialPose": "SIT",
+      "simSeconds": 10,
+      "finalZ": 0.11590579464358115,
+      "finalTiltDeg": 3.5338331841773787,
+      "lastSecondMaxTiltDeg": 3.5443950336858494
+    }
+  ]
+}

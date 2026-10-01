@@ -27,12 +27,19 @@ def multiply(a,b):
     return [w*u+x*t+y*s-z*v,w*v-x*s+y*t+z*u,w*s+x*v-y*u+z*t,w*t-x*u-y*v-z*s]
 
 def mounting_axis(reference_q, current):
-    delta=multiply([-v for v in reference_q[:3]]+[reference_q[3]],current)
-    norm=math.sqrt(sum(v*v for v in delta)); delta=[v/norm for v in delta]
-    if delta[3]<0: delta=[-v for v in delta]
-    angle=2*math.acos(max(-1,min(1,delta[3])))
-    if not math.radians(70)<angle<math.radians(110): raise ValueError('请从水平参考转动约 +90°，当前姿势不符合轴向标定')
-    n=math.sqrt(sum(v*v for v in delta[:3])); return [v/n for v in delta[:3]]
+    # Specific-force direction in sensor coordinates, R(q).T * world +Z.
+    # A world-heading change must not count as body tilt or rotate its axis.
+    def up(q):
+        n=math.sqrt(sum(v*v for v in q)); x,y,z,w=[v/n for v in q]
+        return [2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]
+    initial=up(reference_q); tilted=up(current)
+    angle=math.acos(max(-1,min(1,sum(a*b for a,b in zip(initial,tilted)))))
+    if not math.radians(70)<angle<math.radians(110):
+        raise ValueError(f'躯干重力倾角 {math.degrees(angle):.1f}°，请从站立参考侧翻或前翻约90°；水平转向不计入倾角')
+    axis=[tilted[1]*initial[2]-tilted[2]*initial[1],
+          tilted[2]*initial[0]-tilted[0]*initial[2],
+          tilted[0]*initial[1]-tilted[1]*initial[0]]
+    n=math.sqrt(sum(v*v for v in axis)); return [v/n for v in axis]
 
 def mounting_quaternion(x,y):
     dot=sum(a*b for a,b in zip(x,y))
@@ -55,8 +62,10 @@ def imu_patch(state, pose, q, boot):
     old=state['imu']
     if old.get('bootId')!=boot or not old.get('quaternion') or old.get('targetQuaternion',[0,0,0,1])!=[0,0,0,1]: raise ValueError('请先采集本次会话的躯干水平参考')
     axis=mounting_axis(old['quaternion'],q)
-    samples=copy.deepcopy(old.get('mountingSamples',{}));samples['roll' if pose=='imu-roll' else 'pitch']=axis
-    result={**old,'mountingSamples':samples};result.pop('validForBoot',None)
+    # Never combine legacy total-rotation axes with gravity-derived axes.
+    samples=copy.deepcopy(old.get('mountingSamples',{})) if old.get('mountingSamplesMethod')=='gravity-v1' else {}
+    samples['roll' if pose=='imu-roll' else 'pitch']=axis
+    result={**old,'mountingSamples':samples,'mountingSamplesMethod':'gravity-v1'};result.pop('validForBoot',None)
     result.pop('mountingQuaternion',None)
     if 'roll' in samples and 'pitch' in samples: result['mountingQuaternion']=mounting_quaternion(samples['roll'],samples['pitch'])
     return result

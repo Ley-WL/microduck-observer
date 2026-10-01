@@ -1,0 +1,440 @@
+{
+  "logs": {
+    "type": "sample",
+    "protocolVersion": 1,
+    "bootId": "f7edfcdc-1f4e-499e-b4be-6c8b82611563",
+    "topic": "logs",
+    "seq": 3,
+    "sampleMonoMs": 3594.9860279997665,
+    "source": "hardware",
+    "valid": true,
+    "data": {
+      "level": "WARN",
+      "module": "tof",
+      "message": "ToF stream timeout",
+      "eventTimeMs": 1790784548829
+    },
+    "ageMs": 1654975.3014030012
+  },
+  "imu.orientation": {
+    "type": "sample",
+    "protocolVersion": 1,
+    "bootId": "f7edfcdc-1f4e-499e-b4be-6c8b82611563",
+    "topic": "imu.orientation",
+    "seq": 330151,
+    "sampleMonoMs": 1658567.5360740006,
+    "source": "hardware",
+    "valid": true,
+    "data": {
+      "frame": "sensor",
+      "device": "MS901M",
+      "timestampBasis": "host_receive",
+      "quaternion": [
+        -0.455413818359375,
+        -0.377838134765625,
+        -0.67901611328125,
+        0.4344482421875
+      ],
+      "accuracy": null,
+      "calibrationId": null,
+      "mountingCalibrated": false
+    },
+    "ageMs": 2.7714829994365573
+  },
+  "system": {
+    "type": "sample",
+    "protocolVersion": 1,
+    "bootId": "f7edfcdc-1f4e-499e-b4be-6c8b82611563",
+    "topic": "system",
+    "seq": 1630,
+    "sampleMonoMs": 1658260.7217310015,
+    "source": "hardware",
+    "valid": true,
+    "data": {
+      "uptimeSeconds": 1658.2603728900012,
+      "tof": {
+        "state": "offline",
+        "error": "ToF stream timeout",
+        "ageMs": null,
+        "hz": 0.0
+      },
+      "imu": {
+        "device": "/dev/ttyS4",
+        "address": null,
+        "productId": null,
+        "state": "streaming",
+        "sampleAgeMs": 4.318810999393463,
+        "counts": {
+          "quaternion": 330089,
+          "accel": 330089,
+          "gyro": 330089
+        },
+        "observedHz": {
+          "quaternion": 199.11,
+          "accel": 199.11,
+          "gyro": 199.11
+        },
+        "ioErrors": 0,
+        "unparsedReports": 0,
+        "droppedEvents": 0,
+        "mountingCalibrated": false,
+        "model": "MS901M",
+        "baud": 115200,
+        "ranges": {
+          "accelG": 4,
+          "gyroDps": 2000
+        },
+        "checksumErrors": 0,
+        "frames": {
+          "03": 330090,
+          "06": 330090,
+          "01": 330089,
+          "02": 330089
+        },
+        "rangeState": "confirmed"
+      },
+      "scenario": null
+    },
+    "ageMs": 309.5925339984242
+  },
+  "imu.raw": {
+    "type": "sample",
+    "protocolVersion": 1,
+    "bootId": "f7edfcdc-1f4e-499e-b4be-6c8b82611563",
+    "topic": "imu.raw",
+    "seq": 330150,
+    "sampleMonoMs": 1658565.738198,
+    "source": "hardware",
+    "valid": true,
+    "data": {
+      "frame": "sensor",
+      "device": "MS901M",
+      "timestampBasis": "host_receive",
+      "accel": [
+        9.090783703613281,
+        1.1372457885742187,
+        2.906560815429687
+      ],
+      "gyro": [
+        -0.007456851052221868,
+        -0.0010652644360316954,
+        -0.0010652644360316954
+      ],
+      "accelAccuracy": null,
+      "gyroAccuracy": null,
+      "accelUnit": "m/s²",
+      "gyroUnit": "rad/s"
+    },
+    "ageMs": 4.581316999858245
+  },
+  "joints": {
+    "type": "sample",
+    "protocolVersion": 1,
+    "bootId": "f7edfcdc-1f4e-499e-b4be-6c8b82611563",
+    "topic": "joints",
+    "seq": 50673,
+    "sampleMonoMs": 1658561.0189200016,
+    "source": "hardware",
+    "valid": true,
+    "data": {
+      "configuredIds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        20,
+        21,
+        22,
+        23,
+        24,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "servos": [
+        {
+          "id": 10,
+          "online": true,
+          "position": 2166,
+          "voltage": 7.4,
+          "temperature": 36,
+          "currentRaw": 3,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2166,
+          "angle": null,
+          "readMs": 0.48009399870352354,
+          "ageMs": 7.710683001278085
+        },
+        {
+          "id": 11,
+          "online": true,
+          "position": 2282,
+          "voltage": 7.4,
+          "temperature": 32,
+          "currentRaw": 4,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2282,
+          "angle": null,
+          "readMs": 1.308446999246371,
+          "ageMs": 6.882330000735237
+        },
+        {
+          "id": 12,
+          "online": true,
+          "position": 1485,
+          "voltage": 7.3,
+          "temperature": 33,
+          "currentRaw": 0,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 1485,
+          "angle": null,
+          "readMs": 3.256826999859186,
+          "ageMs": 4.933950000122422
+        },
+        {
+          "id": 13,
+          "online": true,
+          "position": 2315,
+          "voltage": 7.3,
+          "temperature": 33,
+          "currentRaw": 4,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2315,
+          "angle": null,
+          "readMs": 3.3624129991949303,
+          "ageMs": 4.828364000786678
+        },
+        {
+          "id": 14,
+          "online": true,
+          "position": 1855,
+          "voltage": 7.4,
+          "temperature": 32,
+          "currentRaw": 3,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 1855,
+          "angle": null,
+          "readMs": 3.408496999327326,
+          "ageMs": 4.782280000654282
+        },
+        {
+          "id": 20,
+          "online": true,
+          "position": 2086,
+          "voltage": 7.4,
+          "temperature": 35,
+          "currentRaw": 4,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2086,
+          "angle": null,
+          "readMs": 3.449914998782333,
+          "ageMs": 4.740862001199275
+        },
+        {
+          "id": 21,
+          "online": true,
+          "position": 1757,
+          "voltage": 7.3,
+          "temperature": 32,
+          "currentRaw": 4,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 1757,
+          "angle": null,
+          "readMs": 3.490165998300654,
+          "ageMs": 4.700611001680954
+        },
+        {
+          "id": 22,
+          "online": true,
+          "position": 2866,
+          "voltage": 7.4,
+          "temperature": 33,
+          "currentRaw": 4,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2866,
+          "angle": null,
+          "readMs": 3.528374998495565,
+          "ageMs": 4.6624020014860434
+        },
+        {
+          "id": 23,
+          "online": true,
+          "position": 2052,
+          "voltage": 7.4,
+          "temperature": 33,
+          "currentRaw": 3,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2052,
+          "angle": null,
+          "readMs": 3.565125998648,
+          "ageMs": 4.625651001333608
+        },
+        {
+          "id": 24,
+          "online": true,
+          "position": 2368,
+          "voltage": 7.3,
+          "temperature": 32,
+          "currentRaw": 3,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2368,
+          "angle": null,
+          "readMs": 5.29008299963607,
+          "ageMs": 2.9006940003455384
+        },
+        {
+          "id": 30,
+          "online": true,
+          "position": 1998,
+          "voltage": 7.5,
+          "temperature": 33,
+          "currentRaw": 3,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 1998,
+          "angle": null,
+          "readMs": 5.461294998895028,
+          "ageMs": 2.7294820010865806
+        },
+        {
+          "id": 31,
+          "online": true,
+          "position": 1616,
+          "voltage": 7.4,
+          "temperature": 34,
+          "currentRaw": 3,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 1616,
+          "angle": null,
+          "readMs": 5.574464999881457,
+          "ageMs": 2.6163120001001516
+        },
+        {
+          "id": 32,
+          "online": true,
+          "position": 1989,
+          "voltage": 7.4,
+          "temperature": 34,
+          "currentRaw": 3,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 1989,
+          "angle": null,
+          "readMs": 5.627257998639834,
+          "ageMs": 2.563519001341774
+        },
+        {
+          "id": 33,
+          "online": true,
+          "position": 1981,
+          "voltage": 7.5,
+          "temperature": 33,
+          "currentRaw": 4,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 1981,
+          "angle": null,
+          "readMs": 7.584678998682648,
+          "ageMs": 0.6060980012989603
+        },
+        {
+          "id": 34,
+          "online": true,
+          "position": 2048,
+          "voltage": 7.4,
+          "temperature": 32,
+          "currentRaw": 4,
+          "load": 0,
+          "torque": 0,
+          "fault": 0,
+          "target": 2048,
+          "angle": null,
+          "readMs": 7.73226599994814,
+          "ageMs": 0.458511000033468
+        }
+      ],
+      "error": "",
+      "scanMs": 9.99361200047133,
+      "targetHz": 50.0,
+      "readMode": "sync-read"
+    },
+    "ageMs": 9.3061369988136
+  },
+  "calibration": {
+    "schema": 1,
+    "deviceId": "a0821529-dc71-4961-aff0-8abc7183d78a",
+    "revision": 83,
+    "updatedAt": 1790786159500,
+    "joints": {
+      "references": {
+        "10": 2048.0,
+        "11": 2054.0,
+        "12": 2047.0,
+        "13": 2038.0,
+        "14": 1987.0,
+        "20": 2051.0,
+        "21": 2052.0,
+        "22": 2048.0,
+        "23": 2048.0,
+        "30": 2041.0,
+        "31": 2029.0,
+        "32": 2007.0,
+        "33": 2049.0,
+        "34": 2048.0,
+        "24": 2048.0
+      },
+      "directions": {},
+      "initialized": true
+    },
+    "imu": {
+      "quaternion": [
+        -0.00020054565389058534,
+        0.0033935812704745803,
+        -0.8470525342688835,
+        0.5314983043964143
+      ],
+      "bootId": "f7edfcdc-1f4e-499e-b4be-6c8b82611563",
+      "time": "2026-10-01 00:35:59",
+      "targetQuaternion": [
+        0,
+        -0.7071067811865476,
+        0,
+        0.7071067811865476
+      ],
+      "initialized": true,
+      "validForBoot": true
+    },
+    "mounting": {
+      "yaw": 0
+    },
+    "bootId": "f7edfcdc-1f4e-499e-b4be-6c8b82611563"
+  }
+}

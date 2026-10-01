@@ -70,3 +70,18 @@ it("keeps supine target and measured axes when confirming a restored session",as
   expect(server.imu.time).toBe("12:00");
   expect(server.imu).not.toHaveProperty("validForBoot");
 });
+
+it("automatically reuses saved reference once a valid hardware session arrives",async()=>{
+  server.imu={initialized:true,quaternion:[0,0,0,1],bootId:"old",time:"saved",mountingQuaternion:[0,0,0,1]};
+  server.joints={initialized:true,references:{12:8000},directions:{}};
+  const board=useBoardCalibration();await flush();
+  expect(server.imu.bootId).toBe("old");
+  state.current.orientation={valid:true,source:"hardware",bootId:"boot"};
+  await flush();await flush();
+  expect(server.imu.bootId).toBe("boot");
+  expect(server.imu.quaternion).toEqual([0,0,0,1]);
+  expect(server.joints.references[12]).toBe(8000);
+  const revision=server.revision;
+  await board.refresh();await flush();
+  expect(server.revision).toBe(revision);
+});

@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 from types import SimpleNamespace
 from calibrations import CalibrationStore
-from pose_calibration import PoseCalibration, calibrate_hardware, reference, mounting_axis, mounting_quaternion, imu_patch
+from pose_calibration import PoseCalibration, calibrate_hardware, reference, mounting_axis, mounting_quaternion, imu_patch, multiply
 
 class FakeBus:
     def __init__(self, torque=0, supported=True):
@@ -91,6 +91,35 @@ class PoseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(rows[0]['position'],4971);self.assertEqual(q,[0,0,0,1])
 
 class ImuMountingTests(unittest.TestCase):
+    def test_heading_change_does_not_change_tilt_axis(self):
+        h=math.sqrt(.5)
+        reference=[0,0,0,1]; roll=[h,0,0,h]
+        yaw=[0,0,h,h]
+        expected=mounting_axis(reference,roll)
+        actual=mounting_axis(reference,multiply(yaw,roll))
+        for a,b in zip(expected,actual): self.assertAlmostEqual(a,b)
+        with self.assertRaises(ValueError): mounting_axis(reference,yaw)
+
+    def test_tilt_axis_is_in_sensor_frame_for_arbitrary_mounting(self):
+        # Mounting maps body +X to sensor +Z, +Y to -Y, +Z to +X.
+        h=math.sqrt(.5); m=[h,0,h,0]
+        reference=[-m[0],-m[1],-m[2],m[3]]
+        yaw=[0,0,h,h]
+        roll=multiply(multiply(yaw,[h,0,0,h]),reference)
+        pitch=multiply(multiply(yaw,[0,h,0,h]),reference)
+        for a,b in zip(mounting_axis(reference,roll),[0,0,1]): self.assertAlmostEqual(a,b)
+        for a,b in zip(mounting_axis(reference,pitch),[0,-1,0]): self.assertAlmostEqual(a,b)
+
+    def test_legacy_samples_are_not_combined_with_new_method(self):
+        h=math.sqrt(.5)
+        old={'imu':{'quaternion':[0,0,0,1],'bootId':'a','mountingSamples':{'pitch':[0,1,0]}}}
+        result=imu_patch(old,'imu-roll',[h,0,0,h],'a')
+        self.assertEqual(set(result['mountingSamples']),{'roll'})
+        self.assertNotIn('mountingQuaternion',result)
+        self.assertEqual(result['mountingSamplesMethod'],'gravity-v1')
+        finished=imu_patch({'imu':result},'imu-pitch',[0,h,0,h],'a')
+        self.assertIn('mountingQuaternion',finished)
+
     def test_supine_reference_preserves_target_orientation(self):
         result=imu_patch({'imu':{}},'supine',[0,0,0,1],'a')
         self.assertAlmostEqual(result['targetQuaternion'][1],-math.sqrt(.5))

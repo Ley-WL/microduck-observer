@@ -1,0 +1,60 @@
+{
+  "mode": "read-only shadow; NO motor execution",
+  "bench": {
+    "recovery": {
+      "synthetic_input": true,
+      "p50_ms": 0.8677285004523583,
+      "p95_ms": 1.0115823001797253,
+      "max_ms": 1.078024999515037
+    },
+    "recovery_stand": {
+      "synthetic_input": true,
+      "p50_ms": 0.9107499990932411,
+      "p95_ms": 1.0276389006321551,
+      "max_ms": 1.148318999184994
+    },
+    "rise": {
+      "synthetic_input": true,
+      "p50_ms": 0.8592700005465304,
+      "p95_ms": 1.0037656502390746,
+      "max_ms": 1.2638210009754403
+    },
+    "seat": {
+      "synthetic_input": true,
+      "p50_ms": 0.8792495000307099,
+      "p95_ms": 1.0028906508523505,
+      "max_ms": 1.0503159992367728
+    },
+    "sit_down": {
+      "synthetic_input": true,
+      "p50_ms": 0.8888749998732237,
+      "p95_ms": 0.9780392989341635,
+      "max_ms": 1.0406910005258396
+    },
+    "stand": {
+      "synthetic_input": true,
+      "p50_ms": 0.8465820001219981,
+      "p95_ms": 0.9473550499023986,
+      "max_ms": 1.1098169998149388
+    },
+    "walk": {
+      "synthetic_input": true,
+      "p50_ms": 0.856644999657874,
+      "p95_ms": 0.9691286008091992,
+      "max_ms": 1.37757299853547
+    }
+  },
+  "live_policy": "stand",
+  "live_success": 0,
+  "live_rejected": 67,
+  "reasons": {
+    "servo 21 (left_hip_roll): encoder angle outside/ambiguous in limits: 0.468, [-0.3839724354387525, 0.3839724354387525]": 67
+  },
+  "limitations": [
+    "Open-loop sensor shadow does not validate balance or action feedback.",
+    "Uses display-zero pose and board mounting direction; not a hardware control calibration.",
+    "Joint velocities are finite differences of asynchronous polling, not measured motor velocities.",
+    "Previous action is the previous prediction, never an executed command."
+  ],
+  "require_mounting_calibration": true
+}

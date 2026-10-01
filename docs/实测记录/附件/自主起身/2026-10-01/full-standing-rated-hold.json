@@ -1,0 +1,1 @@
+{"mode": "move", "status": "stopped", "fraction": 1.0, "duration": 25.0, "torqueLimitRaw": 200, "servoVoltageRange": [4.0, 8.4], "batteryTrialFloorVoltage": 6.0, "samples": [], "cleanup": [], "calibrationRevision": 84, "collectorPid": 1444, "error": "#10 \u6307\u4ee4\u5e94\u7b54\u8d85\u65f6", "collectorResumed": true}

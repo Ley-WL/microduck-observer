@@ -74,3 +74,16 @@ def test_supine_reference_retains_world_gravity():
     snap['joints']['sampleMonoMs']+=20
     obs,_=builder.build(snap,np.zeros(14))
     np.testing.assert_allclose(obs[3:6],[-1,0,0],atol=1e-6)
+
+
+def test_autonomy_readiness_blocks_display_only_mounting():
+    builder,snap=fixture()
+    builder.require_mounting_calibration=True
+    snap['calibration']['mounting']={'yaw':0}
+    with pytest.raises(m.InvalidObservation,match='physical mounting axes'):
+        builder.build(snap,np.zeros(14))
+    snap['calibration']['imu']['mountingQuaternion']=[0,0,0,1]
+    with pytest.raises(m.InvalidObservation,match='warming'):
+        builder.build(snap,np.zeros(14))
+    obs,_=builder.build(snap,np.zeros(14))
+    np.testing.assert_allclose(obs[:6],[1,2,3,0,0,-1])

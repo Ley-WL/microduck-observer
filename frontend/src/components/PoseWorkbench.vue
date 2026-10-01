@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from "vue";
 import { useTelemetry } from "../store";
+import ImuInstallation from "./ImuInstallation.vue";
 import CalibrationStudio from "./CalibrationStudio.vue";
 import RobotView from "./RobotView.vue";
 import SignalChart from "./SignalChart.vue";
 import ServoPanel from "./ServoPanel.vue";
+import ServoActions from "./ServoActions.vue";
 import { useJointPose } from "../jointPose";
 import { useBoardCalibration } from "../boardCalibration";
+const installationOpen = ref(false);
 const board = useBoardCalibration();
 const jointPose = useJointPose();
 const calibrationDialog=ref<HTMLDialogElement>();
@@ -33,7 +36,6 @@ const props = defineProps<{
   canCalibrate: boolean;
   calibrationSaveError: boolean;
   mountingYaw: number;
-  referenceRestored: boolean;
 }>();
 defineEmits<{ calibrate: []; clear: []; pause: []; mounting: [value: number]; confirmReference: [] }>();
 const state = useTelemetry();
@@ -44,6 +46,7 @@ const value = (values: number[] | undefined, i: number) =>
 </script>
 <template>
   <section class="workbench" aria-label="姿态与 IMU 单屏工作台">
+    <ImuInstallation v-if="installationOpen" @close="installationOpen=false" />
     <div class="bench-toolbar">
       <div class="bench-title">
         <h1>姿态与 IMU</h1>
@@ -68,7 +71,7 @@ const value = (values: number[] | undefined, i: number) =>
     </div>
     <dialog ref="calibrationDialog" class="calibration-dialog" aria-label="姿态与 IMU 标定" @cancel.prevent="closeCalibration">
       <template v-if="calibrationOpen">
-        <div class="dialog-toolbar"><span>姿态与 IMU · 仰卧标定</span><button :disabled="calibrationBusy" @click="closeCalibration">返回实时姿态 ×</button></div>
+        <div class="dialog-toolbar"><span>姿态与 IMU · 位置标定（仰卧参考）</span><button :disabled="calibrationBusy" @click="closeCalibration">返回实时姿态 ×</button></div>
         <CalibrationStudio @busy="calibrationBusy=$event" @completed="completed" />
       </template>
     </dialog>
@@ -106,8 +109,9 @@ const value = (values: number[] | undefined, i: number) =>
             :disabled="state.paused"
             @click="openCalibration"
           >
-            仰卧一键标定
+            位置标定
           </button>
+          <button class="button compact" :disabled="!board.ready" @click="installationOpen=true">IMU 安装位置</button>
           <button
             class="text-button"
             :disabled="!calibrated || state.paused"
@@ -119,10 +123,7 @@ const value = (values: number[] | undefined, i: number) =>
             calibrationSaveError ? "主板同步失败" : calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择"
           }}</span>
         </div>
-        <div v-if="referenceRestored" class="bench-calibration" role="status">
-          <span>已恢复主板参考姿态 · 新会话待核对。实物与模型方向一致可直接沿用，无需重新归零。</span>
-          <button class="button compact" :disabled="!canCalibrate" @click="$emit('confirmReference')">确认沿用已存参考</button>
-        </div>
+        <ServoActions />
         <label v-if="state.sensorOnly && !board.data?.imu.mountingQuaternion" class="bench-mounting">
           安装方向
           <select :value="mountingYaw" :disabled="state.paused || !canCalibrate"
@@ -151,7 +152,7 @@ const value = (values: number[] | undefined, i: number) =>
           >
         </div>
         <div class="bench-model-note">
-          IMU 安装方向修正 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />关节与安装方向由主板保存；IMU 参考重启后恢复，新会话需核对。
+          IMU 安装方向修正 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />关节与安装方向由主板保存；IMU 参考重启后自动沿用。
         </div>
       </section>
       <section class="panel bench-imu">
@@ -197,7 +198,7 @@ const value = (values: number[] | undefined, i: number) =>
       <ServoPanel compact />
     </div>
     <div class="bench-statusbar">
-      <span>观测模式 · 不发送运动指令</span
+      <span>实时观测 · 运动需手动操作</span
       ><span>15 个舵机 · 已标定关节跟随反馈（嘴部为简化模型）</span>
     </div>
   </section>

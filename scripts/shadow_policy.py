@@ -46,7 +46,8 @@ def joint_angle(position, reference, direction, limits):
 
 
 class ObservationBuilder:
-    def __init__(self, metadata, geometry):
+    def __init__(self, metadata, geometry, require_mounting_calibration=False):
+        self.require_mounting_calibration=require_mounting_calibration
         names=metadata['joint_names'].split(',')
         joints={b['joint']['name']:b['joint'] for b in geometry['bodies'] if b.get('joint')}
         self.joints=[joints[n] for n in names]
@@ -61,6 +62,8 @@ class ObservationBuilder:
 
     def build(self, snapshot, last_action):
         cal=snapshot['calibration']; imu=snapshot['imu.orientation']; raw=snapshot['imu.raw']; js=snapshot['joints']
+        if self.require_mounting_calibration and cal['imu'].get('mountingQuaternion') is None:
+            raise InvalidObservation('IMU physical mounting axes not calibrated; autonomy input blocked')
         yaw=cal.get('mounting',{}).get('yaw',-90)
         if type(yaw) not in (int,float) or yaw not in (-90,0,90):
             raise InvalidObservation('invalid saved mounting direction')
@@ -134,6 +137,8 @@ def main():
     p.add_argument('--models',type=Path,required=True); p.add_argument('--geometry',type=Path,required=True)
     p.add_argument('--endpoint',default='http://127.0.0.1:8877'); p.add_argument('--seconds',type=float,default=30)
     p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--require-mounting-calibration',action='store_true',
+                   help='Require physical IMU axis calibration for autonomy-readiness diagnostics')
     args=p.parse_args(); args.output.mkdir(parents=True,exist_ok=True)
     summary={'mode':'read-only shadow; NO motor execution','bench':{},'live_policy':'stand','live_success':0,'live_rejected':0,'reasons':{},'limitations':['Open-loop sensor shadow does not validate balance or action feedback.','Uses display-zero pose and board mounting direction; not a hardware control calibration.','Joint velocities are finite differences of asynchronous polling, not measured motor velocities.','Previous action is the previous prediction, never an executed command.']}
     sessions={}
@@ -143,7 +148,8 @@ def main():
         for _ in range(20): infer(s,obs)
         times=[infer(s,obs)[1] for _ in range(200)]
         summary['bench'][path.stem]={'synthetic_input':True,'p50_ms':float(np.percentile(times,50)),'p95_ms':float(np.percentile(times,95)),'max_ms':max(times)}
-    s=sessions['stand']; builder=ObservationBuilder(s.get_modelmeta().custom_metadata_map,json.loads(args.geometry.read_text(encoding='utf-8')))
+    s=sessions['stand']; builder=ObservationBuilder(s.get_modelmeta().custom_metadata_map,json.loads(args.geometry.read_text(encoding='utf-8')),args.require_mounting_calibration)
+    summary['require_mounting_calibration']=args.require_mounting_calibration
     previous=np.zeros(14,dtype=np.float32); end=time.monotonic()+args.seconds; durations=[]
     with (args.output/'shadow.jsonl').open('w',encoding='utf-8') as log:
         while time.monotonic()<end:

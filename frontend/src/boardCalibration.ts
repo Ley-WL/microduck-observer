@@ -56,7 +56,15 @@ export const useBoardCalibration = defineStore("board-calibration", () => {
   }
   function mounting(yaw: number) {
     if (![0, -90, 90].includes(yaw)) return;
-    return write(() => ({ mounting: { yaw } }));
+    return write(current => ({ mounting: { ...current.mounting, yaw } }));
+  }
+  function installation(positionMm: number[], mountingQuaternion: number[], expectedRevision: number) {
+    return write(current => {
+      if (current.revision !== expectedRevision) throw new Error("标定已改变，请关闭并重新打开安装设置");
+      const { validForBoot: _, ...imu } = current.imu;
+      return { mounting: { ...current.mounting, positionMm },
+        imu: { ...imu, mountingQuaternion, ...(JSON.stringify(imu.mountingQuaternion) === JSON.stringify(mountingQuaternion) ? {} : { mountingSamples: {}, mountingSamplesMethod: undefined }) } };
+    });
   }
   let migrationKey = "";
   function migrateLegacy() {
@@ -78,6 +86,17 @@ export const useBoardCalibration = defineStore("board-calibration", () => {
   }
   watch(() => telemetry.endpoint, () => { generation++; loading=false; data.value=null; ready.value=false; saving.value=false; error.value=""; migrationKey=""; void refresh(); }, { immediate:true });
   watch([data, () => telemetry.joints?.source, () => telemetry.orientation?.bootId], migrateLegacy);
+  let restoredSession = "";
+  watch([data, () => telemetry.orientation, ready], () => {
+    const sample = telemetry.orientation;
+    if (!ready.value || saving.value || !data.value?.imu?.quaternion ||
+        !sample?.valid || sample.source !== "hardware" || sample.bootId !== data.value.bootId ||
+        data.value.imu.bootId === sample.bootId) return;
+    const key = base() + data.value.deviceId + sample.bootId;
+    if (restoredSession === key) return;
+    restoredSession = key;
+    void confirmReference(sample.bootId);
+  });
   const timer=setInterval(()=>{void refresh();},1500);onScopeDispose(()=>clearInterval(timer));
-  return { data, ready, saving, error, refresh, joints, orientation, mounting, confirmReference };
+  return { data, ready, saving, error, refresh, joints, orientation, mounting, installation, confirmReference };
 });

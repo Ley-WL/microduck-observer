@@ -1,0 +1,37 @@
+{
+  "index.html": {
+    "status": 200,
+    "bytes": 458,
+    "sha256Match": true
+  },
+  "assets/index-BdYCACpZ.js": {
+    "status": 200,
+    "bytes": 1141282,
+    "sha256Match": true
+  },
+  "assets/index-CIwNQsoO.css": {
+    "status": 200,
+    "bytes": 48408,
+    "sha256Match": true
+  },
+  "model/LICENSE": {
+    "status": 200,
+    "bytes": 11553,
+    "sha256Match": true
+  },
+  "model/meshes.bin": {
+    "status": 200,
+    "bytes": 2856560,
+    "sha256Match": true
+  },
+  "model/model.json": {
+    "status": 200,
+    "bytes": 17056,
+    "sha256Match": true
+  },
+  "model/NOTICE.md": {
+    "status": 200,
+    "bytes": 468,
+    "sha256Match": true
+  }
+}

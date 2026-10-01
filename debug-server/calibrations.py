@@ -31,8 +31,12 @@ class CalibrationStore:
         if not isinstance(patch,dict) or not patch or set(patch)-{'joints','imu','mounting'}: raise ValueError('Invalid calibration section')
         if 'mounting' in patch:
             m = patch['mounting']
-            if not isinstance(m, dict) or set(m) != {'yaw'} or type(m['yaw']) not in (int, float) or m['yaw'] not in (-90, 0, 90):
+            if not isinstance(m, dict) or set(m)-{'yaw','positionMm'} or 'yaw' not in m or type(m['yaw']) not in (int, float) or m['yaw'] not in (-90, 0, 90):
                 raise ValueError('Invalid mounting yaw')
+            if 'positionMm' in m:
+                p=m['positionMm']
+                if not isinstance(p,list) or len(p)!=3 or not all(type(x) in (int,float) and math.isfinite(x) and abs(x)<=300 for x in p):
+                    raise ValueError('Invalid mounting position')
         if 'joints' in patch:
             j = patch['joints']
             if not isinstance(j,dict) or set(j)-{'initialized','references','directions'}: raise ValueError('Invalid joint calibration')
@@ -45,7 +49,8 @@ class CalibrationStore:
                     if key=='references' and abs(value)>2147483647: raise ValueError('Encoder reference out of range')
         if 'imu' in patch:
             i=patch['imu']
-            if not isinstance(i,dict) or set(i)-{'initialized','quaternion','bootId','time','mountingQuaternion','mountingSamples','targetQuaternion'}: raise ValueError('Invalid IMU calibration')
+            if not isinstance(i,dict) or set(i)-{'initialized','quaternion','bootId','time','mountingQuaternion','mountingSamples','mountingSamplesMethod','targetQuaternion'}: raise ValueError('Invalid IMU calibration')
+            if 'mountingSamplesMethod' in i and i['mountingSamplesMethod']!='gravity-v1': raise ValueError('Invalid mounting sample method')
             q=i.get('quaternion')
             if q is not None and (not isinstance(q,list) or len(q)!=4 or not all(type(x) in (int,float) and math.isfinite(x) for x in q) or not .81<=sum(x*x for x in q)<=1.21): raise ValueError('Invalid unit quaternion')
             if not isinstance(i.get('bootId'),str) or len(i['bootId'])>100 or not isinstance(i.get('time',''),str) or len(i.get('time',''))>100: raise ValueError('Invalid IMU context')

@@ -1,0 +1,60 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/20260929-ms901m/frontend/dist",
+  "files": {
+    "index.html": {
+      "size": 458,
+      "sha": "3b9e9d4ed135268270adc99df1f1ceb9f5df2752e3e5c20ae5b42690d5113e16",
+      "zero": true
+    },
+    "model/NOTICE.md": {
+      "size": 468,
+      "sha": "40025b104ed58fdae7d4e3eec6703746a925cc2c626c84dd476aa50619e2f15a",
+      "zero": false
+    },
+    "model/LICENSE": {
+      "size": 11553,
+      "sha": "48a029ca4cffafe32428e9f7d3f6a54ce637fac5327a9ccf88c93cb3c40e5a8a",
+      "zero": false
+    },
+    "model/meshes.bin": {
+      "size": 2856560,
+      "sha": "d2252354ee5a04367aaf82242e08e52491b02ebbf27d48dc2c20350e6714d1a8",
+      "zero": false
+    },
+    "model/model.json": {
+      "size": 17056,
+      "sha": "4759870326c14f8030393c6ceb9c4c1e9f264a45ef6d604a92df06c2c8d04073",
+      "zero": false
+    },
+    "assets/index-DX7m97Sj.js": {
+      "size": 1132876,
+      "sha": "39e605ebe7a9d06813babfc0820745e95aa063ffda8af745792bdb27c35dc0ac",
+      "zero": false
+    },
+    "assets/index-CYhWMGXp.css": {
+      "size": 41958,
+      "sha": "e13238fbba3da98b3e897cc80a60daaeda2d8552da49c86ca819c4e4d1c3fcf0",
+      "zero": false
+    },
+    "assets/index-JzWXY56n.js": {
+      "size": 1139747,
+      "sha": "d0a020a5b8003f974ab0d1119906cdc917058384ee00df5766525aa63c49fdcf",
+      "zero": false
+    },
+    "assets/index-DBtLiAtU.css": {
+      "size": 48934,
+      "sha": "3be4bd3743d961b15a08166960ed55ff5268a49c768ef2c9a5577de45d613100",
+      "zero": false
+    },
+    "assets/index-B3cvT1J6.js": {
+      "size": 1140642,
+      "sha": "93240dc2b802d453b7c7488422d480bacfcf7f72b7d6c95971a0863a637520c6",
+      "zero": false
+    },
+    "assets/index-B7NRalrk.css": {
+      "size": 34155,
+      "sha": "c34fdf5ee3a432e46f40ead43bd543121334d41d0b483219ac96c3a1708d539e",
+      "zero": false
+    }
+  }
+}
