@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "release": "/home/radxa/microduck-observer/releases/20261002-rust-native-v2",
+  "previousRelease": "/home/radxa/microduck-observer/releases/20261002-servo-scan-recovery",
+  "pid": 15567,
+  "executable": "/home/radxa/microduck-observer/releases/20261002-rust-native-v2/bin/microduck-observer",
+  "unchangedFrontendFiles": 51,
+  "calibrationRevision": 133,
+  "jointsOnline": 15,
+  "torqueUnchanged": true,
+  "motionStarted": false
+}

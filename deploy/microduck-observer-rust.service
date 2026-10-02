@@ -1,0 +1,36 @@
+[Unit]
+Description=MicroDuck native Rust observer and explicit servo control
+After=network.target
+
+[Service]
+Type=simple
+User=radxa
+Group=radxa
+SupplementaryGroups=i2c dialout robot
+WorkingDirectory=/home/radxa/microduck-observer/current
+Environment=MICRODUCK_SOURCE=hardware
+Environment=MICRODUCK_BIND=0.0.0.0:8877
+Environment=MICRODUCK_STATIC_DIR=/home/radxa/microduck-observer/current/frontend/dist
+Environment=MICRODUCK_CALIBRATION_FILE=/var/lib/microduck-observer/calibration.json
+Environment=MICRODUCK_IMU_DRIVER=ms901m
+Environment=MICRODUCK_IMU_PORT=/dev/ttyS9
+Environment=MICRODUCK_SERVO_PORT=/dev/ttyS2
+Environment=MICRODUCK_SERVO_IDS=10,11,12,13,14,20,21,22,23,24,30,31,32,33,34
+Environment=MICRODUCK_POLICY_PATH=/home/radxa/microduck-observer/current/models/hd1910-head-v5.onnx
+Environment=ORT_DYLIB_PATH=/home/radxa/microduck-observer/current/lib/libonnxruntime.so
+StateDirectory=microduck-observer
+StateDirectoryMode=0700
+ExecStart=/home/radxa/microduck-observer/current/bin/microduck-observer
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+DevicePolicy=closed
+DeviceAllow=/dev/ttyS9 rw
+DeviceAllow=/dev/ttyS2 rw
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+[package]
+name = "microduck-observer"
+version = "0.9.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.8", features = ["ws"] }
+tokio = { version = "1", features = ["full"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+uuid = { version = "1", features = ["v4"] }
+tower-http = { version = "0.6", features = ["fs", "cors"] }
+serialport = { version = "4", default-features = false }
+anyhow = "1"
+nalgebra = "0.34"
+sha2 = "0.10"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+ort = { version = "=2.0.0-rc.11", default-features = false, features = ["load-dynamic", "ndarray"] }
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,4 +1,4 @@
-# MicroDuck Web 观测台 · 0.8.0
+# MicroDuck Web 观测台 · Rust 后端
 
 ## 实物硬件与实测记录
 
@@ -6,11 +6,11 @@
 
 ![MicroDuck 主页：IMU、3D 鸭子姿态与 15 个舵机信息](docs/images/dashboard.png)
 
-> BNO085 IMU + 15 个 HD-1910 舵机的观测与显式标定平台。主控共享标定、3D 姿态显示及 ONNX 影子推理验证，不发送运动控制指令。
+> MS901M IMU + 15 个 HD1910 舵机 + VL53L5CX ToF 的观测与显式控制平台。前端保持 Vue 3 / Three.js，原生 Rust 后端保持既有 HTTP/WebSocket 与共享标定格式。
 
-前后端分离的机器人观测平台。支持电脑上的模拟后端和主控上的真实 BNO085 后端，不发送运动控制指令。
+前后端分离的机器人观测平台。默认采集不发动作；角度拖动、使能、站姿和模型启动在用户操作后下发。支持位置标定、IMU安装方向和硬件中位校准。
 
-支持本地模拟调试与 Radxa ZERO 3W / BNO085 实机采集。前端使用 Vue 3、TypeScript、Three.js 和 ECharts，后端使用 FastAPI 与 WebSocket。
+后端使用 Rust、Axum、Tokio 和原生 ONNX Runtime；MS901M独立采集线程、舵机串口单线程统一读写。开发见 [Rust后端](backend-rust/README.md)，部署与回滚见 [Rust部署](deploy/RUST.md)。旧Python后端保留用于协议对比与回滚，BNO085旧入口尚未迁移。
 
 工作台按 IMU 30% / 3D 鸭子 40% / 15 个舵机 30% 单屏展示。部署见 [部署说明](deploy/README.md)。
 
@@ -22,7 +22,7 @@
 
 所有已接入的实时遥测（IMU、舵机、系统状态、日志）均通过 WebSocket 更新；HTTP 用于初始化元信息、历史查询、共享标定读写及调试操作。共享标定每 1.5 秒同步一次，实时遥测继续使用 WebSocket。舵机帧到达后立即应用，曲线仍独立限频。
 
-## 当前验证状态
+## 历史验证（2026-09-23）
 
 2026-09-23 在 Radxa 主控、15 个 HD-1910、1 Mbps 总线上完成只读采集测试：
 
@@ -60,7 +60,9 @@
 
 当前驱动不能可靠识别所有 IMU 断电或内部重置，所以“恢复显示”不等于“确认可用于推理”。只读推理程序仍拒绝跨会话未确认的参考。未标定时实机模型保持参考姿态；离线、数据过期/无效或暂停时不能标定。暂停不会清除保存值。
 
-## 启动
+## 启动（Rust为当前后端）
+
+Rust启动、环境变量和检查见 [backend-rust](backend-rust/README.md)。2026-10-02已部署主控；前端保持原样，HTTP/WS协议和标定兼容性已通过对比，[迁移实测](docs/validation/20261002-rust/README.md)。下方Python命令保留用于对比测试和旧BNO085入口。
 
 需要 Node.js 22.12+ 或 24、Python 3.11+。主控采集与推理实测环境为 Linux aarch64 / Python 3.13.5；下方为 Windows 本地开发示例。
 
