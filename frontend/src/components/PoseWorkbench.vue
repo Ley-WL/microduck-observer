@@ -7,6 +7,7 @@ import RobotView from "./RobotView.vue";
 import SignalChart from "./SignalChart.vue";
 import ServoPanel from "./ServoPanel.vue";
 import ServoActions from "./ServoActions.vue";
+import ModelControlPanel from "./ModelControlPanel.vue";
 import { useJointPose } from "../jointPose";
 import { useBoardCalibration } from "../boardCalibration";
 const installationOpen = ref(false);
@@ -123,6 +124,7 @@ const value = (values: number[] | undefined, i: number) =>
             calibrationSaveError ? "主板同步失败" : calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择"
           }}</span>
         </div>
+        <ModelControlPanel />
         <ServoActions />
         <label v-if="state.sensorOnly && !board.data?.imu.mountingQuaternion" class="bench-mounting">
           安装方向
@@ -134,6 +136,16 @@ const value = (values: number[] | undefined, i: number) =>
           </select>
           <small>安装方向保存到主板；更改后核对前倾与左倾。</small>
         </label>
+      </section>
+      <section class="panel bench-imu">
+        <div class="bench-panel-head">
+          <h2>IMU 姿态</h2>
+          <span
+            class="subtle-tag"
+            :class="{ bad: state.imuState !== '实时' }"
+            >{{ state.imuState }}</span
+          >
+        </div>
         <div class="bench-angles">
           <div
             v-for="(name, i) in ['Roll 横滚', 'Pitch 俯仰', 'Yaw 偏航']"
@@ -153,16 +165,6 @@ const value = (values: number[] | undefined, i: number) =>
         </div>
         <div class="bench-model-note">
           IMU 安装方向修正 · {{ jointPose.calibratedCount }} 个关节已标定跟随<br />关节与安装方向由主板保存；IMU 参考重启后自动沿用。
-        </div>
-      </section>
-      <section class="panel bench-imu">
-        <div class="bench-panel-head">
-          <h2>IMU</h2>
-          <span
-            class="subtle-tag"
-            :class="{ bad: state.imuState !== '实时' }"
-            >{{ state.imuState }}</span
-          >
         </div>
         <div class="bench-axis-legend">
           <span>X</span><span>Y</span><span>Z</span><small>最近 60 秒</small>
@@ -188,11 +190,11 @@ const value = (values: number[] | undefined, i: number) =>
           <SignalChart :samples="state.chart" kind="accel" />
         </section>
         <div class="bench-imu-note">
-          原始 R / P / Y
+          原始传感器 R / P / Y
           <strong>{{
             state.angles?.map((v) => v.toFixed(1) + "°").join(" / ") || "—"
           }}</strong
-          ><span>传感器坐标 · 未完成安装校准</span>
+          ><span>{{ board.data?.imu.mountingQuaternion ? "传感器原始坐标 · 上方为安装换算后的姿态" : "传感器坐标 · 安装矩阵未标定" }}</span>
         </div>
       </section>
       <ServoPanel compact />
@@ -532,4 +534,24 @@ const value = (values: number[] | undefined, i: number) =>
 .dialog-toolbar button{background:white;border:1px solid #c4d3c4;padding:5px 10px;border-radius:5px;color:#365e42;cursor:pointer}
 .dialog-toolbar button:disabled{opacity:.4;cursor:default}
 .calibration-dialog :deep(.calibration-studio){height:calc(100% - 30px)}
+</style>
+
+<style scoped>
+.bench-imu .bench-angles { padding: 8px 12px; }
+.bench-imu .bench-angles strong { font-size: 18px; margin-top: 4px; }
+.bench-imu .bench-quaternion { padding: 7px 12px; }
+.bench-imu .bench-model-note { padding: 0 12px 7px; font-size: 8px; }
+.bench-imu .bench-axis-legend { padding-top: 5px; }
+.bench-imu .bench-signal { padding-top: 7px; }
+.bench-imu .bench-axis-values { padding-top: 6px; }
+@media (max-height: 720px) {
+  .bench-imu .bench-angles { padding: 5px 10px; }
+  .bench-imu .bench-angles strong { font-size: 16px; }
+  .bench-imu .bench-quaternion { padding: 5px 10px; }
+  .bench-imu .bench-model-note { padding-bottom: 4px; }
+}
+</style>
+
+<style scoped>
+@media(max-height:820px){.bench-calibration{padding:6px 9px;gap:5px}.bench-calibration>span{width:auto;margin-left:auto;max-width:105px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 </style>

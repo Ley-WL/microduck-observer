@@ -1,0 +1,6 @@
+{
+  "before": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:3191 rx:883 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:16897 rx:155850 fe:73518 brk:41571 RTS|DTR\n4: uart:16550A mmio:0xFE680000 irq:33 tx:1572 rx:0 CTS\n",
+  "after": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:3191 rx:883 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:16897 rx:155850 fe:73518 brk:41571 RTS|DTR\n4: uart:16550A mmio:0xFE680000 irq:33 tx:1572 rx:0 CTS\n",
+  "passiveRxHex": "",
+  "bytes": 0
+}

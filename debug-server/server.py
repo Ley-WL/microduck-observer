@@ -99,10 +99,12 @@ async def lifespan(app):
         else:
             from hardware import HardwareSource
         hardware = HardwareSource(sim)
-        hardware.thread.start()
     if SERVO_PORT:
         servos = ServoSource(sim, SERVO_PORT, SERVO_IDS)
         servos.thread.start()
+    if hardware:
+        if servos: hardware.policy_sink = servos.update_sensors
+        hardware.thread.start()
     async def producer():
         count = 0
         period = .01 if hardware and servos else .02
@@ -197,6 +199,7 @@ async def set_calibration(request: Request):
         body=json.loads(raw)
         if not isinstance(body,dict): raise ValueError('Invalid request')
         async with pose_calibration.lock:
+            if servos and servos.pending is not None: raise Conflict('舵机任务运行中，请先停止模型')
             return calibrations.update(body.get('revision'),body.get('patch'),sim.boot,body.get('migrate') is True)
     except Conflict as exc: raise HTTPException(409,str(exc))
     except (ValueError,TypeError) as exc: raise HTTPException(422,str(exc))
@@ -222,6 +225,7 @@ async def guided_calibration(action: str, request: Request):
         body=json.loads(raw)
         if not isinstance(body,dict): raise ValueError('Invalid request')
         async with pose_calibration.lock:
+            if servos and servos.pending is not None: raise ValueError('舵机任务运行中，请先停止模型')
             if action=='preview': return await pose_calibration.preview(body)
             if body.get('confirm') is not True: raise ValueError('请确认姿势和写入预览')
             return await pose_calibration.execute(body.get('token'))
@@ -232,6 +236,44 @@ async def guided_calibration(action: str, request: Request):
 def servo_limits():
     from servo_control import OFFICIAL_LIMITS_DEG
     return dict(limits=OFFICIAL_LIMITS_DEG, unit='deg')
+
+
+@app.get('/api/v1/policy')
+def policy_info():
+    from policy_control import POLICY_PATH
+    import json
+    available=POLICY_PATH.is_file() and POLICY_PATH.with_suffix('.metadata.json').is_file()
+    return dict(available=available,policy='hd1910-head-v5',kind='stand',controlHz=50,
+                metadata=json.loads(POLICY_PATH.with_suffix('.metadata.json').read_text()) if available else None,
+                control=servos.control if servos else None)
+
+
+@app.post('/api/v1/policy/{action}')
+async def policy_action(action: str, request: Request):
+    if action not in ('start','stop','shadow'): raise HTTPException(404)
+    origin=request.headers.get('origin')
+    if origin is not None and origin not in (str(request.base_url).rstrip('/'),'http://localhost:5173','http://127.0.0.1:5173'):
+        raise HTTPException(403,'Origin not allowed')
+    if request.headers.get('content-type','').split(';')[0]!='application/json': raise HTTPException(415)
+    if not servos or SOURCE!='hardware': raise HTTPException(409,'需要实机传感器与舵机服务')
+    try:
+        if action=='stop':
+            if servos.pending is not None and servos.control.get('action')=='policy': servos.policy_halt.set()
+            return dict(state='stopping',message='停止模型请求已发送，保持最后目标')
+        if len(await request.body())>1024: raise HTTPException(413)
+        body=await request.json()
+        if not isinstance(body,dict): raise ValueError('Invalid request')
+        async with pose_calibration.lock:
+            cal=calibrations.read(sim.boot)
+            if body.get('revision')!=cal['revision']: raise ValueError('标定已更新，请刷新后重试')
+            future=servos.submit_control(dict(action='policy',calibration=cal,shadow=action=='shadow'))
+            if action=='shadow': return await asyncio.shield(asyncio.wrap_future(future))
+            # The serial owner runs the loop. Result is drained into system WS;
+            # start responds immediately, stop/disable remain independently usable.
+            future.add_done_callback(lambda f: sim.log('WARN' if f.exception() else 'INFO','policy',
+                str(f.exception()) if f.exception() else f.result()['message']))
+            return dict(state='preflight',message='v5 模型启动，先过渡到模型站姿，再持续推理')
+    except (ValueError,TypeError,KeyError) as exc: raise HTTPException(409,str(exc))
 
 
 @app.post('/api/v1/servos/{action}')

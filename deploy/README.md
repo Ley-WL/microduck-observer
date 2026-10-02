@@ -109,3 +109,12 @@ DeviceAllow=/dev/ttyS4 rw
 默认仍支持bno085驱动。MS901M以115200/8N1接收；仅发送量程寄存器读取请求，不写配置。模块RX回路需接通才能查询量程；未收到合法量程应答时仍可发布四元数，但不输出猜测倍率的加速度/角速度。health显示rangeState、ranges、checksumErrors和报告计数。替换传感器后须备份并清除旧IMU参考/安装校准，不能照搬旧BNO085参数；保留舵机标定。
 
 2026-09-29部署到20260929-ms901m，备份和回退步骤见实测记录02-IMU实测.md。本次更新未调用原安装脚本（它的I²C独占检查针对BNO085，不适用于当前UART4/ToF并行运行）。
+
+
+## HD1910 v5 模型站立维持（2026-10-01）
+
+发布包包含debug-server/models/hd1910-head-v5.onnx和元数据；requirements含numpy、onnxruntime。服务启动仅采集，平台“姿态与IMU→模型控制→实机模型v5”可显式开始站立维持、停止并保持、全部失能和只读检查。启动先过渡到模型HOME，头颈俯仰各20°，然后50Hz目标闭环；实际频率由成功总线发令统计。当前仅站立策略，移动及其他技能仍为操作预览。
+
+GET /api/v1/policy返回模型元数据与状态；POST /api/v1/policy/start和/shadow使用JSON revision；POST /stop结束模型并保持。全部失能沿用POST /api/v1/servos/disable。模型状态经既有system WebSocket同步。只读检查给出当前姿态预测目标，不会执行HOME过渡或舵机写入；currentPoseTargetsCompatible=false时不能称该姿态已适配实机。
+
+模型不从倒地任意姿态起立；请托稳直立后启动。v5尚未完成实机平衡验证；不会因为模型已上传就标记hardwareValidated=true。部署证据与回滚路径见实测记录。

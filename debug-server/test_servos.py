@@ -115,6 +115,23 @@ class ServoTests(unittest.TestCase):
         self.assertEqual(data['servos'][1]['position'],123)
         self.assertTrue(Bus.closed)
 
+    def test_transient_miss_is_retried_on_next_scan(self):
+        stop=threading.Event(); events=queue.Queue(maxsize=1); requests=[]
+        class Bus:
+            def __init__(self,port): pass
+            def read_feedback_many(self,ids):
+                requests.append(list(ids))
+                if len(requests)==1: return {}
+                stop.set()
+                return {sid: {'position':123,'received':__import__('time').monotonic()} for sid in ids}
+            def close(self): pass
+        with patch('servos.ReadOnlyBus',Bus):
+            ServoPoller('fake',[10,11],events,stop).run()
+        self.assertEqual(requests,[[10,11],[10,11]])
+        data,_=events.get_nowait()
+        self.assertTrue(all(row['online'] for row in data['servos']))
+        self.assertGreater(data['diagnostics']['observedScanHz'],0)
+
     def test_sync_read_checks_each_id_and_only_emits_read_opcode(self):
         bus=ReadOnlyBus.__new__(ReadOnlyBus)
         good=reply(11,bytes(31))
@@ -126,6 +143,9 @@ class ServoTests(unittest.TestCase):
         self.assertEqual(list(sent[2:-1]),[254,6,0x82,40,31,10,11])
         self.assertEqual(sum(sent[2:])&255,255)
         self.assertEqual(bus.serial.timeout,.025)
+        self.assertEqual(bus.last_read['missingIds'],[])
+        self.assertEqual(bus.last_read['checksumErrors'],1)
+        self.assertEqual(bus.last_read['receivedIds'],[10,11])
 
     def test_sync_read_missing_id_does_not_discard_good_reply(self):
         bus=ReadOnlyBus.__new__(ReadOnlyBus)

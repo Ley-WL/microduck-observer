@@ -57,8 +57,13 @@ def mounting_quaternion(x,y):
 
 def imu_patch(state, pose, q, boot):
     if pose not in ('imu-roll','imu-pitch'):
-        return dict(quaternion=q,bootId=boot,time=time.strftime('%Y-%m-%d %H:%M:%S'),
+        result=dict(quaternion=q,bootId=boot,time=time.strftime('%Y-%m-%d %H:%M:%S'),
                     targetQuaternion=[0,-math.sqrt(.5),0,math.sqrt(.5)] if pose=='supine' else [0,0,0,1])
+        # A pose reference reset does not change the physical sensor installation.
+        # Incomplete axis samples belong to the old reference and must be discarded.
+        mounting=state.get('imu',{}).get('mountingQuaternion')
+        if mounting is not None: result['mountingQuaternion']=copy.deepcopy(mounting)
+        return result
     old=state['imu']
     if old.get('bootId')!=boot or not old.get('quaternion') or old.get('targetQuaternion',[0,0,0,1])!=[0,0,0,1]: raise ValueError('请先采集本次会话的躯干水平参考')
     axis=mounting_axis(old['quaternion'],q)

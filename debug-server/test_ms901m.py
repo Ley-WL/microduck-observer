@@ -13,6 +13,22 @@ def frame(head, kind, payload):
 
 
 class Ms901mTests(unittest.TestCase):
+    def test_backlog_publishes_only_latest_per_topic_with_original_timestamp(self):
+        store=Simulator('hardware'); source=Ms901mSource(store)
+        first=time.monotonic()-1; last=time.monotonic()
+        source.put('quaternion',[0,0,0,1],first)
+        source.put('raw',dict(accel=[1,0,0],gyro=[0,0,0]),first)
+        source.put('log',('INFO','retained log'),last)
+        source.put('quaternion',[0,0,1,0],last)
+        source.put('raw',dict(accel=[2,0,0],gyro=[0,0,0]),last)
+        source.drain()
+        self.assertEqual(store.seq['imu.orientation'],1)
+        self.assertEqual(store.seq['imu.raw'],1)
+        self.assertEqual(store.latest['imu.orientation']['data']['quaternion'],[0,0,1,0])
+        self.assertEqual(store.latest['imu.raw']['data']['accel'],[2,0,0])
+        self.assertAlmostEqual(store.latest['imu.orientation']['sampleMonoMs'],(last-store.start)*1000)
+        self.assertEqual(store.logs[-1]['data']['message'],'retained log')
+
     def test_fragmented_real_capture_and_checksum(self):
         capture = (Path(__file__).resolve().parents[1] / 'docs/实测记录/附件/IMU/2026-09-29/UART4-115200-10秒.bin').read_bytes()
         parser = FrameParser()

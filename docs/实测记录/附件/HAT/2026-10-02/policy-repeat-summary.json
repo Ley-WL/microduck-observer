@@ -1,0 +1,63 @@
+{
+  "error": "#21 反馈丢失",
+  "stage": "policy-loop",
+  "commandCount": 1,
+  "missingIds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    21,
+    23,
+    24
+  ],
+  "rxBytes": 307,
+  "elapsedMs": 22.527,
+  "checksumErrors": 1,
+  "observedTiltDeg": 17.337962498418154,
+  "voltages": {
+    "20": {
+      "before": 7.2,
+      "atFailure": 6.7
+    },
+    "22": {
+      "before": 7.3,
+      "atFailure": 6.9
+    },
+    "30": {
+      "before": 7.4,
+      "atFailure": 7.1
+    },
+    "31": {
+      "before": 7.3,
+      "atFailure": 7.0
+    },
+    "32": {
+      "before": 7.4,
+      "atFailure": 7.1
+    },
+    "33": {
+      "before": 7.4,
+      "atFailure": 7.2
+    },
+    "34": {
+      "before": 7.3,
+      "atFailure": 7.1
+    }
+  },
+  "unload": {
+    "state": "disabled",
+    "message": "15 个舵机已失能（卸力）",
+    "unconfirmedIds": []
+  },
+  "uartCurrent": {
+    "device": "ttyS2",
+    "fe": 19,
+    "oeBefore": 53,
+    "oeAfter": 54,
+    "note": "current idle interval; no counters captured at failure"
+  },
+  "userPosture": "躯干基本竖直",
+  "uartUsesDma": false
+}

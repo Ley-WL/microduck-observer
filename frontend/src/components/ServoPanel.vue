@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, reactive, watch, onBeforeUnmount } from "vue";
 import { latestCommand } from "../latestCommand";
+import { stepAngle } from "../servoSelection";
 import { useBoardCalibration } from "../boardCalibration";
 import { useTelemetry } from "../store";
 import { useJointPose } from "../jointPose";
@@ -13,7 +14,7 @@ const drafts = reactive<Record<number, number | string>>({});
 const pending = ref(false), message = ref(''), failed = ref(false);
 const busy = computed(() => {
   const control = state.system?.data.servoControl;
-  return ['preflight', 'moving', 'disabling'].includes(control?.state) && control?.action !== 'angle';
+  return ['preflight', 'moving', 'policy', 'disabling'].includes(control?.state) && control?.action !== 'angle';
 });
 const commands = latestCommand<{ id: number; angle: number; endpoint: string; boot: string | undefined; revision: number | undefined }>(async command => {
   if (!allowed(command.id) || command.endpoint !== state.endpoint || command.boot !== state.joints?.bootId || command.revision !== board.data?.revision) return;
@@ -51,7 +52,21 @@ function allowed(id: number) {
   return canControl(id) && !!range && raw !== '' && Number.isFinite(angle) && angle >= range[0] && angle <= range[1];
 }
 function dragAngle(id: number, event: Event) {
+  pose.selected = id;
   drafts[id] = Number((event.target as HTMLInputElement).value);
+  queueAngle(id);
+}
+function canStep(id: number, delta: number) {
+  const range = limits.value[id];
+  return canControl(id) && !!range && stepAngle(draft(id), delta, range) !== null && stepAngle(draft(id), delta, range) !== Number(draft(id));
+}
+function nudge(id: number, delta: number) {
+  pose.selected = id;
+  if (!canStep(id, delta)) return;
+  drafts[id] = stepAngle(draft(id), delta, limits.value[id]!)!;
+  queueAngle(id);
+}
+function queueAngle(id: number) {
   if (!allowed(id)) return;
   commands.push({ id, angle: Number(draft(id)), endpoint: state.endpoint, boot: state.joints?.bootId, revision: board.data?.revision });
 }
@@ -184,9 +199,14 @@ const groups = [
             <td>{{ measured(joint.id)?.toFixed(1) ?? '—' }}<small class="position-label">{{ value(joint.id, 'position') }} 步</small></td>
             <td class="angle-cell">
               <div v-if="limits[joint.id]" class="angle-slider" :title="joint.id === 34 ? '用户确认范围：0–30°' : '官方关节范围'">
+                <div class="angle-adjust">
+                <button :aria-label="joint.name + '减小1度'" title="−1°，立即控制并使能" :disabled="!canStep(joint.id, -1)" @click="nudge(joint.id, -1)">−</button>
                 <input type="range" step="0.1" :min="limits[joint.id]![0]" :max="limits[joint.id]![1]" :value="draft(joint.id)"
                   :aria-label="joint.name + '目标角度'" :disabled="!canControl(joint.id)"
+                  @pointerdown="pose.selected = joint.id" @focus="pose.selected = joint.id"
                   @input="dragAngle(joint.id, $event)" />
+                <button :aria-label="joint.name + '增大1度'" title="+1°，立即控制并使能" :disabled="!canStep(joint.id, 1)" @click="nudge(joint.id, 1)">+</button>
+                </div>
                 <small><span>{{ limits[joint.id]![0] }}°</span><strong>{{ draft(joint.id) }}°</strong><span>{{ limits[joint.id]![1] }}°</span></small>
               </div>
               <span v-else class="range-missing">加载范围…</span>
@@ -210,7 +230,7 @@ const groups = [
         <button :disabled="state.paused || pose.references[pose.selected] === undefined" @click="pose.clear(pose.selected)">清除</button>
       </div>
       <p>{{ (pose.saveError ? '主板标定同步失败，请检查连接。' : '') || state.joints?.data.error || '选关节 → 摆到模型参考姿势 → 标定；保存到主板，网页与 App 共用。' }}</p>
-      <p>标定用于模型与角度控制换算；拖动滑块实时控制，实测角度下方为编码器位置。</p>
+      <p>选关节在3D中高亮；滑块或±按钮立即控制（每次1°），实测角度下方为编码器位置。</p>
     </div>
   </section>
 </template>
@@ -538,5 +558,8 @@ const groups = [
 .angle-slider input[type="range"] { width: 100%; padding: 0; margin: 2px 0; height: 15px; accent-color: #428561; cursor: ew-resize; }
 .angle-slider small { display: flex; justify-content: space-between; gap: 2px; }
 .angle-slider strong { color: #315f43; font-weight: 600; }
+.angle-adjust { display: grid; grid-template-columns: 18px minmax(0, 1fr) 18px; gap: 3px; align-items: center; }
+.angle-adjust button { height: 19px; font-size: 13px; line-height: 1; padding: 0; }
+.angle-adjust button:focus-visible { outline: 2px solid #428561; }
 .position-label { display: block; color: #879580; font-size: 8px; margin-top: 2px; white-space: nowrap; }
 </style>

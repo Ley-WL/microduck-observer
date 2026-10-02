@@ -3,7 +3,9 @@ import concurrent.futures
 import os
 import queue
 import multiprocessing
+from imu_mailbox import ImuMailbox
 import time
+from collections import deque
 
 ALL_IDS = (10, 11, 12, 13, 14, 20, 21, 22, 23, 24, 30, 31, 32, 33, 34)
 DEFAULT_IDS = (11, 12, 13, 14, 21, 22, 23, 24)
@@ -38,6 +40,12 @@ class ReadOnlyBus:
         import serial
         self.serial = serial.Serial(port=port, baudrate=1000000, timeout=.025,
                                     write_timeout=.1, exclusive=True if os.name != 'nt' else None)
+        self.trace = deque(maxlen=8)
+        self.last_read = None
+
+    def record_write(self, packet):
+        if hasattr(self, 'trace'):
+            self.trace.append(dict(kind='write', mono=time.monotonic(), txHex=packet.hex()))
 
     def close(self):
         self.serial.close()
@@ -82,45 +90,68 @@ class ReadOnlyBus:
             raise ValueError('Invalid sync-read IDs')
         s = self.serial
         request = bytes([254, len(ids)+4, 0x82, 40, 31, *ids])
+        packet = b'\xff\xff' + request + bytes([(~sum(request)) & 255])
+        before_clear = s.in_waiting
         s.reset_input_buffer()
-        s.write(b'\xff\xff' + request + bytes([(~sum(request)) & 255]))
+        s.write(packet)
         started = time.monotonic()
         deadline = started + .02
         received = bytearray()
         out = {}
+        raw = bytearray()
+        checksum_errors = 0
+        rejected_frames = []
+        discarded_bytes = 0
         timeout = s.timeout
         s.timeout = .002
         try:
             while time.monotonic() < deadline and len(out) < len(ids):
-                received.extend(s.read(max(1, min(s.in_waiting, 1024))))
+                chunk = s.read(max(1, min(s.in_waiting, 1024)))
+                raw.extend(chunk)
+                received.extend(chunk)
                 while len(received) >= 4:
                     if received[:2] != b'\xff\xff' or not 2 <= received[3] <= 64:
                         del received[0]
+                        discarded_bytes += 1
                         continue
                     length = received[3] + 4
                     if len(received) < length:
                         break
                     frame = bytes(received[:length]); del received[:length]
                     sid = frame[2]
-                    if sid not in ids or sid in out or (sum(frame[2:]) & 255) != 255 or len(frame[5:-1]) != 31:
+                    if (sum(frame[2:]) & 255) != 255:
+                        checksum_errors += 1
+                        rejected_frames.append(dict(id=sid, reason='checksum', hex=frame.hex()))
+                        continue
+                    if sid not in ids or sid in out or len(frame[5:-1]) != 31:
+                        rejected_frames.append(dict(id=sid, reason='id/length/duplicate', hex=frame.hex()))
                         continue
                     now = time.monotonic()
                     out[sid] = dict(**decode(frame[5:-1], frame[4]),
                                     received=now, readMs=(now-started)*1000)
         finally:
             s.timeout = timeout
+        self.last_read = dict(kind='sync-read', mono=started, requestedIds=list(ids),
+            receivedIds=list(out), missingIds=[sid for sid in ids if sid not in out],
+            elapsedMs=round((time.monotonic()-started)*1000, 3),
+            discardedBeforeRead=before_clear, rxBytes=len(raw), checksumErrors=checksum_errors,
+            discardedBytes=discarded_bytes, pendingHex=received.hex(), rejectedFrames=rejected_frames,
+            txHex=packet.hex(), rxHex=raw.hex(),
+            replyMs={sid:round(row['readMs'],3) for sid,row in out.items()})
+        if hasattr(self, 'trace'): self.trace.append(self.last_read)
         return out
 
 
 class ServoPoller:
     """Independent read-only worker; no web/IMU objects cross process boundary."""
-    def __init__(self, port, ids, events, stop, period=.02, commands=None, results=None, off=None, off_results=None, statuses=None, cancelled_before=None):
+    def __init__(self, port, ids, events, stop, period=.02, commands=None, results=None, off=None, off_results=None, statuses=None, cancelled_before=None, sensors=None, policy_halt=None):
         self.port, self.ids, self.events, self.stop, self.period = port, ids, events, stop, period
         self.commands, self.results = commands, results
         self.off, self.off_results, self.statuses = off, off_results, statuses
         self.cancelled_before = cancelled_before
+        self.sensors,self.policy_halt=sensors,policy_halt
 
-    def publish(self, rows, error='', scan_ms=None):
+    def publish(self, rows, error='', scan_ms=None, diagnostics=None):
         now = time.monotonic()
         rows = [dict(row) for row in rows]
         for row in rows:
@@ -129,7 +160,8 @@ class ServoPoller:
             else:
                 row.setdefault('ageMs', 0)
         event = (dict(configuredIds=list(self.ids), servos=rows, error=error,
-                      scanMs=scan_ms, targetHz=1/self.period, readMode='sync-read'), time.monotonic())
+                      scanMs=scan_ms, targetHz=1/self.period, readMode='sync-read',
+                      diagnostics=diagnostics), time.monotonic())
         try:
             self.events.put_nowait(event)
         except queue.Full:
@@ -168,9 +200,12 @@ class ServoPoller:
             if isinstance(command, dict):
                 if command['issued'] <= self.cancelled_before.value: raise ValueError('任务已被全部失能取消')
                 from servo_control import execute_control
-                result = execute_control(bus, command,
-                    lambda: self.stop.is_set() or (self.off is not None and self.off.is_set()),
-                    self.publish, self.control_status)
+                cancelled=lambda: self.stop.is_set() or (self.off is not None and self.off.is_set())
+                if command['action']=='policy':
+                    from policy_control import execute_policy
+                    result=execute_policy(bus,command,cancelled,self.publish,self.control_status,self.sensors,self.policy_halt)
+                else:
+                    result = execute_control(bus, command,cancelled,self.publish,self.control_status)
             else:
                 plan, path = command
                 from pathlib import Path
@@ -185,25 +220,31 @@ class ServoPoller:
             bus = None
             try:
                 bus = ReadOnlyBus(self.port)
-                retry_after = {}
+                scans = deque(maxlen=100)
                 while not self.stop.is_set():
                     self.execute_command(bus)
                     self.execute_off(bus)
                     start = time.monotonic()
-                    active = [sid for sid in self.ids if time.monotonic() >= retry_after.get(sid, 0)]
-                    feedback = bus.read_feedback_many(active) if active else {}
+                    # A transient missing reply must not suppress the ID for a
+                    # full second. Sync-read has one shared deadline for all IDs.
+                    feedback = bus.read_feedback_many(self.ids)
                     rows = []
                     for sid in self.ids:
                         if sid in feedback:
                             rows.append(dict(id=sid, online=True, **feedback[sid]))
                         else:
-                            if sid in active:
-                                retry_after[sid] = time.monotonic() + 1
                             rows.append(dict(id=sid, online=False))
                     now = time.monotonic()
                     for row in rows:
                         row['ageMs'] = max(0, (now-row.pop('received', now))*1000)
-                    self.publish(rows, scan_ms=(now-start)*1000)
+                    scans.append(start)
+                    read = getattr(bus, 'last_read', None) or {}
+                    diagnostics = {key: read.get(key) for key in (
+                        'missingIds', 'elapsedMs', 'rxBytes', 'checksumErrors',
+                        'discardedBytes', 'discardedBeforeRead')}
+                    diagnostics['observedScanHz'] = ((len(scans)-1)/(scans[-1]-scans[0])
+                        if len(scans)>1 and scans[-1]>scans[0] else None)
+                    self.publish(rows, scan_ms=(now-start)*1000, diagnostics=diagnostics)
                     self.stop.wait(max(0, self.period-(time.monotonic()-start)))
             except Exception as exc:
                 self.execute_command(None)
@@ -216,11 +257,11 @@ class ServoPoller:
                     bus.close()
 
 
-def run_servo_poller(port, ids, events, stop, commands, results, off, off_results, statuses, cancelled_before):
+def run_servo_poller(port, ids, events, stop, commands, results, off, off_results, statuses, cancelled_before, sensors, policy_halt):
     # Exit never waits for a final unread telemetry packet to flush.
     events.cancel_join_thread()
     statuses.cancel_join_thread()
-    ServoPoller(port, ids, events, stop, commands=commands, results=results, off=off, off_results=off_results, statuses=statuses, cancelled_before=cancelled_before).run()
+    ServoPoller(port, ids, events, stop, commands=commands, results=results, off=off, off_results=off_results, statuses=statuses, cancelled_before=cancelled_before,sensors=sensors,policy_halt=policy_halt).run()
 
 
 class ServoSource:
@@ -236,12 +277,17 @@ class ServoSource:
         self.cancelled_before = context.Value("d", 0.)
         self.off_results = context.Queue(maxsize=1)
         self.statuses = context.Queue(maxsize=32)
+        self.sensors=ImuMailbox(context)
+        self.policy_halt=context.Event()
         self.off_pending = None
         self.pending_kind = 'calibration'
         self.control = dict(state='idle', message='等待操作')
         # Keep start/join compatibility with the existing lifespan owner.
         self.thread = context.Process(target=run_servo_poller,
-            args=(port, ids, self.events, self.stop, self.commands, self.results, self.off, self.off_results, self.statuses, self.cancelled_before), daemon=True, name='servo-observer')
+            args=(port, ids, self.events, self.stop, self.commands, self.results, self.off, self.off_results, self.statuses, self.cancelled_before,self.sensors,self.policy_halt), daemon=True, name='servo-observer')
+
+    def update_sensors(self, samples):
+        self.sensors.update(samples)
 
     def submit_calibration(self, plan, path):
         if self.pending is not None or self.off_pending is not None: raise ValueError('舵机任务仍在执行')
@@ -259,6 +305,7 @@ class ServoSource:
         if self.pending is not None or self.off_pending is not None: raise ValueError('舵机任务仍在执行')
         if not self.thread.is_alive(): raise ValueError('串口采集进程未运行')
         future = concurrent.futures.Future(); future.set_running_or_notify_cancel()
+        if command['action']=='policy': self.policy_halt.clear()
         self.commands.put_nowait({**command, "issued": time.monotonic()})
         self.pending, self.pending_kind = future, 'control'
         self.control = dict(state='preflight', action=command['action'], message='检查中', progress=0)

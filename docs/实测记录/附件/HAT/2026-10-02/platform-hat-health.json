@@ -1,0 +1,2882 @@
+[
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 4,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1189,
+      "sampleMonoMs": 27114.340529000005,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.06594999999265383,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 12.292077000009158
+    },
+    "logCount": 11
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 4,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1209,
+      "sampleMonoMs": 27630.260444000014,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.10330200001362755,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 22.349429999991116
+    },
+    "logCount": 11
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1234,
+      "sampleMonoMs": 28165.810436000014,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.0647819999812782,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 20.717899999996007
+    },
+    "logCount": 12
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1256,
+      "sampleMonoMs": 28716.671495000013,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.058945999995785314,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 9.824779999973543
+    },
+    "logCount": 12
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1280,
+      "sampleMonoMs": 29236.79039999999,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.10009199999672092,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 9.840245000021241
+    },
+    "logCount": 12
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1301,
+      "sampleMonoMs": 29782.92465300001,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.10271799999372888,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 15.498503999991954
+    },
+    "logCount": 12
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1325,
+      "sampleMonoMs": 30303.017059000013,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.09688199997981428,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 44.28677699999753
+    },
+    "logCount": 12
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1347,
+      "sampleMonoMs": 30867.776332999994,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.08666900001230715,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 29.90269599999374
+    },
+    "logCount": 13
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1370,
+      "sampleMonoMs": 31414.50758900001,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 22.133457999984785,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 23.162099999975908
+    },
+    "logCount": 13
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1393,
+      "sampleMonoMs": 31982.476563999997,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.1596209999945586,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 8.54079000001002
+    },
+    "logCount": 13
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1416,
+      "sampleMonoMs": 32515.800560999993,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 22.61931700002151,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 21.626564000001963
+    },
+    "logCount": 13
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1439,
+      "sampleMonoMs": 33069.842841,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.1009679999981472,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 13.944290999999794
+    },
+    "logCount": 13
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 5,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1461,
+      "sampleMonoMs": 33606.73990500001,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.06711699998618315,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 12.606616000004578
+    },
+    "logCount": 13
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 6,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1484,
+      "sampleMonoMs": 34150.94793700001,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.06332399999564586,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 4.658503999991808
+    },
+    "logCount": 14
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 6,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1506,
+      "sampleMonoMs": 34706.66649,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.06740899999613248,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 11.894297999984701
+    },
+    "logCount": 14
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 6,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1530,
+      "sampleMonoMs": 35245.37955700001,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.06682599999408012,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 12.655637999981991
+    },
+    "logCount": 14
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 6,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1550,
+      "sampleMonoMs": 35760.45572000001,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.06449099998917518,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 28.39456600000267
+    },
+    "logCount": 14
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 6,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1575,
+      "sampleMonoMs": 36318.748450000014,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.06069699998079159,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 11.314755999992485
+    },
+    "logCount": 14
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 6,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1594,
+      "sampleMonoMs": 36840.080094000004,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.07090999997672043,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 27.461635999992723
+    },
+    "logCount": 15
+  },
+  {
+    "status": "degraded",
+    "source": "hardware",
+    "imu": {
+      "device": "/dev/ttyS4",
+      "address": null,
+      "productId": null,
+      "state": "unavailable",
+      "sampleAgeMs": null,
+      "counts": {},
+      "observedHz": {},
+      "ioErrors": 6,
+      "unparsedReports": 0,
+      "droppedEvents": 0,
+      "mountingCalibrated": false,
+      "model": "MS901M",
+      "baud": 115200,
+      "ranges": {
+        "accelG": null,
+        "gyroDps": null
+      },
+      "checksumErrors": 0,
+      "frames": {},
+      "rangeState": "unknown"
+    },
+    "tof": {
+      "state": "offline",
+      "error": "ToF stream timeout",
+      "ageMs": null,
+      "hz": 0.0
+    },
+    "joints": {
+      "type": "sample",
+      "protocolVersion": 1,
+      "bootId": "ec38e230-9f01-4f47-b11e-678a90e86c2e",
+      "topic": "joints",
+      "seq": 1619,
+      "sampleMonoMs": 37382.132171,
+      "source": "hardware",
+      "valid": true,
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "servos": [
+          {
+            "id": 10,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 11,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 12,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 13,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 14,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 20,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 21,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 22,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 23,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 24,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 30,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 31,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 32,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 33,
+            "online": false,
+            "ageMs": 0
+          },
+          {
+            "id": 34,
+            "online": false,
+            "ageMs": 0
+          }
+        ],
+        "error": "",
+        "scanMs": 0.09542300000475734,
+        "targetHz": 50.0,
+        "readMode": "sync-read"
+      },
+      "ageMs": 17.935111999999208
+    },
+    "logCount": 15
+  }
+]

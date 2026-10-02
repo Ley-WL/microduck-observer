@@ -9,7 +9,7 @@ const confirmed = ref(false), revision = ref<number>();
 let requestSequence = 0;
 const live = computed(() => state.info?.capabilities?.joints && state.joints?.source === 'hardware' && state.jointsAge < 500);
 const control = computed(() => state.system?.data.servoControl);
-const busy = computed(() => pending.value || ['preflight', 'moving', 'disabling'].includes(control.value?.state));
+const busy = computed(() => pending.value || ['preflight', 'moving', 'policy', 'disabling'].includes(control.value?.state));
 const calibrated = computed(() => board.ready && [10,11,12,13,14,20,21,22,23,24,30,31,32,33].every(id => Number.isFinite(board.data?.joints.references[String(id)])));
 watch(() => state.endpoint, () => { dialog.value?.close(); message.value = ''; });
 function askStand() {
@@ -53,7 +53,7 @@ async function run(action: 'enable' | 'disable' | 'stand') {
     <div class="servo-action-buttons">
       <button class="button compact" :disabled="!live || busy" @click="run('enable')">全部使能</button>
       <button class="button compact unload-button" :disabled="!state.info?.capabilities?.joints || unloading" @click="run('disable')">{{ unloading ? '正在失能…' : '全部失能' }}</button>
-      <button class="button compact stand-button" :disabled="!live || !calibrated || busy" @click="askStand">站姿保持 <small>≤3s</small></button>
+      <button class="button compact stand-button" :disabled="!live || !calibrated || busy" @click="askStand">静态站姿 <small>≤3s</small></button>
     </div>
     <div class="servo-action-status" :class="{ failed }" role="status">
       <template v-if="busy && control?.state === 'moving'">站姿过渡 {{ Math.round((control.progress || 0) * 100) }}% · 剩余 {{ control.remainingSeconds }}s</template>

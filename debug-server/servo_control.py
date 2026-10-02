@@ -41,7 +41,9 @@ def sync_write(bus, address, values):
     size = len(next(iter(values.values())))
     params = bytes([address, size]) + b''.join(bytes([sid]) + value for sid, value in values.items())
     body = bytes([254, len(params)+2, 0x83]) + params
-    bus.serial.write(b'\xff\xff' + body + bytes([(~sum(body)) & 255]))
+    packet = b'\xff\xff' + body + bytes([(~sum(body)) & 255])
+    bus.serial.write(packet)
+    if hasattr(bus, 'record_write'): bus.record_write(packet)
 
 
 def torque_off(bus):
@@ -77,7 +79,7 @@ def validate_feedback(sid, f, goal=None):
         # Arrival is evaluated against the final target after the trajectory.
 
 
-def target_for(sid, start, calibration, low, high, angle=None):
+def target_for(sid, start, calibration, low, high, angle=None, nearest=False):
     joints = calibration['joints']
     ref = joints['references'].get(str(sid))
     direction = joints['directions'].get(str(sid), -1)
@@ -89,7 +91,7 @@ def target_for(sid, start, calibration, low, high, angle=None):
     if not math.isfinite(angle) or not math.radians(minimum) <= angle <= math.radians(maximum):
         raise ValueError(f'#{sid} 目标超出关节角度范围 {minimum}°–{maximum}°')
     target = round(ref + angle * 4096 / (2*math.pi) * direction)
-    if standing:
+    if standing or nearest:
         target += round((start-target)/4096)*4096
     if abs(target) > 32767 or (high > low and not low <= target <= high):
         raise ValueError(f'#{sid} 站姿目标超出编码范围或舵机硬件限位')
@@ -110,6 +112,11 @@ def execute_control(bus, command, cancelled, publish, status, clock=time.monoton
     attempted = False
     last_feedback = {}; targets = {}; caps = {}; last_observed = None
     command_times = []
+
+    def stand_target(sid, start, low, high):
+        custom=command.get('standTargets')
+        return target_for(sid,start,command['calibration'],low,high,
+                          custom[sid] if custom else None,nearest=True)
 
     def timing():
         gaps = [b-a for a, b in zip(command_times, command_times[1:])]
@@ -160,7 +167,7 @@ def execute_control(bus, command, cancelled, publish, status, clock=time.monoton
             goal_bytes(start)
             if not 0 < caps[sid] <= 1000 or (high > low and not low <= start <= high):
                 raise ValueError(f'#{sid} 输出限制或当前位置超出硬件范围')
-            targets[sid] = target_for(sid, start, command['calibration'], low, high) if action == 'stand' else start
+            targets[sid] = stand_target(sid,start,low,high) if action == 'stand' else start
         fresh = observe()
         guard()
         # Read-only preflight failures do not change an existing holding pose.
@@ -172,7 +179,7 @@ def execute_control(bus, command, cancelled, publish, status, clock=time.monoton
             low, high = limits[sid]
             if high > low and not low <= start <= high:
                 raise ValueError(f'#{sid} 当前位置超出舵机硬件限位')
-            targets[sid] = target_for(sid, start, command['calibration'], low, high) if action == 'stand' else start
+            targets[sid] = stand_target(sid,start,low,high) if action == 'stand' else start
         if action == 'stand' and deadline-clock() < 2.5:
             raise ValueError('总线预检查过慢，未执行运动')
         speed = DIRECT_SPEED_RAW

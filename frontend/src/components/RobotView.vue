@@ -7,9 +7,19 @@ import { useBoardCalibration } from "../boardCalibration";
 import { sensorToTrunk } from "../imuInstallation";
 import { useJointPose } from "../jointPose";
 import { createJointNode, applyJointAngle, smoothJointAngle } from "../jointModel";
+import { servoHousing, servoHighlight } from "../servoSelection";
 const board = useBoardCalibration();
 const jointPose = useJointPose();
 const jointNodes = new Map<number, { pivot: THREE.Group; axis: THREE.Vector3; angle: number }>();
+const servoMaterials = new Map<number, THREE.MeshStandardMaterial>();
+const highlight = servoHighlight();
+let selectionMarker: THREE.Mesh | undefined;
+function updateSelection() {
+  highlight(servoMaterials.get(jointPose.selected));
+  const pivot = jointNodes.get(jointPose.selected)?.pivot;
+  if (selectionMarker && pivot) { pivot.add(selectionMarker); selectionMarker.position.set(0, 0, 0); }
+}
+watch(() => jointPose.selected, updateSelection);
 const props = defineProps<{
   quaternion: number[] | null;
   paused: boolean;
@@ -185,7 +195,7 @@ onMounted(async () => {
       if (body.joint && axis) jointNodes.set(body.joint.id, { pivot: inner, axis, angle: 0 });
       // Rotate about the trunk, not about the model's placement in the world.
       if (body.parent < 0) node.position.set(0, 0, 0);
-      for (const geom of body.geoms) {
+      for (const [geomIndex, geom] of body.geoms.entries()) {
         const mesh = new THREE.Mesh(
           geometries[geom.mesh],
           new THREE.MeshStandardMaterial({
@@ -201,10 +211,20 @@ onMounted(async () => {
         mesh.position.fromArray(geom.pos);
         mesh.quaternion.copy(quat(geom.quat));
         inner.add(mesh);
+        const id = Object.keys(servoHousing).map(Number).find(id => {
+          const entry = servoHousing[id]!;
+          return entry[0] === body.name && entry[1] === geomIndex;
+        });
+        if (id !== undefined) servoMaterials.set(id, mesh.material);
       }
       (body.parent < 0 ? root : nodes[body.parent]).add(node);
       nodes.push(inner);
     }
+    selectionMarker = new THREE.Mesh(new THREE.SphereGeometry(.018, 12, 8), new THREE.MeshBasicMaterial({
+      color: '#ffad32', wireframe: true, transparent: true, opacity: .55, depthTest: false, depthWrite: false,
+    }));
+    selectionMarker.renderOrder = 10;
+    updateSelection();
     loaded.value = true;
     fitPreview();
   } catch (e) {

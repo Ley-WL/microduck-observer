@@ -1,0 +1,31 @@
+{
+  "status": "preview-not-applied",
+  "baseRevision": 126,
+  "bootId": "da7acb05-9fe1-4fa2-9694-41a8c48c377c",
+  "imu": {
+    "initialized": true,
+    "quaternion": [
+      -0.513012632680267,
+      0.4826487774778313,
+      0.5126504798306621,
+      0.4909762538443261
+    ],
+    "targetQuaternion": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "mountingQuaternion": [
+      -0.0030828707953147547,
+      -0.7102232532071481,
+      0.0022800802105599075,
+      0.7039660700245064
+    ],
+    "bootId": "da7acb05-9fe1-4fa2-9694-41a8c48c377c",
+    "time": "2026-10-02 upright sample"
+  },
+  "mountingSource": "last saved failure; single upright pose does not determine all mounting axes",
+  "uprightSampleMaxRelativeTiltDeg": 0.024801279161187368,
+  "jointCalibrationChanged": false
+}

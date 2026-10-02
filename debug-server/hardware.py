@@ -19,10 +19,19 @@ class HardwareSource:
         self.dropped = 0
         self.product_id = None
         self.values = {}
+        self.policy_values = {}
+        self.policy_sink = None
         self.started = time.monotonic()
 
     def put(self, kind, value, timestamp=None):
-        event = (kind, value, timestamp or time.monotonic())
+        received = timestamp if timestamp is not None else time.monotonic()
+        if self.policy_sink is not None:
+            sample = self.policy_sample(kind, value, received)
+            if sample is not None:
+                topic, data, valid, stamp = sample
+                self.policy_sink({topic: dict(data=data, valid=valid, received=stamp,
+                    source=self.store.source, bootId=self.store.boot)})
+        event = (kind, value, received)
         try:
             self.events.put_nowait(event)
         except queue.Full:
@@ -32,6 +41,17 @@ class HardwareSource:
             except queue.Empty:
                 pass
             self.events.put_nowait(event)
+
+    def policy_sample(self, kind, payload, timestamp):
+        if kind == 'log': return None
+        values, accuracy = payload
+        if kind == 'quaternion':
+            return ('imu.orientation', dict(quaternion=values), abs(math.hypot(*values)-1)<.05, timestamp)
+        self.policy_values[kind] = (values, timestamp)
+        if kind == 'gyro' and 'accel' in self.policy_values:
+            accel, stamp = self.policy_values['accel']
+            return ('imu.raw', dict(gyro=values, accel=accel), 0<=timestamp-stamp<.5, min(stamp,timestamp))
+        return None
 
     def run(self):
         while not self.stop.is_set():

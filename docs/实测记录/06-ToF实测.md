@@ -77,3 +77,7 @@
 
 - 工具直接实测tofd active、使用/dev/i2c-4，但本次启动日志为no ToF sensor，候选地址0x52无应答；该日志不代表传感器地址发生变化。平台health.tof=offline、ToF stream timeout、ageMs=null；4秒WebSocket无ToF帧。
 - 未修改配置或操作总线，服务正在后台重试。原因未确定，需核对当前模块是否接入及供电、SDA/SCL/LPn条件；历史出帧不代表当前正常。
+
+## 2026-10-02 tofd句柄耗尽与日志风暴（最新故障）
+
+rsyslogd排查发现tofd[769] fd达到1024/1024，持续accept failed/Too many open files，把47MB /var/log zram写满；已临时停止tofd（未disable开机启动），备份日志并恢复日志盘，rsyslog处理后10秒CPU0.5%。平台仍在线，ToF无帧、未恢复测距；句柄释放/断开检测及accept失败无退避疑点尚未完成板上源码对应与修复验收。没有更改传感器接线或访问I²C。完整记录见[网络与观测平台](04-网络与观测平台.md#2026-10-02-rsyslogd高cpuToF错误日志刷屏与日志盘满)。

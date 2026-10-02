@@ -74,6 +74,13 @@ class Ms901mSource(HardwareSource):
         self.checksum_errors = 0
         self.frames = Counter()
 
+    def policy_sample(self, kind, value, received):
+        if kind == 'quaternion':
+            return ('imu.orientation', dict(quaternion=value), abs(math.hypot(*value)-1)<.05, received)
+        if kind == 'raw':
+            return ('imu.raw', value, True, received)
+        return None
+
     def process(self, head, kind, payload, received):
         if head == 0xAF:
             if kind in (3, 4) and len(payload) == 1 and payload[0] < 4:
@@ -132,6 +139,7 @@ class Ms901mSource(HardwareSource):
             self.stop.wait(3)
 
     def drain(self):
+        latest = {}
         for _ in range(512):
             try:
                 kind, value, received = self.events.get_nowait()
@@ -140,6 +148,10 @@ class Ms901mSource(HardwareSource):
             if kind == 'log':
                 self.store.log(value[0], 'imu', value[1])
                 continue
+            latest[kind] = (value, received)
+        # The stream sends the latest sample, so do not repeatedly materialize
+        # obsolete samples from a batch while delaying joints and WebSockets.
+        for kind, (value, received) in latest.items():
             metadata = dict(frame='sensor', device='MS901M', timestampBasis='host_receive')
             if kind == 'quaternion':
                 self.store.sample('imu.orientation', dict(**metadata, quaternion=value,

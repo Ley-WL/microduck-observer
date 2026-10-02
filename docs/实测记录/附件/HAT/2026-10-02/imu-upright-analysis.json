@@ -1,0 +1,38 @@
+{
+  "quaternionMean": [
+    -0.5130126325715134,
+    0.48264877742862233,
+    0.512650479917035,
+    0.49097625391614935
+  ],
+  "accelMean": [
+    -9.994315506795248,
+    -0.08822633117675781,
+    0.0795273984781901
+  ],
+  "accelNormRange": [
+    9.970287237807401,
+    10.016937604843886
+  ],
+  "gyroMaxRadS": 0.008912641713160852,
+  "sampleOrientationSpreadDeg": 1.0499280513966232,
+  "modelBootMatches": true,
+  "mountingQuaternionPresent": false,
+  "previous_failure_reference": {
+    "gravity": [
+      -0.04375988815826857,
+      -0.020798899368711782,
+      -0.9988255493195134
+    ],
+    "tiltDegrees": 2.777138480310587
+  },
+  "current_reference": {
+    "gravity": [
+      -0.03415736839376904,
+      0.11886249706832902,
+      -0.9923230224957472
+    ],
+    "tiltDegrees": 7.104131555701171
+  },
+  "priorMountingGravityTiltDeg": 1.1186104099970142
+}

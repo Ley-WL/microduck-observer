@@ -124,6 +124,28 @@ class ImuMountingTests(unittest.TestCase):
         result=imu_patch({'imu':{}},'supine',[0,0,0,1],'a')
         self.assertAlmostEqual(result['targetQuaternion'][1],-math.sqrt(.5))
         with self.assertRaises(ValueError):imu_patch({'imu':result},'imu-roll',[0,0,0,1],'a')
+
+    def test_reference_reset_keeps_completed_mounting_and_discards_partial_axes(self):
+        h=math.sqrt(.5);mounting=[0,-h,0,h]
+        old={'imu':{'mountingQuaternion':mounting,'mountingSamples':{'roll':[1,0,0]},
+                    'mountingSamplesMethod':'gravity-v1'}}
+        for pose in ('supine','imu'):
+            result=imu_patch(old,pose,[0,0,0,1],'new')
+            self.assertEqual(result['mountingQuaternion'],mounting)
+            self.assertNotIn('mountingSamples',result)
+            self.assertNotIn('mountingSamplesMethod',result)
+            self.assertIsNot(result['mountingQuaternion'],mounting)
+            self.assertEqual(result['bootId'],'new')
+
+    def test_mounting_survives_saving_pose_reference_and_reloading(self):
+        h=math.sqrt(.5)
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'calibration.json'
+            store=CalibrationStore(path);state=store.read('test')
+            result=imu_patch({'imu':{'mountingQuaternion':[0,-h,0,h]}},'supine',[0,0,0,1],'test')
+            store.update(state['revision'],{'imu':result},'test')
+            loaded=CalibrationStore(path).read('test')
+            self.assertEqual(loaded['imu']['mountingQuaternion'],[0,-h,0,h])
     def test_three_pose_mounting_reconstructs_rotated_sensor_axes(self):
         identity=[0,0,0,1];h=math.sqrt(.5)
         # Body +X maps to sensor +Y, body +Y maps to sensor -X.

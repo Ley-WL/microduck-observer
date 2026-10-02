@@ -1,0 +1,1 @@
+{"seconds": 10.098780762999922, "cpuPercent": {"576": {"name": "systemd-journal", "cpu": 1.19}, "13731": {"name": "python", "cpu": 87.63}, "13761": {"name": "python", "cpu": 0.0}, "13762": {"name": "python", "cpu": 37.63}, "14321": {"name": "rsyslogd", "cpu": 0.5}}, "logBytesGrowth": 16225, "temperature": "85625", "cpuKHz": "1104000"}
