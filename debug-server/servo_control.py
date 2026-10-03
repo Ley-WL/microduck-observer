@@ -276,12 +276,20 @@ def execute_angle(bus, command, cancelled, publish, status):
         goal = target_for(sid, f['position'], command['calibration'], low, high, math.radians(degrees))
         guard()
         attempted = True
-        # Target first, so clearing an old profile cannot resume an old goal.
-        sync_write(bus, 42, {sid: goal_bytes(goal)})
+        needs_enable = f['torque'] != 1
+        if needs_enable:
+            # Align before enabling; do not resume a stale stored goal.
+            sync_write(bus, 42, {sid: goal_bytes(f['position'])})
         guard()
         clear_legacy_profile(bus, sid, f)
         guard()
-        sync_write(bus, 40, {sid: b'\x01'})
+        if needs_enable:
+            sync_write(bus, 40, {sid: b'\x01'})
+            enabled = bus.read_feedback_many((sid,)).get(sid)
+            validate_feedback(sid, enabled, f['position'])
+        guard()
+        # A following enable write can retain the old internal target in mode 4.
+        sync_write(bus, 42, {sid: goal_bytes(goal)})
         guard()
         feedback = bus.read_feedback_many(ALL_IDS)
         publish([dict(id=i, online=i in feedback, **feedback.get(i, {})) for i in ALL_IDS])

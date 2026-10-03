@@ -5,6 +5,7 @@ import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
 import SensorWorkbench from "./components/SensorWorkbench.vue";
+import PowerControls from "./components/PowerControls.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
 import { bodyRelativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
@@ -151,6 +152,7 @@ onMounted(() => state.connect());
           工作空间 <span>/</span> MicroDuck Lab <span>/</span> <b>{{ page }}</b>
         </div>
         <div class="header-right">
+          <PowerControls />
           <span class="source-badge">{{ state.source }}</span
           ><span class="status" :class="{ online: state.connection === '在线' }"
             ><i></i>{{ state.connection }}</span

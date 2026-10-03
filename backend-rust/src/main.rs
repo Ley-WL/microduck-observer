@@ -4,6 +4,7 @@ mod guided;
 mod imu;
 mod orientation;
 mod policy;
+mod power;
 mod servos;
 mod telemetry;
 mod tof;
@@ -104,6 +105,21 @@ async fn health(State(a): State<App>) -> Json<Value> {
     Json(
         json!({"status":if a.hardware&&s.imu_health()["state"]!="streaming"{"degraded"}else{"ok"},"source":s.source,"imu":s.imu_health(),"tof":if a.tof{s.tof_health()}else{Value::Null},"joints":s.latest.get("joints").map(|v|s.stamp(v)),"logCount":s.logs.len()}),
     )
+}
+async fn power_action(State(a): State<App>, Path(action): Path<String>, headers: HeaderMap, body: Bytes) -> Response {
+    let value = match check_write(&headers, &body, 256) { Ok(v) => v, Err(r) => return r };
+    if !a.hardware || !power::enabled() {
+        return error(StatusCode::FORBIDDEN, "当前设备未启用电源控制");
+    }
+    let boot = a.telemetry.read().unwrap().boot.clone();
+    if !power::validate(&action, &value, &boot) {
+        return error(StatusCode::CONFLICT, "请重新连接当前主板并确认关机或重启");
+    }
+    match tokio::time::timeout(Duration::from_secs(3), power::request(&action)).await {
+        Ok(Ok(v)) => (StatusCode::ACCEPTED, Json(v)).into_response(),
+        Ok(Err(e)) => error(StatusCode::SERVICE_UNAVAILABLE, &format!("电源请求失败：{e}")),
+        Err(_) => error(StatusCode::SERVICE_UNAVAILABLE, "电源请求结果未确认，请检查主板状态，勿直接断电"),
+    }
 }
 async fn snapshot(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
@@ -561,6 +577,7 @@ async fn main() -> anyhow::Result<()> {
     let router = Router::new()
         .route("/api/v1/info", get(info))
         .route("/api/v1/health", get(health))
+        .route("/api/v1/system/{action}", post(power_action))
         .route("/api/v1/snapshot", get(snapshot))
         .route("/api/v1/calibration", get(get_cal).post(set_cal))
         .route("/api/v1/calibration/poses", get(poses))

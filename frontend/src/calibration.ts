@@ -1,6 +1,13 @@
 import { validQuaternion } from "./protocol";
 import { Quaternion } from "three";
 
+/** Angle between the calibrated body's up axis and vertical, as used by policy gravity. */
+export function bodyTiltDegrees(q: number[]): number {
+  if (!validQuaternion(q)) throw new Error("倾角需要有效四元数");
+  const n = Math.hypot(...q), [x, y] = q.map(v => v / n);
+  return Math.acos(Math.max(-1, Math.min(1, 1 - 2 * (x * x + y * y)))) * 180 / Math.PI;
+}
+
 export function bodyRelativeQuaternion(reference: number[], current: number[], mounting?: number[], target?: number[]) {
   const result = new Quaternion().fromArray(relativeQuaternion(reference, current));
   if (validQuaternion(mounting)) {

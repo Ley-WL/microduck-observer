@@ -1,0 +1,53 @@
+
+=> printenv
+arch=arm
+baudrate=1500000
+board=zero3-rk3566
+board_name=zero3-rk3566
+boot_targets=mmc1 mmc0 nvme scsi usb pxe dhcp spi
+bootargs=root=/dev/mmcblk0p1 rootwait rootfstype=ext4 splash=verbose console=ttyS2,1500000 console=tty1 consoleblank=0 loglevel=1 ubootpart=2acd1fed-6675-495f-8c93-d011e531ca23 usb-storage.quirks=   cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
+bootcmd=bootflow scan -lb
+bootdelay=0
+bootlogo=false
+console=both
+consoleargs=splash=verbose console=ttyS2,1500000 console=tty1
+cpu=armv8
+cpuid#=4d425737333500000000000000141c03
+devnum=1
+devtype=mmc
+distro_bootpart=1
+docker_optimizations=on
+earlycon=off
+eth1addr=46:bf:2e:bc:69:4b
+ethaddr=46:bf:2e:bc:69:4a
+fdt_addr_r=0x12000000
+fdtcontroladdr=7def05c0
+fdtfile=rockchip/rk3566-radxa-zero-3w.dtb
+fdtoverlay_addr_r=0x12100000
+fileaddr=2000000
+filesize=2d35a00
+kernel_addr_r=0x02000000
+kernel_comp_addr_r=0x0a000000
+kernel_comp_size=0x8000000
+load_addr=0x9000000
+loadaddr=0xc00800
+overlay_error=false
+partuuid=2acd1fed-6675-495f-8c93-d011e531ca23
+prefix=/boot/
+pxefile_addr_r=0x00e00000
+ramdisk_addr_r=0x12180000
+rootdev=/dev/mmcblk0p1
+rootfstype=ext4
+script_offset_f=0xffe000
+script_size_f=0x2000
+scriptaddr=0x00c00000
+serial#=04c06395e56c4ebd
+soc=rk3568
+stderr=serial@fe660000
+stdin=serial@fe660000
+stdout=serial@fe660000
+vendor=radxa
+verbosity=1
+
+Environment size: 1323/126972 bytes
+=> 

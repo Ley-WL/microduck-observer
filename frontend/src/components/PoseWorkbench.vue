@@ -2,6 +2,7 @@
 import { ref, computed, nextTick } from "vue";
 import { useTelemetry } from "../store";
 import ImuInstallation from "./ImuInstallation.vue";
+import { bodyTiltDegrees } from "../calibration";
 import CalibrationStudio from "./CalibrationStudio.vue";
 import RobotView from "./RobotView.vue";
 import SignalChart from "./SignalChart.vue";
@@ -42,6 +43,12 @@ defineEmits<{ calibrate: []; clear: []; pause: []; mounting: [value: number]; co
 const state = useTelemetry();
 const robot = ref<InstanceType<typeof RobotView>>();
 const lastImu = computed(() => state.chart.at(-1));
+const tilt = computed(() => props.quaternion ? bodyTiltDegrees(props.quaternion).toFixed(2) : "—");
+const tiltDirection = computed(() => {
+  if (!props.angles) return "等待姿态数据";
+  const [roll, pitch] = props.angles;
+  return `${pitch >= 0 ? "前倾" : "后倾"} ${Math.abs(pitch).toFixed(2)}° · ${roll >= 0 ? "右倾" : "左倾"} ${Math.abs(roll).toFixed(2)}°`;
+});
 const value = (values: number[] | undefined, i: number) =>
   values?.[i]?.toFixed(2) ?? "—";
 </script>
@@ -156,6 +163,10 @@ const value = (values: number[] | undefined, i: number) =>
               >{{ angles?.[i]?.toFixed(2) ?? "—" }}<small>°</small></strong
             >
           </div>
+        </div>
+        <div class="bench-quaternion">
+          <span>总倾角 <b>{{ tilt }}°</b> · {{ calibrated ? '相对竖直参考' : '未保存参考' }}</span>
+          <span>{{ tiltDirection }}</span>
         </div>
         <div class="bench-quaternion">
           <span>{{ calibrated ? "相对" : "原始" }}四元数</span

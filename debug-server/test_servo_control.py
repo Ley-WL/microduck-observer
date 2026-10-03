@@ -218,7 +218,7 @@ class ControlTests(unittest.TestCase):
         result = self.angle()
         self.assertEqual(result['state'], 'commanded')
         self.assertEqual(self.bus.rows[13]['position'], round(2048-30*4096/360))
-        self.assertEqual([a for a, _ in self.bus.writes], [42,40])
+        self.assertEqual([a for a, _ in self.bus.writes], [42,40,42])
         self.assertTrue(all(set(v) == {13} for _,v in self.bus.writes))
         self.assertTrue(all(self.bus.rows[i]['torque'] == 0 for i in ALL_IDS if i != 13))
     def test_profile_clears_old_mouth_settings_without_goal_or_torque_write(self):
@@ -232,9 +232,13 @@ class ControlTests(unittest.TestCase):
     def test_angle_removes_legacy_profile_before_enabling(self):
         self.bus.rows[34].update(accelerationRaw=5, speedLimitRaw=300)
         self.angle(34, 10)
-        self.assertEqual([a for a,_ in self.bus.writes], [42,41,46,40])
+        self.assertEqual([a for a,_ in self.bus.writes], [42,41,46,40,42])
         self.assertEqual(self.bus.rows[34]['accelerationRaw'],0)
         self.assertEqual(self.bus.rows[34]['speedLimitRaw'],500)
+    def test_enabled_angle_never_rewrites_enable(self):
+        self.bus.rows[13]['torque'] = 1
+        self.angle()
+        self.assertEqual([a for a, _ in self.bus.writes], [42])
     def test_angle_rejects_invalid_or_unverified_ranges_without_write(self):
         for sid, angle in [(13,91),(10,-31),(34,-.1),(34,30.1),(35,0),(True,0),(13,True),(13,float('nan'))]:
             with self.subTest(sid=sid,angle=angle), self.assertRaises(ValueError): self.angle(sid,angle)

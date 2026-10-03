@@ -1,5 +1,13 @@
 # 原生 Rust 部署
 
+## 主板电源按钮
+
+页面右上角提供关机/重启，确认后POST `/api/v1/system/poweroff` 或 `/api/v1/system/reboot`，请求必须包含当前info的bootId和confirm=true。模拟器禁用；实机须配置`MICRODUCK_POWER_CONTROL=1`。接口沿用JSON和Origin校验，超时/调度失败不显示成功，也不自动重试。
+
+`microduck-power.socket`创建仅radxa可访问的0600 Unix socket；实例service以root运行固定的`power-helper.py`，只接受两种动作，经systemd-run延迟5秒调用systemctl。不放宽观测服务权限、不配置任意sudo命令。安装文件位于`/usr/local/lib/microduck-power-helper.py`及`/etc/systemd/system/`；启用socket后用power.conf添加环境变量。部署脚本保留旧release及标定备份，启动失败回滚current。
+
+关机前托稳机器人；主板关机不切断舵机电源。等待约30秒并确认关机完成后再断电；页面断线本身不是关机完成证明。关机按钮需要重新供电才能再次启动主板。重启按钮提交后页面自动重连。接口和权限验证可用非法动作/缺确认请求，禁止将实际关机当作无影响的自动测试。
+
 后端源码、环境变量与测试见[backend-rust](../backend-rust/README.md)。前端不变。旧Python服务和发布目录保留为回滚来源，旧版web-debug不修改。
 
 生产目标为Linux ARM64 GNU。可在编译机安装`aarch64-unknown-linux-gnu`目标，用交叉编译器编译：

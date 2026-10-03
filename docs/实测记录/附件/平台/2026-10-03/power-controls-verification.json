@@ -1,0 +1,1 @@
+{"rejections": [{"case": "reboot", "status": 409}, {"case": "reboot", "status": 409}, {"case": "invalid", "status": 409}, {"case": "reboot", "status": 403}], "frontendAssetsMatch": true, "restrictedSocketResponds": true, "actualPowerActionTested": false}

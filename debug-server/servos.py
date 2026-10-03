@@ -75,8 +75,11 @@ class ReadOnlyBus:
                 if len(received) < length + 4:
                     break
                 frame = bytes(received[:length+4])
+                if (sum(frame[2:]) & 255) != 255:
+                    del received[0]
+                    continue
                 del received[:length+4]
-                if frame[2] != sid or (sum(frame[2:]) & 255) != 255:
+                if frame[2] != sid:
                     continue
                 if len(frame[5:-1]) != 31:
                     continue
@@ -117,12 +120,15 @@ class ReadOnlyBus:
                     length = received[3] + 4
                     if len(received) < length:
                         break
-                    frame = bytes(received[:length]); del received[:length]
+                    frame = bytes(received[:length])
                     sid = frame[2]
                     if (sum(frame[2:]) & 255) != 255:
                         checksum_errors += 1
                         rejected_frames.append(dict(id=sid, reason='checksum', hex=frame.hex()))
+                        del received[0]
+                        discarded_bytes += 1
                         continue
+                    del received[:length]
                     if sid not in ids or sid in out or len(frame[5:-1]) != 31:
                         rejected_frames.append(dict(id=sid, reason='id/length/duplicate', hex=frame.hex()))
                         continue

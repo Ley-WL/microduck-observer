@@ -28,6 +28,27 @@ class FakeSerial:
 
 
 class ServoTests(unittest.TestCase):
+    def test_single_read_recovers_valid_reply_after_truncated_candidate(self):
+        valid=reply(24,bytes(31))
+        bus=ReadOnlyBus.__new__(ReadOnlyBus)
+        bus.serial=FakeSerial(valid[:27]+valid)
+        self.assertEqual(bus.read_feedback(24)['position'],0)
+
+    def test_real_corruption_resynchronizes_without_repairing_bad_packets(self):
+        import json
+        from pathlib import Path
+        cases=json.loads((Path(__file__).resolve().parents[1]/'backend-rust/tests/fixtures/servo-resync.json').read_text())
+        for case in cases:
+            for width in (1,2,7,64,1024):
+                class Fragmented(FakeSerial):
+                    @property
+                    def in_waiting(self): return min(width,len(self.response))
+                bus=ReadOnlyBus.__new__(ReadOnlyBus)
+                bus.serial=Fragmented(bytes.fromhex(case['rxHex']))
+                rows=bus.read_feedback_many([10,11,12,13,14,20,21,22,23,24,30,31,32,33,34])
+                self.assertEqual(list(rows),case['expectedIds'],(case['source'],width))
+                self.assertGreater(bus.last_read['checksumErrors'],0)
+
     def test_decode_units_and_signed_raw_values(self):
         data = bytearray(31)
         data[16:18] = (2048).to_bytes(2, 'little')

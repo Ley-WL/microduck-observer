@@ -8,6 +8,8 @@ import { sensorToTrunk } from "../imuInstallation";
 import { useJointPose } from "../jointPose";
 import { createJointNode, applyJointAngle, smoothJointAngle } from "../jointModel";
 import { servoHousing, servoHighlight } from "../servoSelection";
+import { placeOnGround } from "../modelGround";
+const soleMeshes: THREE.Mesh[] = [];
 const board = useBoardCalibration();
 const jointPose = useJointPose();
 const jointNodes = new Map<number, { pivot: THREE.Group; axis: THREE.Vector3; angle: number }>();
@@ -154,6 +156,7 @@ onMounted(async () => {
           applyJointAngle(joint.pivot, joint.axis, joint.angle);
         }
       }
+      if (loaded.value && !props.previewAngles) placeOnGround(root, soleMeshes);
       controls.update();
       renderer.render(scene, camera);
       frame = requestAnimationFrame(render);
@@ -211,6 +214,7 @@ onMounted(async () => {
         mesh.position.fromArray(geom.pos);
         mesh.quaternion.copy(quat(geom.quat));
         inner.add(mesh);
+        if (body.name === 'ankle_left' || body.name === 'ankle_right') soleMeshes.push(mesh);
         const id = Object.keys(servoHousing).map(Number).find(id => {
           const entry = servoHousing[id]!;
           return entry[0] === body.name && entry[1] === geomIndex;

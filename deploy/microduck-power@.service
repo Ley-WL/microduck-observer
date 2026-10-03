@@ -1,0 +1,13 @@
+[Unit]
+Description=MicroDuck restricted power request
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/lib/microduck-power-helper.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+TimeoutStartSec=4
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true

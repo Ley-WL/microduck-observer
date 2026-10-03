@@ -1,0 +1,1724 @@
+mmc info
+Card did not respond to voltage select! : -110
+=> part list mmc 1
+
+Partition Map for mmc device 1  --   Partition Type: EFI
+
+Part	Start LBA	End LBA		Name
+	Attributes
+	Type GUID
+	Partition GUID
+  1	0x00008000	0x075bffff	""
+	attrs:	0x0000000000000000
+	type:	0fc63daf-8483-4772-8e79-3d69d8477de4
+	guid:	2acd1fed-6675-495f-8c93-d011e531ca23
+=> ls mmc 1:1 /boot
+            ./
+            ../
+    <SYM>   Image
+    <SYM>   dtb
+            dtb-6.1.115-vendor-rk35xx/
+    38518   boot.bmp
+        0   .next
+    <SYM>   uInitrd
+     4077   boot.cmd
+  7352447   System.map-6.1.115-vendor-rk35xx
+    <SYM>   armbianEnv.txt
+     4149   boot.scr
+ 47405568   vmlinuz-6.1.115-vendor-rk35xx
+   250656   config-6.1.115-vendor-rk35xx
+ 15612480   uInitrd-6.1.115-vendor-rk35xx
+ 15612416   initrd.img-6.1.115-vendor-rk35xx
+      236   armbianEnv.txt.before-imu-i2c
+            overlay-user/
+      253   armbianEnv.txt.before-pullup-test
+      356   armbianEnv.txt.before-npu
+            serial-debug-backup-20260929-111237/
+
+16 file(s), 5 dir(s)
+
+=> ls mmc 1:1 /boot/dtb/rockchip
+            ./
+            ../
+    99406   px30-evb.dtb
+   107545   px30-evb-ddr3-v11-linux.dtb
+   106597   px30-evb-ddr4-v10-linux.dtb
+    82204   rk3308-evb-amic-v11.dtb
+    71046   rk3308-rock-pi-s.dtb
+    81004   rk3308bs-evb-amic-v11.dtb
+    71977   rk3318-a95x-z2.dtb
+   107853   rk3326-863-lp3-v10-avb.dtb
+   108389   rk3326-evb-lp3-v10-avb.dtb
+    39707   rk3368-lion-haikou.dtb
+    97330   rk3399-khadas-edge-captain.dtb
+    96494   rk3399-nanopi-m4.dtb
+    95781   rk3399-rock960.dtb
+   100265   rk3399-rockpro64-v2.dtb
+   104985   rk3528-evb2-ddr3-v10.dtb
+   100184   rk3528-hinlink-ht2.dtb
+    92334   rk3528-iotest-lp3-v10.dtb
+   151450   rk3562-evb1-lp4x-v10-sii9022-bt1120-to-hdmi.dtb
+   150428   rk3562-evb1-lp4x-v10-spdif.dtb
+   152694   rk3562-evb2-ddr4-v10.dtb
+   185615   rk3566-evb2-lp4x-v10-eink.dtb
+   181920   rk3566-evb2-lp4x-v10.dtb
+   169128   rk3566-rk817-eink-w103.dtb
+   173842   rk3566-roc-pc.dtb
+   185443   rk3568-evb-rk628-hdmi2lvds-ddr4-v10.dtb
+   185669   rk3568-evb-rk628-rgb2gvi-ddr4-v10.dtb
+   185577   rk3568-evb-rk628-rgb2lvds-ddr4-v10.dtb
+   173281   rk3568-nanopi5-rev02.dtb
+   175420   rk3568-nanopi5-rev07.dtb
+   167717   rk3568-nvr-demo-v10-linux.dtb
+   186814   rk3568-toybrick-sd0-linux.dtb
+   189496   rk3568-toybrick-x0-linux.dtb
+   183790   rk3568m-serdes-evb-display-dsi0-command2rgb-lp4x-v10.dtb
+   185083   rk3568m-serdes-evb-display-lvds2lvds-lp4x-v10.dtb
+   185085   rk3568m-serdes-evb-display-rgb2lvds-lp4x-v10.dtb
+   186514   rk3568m-serdes-evb-display-rgb2dsi-lp4x-v10.dtb
+   186821   rk3568m-serdes-v1-evb-display-dsi0-command2dsi-lp4x-v10.dtb
+   187748   rk3568m-serdes-v1-evb-display-rgb2dual-lvds-lp4x-v10.dtb
+   283002   rk3576-100ask-dshanpi-a1.dtb
+   277147   rk3576-bananapi-m5-pro.dtb
+   271773   rk3576-armsom-cm5-rpi-cm4-io.dtb
+   289921   rk3576-evb1-v10-nvp6324-ahd2csi.dtb
+   289578   rk3576-evb1-v10.dtb
+   287538   rk3576-evb2-v10.dtb
+   272712   rk3576-rock-4d.dtb
+   286957   rk3576-tablet-v11.dtb
+   273607   rk3588-armsom-w3.dtb
+   265502   rk3588-armsom-aim7-io.dtb
+   285201   rk3588-blueberry-r58-4x4.dtb
+   295475   rk3588-evb1-lp4-v10-hdmi2dp.dtb
+   295210   rk3588-evb1-lp4-v10-linux.dtb
+   297333   rk3588-evb1-lp4-v10-lt6911uxc-dual-mipi.dtb
+   295387   rk3588-evb1-lp4-v10.dtb
+   294113   rk3588-evb3-lp5-v10-edp-linux.dtb
+   294354   rk3588-evb3-lp5-v10-edp.dtb
+   288236   rk3588-evb6-lp4-v10-linux.dtb
+   275817   rk3588-nanopc-t6-lts.dtb
+   286198   rk3588-orangepi-5-ultra.dtb
+   268596   rk3588-nvr-demo-v10-spi-nand.dtb
+   272878   rk3588-som3588-cat.dtb
+   325491   rk3588-vehicle-evb-v20.dtb
+   244832   rk3588s-orangepi-5-pro.dtb
+   331408   rk3588-vehicle-evb-v21.dtb
+   237936   rk3588s-radxa-cm5-io.dtb
+   236769   rk3588s-rock-5a.dtb
+   247118   rk3588s-tablet-rk806-single-v10.dtb
+    82147   rk3308b-evb-amic-v10-amp.dtb
+   109321   rk3326-evb-lp3-v11-avb.dtb
+    96475   rk3399-ficus.dtb
+    73363   rk3328-rock64.dtb
+    37753   rk3368-r88.dtb
+   104094   rk3528-nanopi-rev01.dtb
+    99434   rk3399-roc-pc-mezzanine.dtb
+    98091   rk3399-rock-pi-4a-plus.dtb
+   101021   rk3399-gru-scarlet-kd.dtb
+    96892   rk3399-sapphire.dtb
+   104502   rk3528-evb1-ddr4-v10-spi-nand-linux.dtb
+    96151   rk3399-puma-haikou.dtb
+    97443   rk3399-nanopc-t4.dtb
+   100260   rk3528-armsom-sige1.dtb
+   143466   rk3562-dictpen-test3-v20.dtb
+   150771   rk3562-evb2-ddr4-v10-dual-camera.dtb
+   139385   rk3562-iotest-lp3-v10.dtb
+   166519   rk3566-rk817-eink.dtb
+   169864   rk3566-rk817-tablet.dtb
+   173613   rk3568-armsom-sige3.dtb
+   185315   rk3567-evb2-lp4x-v10-single-channel-lvds.dtb
+   184790   rk3568-evb-rk628-hdmi2bt1120-ddr4-v10.dtb
+   186803   rk3568-evb-rk628-hdmi2dsi-ddr4-v10.dtb
+   184383   rk3568-evb-rk628-rgb2hdmi-ddr4-v10.dtb
+   185492   rk3568-evb-rk628-hdmi2gvi-ddr4-v10.dtb
+   189293   rk3568-evb1-ddr4-v10-dual-camera.dtb
+   188205   rk3568-evb1-ddr4-v10-linux.dtb
+   188720   rk3568-evb1-ddr4-v10.dtb
+   171395   rk3568-hinlink-h68k.dtb
+   183790   rk3568m-serdes-evb-display-dsi0-command2lvds0-lp4x-v10.dtb
+   183790   rk3568m-serdes-evb-display-dsi1-command2lvds0-lp4x-v10.dtb
+   274749   rk3576-armsom-cm5-io.dtb
+   289544   rk3576-evb1-v10-image-reverse-demo.dtb
+   287284   rk3576-nvr-v10.dtb
+   277959   rk3576-iotest-v10.dtb
+   276470   rk3576-radxa-cm4-io.dtb
+   286812   rk3576-test1-v10-mcu-k350c4516t.dtb
+   286494   rk3576-test1-v10-rk628-hdmi2gvi.dtb
+   273847   rk3576s-evb1-v10-linux.dtb
+   281812   rk3576-test2-v10.dtb
+   273735   rk3576s-evb1-v10.dtb
+   284420   rk3588-evb5-lp4-v10.dtb
+   289532   rk3588-evb7-v11-rk628-hdmi2csi.dtb
+   277702   rk3588-firefly-itx-3588j.dtb
+   268334   rk3588-nvr-demo-v10-android.dtb
+   270857   rk3588-nvr-demo3-v10.dtb
+   274079   rk3588-rock-5b.dtb
+   274860   rk3588-smart-am60.dtb
+   283436   rk3588-toybrick-x0-linux.dtb
+   253378   rk3588s-evb2-lp5-v10-linux.dtb
+   266335   rk3588s-evb1-lp4x-v10.dtb
+   249528   rk3588s-orangepi-5b.dtb
+   232591   rk3588s-radxa-e52c.dtb
+   238233   rk3588s-youyeetoo-r1.dtb
+   151434   rk3562-evb1-lp4x-v10-sii9022-rgb2hdmi.dtb
+   178854   rk3566-evb1-ddr4-v10-linux.dtb
+   179511   rk3566-evb-mipitest-v10.dtb
+   104665   rk3528-evb3-lp4x-v10.dtb
+   185733   rk3567-evb2-lp4x-v10-one-vp-two-single-channel-lvds.dtb
+   140710   rk3562-test2-ddr4-v10.dtb
+   107750   rk3326-863-lp3-v10-rkisp1.dtb
+    97322   rk3399-khadas-edge-v.dtb
+   186250   rk3567-evb2-lp4x-v10-two-vp-two-separate-single-channel-lvds.dtb
+   147642   rk3562-rk817-tablet-v10.dtb
+   102669   rk3399-pinebook-pro.dtb
+   102202   rk3358m-automotive-ddr3-v11-linux.dtb
+   182605   rk3566-evb2-lp4x-v10-edp.dtb
+   186968   rk3568-evb-rk628-rgb2dsi-ddr4-v10.dtb
+    99920   rk3326-odroid-go2.dtb
+    86236   rk3308bs-evb-ddr3-v20-rk618-rgb2dsi.dtb
+   191005   rk3568-evb1-ddr4-v10-linux-amp.dtb
+   151440   rk3562-evb1-lp4x-v10-lvds.dtb
+    74711   rk3328-nanopi-r2s.dtb
+   150428   rk3562-evb1-lp4x-v10.dtb
+   139373   rk3562-iotest-lp3-v10-dsm.dtb
+    98044   rk3528-hinlink-h28k.dtb
+   101596   rk3399-gru-scarlet-inx.dtb
+    73476   rk3328-roc-cc.dtb
+    69785   rk3308-evb.dtb
+    98657   rk3399-rock-pi-4b-plus.dtb
+   187193   rk3568-evb6-ddr3-v10-linux.dtb
+   188732   rk3568-evb7-ddr4-v10.dtb
+   182656   rk3568-iotest-ddr3-v10.dtb
+   174932   rk3568-nanopi5-rev01.dtb
+   167729   rk3568-nvr-demo-v12-linux-spi-nand.dtb
+   179499   rk3568-ok3568c.dtb
+   185219   rk3568m-serdes-evb-display-dsi0-command2dsi-lp4x-v10.dtb
+   187750   rk3568m-serdes-v1-evb-display-lvds2dual-lvds-vehicle-lp4x-v10.dtb
+   187750   rk3568m-serdes-v1-evb-display-lvds2rgb-lp4x-v10.dtb
+   189177   rk3568m-serdes-v1-evb-display-rgb2dsi-lp4x-v10.dtb
+   185373   rk3568m-serdes-v1-evb-display-super-frame-dsi0-command2lvds0-lp4x-v10.dtb
+   286179   rk3576-ebook-color-v10.dtb
+   278565   rk3576-industry-evb-v10.dtb
+   278071   rk3576-iotest-v10-linux.dtb
+   278234   rk3576-nanopi-m5.dtb
+   314355   rk3576-vehicle-evb-v10.dtb
+   327158   rk3576-vehicle-evb-v20.dtb
+   275373   rk3588-blueberry-edge-v14-linux.dtb
+   301833   rk3588-evb1-lp4-v10-ipc-6x-linux.dtb
+   296390   rk3588-evb1-lp4-v10-linux-amp.dtb
+   295627   rk3588-evb3-lp5-v10-linux.dtb
+   279492   rk3588-evb4-lp4-v10.dtb
+   286416   rk3588-evb7-lp4-v10-linux.dtb
+   333175   rk3588-vehicle-evb-v23.dtb
+   273465   rk3588-youyeetoo-yy3588.dtb
+   242671   rk3588s-9tripod-linux.dtb
+   252298   rk3588s-evb3-lp4x-v10-rk630-bt656-to-cvbs.dtb
+   251549   rk3588s-evb3-lp4x-v10.dtb
+   252499   rk3588s-evb3-lp4x-v10-sii9022-bt1120-to-hdmi.dtb
+   255889   rk3588s-evb8-lp4x-v10.dtb
+   236914   rk3588s-nanopi-r6s.dtb
+   249532   rk3588s-orangepi-5.dtb
+   100265   rk3399-rockpro64.dtb
+   188203   rk3568-evb1-ddr4-v10-linux-spi-nor.dtb
+   180906   rk3568-odroid-m1.dtb
+   161417   rk3566-luckfox-core3566.dtb
+   189508   rk3568-evb2-lp4x-v10-bt1120-to-hdmi.dtb
+            overlay/
+   152585   rk3562-evb1-lp4x-v10-rgb-k350c4516t.dtb
+   167316   rk3566-rk817-eink-w6.dtb
+    81348   rk3308bs-evb-dmic-pdm-v11.dtb
+   151581   rk3562-evb1-lp4x-v10-linux-amp.dtb
+   108257   rk3326-evb-lp3-v12-linux.dtb
+   104539   rk3528-evb1-ddr4-v10.dtb
+   106648   rk3326-863-lp3-v10.dtb
+   174865   rk3568-mixtile-edge2.dtb
+    96310   rk3399-nanopi-neo4.dtb
+   186451   rk3568-evb-rk628-hdmi2dsi-dual-ddr4-v10.dtb
+   116255   rk3399-sapphire-excavator-edp-avb.dtb
+    84251   rk3308bs-evb-mcu-display-v20.dtb
+    91536   rk3399-pinephone-pro.dtb
+   106179   rk3358m-vehicle-v10.dtb
+   169073   rk3566-orangepi-3b-v2.1.dtb
+   185663   rk3567-evb2-lp4x-v10-dual-channel-lvds.dtb
+   188774   rk3568-evb2-lp4x-v10.dtb
+    94022   rk3399-leez-p710.dtb
+    94160   rk3399-kobol-helios64.dtb
+   165377   rk3566-nanopi-r3-rev01.dtb
+   106597   px30-evb-ddr3-v10-linux.dtb
+    37284   rk3368-px5-evb.dtb
+    37602   rk3368-orion-r68-meta.dtb
+   150331   rk3562-evb1-lp4x-v10-linux.dtb
+   187766   rk3568-evb6-ddr3-v10.dtb
+   184365   rk3567-evb2-lp4x-v10.dtb
+   101756   rk3528-radxa-e24c.dtb
+   139288   rk3562-iotest-lp3-v10-linux.dtb
+   161122   rk3566-radxa-zero3.dtb
+   151383   rk3562-evb1-lp4x-v10-rgb2lvds.dtb
+    82548   rk3308-evb-dmic-pdm-v13.dtb
+   168293   rk3568-nvr-demo-v10.dtb
+    69142   rk3308-roc-cc.dtb
+    73826   rk3328-rock-pi-e.dtb
+   146330   rk3562-toybrick-android.dtb
+    39350   rk3368-evb-act8846.dtb
+   102559   rk3528-demo4-ddr4-v10-linux.dtb
+   107741   px30-evb-ddr3-v10.dtb
+   151429   rk3562-evb1-lp4x-v10-rgb-FX070-DHM11BOE-A.dtb
+    82548   rk3308-evb-dmic-pdm-v11.dtb
+   108337   px30-mini-evb-ddr3-v11.dtb
+    97157   rk3399-rock-pi-4b.dtb
+    97466   rk3528-radxa-e20c.dtb
+   102776   rk3528-demo4-ddr4-v10.dtb
+   182878   rk3566-evb2-lp4x-v10-pdm-mic-array.dtb
+    37545   rk3368-geekbox.dtb
+   175137   rk3568-nanopi5-rev05.dtb
+   100544   rk3399-eaidk-610.dtb
+   147366   rk3562-evb2-ddr4-v10-sii9022-bt1120-to-hdmi.dtb
+   177123   rk3568-rock-3a.dtb
+   164141   rk3568-pcie-ep-lp4x-v10-linux.dtb
+   185083   rk3568m-serdes-evb-display-lvds2rgb-lp4x-v10.dtb
+   184128   rk3568m-serdes-evb-camera-csi-v10.dtb
+   281482   rk3576-ebook-x3-v10.dtb
+   287006   rk3576-tablet-v10.dtb
+   185085   rk3568m-serdes-evb-display-rgb2rgb-lp4x-v10.dtb
+   185363   rk3568m-serdes-v1-evb-display-dsi0-command2lvds0-lp4x-v10.dtb
+   185362   rk3568m-serdes-v1-evb-display-dsi1-command2dual_lvds-lp4x-v10.dtb
+   291289   rk3576-evb1-v10-linux-amp.dtb
+   290189   rk3576-evb1-v10-android9.dtb
+   289690   rk3576-evb1-v10-linux.dtb
+   290524   rk3576-evb1-v10-lontium-hdmiin.dtb
+   286289   rk3576-test1-v10-rk628-bt1120-2-hdmi.dtb
+   287386   rk3576-evb1-v10-rk621-hdmi2csi.dtb
+   289790   rk3576-test1-v10-linux.dtb
+   286031   rk3576-test1-v10-sii9022-rgb2hdmi.dtb
+   285201   rk3576-test1-v10-vopl-mipi-display-linux.dtb
+   314475   rk3576-vehicle-evb-v10-linux.dtb
+   272425   rk3588-armsom-sige7.dtb
+   317847   rk3576-vehicle-evb-v20-linux.dtb
+   271851   rk3576s-tablet-v10.dtb
+   271498   rk3588-blade3-v101-linux.dtb
+   272393   rk3588-bananapi-m7.dtb
+   272470   rk3588-blueberry-edge-v12-maizhuo-linux.dtb
+   272231   rk3588-blueberry-edge-v10-linux.dtb
+   294749   rk3588-evb1-lp4-v10-dsi-dsc-MV2100UZ1.dtb
+   277932   rk3588-blueberry-r58-hd3-linux.dtb
+   297115   rk3588-evb1-lp4-v10-rk628-hdmi2csi.dtb
+   288945   rk3588-evb2-lp4-v10-linux.dtb
+   275781   rk3588-fxblox-rk1.dtb
+   288481   rk3588-evb6-lp4-v10.dtb
+   270355   rk3588-hinlink-h88k.dtb
+   267735   rk3588-mixtile-core3588e.dtb
+   276353   rk3588-nanopc-cm3588-nas.dtb
+   268482   rk3588-nvr-demo-v10.dtb
+   303687   rk3588-vehicle-evb-v10.dtb
+   268282   rk3588-pcie-ep-demo-v11-linux.dtb
+   268136   rk3588-pcie-ep-demo-v11.dtb
+   272910   rk3588-rock-5b-plus.dtb
+   288455   rk3588-toybrick-x0-android.dtb
+   277954   rk3588-yx-imb3588.dtb
+   301694   rk3588-vehicle-s66-v10.dtb
+   266090   rk3588s-evb1-lp4x-v10-linux.dtb
+   253623   rk3588s-evb2-lp5-v10.dtb
+   252640   rk3588s-evb3-lp4x-v10-nvp6158-ahd-to-bt1120.dtb
+   249862   rk3588s-evb4-lp4x-v10-linux.dtb
+   249391   rk3588s-tablet-v11.dtb
+   182967   rk3566-evb2-lp4x-v10-i2s-mic-array.dtb
+   101088   rk3399-gru-scarlet-dumo.dtb
+   146233   rk3562-toybrick-linux.dtb
+   278232   rk3588-coolpi-cm5-genbook.dtb
+   281924   rk3576-test2-v10-linux.dtb
+   107543   rk3326-evb-lp3-v10.dtb
+   151431   rk3562-evb1-lp4x-v10-rgb-Q7050ITH2641AA1T.dtb
+   102776   rk3528-demo1-lp4-v10.dtb
+   144682   rk3562-test1-ddr3-v10.dtb
+   286523   rk3576-test1-v10-eink.dtb
+   179906   rk3566-evb3-ddr3-v10.dtb
+   278055   rk3576-nanopi-r76s.dtb
+   153847   rk3562-evb2-ddr4-v10-linux-amp.dtb
+   174969   rk3568-yy3568.dtb
+    96627   rk3399-nanopi-m4b.dtb
+    99085   rk3399-orangepi.dtb
+   289570   rk3576-evb1-v10-pdm.dtb
+   286328   rk3576-test5-v10.dtb
+   277139   rk3576-armsom-sige5.dtb
+   179403   rk3566-evb1-ddr4-v10.dtb
+    98736   rk3399-gru-bob.dtb
+   105142   rk3358-evb-ddr3-v10-linux.dtb
+    97911   rk3399-roc-pc.dtb
+    97267   rk3399-khadas-edge.dtb
+   288459   rk3576-evb1-v10-ipc-dual-cam-linux.dtb
+   189588   rk3568-evb5-ddr4-v10.dtb
+   286043   rk3576-test1-v10-sii9022-bt1120-to-hdmi.dtb
+   188732   rk3568-evb4-lp3-v10.dtb
+   187750   rk3568m-serdes-v1-evb-display-lvds2lvds-lp4x-v10.dtb
+   185363   rk3568m-serdes-v1-evb-display-dsi0-command2dual_lvds-lp4x-v10.dtb
+   185362   rk3568m-serdes-v1-evb-display-dsi1-command2lvds0-lp4x-v10.dtb
+    97659   rk3528-rock-2f.dtb
+   187239   rk3568-toybrick-sd0-android.dtb
+   270707   rk3588-blueberry-minipc-mizhuo-linux.dtb
+   181377   rk3566-evb2-lp4x-v10-linux.dtb
+    98628   rk3399-roc-pc-plus.dtb
+   183790   rk3568m-serdes-evb-display-dsi1-command2rgb-lp4x-v10.dtb
+   286079   rk3576-ebook-v10.dtb
+    96365   rk3399-hugsun-x99.dtb
+   176626   rk3566-evb5-lp4x-v10.dtb
+   161484   rk3566-radxa-zero3-ap6212.dtb
+   189569   rk3568-evb1-ddr4-v10-one-vp-two-single-channel-lvds-linux.dtb
+   104326   rk3528-evb1-ddr4-v10-linux.dtb
+   107617   rk3326-evb-lp3-v10-linux.dtb
+   288192   rk3576-evb1-v10-tp2815-ahd2csi.dtb
+   189463   rk3568-evb1-ddr4-v10-edp-panel.dtb
+   104531   rk3528-evb4-ddr4-v10.dtb
+   287650   rk3576-evb2-v10-linux.dtb
+   189179   rk3568m-serdes-v1-evb-display-lvds2dsi-lp4x-v10.dtb
+    74903   rk3328-roc-pc.dtb
+    95871   px30-engicam-px30-core-ctouch2.dtb
+   297345   rk3588-evb1-lp4-v10-edp-8lanes-M280DCA.dtb
+   292850   rk3588-evb1-lp4-v10-linux-ipc.dtb
+   296151   rk3588-evb1-lp4-v10-edp-NV140QUM-N61.dtb
+   291765   rk3588-evb2-lp4-v10.dtb
+   279247   rk3588-evb4-lp4-v10-linux.dtb
+   300849   rk3588-evb7-lp4-v10-rk1608-ipc-8x-linux.dtb
+   284112   rk3588-evb7-lp4-v11-linux-ipc.dtb
+   271174   rk3588-nvr-demo3-v10-android.dtb
+   276353   rk3588-friendlyelec-cm3588-nas.dtb
+   285672   rk3588-orangepi-5-max.dtb
+   274108   rk3588-rock-5-itx.dtb
+   273135   rk3588-rock-5t.dtb
+   267771   rk3588-turing-rk1.dtb
+   339984   rk3588-vehicle-evb-v22.dtb
+   240612   rk3588s-retroled-cm5.dtb
+   240817   rk3588s-roc-pc.dtb
+   235114   rk3588s-rock-5c.dtb
+   273308   rk3588-cyber-aib.dtb
+   286661   rk3588-evb7-lp4-v10.dtb
+   133431   rk3562j-core-ddr4-v10.dtb
+    81004   rk3308b-evb-amic-v10.dtb
+   289633   rk3588-evb2-lp4-v10-edp2dp.dtb
+   284175   rk3588-evb5-lp4-v10-linux.dtb
+   168850   rk3566-orangepi-3b.dtb
+   188483   rk3568-evb6-ddr3-v10-rk630-bt656-to-cvbs.dtb
+   190096   rk3568-evb1-ddr4-v10-one-vp-two-single-channel-lvds.dtb
+   171278   rk3566-h96max-v56.dtb
+    85763   rk3399-evb.dtb
+   184077   rk3568m-serdes-v1-evb-display-dsi0-dsi1-command2dual_lvdsx2-lp4x-v10.dtb
+   179333   rk3566-evb3-ddr3-v10-linux.dtb
+    96580   rk3399-nanopi-r4s-enterprise.dtb
+   190609   rk3568-evb1-ddr4-v10-two-vp-two-separate-single-channel-lvds.dtb
+   180313   rk3566-evb1-ddr4-v10-lvds.dtb
+   166198   rk3566-lckfb-tspi.dtb
+   151098   rk3562-evb2-ddr4-v10-image-reverse.dtb
+   173281   rk3568-nanopi5-rev03.dtb
+   186831   rk3568m-serdes-v1-evb-display-super-frame-dsi0-command2dsi-lp4x-v10.dtb
+   295872   rk3588-evb3-lp5-v10.dtb
+   170487   rk3568-hinlink-h66k.dtb
+   107919   px30-evb-ddr4-v10.dtb
+    89702   rk3399-rock-4c-plus.dtb
+   100793   rk3399-sapphire-excavator.dtb
+   185219   rk3568m-serdes-evb-display-dsi1-command2dsi-lp4x-v10.dtb
+   168850   rk3566-orangepi-3b-v1.1.dtb
+   187750   rk3568m-serdes-v1-evb-display-lvds2dual-lvds-lp4x-v10.dtb
+   105323   rk3528-demo6-ddr3-v10.dtb
+   152682   rk3562-evb2-ddr4-v10-pdm-mic-array.dtb
+   185613   rk3568-evb-rk628-rgb2lvds-dual-ddr4-v10.dtb
+    98116   rk3528-rock-2a.dtb
+    93308   rk3399pro-rock-pi-n10.dtb
+    73207   rk3328-a1.dtb
+    85041   rk3308-evb-audio-v10-display-rgb.dtb
+   167705   rk3568-nvr-demo-v12-linux.dtb
+   290198   rk3588-evb2-lp4-v10-edp.dtb
+    96235   rk3399-nanopi-r4s.dtb
+   189690   rk3568-evb1-ddr4-v10-single-channel-lvds.dtb
+   273075   rk3588-blueberry-edge-v12-linux.dtb
+   187748   rk3568m-serdes-v1-evb-display-rgb2rgb-lp4x-v10.dtb
+   185436   rk3568-evb-rk628-hdmi2lvds-dual-ddr4-v10.dtb
+   175364   rk3568-swan1-w28.dtb
+   297074   rk3588-evb1-lp4-v10-lt6911uxe.dtb
+   161668   rk3566-box-demo-v10.dtb
+   167741   rk3568-nvr-demo-v10-linux-spi-nand.dtb
+   155801   rk3568-iotest-ddr3-v10-linux.dtb
+   288833   rk3588-evb7-v11-linux.dtb
+   271503   rk3588-nvr-demo1-v21.dtb
+   276925   rk3588-nvr-demo-v10-ipc-4x-linux.dtb
+   241588   rk3588s-khadas-edge2.dtb
+   251304   rk3588s-evb3-lp4x-v10-linux.dtb
+   238691   rk3588s-nanopi-m6.dtb
+   187748   rk3568m-serdes-v1-evb-display-rgb2dual-lvds-vehicle-lp4x-v10.dtb
+    97269   rk3399-rock-pi-4c.dtb
+   290408   rk3576-evb1-v10-edp-NV140QUM-N61.dtb
+   280702   rk3576-test3-v10.dtb
+   169955   rk3566-rk817-tablet-v10.dtb
+   285969   rk3576-blueberry-edge-v10.dtb
+   107895   px30-mini-evb-ddr3-v11-avb.dtb
+    82204   rk3308-evb-amic-v13.dtb
+   292399   rk3576-evb1-v10-ipc-4x-linux.dtb
+   238417   rk3588s-radxa-e54c.dtb
+   178675   rk3568-dshapi-r1.dtb
+   170985   rk3566-rk817-tablet-k108.dtb
+   287664   rk3576-evb1-v10-rk628-hdmi2csi.dtb
+    96591   rk3399-rock-pi-4a.dtb
+   152597   rk3562-evb2-ddr4-v10-linux.dtb
+    86516   rk3308bs-evb-mipi-display-v11.dtb
+   289678   rk3576-test1-v10.dtb
+    96401   px30-engicam-px30-core-edimm2.2.dtb
+    96405   px30-engicam-px30-core-ctouch2-of10.dtb
+   190264   rk3568-toybrick-x0-android.dtb
+   186820   rk3568m-serdes-v1-evb-display-dsi1-command2dsi-lp4x-v10.dtb
+   250107   rk3588s-evb4-lp4x-v10.dtb
+   184128   rk3568m-serdes-evb-camera-dvp-v10.dtb
+   275538   rk3588-nanopc-t6.dtb
+   289078   rk3588-evb7-v11.dtb
+    99919   rk3399-firefly.dtb
+   242679   rk3588s-lubancat-4.dtb
+   102662   rk3399-gru-kevin.dtb
+   234128   rk3588s-radxa-cm5-rpi-cm4-io.dtb
+   173281   rk3568-nanopi5-rev04.dtb
+   236941   rk3588s-nanopi-r6c.dtb
+   102286   rk3528-radxa-e24c-spi.dtb
+   270719   rk3588-blueberry-minipc-linux.dtb
+    76358   rk3328-evb.dtb
+   273233   rk3576-rock-4d-spi.dtb
+   170929   rk3566-rk817-tablet-rkg11.dtb
+   286039   rk3576-test1-v10-rgb-Q7050ITH2641AA1T.dtb
+   172333   rk3568-radxa-e25.dtb
+   174811   rk3568-hinlink-hnas.dtb
+   152220   rk3562-evb1-lp4x-v10-mcu-k350c4516t.dtb
+   243055   rk3588s-retro-lite-cm5.dtb
+   188206   rk3568-evb8-lp4-v10-linux.dtb
+   278007   rk3576-iotest-v10-edp2dp.dtb
+    82112   rk3308-evb-audio-amic-v10.dtb
+   278734   rk3588-orangepi-5-plus.dtb
+   107923   px30-evb-ddr3-v10-avb.dtb
+    83534   rk3308bs-evb-rgb-display-v20.dtb
+   187724   rk3568m-serdes-v1-evb-display-rgb2lvds-lp4x-v10.dtb
+   108475   rk3326-evb-lp3-v11.dtb
+   188721   rk3568-evb8-lp4-v10.dtb
+   289662   rk3576-evb1-v10-hdmi2dp.dtb
+   101035   rk3528-mangopi-m28k.dtb
+   271824   rk3588-nvr-demo1-v21-android.dtb
+   234655   rk3588s-radxa-nx5-io.dtb
+   256960   rk3588s-tablet-v10.dtb
+
+456 file(s), 3 dir(s)
+
+=> ls mmc 1:1 /boot/extlinux
+=> load mmc 1:1 0x12000000 /boot/dtb/rockchip/rk3566-radxa-zero3.dtb
+161122 bytes read in 35 ms (4.4 MiB/s)
+=> fdt addr 0x12000000
+Working FDT set to 12000000
+=> fdt print / model
+model = "Radxa ZERO 3"
+=> load mmc 1:1 0x09000000 /boot/armbianEnv.txt.before-npu
+356 bytes read in 4 ms (86.9 KiB/s)
+=> md.b 0x09000000 164
+09000000: 76 65 72 62 6f 73 69 74 79 3d 31 0a 62 6f 6f 74  verbosity=1.boot
+09000010: 6c 6f 67 6f 3d 66 61 6c 73 65 0a 63 6f 6e 73 6f  logo=false.conso
+09000020: 6c 65 3d 64 69 73 70 6c 61 79 0a 65 78 74 72 61  le=display.extra
+09000030: 61 72 67 73 3d 63 6d 61 3d 32 35 36 4d 0a 6f 76  args=cma=256M.ov
+09000040: 65 72 6c 61 79 5f 70 72 65 66 69 78 3d 72 6b 33  erlay_prefix=rk3
+09000050: 35 36 38 0a 66 64 74 66 69 6c 65 3d 72 6f 63 6b  568.fdtfile=rock
+09000060: 63 68 69 70 2f 72 6b 33 35 36 36 2d 72 61 64 78  chip/rk3566-radx
+09000070: 61 2d 7a 65 72 6f 33 2e 64 74 62 0a 72 6f 6f 74  a-zero3.dtb.root
+09000080: 64 65 76 3d 55 55 49 44 3d 33 34 64 33 63 31 37  dev=UUID=34d3c17
+09000090: 65 2d 35 32 37 31 2d 34 37 33 66 2d 61 63 62 36  e-5271-473f-acb6
+090000a0: 2d 37 66 35 64 35 35 62 33 62 62 32 38 0a 72 6f  -7f5d55b3bb28.ro
+090000b0: 6f 74 66 73 74 79 70 65 3d 65 78 74 34 0a 6f 76  otfstype=ext4.ov
+090000c0: 65 72 6c 61 79 73 3d 69 32 63 34 2d 6d 30 20 75  erlays=i2c4-m0 u
+090000d0: 61 72 74 32 2d 6d 30 20 69 32 63 33 2d 70 69 68  art2-m0 i2c3-pih
+090000e0: 61 74 20 61 69 63 33 31 30 34 2d 69 32 63 33 20  at aic3104-i2c3 
+090000f0: 72 61 64 78 61 2d 7a 65 72 6f 33 2d 72 70 69 2d  radxa-zero3-rpi-
+09000100: 63 61 6d 65 72 61 2d 76 32 0a 75 73 65 72 5f 6f  camera-v2.user_o
+09000110: 76 65 72 6c 61 79 73 3d 6d 69 63 72 6f 64 75 63  verlays=microduc
+09000120: 6b 2d 69 32 63 34 2d 70 75 6c 6c 75 70 2d 74 65  k-i2c4-pullup-te
+09000130: 73 74 0a 75 73 62 73 74 6f 72 61 67 65 71 75 69  st.usbstoragequi
+09000140: 72 6b 73 3d 30 78 32 35 33 37 3a 30 78 31 30 36  rks=0x2537:0x106
+09000150: 36 3a 75 2c 30 78 32 35 33 37 3a 30 78 31 30 36  6:u,0x2537:0x106
+09000160: 38 3a 75 0a                                      8:u.
+=> fdt resize 65536
+=> fdt set /serial@fe660000 status okay
+=> setenv bootargs root=UUID=34d3c17e-5271-473f-acb6-7f5d55b3bb28 rootwait ro rootfstype=ext4 console=ttyS2,1500000n8 earlycon=uart8250,mmio32,0xfe660000 loglevel=7 init=/bin/bash
+=> load mmc 1:1 0x02000000 /boot/vmlinuz-6.1.115-vendor-rk35xx
+47405568 bytes read in 3928 ms (11.5 MiB/s)
+=> load mmc 1:1 0x12180000 /boot/uInitrd-6.1.115-vendor-rk35xx
+15612480 bytes read in 1296 ms (11.5 MiB/s)
+=> booti 0x02000000 0x12180000 0x12000000
+## Loading init Ramdisk from Legacy Image at 12180000 ...
+   Image Name:   uInitrd
+   Image Type:   AArch64 Linux RAMDisk Image (gzip compressed)
+   Data Size:    15612416 Bytes = 14.9 MiB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+## Flattened Device Tree blob at 12000000
+   Booting using the fdt blob at 0x12000000
+Working FDT set to 12000000
+   Loading Ramdisk to 7bd1c000, end 7cbffa00 ... OK
+   Loading Device Tree to 000000007ce2f000, end 000000007cebefff ... OK
+Working FDT set to 7ce2f000
+
+Starting kernel ...
+
+[  265.617531] Booting Linux on physical CPU 0x0000000000 [0x412fd050]
+[  265.617577] Linux version 6.1.115-vendor-rk35xx (build@armbian) (aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #1 SMP Fri Jan 16 11:40:29 UTC 2026
+[  265.624172] Machine model: Radxa ZERO 3
+[  265.624272] earlycon: uart8250 at MMIO32 0x00000000fe660000 (options '')
+[  265.627666] printk: bootconsole [uart8250] enabled
+[  265.628188] efi: UEFI not found.
+[  265.628756] OF: fdt: Reserved memory: failed to reserve memory for node 'drm-logo@0': base 0x0000000000000000, size 0 MiB
+[  265.629850] OF: fdt: Reserved memory: failed to reserve memory for node 'drm-cubic-lut@0': base 0x0000000000000000, size 0 MiB
+[  265.707377] Zone ranges:
+[  265.707655]   DMA      [mem 0x0000000000200000-0x000000007fffffff]
+[  265.708276]   DMA32    empty
+[  265.708569]   Normal   empty
+[  265.708859] Movable zone start for each node
+[  265.709278] Early memory node ranges
+[  265.709631]   node   0: [mem 0x0000000000200000-0x000000007fffffff]
+[  265.710258] Initmem setup node 0 [mem 0x0000000000200000-0x000000007fffffff]
+[  265.730203] On node 0, zone DMA: 512 pages in unavailable ranges
+[  265.730237] cma: Reserved 16 MiB at 0x000000007ac00000
+[  265.731476] psci: probing for conduit method from DT.
+[  265.731991] psci: PSCIv1.1 detected in firmware.
+[  265.732453] psci: Using standard PSCI v0.2 function IDs
+[  265.732971] psci: MIGRATE_INFO_TYPE not supported.
+[  265.733458] psci: SMC Calling Convention v1.2
+[  265.734363] percpu: Embedded 30 pages/cpu s82728 r8192 d31960 u122880
+[  265.735208] Detected VIPT I-cache on CPU0
+[  265.735688] CPU features: detected: GIC system register CPU interface
+[  265.736325] CPU features: detected: Virtualization Host Extensions
+[  265.736948] CPU features: kernel page table isolation forced ON by KASLR
+[  265.737608] CPU features: detected: Kernel page table isolation (KPTI)
+[  265.738255] CPU features: detected: Qualcomm erratum 1009, or ARM erratum 1286807, 2441009
+[  265.739065] CPU features: detected: ARM errata 1165522, 1319367, or 1530923
+[  265.739753] alternatives: applying boot alternatives
+[  265.741011] Built 1 zonelists, mobility grouping on.  Total pages: 515592
+[  265.741696] Kernel command line: root=UUID=34d3c17e-5271-473f-acb6-7f5d55b3bb28 rootwait ro rootfstype=ext4 console=ttyS2,1500000n8 earlycon=uart8250,mmio32,0xfe660000 loglevel=7 init=/bin/bash
+[  265.744551] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[  265.745658] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes, linear)
+[  265.746428] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[  265.781406] Memory: 1975064K/2095104K available (18368K kernel code, 3926K rwdata, 15708K rodata, 8128K init, 688K bss, 103656K reserved, 16384K cma-reserved)
+[  265.783038] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+[  265.783747] ftrace: allocating 70099 entries in 274 pages
+[  265.969835] ftrace: allocated 274 pages with 3 groups
+[  265.970568] trace event string verifier disabled
+[  265.971388] rcu: Hierarchical RCU implementation.
+[  265.971863] rcu: 	RCU event tracing is enabled.
+[  265.972310] rcu: 	RCU restricting CPUs from NR_CPUS=8 to nr_cpu_ids=4.
+[  265.972956] 	Rude variant of Tasks RCU enabled.
+[  265.973402] 	Tracing variant of Tasks RCU enabled.
+[  265.973874] rcu: RCU calculated value of scheduler-enlistment delay is 30 jiffies.
+[  265.974616] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=4
+[  266.003780] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[  266.007271] GICv3: GIC: Using split EOI/Deactivate mode
+[  266.007807] GICv3: 320 SPIs implemented
+[  266.008191] GICv3: 0 Extended SPIs implemented
+[  266.008684] Root IRQ handler: gic_handle_irq
+[  266.009130] GICv3: GICv3 features: 16 PPIs
+[  266.009575] GICv3: CPU0: found redistributor 0 region 0:0x00000000fd460000
+[  266.011035] ITS [mem 0xfd440000-0xfd45ffff]
+[  266.011568] ITS@0x00000000fd440000: allocated 8192 Devices @640000 (indirect, esz 8, psz 64K, shr 0)
+[  266.012528] ITS@0x00000000fd440000: allocated 32768 Interrupt Collections @650000 (flat, esz 2, psz 64K, shr 0)
+[  266.013538] ITS: using cache flushing for cmd queue
+[  266.014596] GICv3: using LPI property table @0x0000000000660000
+[  266.015361] GIC: using cache flushing for LPI property table
+[  266.015928] GICv3: CPU0: using allocated LPI pending table @0x0000000000670000
+[  266.016751] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[  266.067828] arch_timer: cp15 timer(s) running at 24.00MHz (phys).
+[  266.068446] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
+[  266.069473] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
+[  266.072220] Console: colour dummy device 80x25
+[  266.072717] Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=80000)
+[  266.073696] pid_max: default: 32768 minimum: 301
+[  266.074289] LSM: Security Framework initializing
+[  266.074893] AppArmor: AppArmor initialized
+[  266.075322] LSM support for eBPF active
+[  266.075854] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[  266.076577] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[  266.078972] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[  266.081232] cblist_init_generic: Setting adjustable number of callback queues.
+[  266.081926] cblist_init_generic: Setting shift to 2 and lim to 1.
+[  266.082713] cblist_init_generic: Setting adjustable number of callback queues.
+[  266.083442] cblist_init_generic: Setting shift to 2 and lim to 1.
+[  266.084489] rcu: Hierarchical SRCU implementation.
+[  266.084951] rcu: 	Max phase no-delay instances is 1000.
+[  266.087735] Platform MSI: interrupt-controller@fd440000 domain created
+[  266.089024] PCI/MSI: /interrupt-controller@fd400000/interrupt-controller@fd440000 domain created
+[  266.090516] EFI services will not be available.
+[  266.091673] smp: Bringing up secondary CPUs ...
+[  266.093505] Detected VIPT I-cache on CPU1
+[  266.093688] cacheinfo: Unable to detect cache hierarchy for CPU 1
+[  266.093715] GICv3: CPU1: found redistributor 100 region 0:0x00000000fd480000
+[  266.093754] GICv3: CPU1: using allocated LPI pending table @0x0000000000680000
+[  266.093830] CPU1: Booted secondary processor 0x0000000100 [0x412fd050]
+[  266.095547] Detected VIPT I-cache on CPU2
+[  266.095730] cacheinfo: Unable to detect cache hierarchy for CPU 2
+[  266.095758] GICv3: CPU2: found redistributor 200 region 0:0x00000000fd4a0000
+[  266.095797] GICv3: CPU2: using allocated LPI pending table @0x0000000000690000
+[  266.095871] CPU2: Booted secondary processor 0x0000000200 [0x412fd050]
+[  266.097678] Detected VIPT I-cache on CPU3
+[  266.097866] cacheinfo: Unable to detect cache hierarchy for CPU 3
+[  266.097895] GICv3: CPU3: found redistributor 300 region 0:0x00000000fd4c0000
+[  266.097934] GICv3: CPU3: using allocated LPI pending table @0x00000000006a0000
+[  266.098008] CPU3: Booted secondary processor 0x0000000300 [0x412fd050]
+[  266.098274] smp: Brought up 1 node, 4 CPUs
+[  266.107416] SMP: Total of 4 processors activated.
+[  266.107895] CPU features: detected: 32-bit EL0 Support
+[  266.108385] CPU features: detected: 32-bit EL1 Support
+[  266.108876] CPU features: detected: Data cache clean to the PoU not required for I/D coherence
+[  266.109687] CPU features: detected: Common not Private translations
+[  266.110280] CPU features: detected: CRC32 instructions
+[  266.110770] CPU features: detected: RCpc load-acquire (LDAPR)
+[  266.111333] CPU features: detected: LSE atomic instructions
+[  266.111865] CPU features: detected: Privileged Access Never
+[  266.112392] CPU features: detected: RAS Extension Support
+[  266.112908] CPU features: detected: Speculative Store Bypassing Safe (SSBS)
+[  266.113727] CPU: All CPU(s) started at EL2
+[  266.114124] alternatives: applying system-wide alternatives
+[  266.120042] devtmpfs: initialized
+[  266.161020] Registered cp15_barrier emulation handler
+[  266.161535] Registered setend emulation handler
+[  266.162325] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 6370867519511994 ns
+[  266.163275] futex hash table entries: 1024 (order: 4, 65536 bytes, linear)
+[  266.164740] pinctrl core: initialized pinctrl subsystem
+[  266.166370] DMI not present or invalid.
+[  266.167744] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[  266.170709] DMA: preallocated 256 KiB GFP_KERNEL pool for atomic allocations
+[  266.171909] DMA: preallocated 256 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[  266.172957] DMA: preallocated 256 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[  266.173802] audit: initializing netlink subsys (disabled)
+[  266.174650] audit: type=2000 audit(0.099:1): state=initialized audit_enabled=0 res=1
+[  266.175691] Registered FIQ tty driver
+[  266.176935] thermal_sys: Registered thermal governor 'fair_share'
+[  266.176949] thermal_sys: Registered thermal governor 'step_wise'
+[  266.177529] thermal_sys: Registered thermal governor 'user_space'
+[  266.178099] thermal_sys: Registered thermal governor 'power_allocator'
+[  266.178788] cpuidle: using governor menu
+[  266.180400] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[  266.181308] ASID allocator initialised with 32768 entries
+[  266.186672] ramoops: dmesg-0	0x20000@0x0000000000110000
+[  266.187234] ramoops: console	0x80000@0x0000000000130000
+[  266.187762] ramoops: pmsg	0x50000@0x00000000001b0000
+[  266.189007] printk: console [ramoops-1] enabled
+[  266.189447] pstore: Registered ramoops as persistent store backend
+[  266.190073] ramoops: using 0xf0000@0x110000, ecc: 0
+[  266.218702] platform fe040000.vop: Fixed dependency cycle(s) with /hdmi@fe0a0000
+[  266.219545] platform fe0a0000.hdmi: Fixed dependency cycle(s) with /vop@fe040000
+[  266.256003] rockchip-gpio fdd60000.gpio: probed /pinctrl/gpio@fdd60000
+[  266.257723] rockchip-gpio fe740000.gpio: probed /pinctrl/gpio@fe740000
+[  266.259274] rockchip-gpio fe750000.gpio: probed /pinctrl/gpio@fe750000
+[  266.261053] rockchip-gpio fe760000.gpio: probed /pinctrl/gpio@fe760000
+[  266.262613] rockchip-gpio fe770000.gpio: probed /pinctrl/gpio@fe770000
+[  266.263461] rockchip-pinctrl pinctrl: probed pinctrl
+[  266.271415] KASLR enabled
+[  266.296256] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[  266.296931] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[  266.297534] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[  266.298182] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[  266.298815] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[  266.299466] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[  266.300066] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[  266.300713] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[  266.304090] uart2 is enabled, please disable it
+[  266.304550] rk-fiq-debugger: probe of fiq-debugger failed with error -22
+[  266.309652] iommu: Default domain type: Translated 
+[  266.310141] iommu: DMA domain TLB invalidation policy: strict mode 
+[  266.311360] SCSI subsystem initialized
+[  266.312125] usbcore: registered new interface driver usbfs
+[  266.312780] usbcore: registered new interface driver hub
+[  266.313350] usbcore: registered new device driver usb
+[  266.314076] mc: Linux media interface: v0.10
+[  266.314578] videodev: Linux video capture interface: v2.00
+[  266.315311] pps_core: LinuxPPS API ver. 1 registered
+[  266.315795] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[  266.316713] PTP clock support registered
+[  266.318037] arm-scmi firmware:scmi: Enabled polling mode TX channel - prot_id:16
+[  266.318967] arm-scmi firmware:scmi: SCMI Notifications - Core Enabled.
+[  266.319670] arm-scmi firmware:scmi: SCMI Protocol v2.0 'rockchip:' Firmware version 0x0
+[  266.323391] Advanced Linux Sound Architecture Driver Initialized.
+[  266.325145] Bluetooth: Core ver 2.22
+[  266.325574] NET: Registered PF_BLUETOOTH protocol family
+[  266.326090] Bluetooth: HCI device and connection manager initialized
+[  266.326707] Bluetooth: HCI socket layer initialized
+[  266.327184] Bluetooth: L2CAP socket layer initialized
+[  266.327721] Bluetooth: SCO socket layer initialized
+[  266.328329] NetLabel: Initializing
+[  266.328665] NetLabel:  domain hash size = 128
+[  266.329085] NetLabel:  protocols = UNLABELED CIPSOv4 CALIPSO
+[  266.329734] NetLabel:  unlabeled traffic allowed by default
+[  266.330994] vgaarb: loaded
+[  266.332640] clocksource: Switched to clocksource arch_sys_counter
+[  266.333861] VFS: Disk quotas dquot_6.6.0
+[  266.334323] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[  266.336009] AppArmor: AppArmor Filesystem Enabled
+[  266.356558] NET: Registered PF_INET protocol family
+[  266.357346] IP idents hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[  266.361142] tcp_listen_portaddr_hash hash table entries: 1024 (order: 2, 16384 bytes, linear)
+[  266.362006] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[  266.362892] TCP established hash table entries: 16384 (order: 5, 131072 bytes, linear)
+[  266.363797] TCP bind hash table entries: 16384 (order: 7, 524288 bytes, linear)
+[  266.364995] TCP: Hash tables configured (established 16384 bind 16384)
+[  266.366058] MPTCP token hash table entries: 2048 (order: 3, 49152 bytes, linear)
+[  266.366886] UDP hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[  266.367580] UDP-Lite hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[  266.368576] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[  266.369999] RPC: Registered named UNIX socket transport module.
+[  266.370580] RPC: Registered udp transport module.
+[  266.371034] RPC: Registered tcp transport module.
+[  266.371486] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[  266.373774] PCI: CLS 0 bytes, default 64
+[  266.375085] Trying to unpack rootfs image as initramfs...
+[  266.378823] rockchip-thermal fe710000.tsadc: tsadc is probed successfully!
+[  266.398539] hw perfevents: enabled with armv8_cortex_a55 PMU driver, 7 counters available
+[  266.400768] kvm [1]: IPA Size Limit: 40 bits
+[  266.401242] kvm [1]: GICv3: no GICV resource entry
+[  266.401710] kvm [1]: disabling GICv2 emulation
+[  266.402140] kvm [1]: GIC system register CPU interface enabled
+[  266.407044] kvm [1]: vgic interrupt IRQ9
+[  266.416606] kvm [1]: VHE mode initialized successfully
+[  267.336139] Freeing initrd memory: 15244K
+[  267.616555] Initialise system trusted keyrings
+[  267.617434] workingset: timestamp_bits=46 max_order=19 bucket_order=0
+[  267.627358] zbud: loaded
+[  267.631103] NFS: Registering the id_resolver key type
+[  267.631647] Key type id_resolver registered
+[  267.632058] Key type id_legacy registered
+[  267.632576] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[  267.633269] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[  267.689486] NET: Registered PF_ALG protocol family
+[  267.689976] Key type asymmetric registered
+[  267.690382] Asymmetric key parser 'x509' registered
+[  267.731661] alg: self-tests for CTR-KDF (hmac(sha256)) passed
+[  267.732365] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 241)
+[  267.733422] io scheduler mq-deadline registered
+[  267.733869] io scheduler kyber registered
+[  267.752714] iep: Module initialized.
+[  267.753189] mpp_service mpp-srv: unknown mpp version for missing VCS info
+[  267.753849] mpp_service mpp-srv: probe start
+[  267.761117] mpp_service mpp-srv: probe success
+[  267.770089] dma-pl330 fe530000.dma-controller: Loaded driver for PL330 DMAC-241330
+[  267.770844] dma-pl330 fe530000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-32 Num_Events-16
+[  267.775604] dma-pl330 fe550000.dma-controller: Loaded driver for PL330 DMAC-241330
+[  267.776383] dma-pl330 fe550000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-32 Num_Events-16
+[  267.778024] rockchip-pvtm fde00000.pvtm: pvtm@0 probed
+[  267.778747] rockchip-pvtm fde80000.pvtm: pvtm@1 probed
+[  267.779504] rockchip-pvtm fde90000.pvtm: pvtm@2 probed
+[  267.781323] rockchip-system-monitor rockchip-system-monitor: system monitor probe
+[  267.783437] arm-scmi firmware:scmi: Failed. SCMI protocol 22 not active.
+[  267.784546] Serial: 8250/16550 driver, 10 ports, IRQ sharing disabled
+[  267.786687] fe650000.serial: ttyS1 at MMIO 0xfe650000 (irq = 32, base_baud = 1500000) is a 16550A
+[  267.788866] fe660000.serial: ttyS2 at MMIO 0xfe660000 (irq = 33, base_baud = 1500000) is a 16550A
+[  267.790199] printk: console [ttyS2] enabled
+[  267.790199] printk: console [ttyS2] enabled
+[  267.790987] printk: bootconsole [uart8250] disabled
+[  267.790987] printk: bootconsole [uart8250] disabled
+[  267.795606] led_vk2c21_init
+[  267.795606] =============================================
+[  267.795934] random: crng init done
+[  267.806103] rockchip-vop2 fe040000.vop: Adding to iommu group 6
+[  267.820550] [drm] all windows should be assigned, full plane mask: Cluster0 | Cluster1 | Esmart0 | Esmart1 | Smart0 | Smart1[0x3f], current plane mask: [0x0]
+[  267.821827] [drm] use default plane mask
+[  267.822241] rockchip-vop2 fe040000.vop: [drm:vop2_bind] vp0 assign plane mask: Cluster0 | Cluster1 | Esmart0 | Esmart1 | Smart0 | Smart1[0x3f], primary plane phy id: Smart0[4]
+[  267.823699] rockchip-vop2 fe040000.vop: [drm:vop2_bind] vp1 assign plane mask: [0x0], primary plane phy id: INVALID[-1]
+[  267.824674] rockchip-vop2 fe040000.vop: [drm:vop2_bind] vp2 assign plane mask: [0x0], primary plane phy id: INVALID[-1]
+[  267.826017] [drm] failed to init overlay plane Cluster0-win1
+[  267.826718] rockchip-vop2 fe040000.vop: bin=0
+[  267.827283] rockchip-vop2 fe040000.vop: leakage=58
+[  267.827737] rockchip-vop2 fe040000.vop: leakage-volt-sel=0
+[  267.828319] rockchip-vop2 fe040000.vop: pvtm = 91020, from nvmem
+[  267.828875] rockchip-vop2 fe040000.vop: pvtm-volt-sel=1
+[  267.829541] rockchip-vop2 fe040000.vop: error -ENODEV: _opp_set_regulators: no regulator (vop) found
+[  267.830415] rockchip-vop2 fe040000.vop: failed to set opp config
+[  267.830962] rockchip-vop2 fe040000.vop: failed to init opp info
+[  267.831497] rockchip-vop2 fe040000.vop: Unsupported VOP aclk dvfs
+[  267.832081] rockchip-drm display-subsystem: bound fe040000.vop (ops 0xffffc404af734a70)
+[  267.833363] dwhdmi-rockchip fe0a0000.hdmi: Detected HDMI TX controller v2.11a with HDCP (DWC HDMI 2.0 TX PHY)
+[  267.835293] dwhdmi-rockchip fe0a0000.hdmi: registered DesignWare HDMI I2C bus driver
+[  267.836407] dwhdmi-rockchip fe0a0000.hdmi: error -ENXIO: IRQ index 1 not found
+[  267.837741] rockchip-drm display-subsystem: bound fe0a0000.hdmi (ops 0xffffc404af74da98)
+[  267.840302] [drm] Initialized rockchip 4.0.0 20140818 for display-subsystem on minor 0
+[  267.841073] rockchip-drm display-subsystem: failed to parse loader memory
+[  267.841881] rockchip-drm display-subsystem: [drm] Cannot find any crtc or sizes
+[  267.842757] rockchip-drm display-subsystem: [drm] Cannot find any crtc or sizes
+[  267.843792] rockchip-drm display-subsystem: [drm] run display error_event monitor
+[  267.847634] Registered IR keymap rc-cec
+[  267.848200] rc rc0: dw_hdmi as /devices/platform/fe0a0000.hdmi/rc/rc0
+[  267.849074] input: dw_hdmi as /devices/platform/fe0a0000.hdmi/rc/rc0/input0
+[  267.850273] input: hdmi_cec_key as /devices/platform/fe0a0000.hdmi/dw-hdmi-cec.1.auto/input/input1
+[  267.852616] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[  267.854818] brd: module loaded
+[  267.864716] loop: module loaded
+[  267.865690] rbd: loaded (major 254)
+[  267.866658] lkdtm: No crash points registered, enable through debugfs
+[  267.878225] rk_gmac-dwmac fe010000.ethernet: IRQ eth_lpi not found
+[  267.879215] rk_gmac-dwmac fe010000.ethernet: supply phy not found, using dummy regulator
+[  267.880232] rk_gmac-dwmac fe010000.ethernet: clock input or output? (output).
+[  267.880883] rk_gmac-dwmac fe010000.ethernet: TX delay(0x47).
+[  267.881398] rk_gmac-dwmac fe010000.ethernet: RX delay(0x27).
+[  267.881922] rk_gmac-dwmac fe010000.ethernet: integrated PHY? (no).
+[  267.882800] rk_gmac-dwmac fe010000.ethernet: init for RGMII
+[  267.883700] rk_gmac-dwmac fe010000.ethernet: User ID: 0x30, Synopsys ID: 0x51
+[  267.884356] rk_gmac-dwmac fe010000.ethernet: 	DWMAC4/5
+[  267.884828] rk_gmac-dwmac fe010000.ethernet: DMA HW capability register supported
+[  267.885498] rk_gmac-dwmac fe010000.ethernet: RX Checksum Offload Engine supported
+[  267.886208] rk_gmac-dwmac fe010000.ethernet: TX Checksum insertion supported
+[  267.886843] rk_gmac-dwmac fe010000.ethernet: Wake-Up On Lan supported
+[  267.887513] rk_gmac-dwmac fe010000.ethernet: TSO supported
+[  267.888015] rk_gmac-dwmac fe010000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[  267.888733] rk_gmac-dwmac fe010000.ethernet: Enabled RFS Flow TC (entries=10)
+[  267.889432] rk_gmac-dwmac fe010000.ethernet: TSO feature enabled
+[  267.889979] rk_gmac-dwmac fe010000.ethernet: Using 32/32 bits DMA host/device width
+[  268.044626] usbcore: registered new interface driver rndis_wlan
+[  268.045262] usbcore: registered new interface driver asix
+[  268.045814] usbcore: registered new interface driver cdc_ether
+[  268.046474] usbcore: registered new interface driver rndis_host
+[  268.047085] usbcore: registered new interface driver cdc_ncm
+[  268.048014] VFIO - User Level meta-driver version: 0.3
+[  268.057076] naneng-combphy fe830000.phy: wait phy status ready timeout
+[  268.064146] phy phy-fe8b0000.usb2-phy.3: illegal mode
+[  268.064961] xhci-hcd xhci-hcd.4.auto: xHCI Host Controller
+[  268.065505] xhci-hcd xhci-hcd.4.auto: new USB bus registered, assigned bus number 1
+[  268.066334] ehci-platform fd880000.usb: EHCI Host Controller
+[  268.066366] ohci-platform fd8c0000.usb: Generic Platform OHCI controller
+[  268.066419] xhci-hcd xhci-hcd.4.auto: hcc params 0x0220fe64 hci version 0x110 quirks 0x0002008002010010
+[  268.066511] xhci-hcd xhci-hcd.4.auto: irq 46, io mem 0xfd000000
+[  268.066718] ehci-platform fd800000.usb: EHCI Host Controller
+[  268.066749] phy phy-fe8b0000.usb2-phy.3: illegal mode
+[  268.066762] ohci-platform fd840000.usb: Generic Platform OHCI controller
+[  268.066796] ohci-platform fd840000.usb: new USB bus registered, assigned bus number 2
+[  268.066802] xhci-hcd xhci-hcd.4.auto: xHCI Host Controller
+[  268.066827] xhci-hcd xhci-hcd.4.auto: new USB bus registered, assigned bus number 3
+[  268.066851] xhci-hcd xhci-hcd.4.auto: Host supports USB 3.0 SuperSpeed
+[  268.066872] ehci-platform fd880000.usb: new USB bus registered, assigned bus number 4
+[  268.066963] ohci-platform fd840000.usb: irq 49, io mem 0xfd840000
+[  268.067027] ehci-platform fd800000.usb: new USB bus registered, assigned bus number 5
+[  268.067060] ehci-platform fd880000.usb: irq 48, io mem 0xfd880000
+[  268.067169] ehci-platform fd800000.usb: irq 47, io mem 0xfd800000
+[  268.067473] ohci-platform fd8c0000.usb: new USB bus registered, assigned bus number 6
+[  268.068646] usb usb1: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 6.01
+[  268.068928] ohci-platform fd8c0000.usb: irq 50, io mem 0xfd8c0000
+[  268.069280] usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[  268.078429] usb usb1: Product: xHCI Host Controller
+[  268.078877] usb usb1: Manufacturer: Linux 6.1.115-vendor-rk35xx xhci-hcd
+[  268.079362] ehci-platform fd880000.usb: USB 2.0 started, EHCI 1.00
+[  268.079493] usb usb1: SerialNumber: xhci-hcd.4.auto
+[  268.081360] hub 1-0:1.0: USB hub found
+[  268.081784] hub 1-0:1.0: 1 port detected
+[  268.082991] usb usb3: We don't know the algorithms for LPM for this host, disabling LPM.
+[  268.084001] usb usb3: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 6.01
+[  268.084752] usb usb3: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[  268.085403] usb usb3: Product: xHCI Host Controller
+[  268.085848] usb usb3: Manufacturer: Linux 6.1.115-vendor-rk35xx xhci-hcd
+[  268.086482] usb usb3: SerialNumber: xhci-hcd.4.auto
+[  268.087717] hub 3-0:1.0: USB hub found
+[  268.088131] hub 3-0:1.0: 1 port detected
+[  268.089381] usbcore: registered new interface driver cdc_acm
+[  268.089535] usb usb4: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 6.01
+[  268.089891] cdc_acm: USB Abstract Control Model driver for USB modems and ISDN adapters
+[  268.090618] usb usb4: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[  268.091738] usbcore: registered new interface driver uas
+[  268.091947] usb usb4: Product: EHCI Host Controller
+[  268.092535] usbcore: registered new interface driver usb-storage
+[  268.092723] ehci-platform fd800000.usb: USB 2.0 started, EHCI 1.00
+[  268.092879] usb usb4: Manufacturer: Linux 6.1.115-vendor-rk35xx ehci_hcd
+[  268.094398] mousedev: PS/2 mouse device common for all mice
+[  268.094547] usb usb4: SerialNumber: fd880000.usb
+[  268.096468] hub 4-0:1.0: USB hub found
+[  268.096979] hub 4-0:1.0: 1 port detected
+[  268.097455] i2c_dev: i2c /dev entries driver
+[  268.098788] usb usb5: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 6.01
+[  268.099591] usb usb5: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[  268.100246] usb usb5: Product: EHCI Host Controller
+[  268.100726] usb usb5: Manufacturer: Linux 6.1.115-vendor-rk35xx ehci_hcd
+[  268.101353] usb usb5: SerialNumber: fd800000.usb
+[  268.101378] fan53555-regulator 0-0040: FAN53555 Option[8] Rev[1] Detected!
+[  268.102879] hub 5-0:1.0: USB hub found
+[  268.103309] hub 5-0:1.0: 1 port detected
+[  268.108755] i2c 0-0020: Fixed dependency cycle(s) with /i2c@fdd40000/pmic@20/regulators/BOOST
+[  268.109720] i2c 0-0020: Fixed dependency cycle(s) with /i2c@fdd40000/pmic@20/pinctrl_rk8xx/rk817_slppin_rst
+[  268.110615] i2c 0-0020: Fixed dependency cycle(s) with /i2c@fdd40000/pmic@20/pinctrl_rk8xx/rk817_slppin_pwrdn
+[  268.111519] i2c 0-0020: Fixed dependency cycle(s) with /i2c@fdd40000/pmic@20/pinctrl_rk8xx/rk817_slppin_slp
+[  268.114256] rk808 0-0020: chip id: 0x8170
+[  268.114690] rk808 0-0020: No cache defaults, reading back from HW
+[  268.127055] usb usb2: New USB device found, idVendor=1d6b, idProduct=0001, bcdDevice= 6.01
+[  268.127813] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[  268.128465] usb usb2: Product: Generic Platform OHCI controller
+[  268.129000] usb usb2: Manufacturer: Linux 6.1.115-vendor-rk35xx ohci_hcd
+[  268.129646] usb usb2: SerialNumber: fd840000.usb
+[  268.130940] hub 2-0:1.0: USB hub found
+[  268.131360] hub 2-0:1.0: 1 port detected
+[  268.132749] usb usb6: New USB device found, idVendor=1d6b, idProduct=0001, bcdDevice= 6.01
+[  268.133502] usb usb6: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[  268.134155] usb usb6: Product: Generic Platform OHCI controller
+[  268.134689] usb usb6: Manufacturer: Linux 6.1.115-vendor-rk35xx ohci_hcd
+[  268.135290] usb usb6: SerialNumber: fd8c0000.usb
+[  268.136538] hub 6-0:1.0: USB hub found
+[  268.136956] hub 6-0:1.0: 1 port detected
+[  268.139135] rk808 0-0020: source: on=0x40, off=0x00
+[  268.139644] rk808 0-0020: support dcdc3 fb mode:-22, 0
+[  268.140122] rk808 0-0020: support pmic reset mode:0,0
+[  268.144153] rk808 0-0020: Fixed dependency cycle(s) with /i2c@fdd40000/pmic@20/pinctrl_rk8xx
+[  268.152123] rk808-regulator rk808-regulator: there is no dvs0 gpio
+[  268.152802] rk808-regulator rk808-regulator: there is no dvs1 gpio
+[  268.171360] boost: Bringing 4700000uV into 5000000-5000000uV
+[  268.174089] rk817-battery: Failed to locate of_node [id: -1]
+[  268.174817] rk817-battery rk817-battery: Failed to find matching dt id
+[  268.175588] rk817-charger: Failed to locate of_node [id: -1]
+[  268.176320] rk817-charger rk817-charger: Failed to find matching dt id
+[  268.184101] rk808-rtc rk808-rtc: registered as rtc0
+[  268.186343] rk808-rtc rk808-rtc: setting system clock to 2017-08-04T09:04:29 UTC (1501837469)
+[  268.191937] typec_fusb302 3-0022: supply vbus not found, using dummy regulator
+[  268.193770] OF: graph: no port node found in /i2c@fe5c0000/fusb302@22
+[  268.209575] rockchip-mipi-csi2-hw fdfb0000.mipi-csi2-hw: enter mipi csi2 hw probe!
+[  268.210684] rockchip-mipi-csi2-hw fdfb0000.mipi-csi2-hw: probe success, v4l2_dev:mipi-csi2-hw!
+[  268.215755] usbcore: registered new interface driver uvcvideo
+[  268.221898] sdhci: Secure Digital Host Controller Interface driver
+[  268.222481] sdhci: Copyright(c) Pierre Ossman
+[  268.222922] Synopsys Designware Multimedia Card Interface Driver
+[  268.224584] sdhci-pltfm: SDHCI platform and OF driver helper
+[  268.225634] dwmmc_rockchip fe2c0000.mmc: No normal pinctrl state
+[  268.225812] dwmmc_rockchip fe2b0000.mmc: No normal pinctrl state
+[  268.226232] dwmmc_rockchip fe2c0000.mmc: No idle pinctrl state
+[  268.226757] dwmmc_rockchip fe2b0000.mmc: No idle pinctrl state
+[  268.227724] dwmmc_rockchip fe2c0000.mmc: IDMAC supports 32-bit address mode.
+[  268.228129] dwmmc_rockchip fe2b0000.mmc: IDMAC supports 32-bit address mode.
+[  268.228180] dwmmc_rockchip fe2b0000.mmc: Using internal DMA controller.
+[  268.228195] dwmmc_rockchip fe2b0000.mmc: Version ID is 270a
+[  268.228293] dwmmc_rockchip fe2b0000.mmc: DW MMC controller at irq 84,32 bit host data width,256 deep fifo
+[  268.229172] dwmmc_rockchip fe2c0000.mmc: Using internal DMA controller.
+[  268.229190] dwmmc_rockchip fe2c0000.mmc: Version ID is 270a
+[  268.229268] dwmmc_rockchip fe2c0000.mmc: DW MMC controller at irq 83,32 bit host data width,256 deep fifo
+[  268.229978] dwmmc_rockchip fe2c0000.mmc: allocated mmc-pwrseq
+[  268.231075] mmc_host mmc2: card is non-removable.
+[  268.234392] ledtrig-cpu: registered to indicate activity on CPUs
+[  268.235044] arm-scmi firmware:scmi: Failed. SCMI protocol 17 not active.
+[  268.235825] SMCCC: SOC_ID: ARCH_SOC_ID not implemented, skipping ....
+[  268.238157] cryptodev: driver 1.12 loaded.
+[  268.238641] hid: raw HID events driver (C) Jiri Kosina
+[  268.239676] usbcore: registered new interface driver usbhid
+[  268.240192] usbhid: USB HID core driver
+[  268.242906] mmc_host mmc2: Bus speed (slot 0) = 375000Hz (slot req 400000Hz, actual 375000HZ div = 0)
+[  268.242912] mmc_host mmc1: Bus speed (slot 0) = 375000Hz (slot req 400000Hz, actual 375000HZ div = 0)
+[  268.250220] SPI driver inv-icm42600-spi has no spi_device_id for invensense,icm42600
+[  268.250936] SPI driver inv-icm42600-spi has no spi_device_id for invensense,icm42602
+[  268.251625] SPI driver inv-icm42600-spi has no spi_device_id for invensense,icm42605
+[  268.252313] SPI driver inv-icm42600-spi has no spi_device_id for invensense,icm42622
+[  268.255533] usbcore: registered new interface driver snd-usb-audio
+[  268.261016] [Awinic] aw87xxx_pa_init:driver version: v2.2.0
+[  268.266169] mmc0: SDHCI controller on fe310000.mmc [fe310000.mmc] using ADMA
+[  268.279997] mmc_host mmc2: Bus speed (slot 0) = 148500000Hz (slot req 150000000Hz, actual 148500000HZ div = 0)
+[  268.297676] dwmmc_rockchip fe2c0000.mmc: Successfully tuned phase to 135
+[  268.303337] mmc2: new ultra high speed SDR104 SDIO card at address 390b
+[  268.350996] mmc_host mmc1: Bus speed (slot 0) = 148500000Hz (slot req 150000000Hz, actual 148500000HZ div = 0)
+[  268.410812] NET: Registered PF_PACKET protocol family
+[  268.411998] [BT_RFKILL]: Enter rfkill_rk_init
+[  268.412414] [WLAN_RFKILL]: Enter rfkill_wlan_init
+[  268.413418] [WLAN_RFKILL]: Enter rfkill_wlan_probe
+[  268.413923] [WLAN_RFKILL]: wlan_platdata_parse_dt: Can not read wifi_chip_type, set default to rkwifi.
+[  268.414753] [WLAN_RFKILL]: wlan_platdata_parse_dt: wifi_chip_type = rkwifi
+[  268.415367] [WLAN_RFKILL]: wlan_platdata_parse_dt: enable wifi power control.
+[  268.416042] [WLAN_RFKILL]: wlan_platdata_parse_dt: wifi power controled by gpio.
+[  268.416732] [WLAN_RFKILL]: wlan_platdata_parse_dt: WIFI,poweren_gpio = 16 flags = 0.
+[  268.417465] [WLAN_RFKILL]: wlan_platdata_parse_dt: The ref_wifi_clk not found !
+[  268.418119] [WLAN_RFKILL]: rfkill_wlan_probe: init gpio
+[  268.418591] [WLAN_RFKILL]: rfkill_set_wifi_bt_power: 1
+[  268.419056] [WLAN_RFKILL]: Exit rfkill_wlan_probe
+[  268.420906] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: uart_rts_gpios = 77.
+[  268.421676] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: BT,reset_gpio = 17.
+[  268.422409] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: BT,wake_gpio = 12.
+[  268.423251] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: BT,wake_host_irq = 11.
+[  268.424002] [BT_RFKILL]: bluetooth_platdata_parse_dt: clk_get failed!!!.
+[  268.424679] [BT_RFKILL]: Request irq for bt wakeup host
+[  268.426052] [BT_RFKILL]: ** disable irq
+[  268.426663] [BT_RFKILL]: bt shut off power
+[  268.427112] [BT_RFKILL]: bt_default device registered.
+[  268.427804] input: bt-powerkey as /devices/platform/wireless-bluetooth/input/input2
+[  268.429196] Key type dns_resolver registered
+[  268.429675] Key type ceph registered
+[  268.430826] libceph: loaded (mon/osd proto 15/24)
+[  268.434968] registered taskstats version 1
+[  268.435418] Loading compiled-in X.509 certificates
+[  268.441108] zswap: loaded using pool zstd/zbud
+[  268.442706] Key type .fscrypt registered
+[  268.443082] Key type fscrypt-provisioning registered
+[  268.444368] pstore: Using crash dump compression: deflate
+[  268.445533] Key type encrypted registered
+[  268.446494] AppArmor: AppArmor sha1 policy hashing enabled
+[  268.465937] rga2 fdeb0000.rk_rga: probe successfully, irq = 89, hw_version:3.2.63318
+[  268.467257] rga: IOMMU binding successfully, default mapping core[0x4]
+[  268.468437] rga: Module initialized. v1.3.7
+[  268.522732] rockchip-iodomain fdc20000.syscon:io-domains: pmuio2(3300000 uV) supplied by vcc_3v3
+[  268.523857] rockchip-iodomain fdc20000.syscon:io-domains: vccio1(3300000 uV) supplied by vccio_acodec
+[  268.524917] rockchip-iodomain fdc20000.syscon:io-domains: vccio2(1800000 uV) supplied by vcc_1v8
+[  268.526049] rockchip-iodomain fdc20000.syscon:io-domains: vccio3(1800000 uV) supplied by vccio_sd
+[  268.527004] rockchip-iodomain fdc20000.syscon:io-domains: vccio4(1800000 uV) supplied by vcc_1v8
+[  268.527921] rockchip-iodomain fdc20000.syscon:io-domains: vccio5(3300000 uV) supplied by vcc_3v3
+[  268.528836] rockchip-iodomain fdc20000.syscon:io-domains: vccio6(3300000 uV) supplied by vcc_3v3
+[  268.529877] rockchip-iodomain fdc20000.syscon:io-domains: vccio7(3300000 uV) supplied by vcc_3v3
+[  268.531311] mpp_rkvenc fdf40000.rkvenc: Adding to iommu group 4
+[  268.532193] mpp_rkvenc fdf40000.rkvenc: probing start
+[  268.533607] mpp_rkvenc fdf40000.rkvenc: bin=0
+[  268.534045] mpp_rkvenc fdf40000.rkvenc: Failed to get leakage
+[  268.534633] mpp_rkvenc fdf40000.rkvenc: pvtm = 91020, from nvmem
+[  268.535191] mpp_rkvenc fdf40000.rkvenc: pvtm-volt-sel=2
+[  268.536306] mpp_rkvenc fdf40000.rkvenc: avs=0
+[  268.537597] mpp_rkvenc fdf40000.rkvenc: using default check_rate_volt
+[  268.538210] mpp_rkvenc fdf40000.rkvenc: l=-2147483648 h=2147483647 hyst=0 l_limit=0 h_limit=0 h_table=0
+[  268.540291] mpp_rkvenc fdf40000.rkvenc: probing finish
+[  268.541395] mpp_vdpu2 fdea0400.vdpu: Adding to iommu group 0
+[  268.542203] mpp_vdpu2 fdea0400.vdpu: probe device
+[  268.543300] mpp_vdpu2 fdea0400.vdpu: probing finish
+[  268.544362] mpp_vepu2 fdee0000.vepu: Adding to iommu group 2
+[  268.545160] mpp_vepu2 fdee0000.vepu: probing start
+[  268.546202] mpp_vepu2 fdee0000.vepu: probing finish
+[  268.547355] mpp-iep2 fdef0000.iep: Adding to iommu group 3
+[  268.548138] mpp-iep2 fdef0000.iep: probe device
+[  268.549524] mpp-iep2 fdef0000.iep: probing finish
+[  268.550665] mpp_jpgdec fded0000.jpegd: Adding to iommu group 1
+[  268.551499] mpp_jpgdec fded0000.jpegd: probe device
+[  268.552557] mpp_jpgdec fded0000.jpegd: probing finish
+[  268.553866] mpp_rkvdec2 fdf80200.rkvdec: Adding to iommu group 5
+[  268.554778] mpp_rkvdec2 fdf80200.rkvdec: rkvdec, probing start
+[  268.555878] mpp_rkvdec2 fdf80200.rkvdec: shared_niu_a is not found!
+[  268.556520] rkvdec2_init:1198: No niu aclk reset resource define
+[  268.557072] mpp_rkvdec2 fdf80200.rkvdec: shared_niu_h is not found!
+[  268.557636] rkvdec2_init:1201: No niu hclk reset resource define
+[  268.558594] mpp_rkvdec2 fdf80200.rkvdec: bin=0
+[  268.559100] mpp_rkvdec2 fdf80200.rkvdec: leakage=58
+[  268.559591] mpp_rkvdec2 fdf80200.rkvdec: leakage-volt-sel=0
+[  268.560147] mpp_rkvdec2 fdf80200.rkvdec: pvtm = 91020, from nvmem
+[  268.560710] mpp_rkvdec2 fdf80200.rkvdec: pvtm-volt-sel=1
+[  268.561822] mpp_rkvdec2 fdf80200.rkvdec: avs=0
+[  268.563150] mpp_rkvdec2 fdf80200.rkvdec: using default check_rate_volt
+[  268.563775] mpp_rkvdec2 fdf80200.rkvdec: l=-2147483648 h=2147483647 hyst=0 l_limit=0 h_limit=0 h_table=0
+[  268.564882] mpp_rkvdec2 fdf80200.rkvdec: sram_start 0x00000000fdcc0000
+[  268.565480] mpp_rkvdec2 fdf80200.rkvdec: rcb_iova 0x0000000010000000
+[  268.566092] mpp_rkvdec2 fdf80200.rkvdec: sram_size 45056
+[  268.566577] mpp_rkvdec2 fdf80200.rkvdec: rcb_size 65536
+[  268.567055] mpp_rkvdec2 fdf80200.rkvdec: min_width 512
+[  268.567636] mpp_rkvdec2 fdf80200.rkvdec: link mode probe finish
+[  268.568281] mpp_rkvdec2 fdf80200.rkvdec: probing finish
+[  268.568760] mpp_rkvdec2 fdf80200.rkvdec: probing finish
+[  268.571166] rockchip-dmc dmc: bin=0
+[  268.571216] mali fde60000.gpu: Kernel DDK version g25p0-00eac0
+[  268.571567] rockchip-dmc dmc: leakage=58
+[  268.572020] mali fde60000.gpu: error -ENXIO: IRQ JOB not found
+[  268.572371] rockchip-dmc dmc: leakage-volt-sel=0
+[  268.573043] mali fde60000.gpu: error -ENXIO: IRQ MMU not found
+[  268.573365] rockchip-dmc dmc: pvtm = 91020, from nvmem
+[  268.573901] mali fde60000.gpu: error -ENXIO: IRQ GPU not found
+[  268.574293] rockchip-dmc dmc: pvtm-volt-sel=1
+[  268.574886] mali fde60000.gpu: Insufficient register space, will override to the required size
+[  268.575184] rockchip-dmc dmc: soc version=0, speed=1
+[  268.575944] mali fde60000.gpu: Register window unavailable
+[  268.576855] mali fde60000.gpu: Failed to map registers
+[  268.577391] mali fde60000.gpu: Register map failed error = -5
+[  268.577455] rockchip-dmc dmc: avs=0
+[  268.577906] mali fde60000.gpu: Device initialization failed
+[  268.578239] rockchip-dmc dmc: current ATF version 0x102
+[  268.578787] mali: probe of fde60000.gpu failed with error -5
+[  268.580790] rockchip-dmc dmc: normal_rate = 780000000
+[  268.581268] rockchip-dmc dmc: reboot_rate = 1056000000
+[  268.581738] rockchip-dmc dmc: suspend_rate = 324000000
+[  268.582206] rockchip-dmc dmc: video_4k_rate = 780000000
+[  268.582717] rockchip-dmc dmc: video_4k_10b_rate = 780000000
+[  268.583227] rockchip-dmc dmc: boost_rate = 1056000000
+[  268.583687] rockchip-dmc dmc: fixed_rate(isp|cif0|cif1|dualview) = 1056000000
+[  268.584326] rockchip-dmc dmc: performance_rate = 1056000000
+[  268.584860] rockchip-dmc dmc: failed to get vop pn to msch rl
+[  268.586367] rockchip-dmc dmc: l=0 h=2147483647 hyst=5000 l_limit=0 h_limit=0 h_table=0
+[  268.597284] WCN: marlin_init entry!
+[  268.599115] cpu cpu0: bin=0
+[  268.599633] cpu cpu0: leakage=33
+[  268.599997] cpu cpu0: pvtm = 91020, from nvmem
+[  268.600423] cpu cpu0: pvtm-volt-sel=3
+[  268.600771] cpu cpu0: soc version=0, speed=3
+[  268.604745] cpu cpu0: avs=0
+[  268.605333] cpu cpu0: l=0 h=2147483647 hyst=5000 l_limit=0 h_limit=0 h_table=0
+[  268.611360] cpu cpu0: EM: created perf domain
+[  268.616427] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+[  268.620318] dwmmc_rockchip fe2b0000.mmc: Successfully tuned phase to 360
+[  268.621393] mmc1: new ultra high speed SDR104 SDXC card at address e624
+[  268.624998] mmcblk1: mmc1:e624 SN64G 59.5 GiB 
+[  268.636302]  mmcblk1: p1
+[  268.657138] cfg80211: Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+[  268.658414] cfg80211: Loaded X.509 cert 'wens: 61c038651aabdcf94bd0ac7ff06c7248db18c600'
+[  268.659277] clk: Disabling unused clocks
+[  268.661629] rockchip-pm rockchip-suspend: not set pwm-regulator-config
+[  268.663280] rockchip-suspend not set sleep-mode-config for mem-lite
+[  268.663855] rockchip-suspend not set wakeup-config for mem-lite
+[  268.664380] rockchip-suspend not set sleep-mode-config for mem-ultra
+[  268.664938] rockchip-suspend not set wakeup-config for mem-ultra
+[  268.667727] ALSA device list:
+[  268.668034]   #0: rockchip-hdmi0
+[  268.668806] dw-apb-uart fe660000.serial: forbid DMA for kernel console
+[  268.681108] Freeing unused kernel memory: 8128K
+[  268.681849] Run /init as init process
+Loading, please wait...
+Starting systemd-udevd version 257.9-1~deb13u1
+
+[?2004l[?2004hroot@(none):/# [  279.784508] platform mtd_vendor_storage: deferred probe pending
+mount -t proc proc /proc; mount -t sysfs sysfs /sys; findmnt /; lss -l /boot/armbianEnv.txt; readlink -f /boot/armbianEnv.txt; cat /boot/armbianEnvv.txt; ls -l /boot/serial-debug-backup-20260929-111237
+[?2004lTARGET SOURCE         FSTYPE OPTIONS
+/      /dev/mmcblk1p1 ext4   ro,relatime
+-rw-r--r-- 1 1016 1016 385 Oct  3  2026 /boot/armbianEnv.txt
+/boot/armbianEnv.txt
+verbosity=4
+bootlogo=false
+console=display
+extraargs=cma=256M
+overlay_prefix=rk3568
+fdtfile=rockchip/rk3566-radxa-zero3.dtb
+rootdev=UUID=34d3c17e-5271-473f-acb6-7f5d55b3bb28
+rootfstype=ext4
+overlays=i2c4-m0 uart2-m0 i2c3-pihat aic3104-i2c3 radxa-zero3-rpi-camera-v2 npu-enable uart4-m1 uart9-m1
+user_overlays=microduck-i2c4-pullup-test
+usbstoragequirks=0x2537:0x1066:u,0x2537:0x1068:u
+total 4
+-rw-r--r-- 1 1016 1016 367 Sep 29  2026 armbianEnv.txt
+lrwxrwxrwx 1 root root   9 Sep 24  2026 serial-getty@ttyS2.service -> /dev/null
+[?2004hroot@(none):/# lsattr /boot/armbianEnv.txt; stat /boot/armbianEnv.txt; tune2fs -ll /dev/mmcblk1p1 | head -25; ls -l /boot/boot.scr /boot/dtb; command -v debugfs;  command -v mkimage; ls -l /var/lib/microduck-observer
+[?2004l--------------e------- /boot/armbianEnv.txt
+  File: /boot/armbianEnv.txt
+  Size: 385       	Blocks: 8          IO Block: 4096   regular file
+Device: 179,1	Inode: 64563       Links: 1
+Access: (0644/-rw-r--r--)  Uid: ( 1016/ UNKNOWN)   Gid: ( 1016/ UNKNOWN)
+Access: 2026-10-03 12:11:56.893333523 +0800
+Modify: 2026-10-03 12:11:56.923333526 +0800
+Change: 2026-10-03 12:11:56.923333526 +0800
+ Birth: 2026-10-03 12:11:56.893333523 +0800
+tune2fs 1.47.2 (1-Jan-2025)
+Filesystem volume name:   armbi_root
+Last mounted on:          /
+Filesystem UUID:          34d3c17e-5271-473f-acb6-7f5d55b3bb28
+Filesystem magic number:  0xEF53
+Filesystem revision #:    1 (dynamic)
+Filesystem features:      has_journal ext_attr resize_inode dir_index filetype extent 64bit flex_bg sparse_super large_file huge_file dir_nlink extra_isize metadata_csum
+Filesystem flags:         unsigned_directory_hash 
+Default mount options:    journal_data_writeback user_xattr acl
+Filesystem state:         clean
+Errors behavior:          Continue
+Filesystem OS type:       Linux
+Inode count:              3692640
+Block count:              15429632
+Reserved block count:     159652
+Overhead clusters:        251717
+Free blocks:              13722924
+Free inodes:              3605691
+First block:              0
+Block size:               4096
+Fragment size:            4096
+Group descriptor size:    64
+Reserved GDT blocks:      268
+Blocks per group:         32768
+Fragments per group:      32768
+-rw-rw-r-- 1 root root 4149 Feb  9  2026 /boot/boot.scr
+lrwxrwxrwx 1 root root   25 Feb  9  2026 /boot/dtb -> dtb-6.1.115-vendor-rk35xx
+/sbin/debugfs
+/bin/mkimage
+total 44
+-rw------- 1 radxa radxa   553 Sep 25  2026 calibration.before-20260925-restore.json
+-rw------- 1 radxa radxa   553 Sep 25  2026 calibration.before-v08.json
+-rw------- 1 radxa radxa   767 Oct  3  2026 calibration.json
+-rw------- 1 radxa radxa   553 Sep 25  2026 calibration.pre-tof-20260929.json
+-rw------- 1 radxa radxa   767 Oct  3  2026 calibration.previous.json
+-rw-r--r-- 1 radxa radxa 22205 Oct  3  2026 policy-failure-latest.json
+[?2004hroot@(none):/# mount -o remount,rw / && mkdir -p /root/ttl-recovery-20261003 && ccp -a /boot/armbianEnv.txt /root/ttl-recovery-20261003/armbianEnv.original && cp  -a /var/lib/microduck-observer/calibration*.json /root/ttl-recovery-20261003/ &&& cp /boot/armbianEnv.txt /boot/armbianEnv.ttl-new && chmod 644 /boot/armbianEnv..ttl-new && chown root:root /boot/armbianEnv.ttl-new && mv /boot/armbianEnv.ttl-nnew /boot/armbianEnv.txt && sha256sum /boot/armbianEnv.txt /root/ttl-recovery-202261003/armbianEnv.original
+[?2004l[  323.385180] EXT4-fs (mmcblk1p1): re-mounted. Quota mode: none.
+d8f1e25f385eec671a9eec85af067228f823dc30eb9ff640111ccf09bebf272a  /boot/armbianEnv.txt
+d8f1e25f385eec671a9eec85af067228f823dc30eb9ff640111ccf09bebf272a  /root/ttl-recovery-20261003/armbianEnv.original
+[?2004hroot@(none):/# sed -i "s/^console=.*/console=serial/; s/^extraargs=.*/extraargs=ccma=256M init=\/bin\/bash/" /boot/armbianEnv.txt; sync; cat /boot/armbianEnv.txt [Acma=256M init=\/bin\/bash/" /boot/armbianEnv.txt; sync; cat /boot/armbianEnv.tx[Kt
+[?2004lverbosity=4
+bootlogo=false
+console=serial
+extraargs=cma=256M init=/bin/bash
+overlay_prefix=rk3568
+fdtfile=rockchip/rk3566-radxa-zero3.dtb
+rootdev=UUID=34d3c17e-5271-473f-acb6-7f5d55b3bb28
+rootfstype=ext4
+overlays=i2c4-m0 uart2-m0 i2c3-pihat aic3104-i2c3 radxa-zero3-rpi-camera-v2 npu-enable uart4-m1 uart9-m1
+user_overlays=microduck-i2c4-pullup-test
+usbstoragequirks=0x2537:0x1066:u,0x2537:0x1068:u
+[?2004hroot@(none):/# mount -o remount,ro /; reboot -f
+[?2004l[  339.986232] EXT4-fs (mmcblk1p1): re-mounted. Quota mode: none.
+Rebooting.
+[  340.166280] kvm: exiting hardware virtualization
+[  340.236383] Set signal voltage to initial state
+[  340.236895] mpp_rkvdec2 fdf80200.rkvdec: shutdown device
+[  340.237381] mpp_rkvdec2 fdf80200.rkvdec: shutdown success
+[  340.237881] mpp_jpgdec fded0000.jpegd: shutdown device
+[  340.238346] mpp_jpgdec fded0000.jpegd: shutdown success
+[  340.238826] mpp-iep2 fdef0000.iep: shutdown device
+[  340.239259] mpp-iep2 fdef0000.iep: shutdown success
+[  340.239757] mpp_vepu2 fdee0000.vepu: shutdown device
+[  340.240211] mpp_vepu2 fdee0000.vepu: shutdown success
+[  340.240678] mpp_vdpu2 fdea0400.vdpu: shutdown device
+[  340.241128] mpp_vdpu2 fdea0400.vdpu: shutdown success
+[  340.241597] mpp_rkvenc fdf40000.rkvenc: shutdown device
+[  340.242069] mpp_rkvenc fdf40000.rkvenc: shutdown success
+[  340.242906] fan53555-regulator 0-0040: fan53555..... reset
+[  340.244550] fan53555-regulator 0-0040: reset: force fan53555_reset ok!
+[  340.246164] [WLAN_RFKILL]: Enter rfkill_wlan_shutdown
+[  340.246635] [WLAN_RFKILL]: rockchip_wifi_power: 0
+[  340.247062] [WLAN_RFKILL]: rockchip_wifi_power: toggle = false
+[  340.247585] wifi power off
+[  340.352741] [WLAN_RFKILL]: rockchip_wifi_power: toggle = false
+[  340.353277] [WLAN_RFKILL]: wifi shut off power [GPIO16-0]
+[  340.353763] [WLAN_RFKILL]: rfkill_set_wifi_bt_power: 0
+[  340.366436] rga2 fdeb0000.rk_rga: shutdown success
+[  340.367202] xhci-hcd xhci-hcd.4.auto: remove, state 4
+[  340.367683] usb usb3: USB disconnect, device number 1
+[  340.369412] xhci-hcd xhci-hcd.4.auto: USB bus 3 deregistered
+[  340.369968] xhci-hcd xhci-hcd.4.auto: remove, state 4
+[  340.370438] usb usb1: USB disconnect, device number 1
+[  340.372391] xhci-hcd xhci-hcd.4.auto: USB bus 1 deregistered
+[  340.378405] reboot: Restarting system
+DDR 2d653b3476 typ 24/01/20-15:04:19,fwver: v1.21
+ln
+LP4/4x derate en, other dram:1x trefi
+SRX
+ddrconfig:7
+LPDDR4, 324MHz
+BW=32 Col=10 Bk=8 CS0 Row=15 CS1 Row=15 CS=2 Die BW=16 Size=2048MB
+tdqss: cs0 dqs0: 72ps, dqs1: -48ps, dqs2: 48ps, dqs3: -24ps, 
+tdqss: cs1 dqs0: 72ps, dqs1: -24ps, dqs2: 24ps, dqs3: -24ps, 
+
+change to: 324MHz
+PHY drv:clk:38,ca:38,DQ:30,odt:0
+vrefinner:41%, vrefout:41%
+dram drv:40,odt:0
+clk skew:0x60
+rx vref: 41.9%
+tx vref: 38.0%
+
+change to: 528MHz
+PHY drv:clk:38,ca:38,DQ:30,odt:0
+vrefinner:41%, vrefout:41%
+dram drv:40,odt:0
+clk skew:0x58
+rx vref: 47.9%
+tx vref: 38.0%
+
+change to: 780MHz
+PHY drv:clk:38,ca:38,DQ:30,odt:60
+vrefinner:16%, vrefout:41%
+dram drv:40,odt:0
+clk skew:0x58
+rx vref: 16.4%
+tx vref: 38.0%
+
+change to: 1056MHz(final freq)
+PHY drv:clk:38,ca:38,DQ:30,odt:60
+vrefinner:16%, vrefout:29%
+dram drv:40,odt:80
+vref_ca:00000068
+clk skew:0x18
+rx vref: 17.4%
+tx vref: 35.0%
+cs 0:
+the read training result:
+DQS0:0x39, DQS1:0x38, DQS2:0x37, DQS3:0x37, 
+min  : 0xb  0xb  0xa  0xa  0x1  0x3  0xa  0x5 , 0x8  0x7  0x2  0x1  0x7  0xa  0xe  0xa ,
+       0x6  0x4  0x3  0x3  0x1  0x2  0x6  0x7 , 0x5  0x6  0x4  0x1  0x4  0x6  0x2  0x5 ,
+mid  :0x27 0x27 0x27 0x25 0x1d 0x1f 0x25 0x1f ,0x23 0x22 0x1d 0x1c 0x23 0x26 0x28 0x24 ,
+      0x22 0x21 0x1f 0x1f 0x1d 0x1f 0x21 0x22 ,0x20 0x20 0x1e 0x1b 0x1f 0x21 0x1f 0x1f ,
+max  :0x43 0x43 0x44 0x40 0x3a 0x3c 0x41 0x3a ,0x3e 0x3e 0x38 0x38 0x3f 0x42 0x42 0x3e ,
+      0x3f 0x3f 0x3c 0x3c 0x39 0x3c 0x3d 0x3e ,0x3b 0x3b 0x39 0x36 0x3a 0x3c 0x3c 0x39 ,
+range:0x38 0x38 0x3a 0x36 0x39 0x39 0x37 0x35 ,0x36 0x37 0x36 0x37 0x38 0x38 0x34 0x34 ,
+      0x39 0x3b 0x39 0x39 0x38 0x3a 0x37 0x37 ,0x36 0x35 0x35 0x35 0x36 0x36 0x3a 0x34 ,
+the write training result:
+DQS0:0x21, DQS1:0x15, DQS2:0x1b, DQS3:0x15, 
+min  :0x59 0x5a 0x5a 0x58 0x50 0x53 0x57 0x52 0x57 ,0x4b 0x4a 0x48 0x47 0x4b 0x4e 0x50 0x4d 0x4e ,
+      0x51 0x51 0x4e 0x50 0x4e 0x4f 0x50 0x51 0x4e ,0x4a 0x4b 0x49 0x48 0x49 0x4b 0x48 0x49 0x4b ,
+mid  :0x76 0x76 0x77 0x74 0x6c 0x6e 0x73 0x6d 0x71 ,0x66 0x66 0x60 0x5f 0x68 0x69 0x69 0x67 0x68 ,
+      0x6d 0x6d 0x6a 0x6c 0x69 0x6a 0x6b 0x6c 0x6a ,0x63 0x63 0x62 0x60 0x62 0x63 0x62 0x62 0x67 ,
+max  :0x93 0x93 0x94 0x90 0x88 0x89 0x8f 0x88 0x8c ,0x82 0x82 0x78 0x78 0x85 0x84 0x83 0x82 0x83 ,
+      0x89 0x89 0x87 0x89 0x84 0x86 0x87 0x87 0x86 ,0x7c 0x7b 0x7c 0x78 0x7b 0x7c 0x7c 0x7b 0x84 ,
+range:0x3a 0x39 0x3a 0x38 0x38 0x36 0x38 0x36 0x35 ,0x37 0x38 0x30 0x31 0x3a 0x36 0x33 0x35 0x35 ,
+      0x38 0x38 0x39 0x39 0x36 0x37 0x37 0x36 0x38 ,0x32 0x30 0x33 0x30 0x32 0x31 0x34 0x32 0x39 ,
+cs 1:
+the read training result:
+DQS0:0x39, DQS1:0x38, DQS2:0x37, DQS3:0x37, 
+min  : 0xb  0xb  0xa  0xa  0x1  0x3  0xa  0x5 , 0x8  0x7  0x2  0x1  0x7  0xa  0xe  0xa ,
+       0x6  0x4  0x3  0x3  0x1  0x2  0x6  0x7 , 0x5  0x6  0x4  0x1  0x4  0x6  0x2  0x5 ,
+mid  :0x27 0x27 0x27 0x25 0x1d 0x1f 0x25 0x1f ,0x23 0x22 0x1d 0x1c 0x23 0x26 0x28 0x24 ,
+      0x22 0x21 0x1f 0x1f 0x1d 0x1f 0x21 0x22 ,0x20 0x20 0x1e 0x1b 0x1f 0x21 0x1f 0x1f ,
+max  :0x43 0x43 0x44 0x40 0x3a 0x3c 0x41 0x3a ,0x3e 0x3e 0x38 0x38 0x3f 0x42 0x42 0x3e ,
+      0x3f 0x3f 0x3c 0x3c 0x39 0x3c 0x3d 0x3e ,0x3b 0x3b 0x39 0x36 0x3a 0x3c 0x3c 0x39 ,
+range:0x38 0x38 0x3a 0x36 0x39 0x39 0x37 0x35 ,0x36 0x37 0x36 0x37 0x38 0x38 0x34 0x34 ,
+      0x39 0x3b 0x39 0x39 0x38 0x3a 0x37 0x37 ,0x36 0x35 0x35 0x35 0x36 0x36 0x3a 0x34 ,
+the write training result:
+DQS0:0x21, DQS1:0x15, DQS2:0x1b, DQS3:0x15, 
+min  :0x59 0x5a 0x5a 0x58 0x50 0x53 0x57 0x52 0x57 ,0x4b 0x4a 0x48 0x47 0x4b 0x4e 0x50 0x4d 0x4e ,
+      0x51 0x51 0x4e 0x50 0x4e 0x4f 0x50 0x51 0x4e ,0x4a 0x4b 0x49 0x48 0x49 0x4b 0x48 0x49 0x4b ,
+mid  :0x76 0x76 0x77 0x74 0x6c 0x6e 0x73 0x6d 0x71 ,0x66 0x66 0x60 0x5f 0x68 0x69 0x69 0x67 0x68 ,
+      0x6d 0x6d 0x6a 0x6c 0x69 0x6a 0x6b 0x6c 0x6a ,0x63 0x63 0x62 0x60 0x62 0x63 0x62 0x62 0x67 ,
+max  :0x93 0x93 0x94 0x90 0x88 0x89 0x8f 0x88 0x8c ,0x82 0x82 0x78 0x78 0x85 0x84 0x83 0x82 0x83 ,
+      0x89 0x89 0x87 0x89 0x84 0x86 0x87 0x87 0x86 ,0x7c 0x7b 0x7c 0x78 0x7b 0x7c 0x7c 0x7b 0x84 ,
+range:0x3a 0x39 0x3a 0x38 0x38 0x36 0x38 0x36 0x35 ,0x37 0x38 0x30 0x31 0x3a 0x36 0x33 0x35 0x35 ,
+      0x38 0x38 0x39 0x39 0x36 0x37 0x37 0x36 0x38 ,0x32 0x30 0x33 0x30 0x32 0x31 0x34 0x32 0x39 ,
+CA Training result:
+cs:0 min  :0x4d 0x47 0x46 0x3b 0x46 0x3a 0x46 ,0x52 0x43 0x46 0x36 0x43 0x36 0x45 ,
+cs:0 mid  :0x89 0x8a 0x81 0x7d 0x7f 0x7e 0x70 ,0x8a 0x88 0x7f 0x7a 0x7e 0x7b 0x70 ,
+cs:0 max  :0xc6 0xce 0xbd 0xc0 0xb9 0xc2 0x9a ,0xc3 0xce 0xb9 0xbe 0xb9 0xc1 0x9c ,
+cs:0 range:0x79 0x87 0x77 0x85 0x73 0x88 0x54 ,0x71 0x8b 0x73 0x88 0x76 0x8b 0x57 ,
+cs:1 min  :0x52 0x49 0x48 0x3f 0x47 0x3e 0x43 ,0x51 0x44 0x46 0x35 0x46 0x38 0x42 ,
+cs:1 mid  :0x8d 0x8c 0x84 0x82 0x82 0x82 0x72 ,0x8b 0x88 0x80 0x79 0x80 0x7c 0x6f ,
+cs:1 max  :0xc8 0xd0 0xc1 0xc5 0xbd 0xc7 0xa2 ,0xc5 0xcc 0xbb 0xbe 0xba 0xc0 0x9d ,
+cs:1 range:0x76 0x87 0x79 0x86 0x76 0x89 0x5f ,0x74 0x88 0x75 0x89 0x74 0x88 0x5b ,
+out
+
+U-Boot SPL 2025.10_armbian-2025.10-Se50b-P0727-H8cb3-V2660-B2eb2-R448a (Feb 07 2026 - 03:49:58 +0000)
+Trying to boot from MMC2
+## Checking hash(es) for config config-1 ... OK
+## Checking hash(es) for Image atf-1 ... sha256+ OK
+## Checking hash(es) for Image u-boot ... sha256+ OK
+## Checking hash(es) for Image fdt-1 ... sha256+ OK
+## Checking hash(es) for Image atf-2 ... sha256+ OK
+## Checking hash(es) for Image atf-3 ... sha256+ OK
+## Checking hash(es) for Image atf-4 ... sha256+ OK
+## Checking hash(es) for Image atf-5 ... sha256+ OK
+## Checking hash(es) for Image atf-6 ... sha256+ OK
+INFO:    Preloader serial: 2
+NOTICE:  BL31: v2.3():v2.3-645-g8cea6ab0b:cl, fwver: v1.44
+NOTICE:  BL31: Built : 16:36:43, Sep 19 2023
+INFO:    GICv3 without legacy support detected.
+INFO:    ARM GICv3 driver initialized in EL3
+INFO:    pmu v1 is valid 220114
+INFO:    l3 cache partition cfg-0
+INFO:    dfs DDR fsp_param[0].freq_mhz= 1056MHz
+INFO:    dfs DDR fsp_param[1].freq_mhz= 324MHz
+INFO:    dfs DDR fsp_param[2].freq_mhz= 528MHz
+INFO:    dfs DDR fsp_param[3].freq_mhz= 780MHz
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 0
+INFO:    BL31: Initializing runtime services
+WARNING: No OPTEE provided by BL2 boot loader, Booting device without OPTEE initialization. SMC`s destined for OPTEE will return SMC_UNK
+ERROR:   Error initializing runtime service opteed_fast
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0xa00000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2025.10_armbian-2025.10-Se50b-P0727-H8cb3-V2660-B2eb2-R448a (Feb 07 2026 - 03:49:58 +0000)
+
+Model: Radxa ZERO 3W
+SoC:   RK3566
+DRAM:  2 GiB
+PMIC:  RK817 (on=0x40, off=0x00)
+Core:  299 devices, 28 uclasses, devicetree: separate
+MMC:   mmc@fe2b0000: 1, mmc@fe2c0000: 2, mmc@fe310000: 0
+Loading Environment from nowhere... OK
+In:    serial@fe660000
+Out:   serial@fe660000
+Err:   serial@fe660000
+Model: Radxa ZERO 3W
+SoC:   RK3566
+Net:   No ethernet found.
+Hit any key to stop autoboot:  0 
+Scanning for bootflows in all bootdevs
+Seq  Method       State   Uclass    Part  Name                      Filename
+---  -----------  ------  --------  ----  ------------------------  ----------------
+Scanning global bootmeth 'efi_mgr':
+7[r[999;999H[6n8Card did not respond to voltage select! : -110
+Card did not respond to voltage select! : -110
+Cannot persist EFI variables without system partition
+  0  efi_mgr      ready   (none)       0  <NULL>                    
+** Booting bootflow '<NULL>' with efi_mgr
+Loading Boot0000 'mmc 1' failed
+EFI boot manager: Cannot load any image
+Boot failed (err=-14)
+Scanning bootdev 'mmc@fe2b0000.bootdev':
+  1  script       ready   mmc          1  mmc@fe2b0000.bootdev.part /boot/boot.scr
+** Booting bootflow 'mmc@fe2b0000.bootdev.part_1' with script
+Boot script loaded from mmc 1:1
+399 bytes read in 3 ms (129.9 KiB/s)
+15612480 bytes read in 1297 ms (11.5 MiB/s)
+47405568 bytes read in 3927 ms (11.5 MiB/s)
+161122 bytes read in 36 ms (4.3 MiB/s)
+Working FDT set to 12000000
+955 bytes read in 60 ms (14.6 KiB/s)
+Applying kernel provided DT overlay rk3568-i2c4-m0.dtbo
+818 bytes read in 44 ms (17.6 KiB/s)
+Applying kernel provided DT overlay rk3568-uart2-m0.dtbo
+605 bytes read in 65 ms (8.8 KiB/s)
+Applying kernel provided DT overlay rk3568-i2c3-pihat.dtbo
+1838 bytes read in 47 ms (38.1 KiB/s)
+Applying kernel provided DT overlay rk3568-aic3104-i2c3.dtbo
+3947 bytes read in 40 ms (95.7 KiB/s)
+Applying kernel provided DT overlay rk3568-radxa-zero3-rpi-camera-v2.dtbo
+409 bytes read in 55 ms (6.8 KiB/s)
+Applying kernel provided DT overlay rk3568-npu-enable.dtbo
+657 bytes read in 23 ms (27.3 KiB/s)
+Applying kernel provided DT overlay rk3568-uart4-m1.dtbo
+845 bytes read in 44 ms (18.6 KiB/s)
+Applying kernel provided DT overlay rk3568-uart9-m1.dtbo
+374 bytes read in 5 ms (72.3 KiB/s)
+Applying user provided DT overlay microduck-i2c4-pullup-test.dtbo
+Trying kaslrseed command... Info: Unknown command can be safely ignored since kaslrseed does not apply to all boards.
+Unknown command 'kaslrseed' - try 'help'
+## Loading init Ramdisk from Legacy Image at 12180000 ...
+   Image Name:   uInitrd
+   Image Type:   AArch64 Linux RAMDisk Image (gzip compressed)
+   Data Size:    15612416 Bytes = 14.9 MiB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+## Flattened Device Tree blob at 12000000
+   Booting using the fdt blob at 0x12000000
+Working FDT set to 12000000
+   Loading Ramdisk to 7bd1c000, end 7cbffa00 ... OK
+   Loading Device Tree to 000000007ce30000, end 000000007cebffff ... OK
+Working FDT set to 7ce30000
+
+Starting kernel ...
+
+[    8.361030] OF: fdt: Reserved memory: failed to reserve memory for node 'drm-logo@0': base 0x0000000000000000, size 0 MiB
+[    8.361059] OF: fdt: Reserved memory: failed to reserve memory for node 'drm-cubic-lut@0': base 0x0000000000000000, size 0 MiB
+[   10.434821] arm-scmi firmware:scmi: Failed. SCMI protocol 22 not active.
+[   10.476553] rockchip-vop2 fe040000.vop: error -ENODEV: _opp_set_regulators: no regulator (vop) found
+[   10.477439] rockchip-vop2 fe040000.vop: failed to set opp config
+[   10.478078] rockchip-vop2 fe040000.vop: failed to init opp info
+[   10.480784] dwhdmi-rockchip fe0a0000.hdmi: error -ENXIO: IRQ index 1 not found
+[   10.757159] rk817-battery rk817-battery: Failed to find matching dt id
+[   10.758171] rk817-charger rk817-charger: Failed to find matching dt id
+[   10.781797] imx219 2-0010: Error -5 setting default controls
+[   10.786848] rkcifhw fdfe0000.rkcif: can't request region for resource [mem 0xfdfe0000-0xfdfe7fff]
+[   10.793075] rkisp_hw fdff0000.rkisp: can't request region for resource [mem 0xfdff0000-0xfdffffff]
+[   10.814933] arm-scmi firmware:scmi: Failed. SCMI protocol 17 not active.
+[   11.081232] mpp_rkvenc fdf40000.rkvenc: Failed to get leakage
+[   11.093276] mpp_rkvdec2 fdf80200.rkvdec: shared_niu_a is not found!
+[   11.093861] rkvdec2_init:1198: No niu aclk reset resource define
+[   11.094494] mpp_rkvdec2 fdf80200.rkvdec: shared_niu_h is not found!
+[   11.095061] rkvdec2_init:1201: No niu hclk reset resource define
+[   11.100385] mali fde60000.gpu: error -ENXIO: IRQ JOB not found
+[   11.101135] mali fde60000.gpu: error -ENXIO: IRQ MMU not found
+[   11.101748] mali fde60000.gpu: error -ENXIO: IRQ GPU not found
+[   11.102354] mali fde60000.gpu: Insufficient register space, will override to the required size
+[   11.103131] mali fde60000.gpu: Register window unavailable
+[   11.103622] mali fde60000.gpu: Failed to map registers
+[   11.103631] mali fde60000.gpu: Register map failed error = -5
+[   11.104640] mali fde60000.gpu: Device initialization failed
+[   11.105879] rockchip-dmc dmc: failed to get vop pn to msch rl
+[   11.137297] RKNPU fde40000.npu: error -ENXIO: IRQ npu_irq not found
+[   11.185905] rkisp-vir0: update sensor failed
+Loading, please wait...
+Starting systemd-udevd version 257.9-1~deb13u1
+
+Begin: Loading essential drivers ... done.
+Begin: Running /scripts/init-premount ... done.
+Begin: Mounting root file system ... Begin: Running /scripts/local-top ... done.
+Begin: Running /scripts/local-premount ... Scanning for Btrfs filesystems
+done.
+Begin: Will now check root file system ... fsck from util-linux 2.41
+[/sbin/fsck.ext4 (1) -- /dev/mmcblk1p1] fsck.ext4 -a -C0 /dev/mmcblk1p1 
+armbi_root: clean, 86956/3692640 files, 1706715/15429632 blocks
+done.
+done.
+Begin: Running /scripts/local-bottom ... done.
+Begin: Running /scripts/init-bottom ... done.
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+[?2004hroot@(none):/# 
+[?2004l[?2004hroot@(none):/# mount -o remount,rw / && cp /root/ttl-recovery-20261003/armbianEnvv.original /boot/armbianEnv.ttl-final && chown root:root /boot/armbianEnv.ttl-finnal && chmod 644 /boot/armbianEnv.ttl-final && mv /boot/armbianEnv.ttl-final /booot/armbianEnv.txt && sha256sum /boot/armbianEnv.txt /root/ttl-recovery-20261003/aarmbianEnv.original && sync && mount -o remount,ro / && reboot -f
+[?2004ld8f1e25f385eec671a9eec85af067228f823dc30eb9ff640111ccf09bebf272a  /boot/armbianEnv.txt
+d8f1e25f385eec671a9eec85af067228f823dc30eb9ff640111ccf09bebf272a  /root/ttl-recovery-20261003/armbianEnv.original
+Rebooting.
+[   48.279913] reboot: Restarting system
+DDR 2d653b3476 typ 24/01/20-15:04:19,fwver: v1.21
+ln
+LP4/4x derate en, other dram:1x trefi
+SRX
+ddrconfig:7
+LPDDR4, 324MHz
+BW=32 Col=10 Bk=8 CS0 Row=15 CS1 Row=15 CS=2 Die BW=16 Size=2048MB
+tdqss: cs0 dqs0: 72ps, dqs1: -48ps, dqs2: 48ps, dqs3: 0ps, 
+tdqss: cs1 dqs0: 96ps, dqs1: -24ps, dqs2: 24ps, dqs3: -48ps, 
+
+change to: 324MHz
+PHY drv:clk:38,ca:38,DQ:30,odt:0
+vrefinner:41%, vrefout:41%
+dram drv:40,odt:0
+clk skew:0x60
+rx vref: 43.9%
+tx vref: 38.0%
+
+change to: 528MHz
+PHY drv:clk:38,ca:38,DQ:30,odt:0
+vrefinner:41%, vrefout:41%
+dram drv:40,odt:0
+clk skew:0x58
+rx vref: 47.9%
+tx vref: 38.0%
+
+change to: 780MHz
+PHY drv:clk:38,ca:38,DQ:30,odt:60
+vrefinner:16%, vrefout:41%
+dram drv:40,odt:0
+clk skew:0x58
+rx vref: 16.4%
+tx vref: 38.0%
+
+change to: 1056MHz(final freq)
+PHY drv:clk:38,ca:38,DQ:30,odt:60
+vrefinner:16%, vrefout:29%
+dram drv:40,odt:80
+vref_ca:00000068
+clk skew:0x18
+rx vref: 17.4%
+tx vref: 35.0%
+cs 0:
+the read training result:
+DQS0:0x39, DQS1:0x38, DQS2:0x37, DQS3:0x37, 
+min  : 0xb  0xc  0xa  0x9  0x1  0x3  0xa  0x5 , 0x8  0x7  0x3  0x1  0x7  0xa  0xe  0xa ,
+       0x6  0x4  0x3  0x2  0x1  0x2  0x6  0x7 , 0x5  0x6  0x4  0x1  0x4  0x6  0x2  0x5 ,
+mid  :0x27 0x28 0x27 0x24 0x1d 0x1f 0x26 0x1f ,0x23 0x22 0x1d 0x1c 0x23 0x26 0x28 0x24 ,
+      0x22 0x21 0x1f 0x1f 0x1d 0x1f 0x21 0x22 ,0x20 0x20 0x1e 0x1b 0x1f 0x21 0x1f 0x1f ,
+max  :0x43 0x44 0x44 0x40 0x3a 0x3c 0x42 0x3a ,0x3e 0x3e 0x38 0x38 0x3f 0x42 0x42 0x3e ,
+      0x3f 0x3f 0x3c 0x3c 0x39 0x3c 0x3d 0x3d ,0x3b 0x3b 0x39 0x36 0x3a 0x3c 0x3c 0x39 ,
+range:0x38 0x38 0x3a 0x37 0x39 0x39 0x38 0x35 ,0x36 0x37 0x35 0x37 0x38 0x38 0x34 0x34 ,
+      0x39 0x3b 0x39 0x3a 0x38 0x3a 0x37 0x36 ,0x36 0x35 0x35 0x35 0x36 0x36 0x3a 0x34 ,
+the write training result:
+DQS0:0x24, DQS1:0x15, DQS2:0x1b, DQS3:0x12, 
+min  :0x5c 0x5d 0x5d 0x5a 0x53 0x56 0x59 0x55 0x58 ,0x4b 0x4a 0x48 0x48 0x4b 0x4e 0x50 0x4d 0x4e ,
+      0x50 0x51 0x4e 0x50 0x4e 0x4f 0x50 0x51 0x4e ,0x47 0x48 0x47 0x45 0x47 0x48 0x46 0x46 0x48 ,
+mid  :0x78 0x79 0x79 0x77 0x6f 0x71 0x75 0x70 0x73 ,0x66 0x66 0x60 0x60 0x68 0x69 0x6a 0x67 0x68 ,
+      0x6c 0x6d 0x6a 0x6c 0x69 0x6a 0x6b 0x6c 0x69 ,0x60 0x60 0x5f 0x5d 0x5f 0x60 0x5f 0x5f 0x64 ,
+max  :0x95 0x96 0x96 0x94 0x8b 0x8d 0x91 0x8b 0x8f ,0x82 0x82 0x78 0x79 0x85 0x84 0x84 0x82 0x83 ,
+      0x89 0x89 0x87 0x88 0x84 0x85 0x87 0x87 0x85 ,0x79 0x78 0x78 0x75 0x78 0x79 0x79 0x78 0x81 ,
+range:0x39 0x39 0x39 0x3a 0x38 0x37 0x38 0x36 0x37 ,0x37 0x38 0x30 0x31 0x3a 0x36 0x34 0x35 0x35 ,
+      0x39 0x38 0x39 0x38 0x36 0x36 0x37 0x36 0x37 ,0x32 0x30 0x31 0x30 0x31 0x31 0x33 0x32 0x39 ,
+cs 1:
+the read training result:
+DQS0:0x39, DQS1:0x38, DQS2:0x37, DQS3:0x37, 
+min  : 0xb  0xc  0xa  0x9  0x1  0x3  0xa  0x5 , 0x8  0x7  0x3  0x1  0x7  0xa  0xe  0xa ,
+       0x6  0x4  0x3  0x2  0x1  0x2  0x6  0x7 , 0x5  0x6  0x4  0x1  0x4  0x6  0x2  0x5 ,
+mid  :0x27 0x28 0x27 0x24 0x1d 0x1f 0x26 0x1f ,0x23 0x22 0x1d 0x1c 0x23 0x26 0x28 0x24 ,
+      0x22 0x21 0x1f 0x1f 0x1d 0x1f 0x21 0x22 ,0x20 0x20 0x1e 0x1b 0x1f 0x21 0x1f 0x1f ,
+max  :0x43 0x44 0x44 0x40 0x3a 0x3c 0x42 0x3a ,0x3e 0x3e 0x38 0x38 0x3f 0x42 0x42 0x3e ,
+      0x3f 0x3f 0x3c 0x3c 0x39 0x3c 0x3d 0x3d ,0x3b 0x3b 0x39 0x36 0x3a 0x3c 0x3c 0x39 ,
+range:0x38 0x38 0x3a 0x37 0x39 0x39 0x38 0x35 ,0x36 0x37 0x35 0x37 0x38 0x38 0x34 0x34 ,
+      0x39 0x3b 0x39 0x3a 0x38 0x3a 0x37 0x36 ,0x36 0x35 0x35 0x35 0x36 0x36 0x3a 0x34 ,
+the write training result:
+DQS0:0x24, DQS1:0x15, DQS2:0x1b, DQS3:0x12, 
+min  :0x5c 0x5d 0x5d 0x5a 0x53 0x56 0x59 0x55 0x58 ,0x4b 0x4a 0x48 0x48 0x4b 0x4e 0x50 0x4d 0x4e ,
+      0x50 0x51 0x4e 0x50 0x4e 0x4f 0x50 0x51 0x4e ,0x47 0x48 0x47 0x45 0x47 0x48 0x46 0x46 0x48 ,
+mid  :0x78 0x79 0x79 0x77 0x6f 0x71 0x75 0x70 0x73 ,0x66 0x66 0x60 0x60 0x68 0x69 0x6a 0x67 0x68 ,
+      0x6c 0x6d 0x6a 0x6c 0x69 0x6a 0x6b 0x6c 0x69 ,0x60 0x60 0x5f 0x5d 0x5f 0x60 0x5f 0x5f 0x64 ,
+max  :0x95 0x96 0x96 0x94 0x8b 0x8d 0x91 0x8b 0x8f ,0x82 0x82 0x78 0x79 0x85 0x84 0x84 0x82 0x83 ,
+      0x89 0x89 0x87 0x88 0x84 0x85 0x87 0x87 0x85 ,0x79 0x78 0x78 0x75 0x78 0x79 0x79 0x78 0x81 ,
+range:0x39 0x39 0x39 0x3a 0x38 0x37 0x38 0x36 0x37 ,0x37 0x38 0x30 0x31 0x3a 0x36 0x34 0x35 0x35 ,
+      0x39 0x38 0x39 0x38 0x36 0x36 0x37 0x36 0x37 ,0x32 0x30 0x31 0x30 0x31 0x31 0x33 0x32 0x39 ,
+CA Training result:
+cs:0 min  :0x4d 0x47 0x46 0x3b 0x46 0x39 0x46 ,0x51 0x43 0x46 0x35 0x43 0x36 0x46 ,
+cs:0 mid  :0x8a 0x8a 0x81 0x7d 0x7f 0x7d 0x70 ,0x8a 0x88 0x7f 0x79 0x7e 0x7b 0x70 ,
+cs:0 max  :0xc7 0xce 0xbd 0xc0 0xb9 0xc2 0x9a ,0xc4 0xce 0xb9 0xbe 0xb9 0xc1 0x9b ,
+cs:0 range:0x7a 0x87 0x77 0x85 0x73 0x89 0x54 ,0x73 0x8b 0x73 0x89 0x76 0x8b 0x55 ,
+cs:1 min  :0x52 0x49 0x48 0x3f 0x48 0x3e 0x43 ,0x51 0x44 0x46 0x35 0x46 0x38 0x42 ,
+cs:1 mid  :0x8d 0x8c 0x84 0x82 0x82 0x82 0x72 ,0x8b 0x88 0x80 0x79 0x80 0x7c 0x6f ,
+cs:1 max  :0xc8 0xd0 0xc1 0xc5 0xbd 0xc6 0xa2 ,0xc5 0xcc 0xbb 0xbe 0xba 0xc0 0x9d ,
+cs:1 range:0x76 0x87 0x79 0x86 0x75 0x88 0x5f ,0x74 0x88 0x75 0x89 0x74 0x88 0x5b ,
+out
+
+U-Boot SPL 2025.10_armbian-2025.10-Se50b-P0727-H8cb3-V2660-B2eb2-R448a (Feb 07 2026 - 03:49:58 +0000)
+Trying to boot from MMC2
+## Checking hash(es) for config config-1 ... OK
+## Checking hash(es) for Image atf-1 ... sha256+ OK
+## Checking hash(es) for Image u-boot ... sha256+ OK
+## Checking hash(es) for Image fdt-1 ... sha256+ OK
+## Checking hash(es) for Image atf-2 ... sha256+ OK
+## Checking hash(es) for Image atf-3 ... sha256+ OK
+## Checking hash(es) for Image atf-4 ... sha256+ OK
+## Checking hash(es) for Image atf-5 ... sha256+ OK
+## Checking hash(es) for Image atf-6 ... sha256+ OK
+INFO:    Preloader serial: 2
+NOTICE:  BL31: v2.3():v2.3-645-g8cea6ab0b:cl, fwver: v1.44
+NOTICE:  BL31: Built : 16:36:43, Sep 19 2023
+INFO:    GICv3 without legacy support detected.
+INFO:    ARM GICv3 driver initialized in EL3
+INFO:    pmu v1 is valid 220114
+INFO:    l3 cache partition cfg-0
+INFO:    dfs DDR fsp_param[0].freq_mhz= 1056MHz
+INFO:    dfs DDR fsp_param[1].freq_mhz= 324MHz
+INFO:    dfs DDR fsp_param[2].freq_mhz= 528MHz
+INFO:    dfs DDR fsp_param[3].freq_mhz= 780MHz
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 0
+INFO:    BL31: Initializing runtime services
+WARNING: No OPTEE provided by BL2 boot loader, Booting device without OPTEE initialization. SMC`s destined for OPTEE will return SMC_UNK
+ERROR:   Error initializing runtime service opteed_fast
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0xa00000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2025.10_armbian-2025.10-Se50b-P0727-H8cb3-V2660-B2eb2-R448a (Feb 07 2026 - 03:49:58 +0000)
+
+Model: Radxa ZERO 3W
+SoC:   RK3566
+DRAM:  2 GiB
+PMIC:  RK817 (on=0x40, off=0x00)
+Core:  299 devices, 28 uclasses, devicetree: separate
+MMC:   mmc@fe2b0000: 1, mmc@fe2c0000: 2, mmc@fe310000: 0
+Loading Environment from nowhere... OK
+In:    serial@fe660000
+Out:   serial@fe660000
+Err:   serial@fe660000
+Model: Radxa ZERO 3W
+SoC:   RK3566
+Net:   No ethernet found.
+Hit any key to stop autoboot:  0 
+Scanning for bootflows in all bootdevs
+Seq  Method       State   Uclass    Part  Name                      Filename
+---  -----------  ------  --------  ----  ------------------------  ----------------
+Scanning global bootmeth 'efi_mgr':
+7[r[999;999H[6n8Card did not respond to voltage select! : -110
+Card did not respond to voltage select! : -110
+Cannot persist EFI variables without system partition
+  0  efi_mgr      ready   (none)       0  <NULL>                    
+** Booting bootflow '<NULL>' with efi_mgr
+Loading Boot0000 'mmc 1' failed
+EFI boot manager: Cannot load any image
+Boot failed (err=-14)
+Scanning bootdev 'mmc@fe2b0000.bootdev':
+  1  script       ready   mmc          1  mmc@fe2b0000.bootdev.part /boot/boot.scr
+** Booting bootflow 'mmc@fe2b0000.bootdev.part_1' with script
+Boot script loaded from mmc 1:1
+385 bytes read in 3 ms (125 KiB/s)
+15612480 bytes read in 1296 ms (11.5 MiB/s)
+47405568 bytes read in 3928 ms (11.5 MiB/s)
+161122 bytes read in 36 ms (4.3 MiB/s)
+Working FDT set to 12000000
+955 bytes read in 60 ms (14.6 KiB/s)
+Applying kernel provided DT overlay rk3568-i2c4-m0.dtbo
+818 bytes read in 45 ms (17.6 KiB/s)
+Applying kernel provided DT overlay rk3568-uart2-m0.dtbo
+605 bytes read in 65 ms (8.8 KiB/s)
+Applying kernel provided DT overlay rk3568-i2c3-pihat.dtbo
+1838 bytes read in 47 ms (38.1 KiB/s)
+Applying kernel provided DT overlay rk3568-aic3104-i2c3.dtbo
+3947 bytes read in 41 ms (93.8 KiB/s)
+Applying kernel provided DT overlay rk3568-radxa-zero3-rpi-camera-v2.dtbo
+409 bytes read in 55 ms (6.8 KiB/s)
+Applying kernel provided DT overlay rk3568-npu-enable.dtbo
+657 bytes read in 23 ms (27.3 KiB/s)
+Applying kernel provided DT overlay rk3568-uart4-m1.dtbo
+845 bytes read in 45 ms (17.6 KiB/s)
+Applying kernel provided DT overlay rk3568-uart9-m1.dtbo
+374 bytes read in 5 ms (72.3 KiB/s)
+Applying user provided DT overlay microduck-i2c4-pullup-test.dtbo
+Trying kaslrseed command... Info: Unknown command can be safely ignored since kaslrseed does not apply to all boards.
+Unknown command 'kaslrseed' - try 'help'
+## Loading init Ramdisk from Legacy Image at 12180000 ...
+   Image Name:   uInitrd
+   Image Type:   AArch64 Linux RAMDisk Image (gzip compressed)
+   Data Size:    15612416 Bytes = 14.9 MiB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+## Flattened Device Tree blob at 12000000
+   Booting using the fdt blob at 0x12000000
+Working FDT set to 12000000
+   Loading Ramdisk to 7bd1c000, end 7cbffa00 ... OK
+   Loading Device Tree to 000000007ce30000, end 000000007cebffff ... OK
+Working FDT set to 7ce30000
+
+Starting kernel ...
+

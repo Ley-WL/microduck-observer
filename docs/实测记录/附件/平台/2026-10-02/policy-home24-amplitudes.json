@@ -1,0 +1,114 @@
+[
+  {
+    "id": 20,
+    "startDegrees": -0.15,
+    "homeDegrees": 0.0,
+    "plannedDegrees": 0.15,
+    "plannedSteps": -2,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 21,
+    "startDegrees": -4.57,
+    "homeDegrees": -5.0,
+    "plannedDegrees": -0.43,
+    "plannedSteps": 5,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 22,
+    "startDegrees": -26.46,
+    "homeDegrees": -26.24,
+    "plannedDegrees": 0.22,
+    "plannedSteps": -2,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 23,
+    "startDegrees": 0.44,
+    "homeDegrees": -0.28,
+    "plannedDegrees": -0.72,
+    "plannedSteps": 8,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 24,
+    "startDegrees": 25.66,
+    "homeDegrees": 25.95,
+    "plannedDegrees": 0.29,
+    "plannedSteps": -3,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 30,
+    "startDegrees": -0.53,
+    "homeDegrees": 20.0,
+    "plannedDegrees": 20.53,
+    "plannedSteps": -234,
+    "lastSentChangeDegrees": 0.35
+  },
+  {
+    "id": 31,
+    "startDegrees": 0.26,
+    "homeDegrees": 20.0,
+    "plannedDegrees": 19.74,
+    "plannedSteps": -225,
+    "lastSentChangeDegrees": 0.35
+  },
+  {
+    "id": 32,
+    "startDegrees": -0.09,
+    "homeDegrees": 0.0,
+    "plannedDegrees": 0.09,
+    "plannedSteps": -1,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 33,
+    "startDegrees": 0.0,
+    "homeDegrees": 0.0,
+    "plannedDegrees": 0.0,
+    "plannedSteps": 0,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 10,
+    "startDegrees": 0.18,
+    "homeDegrees": 0.0,
+    "plannedDegrees": -0.18,
+    "plannedSteps": 2,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 11,
+    "startDegrees": 4.66,
+    "homeDegrees": 5.0,
+    "plannedDegrees": 0.34,
+    "plannedSteps": -4,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 12,
+    "startDegrees": 26.63,
+    "homeDegrees": 26.24,
+    "plannedDegrees": -0.4,
+    "plannedSteps": 4,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 13,
+    "startDegrees": -0.88,
+    "homeDegrees": 0.28,
+    "plannedDegrees": 1.16,
+    "plannedSteps": -13,
+    "lastSentChangeDegrees": 0.0
+  },
+  {
+    "id": 14,
+    "startDegrees": -25.31,
+    "homeDegrees": -25.95,
+    "plannedDegrees": -0.64,
+    "plannedSteps": 7,
+    "lastSentChangeDegrees": 0.0
+  }
+]

@@ -2,6 +2,7 @@
 import { computed, ref, reactive, watch, onBeforeUnmount } from "vue";
 import { latestCommand } from "../latestCommand";
 import { stepAngle } from "../servoSelection";
+import { watchControlIdentity } from "../controlIdentity";
 import { useBoardCalibration } from "../boardCalibration";
 import { useTelemetry } from "../store";
 import { useJointPose } from "../jointPose";
@@ -34,7 +35,7 @@ watch(() => state.endpoint, async endpoint => {
     if (state.endpoint === endpoint) limits.value = data.limits;
   } catch { if (state.endpoint === endpoint) message.value = '官方角度范围未加载'; }
 }, { immediate: true });
-watch(() => [state.endpoint, state.joints?.bootId, board.data?.revision], () => {
+watchControlIdentity([() => state.endpoint, () => state.joints?.bootId, () => board.data?.revision], () => {
   commands.clear();
   for (const key of Object.keys(drafts)) delete drafts[Number(key)];
 });

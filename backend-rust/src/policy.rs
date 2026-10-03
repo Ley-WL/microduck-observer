@@ -16,6 +16,39 @@ use std::{
     time::{Duration, Instant},
 };
 pub const ORDER: [u8; 14] = [20, 21, 22, 23, 24, 30, 31, 32, 33, 10, 11, 12, 13, 14];
+#[derive(Debug)]
+struct StaleFeedback(u8);
+impl std::fmt::Display for StaleFeedback {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "#{} 反馈过期", self.0)
+    }
+}
+impl std::error::Error for StaleFeedback {}
+fn check_feedback_age(id: u8, received: f64, now: f64) -> Result<()> {
+    if !(0.0..0.15).contains(&(now - received)) {
+        return Err(StaleFeedback(id).into());
+    }
+    Ok(())
+}
+// Only servo age expiration enters the hold path; other sensor/fault errors propagate.
+fn observation_or_hold(result: Result<Vec<f32>>) -> Result<Option<Vec<f32>>> {
+    match result {
+        Ok(obs) => Ok(Some(obs)),
+        Err(e) if e.is::<StaleFeedback>() => Ok(None),
+        Err(e) => Err(e),
+    }
+}
+fn history_needs_reset(stamps: &[f64; 14], previous: &[f64; 14]) -> Result<bool> {
+    let mut reset = false;
+    for n in 0..14 {
+        let dt = stamps[n] - previous[n];
+        if !dt.is_finite() || dt < 0.0 {
+            bail!("#{} 关节反馈时间倒退或无效", ORDER[n]);
+        }
+        reset |= dt > 0.25;
+    }
+    Ok(reset)
+}
 const NAMES: [&str; 14] = [
     "left_hip_yaw",
     "left_hip_roll",
@@ -198,10 +231,7 @@ impl Model {
             let received = f["_receivedMono"]
                 .as_f64()
                 .ok_or_else(|| anyhow::anyhow!("#{id} 反馈时间缺失"))?;
-            let age = now - received;
-            if !(0.0..0.15).contains(&age) {
-                bail!("#{id} 反馈过期")
-            };
+            check_feedback_age(*id, received, now)?;
             stamps[n] = received;
             let key = id.to_string();
             let reference = cal["joints"]["references"][&key]
@@ -225,12 +255,16 @@ impl Model {
             angles[n] = raw + k0 * std::f64::consts::TAU;
         }
         let mut velocity = [0.; 14];
+        // A complete fresh sample after a long feedback gap starts a new
+        // observation history, even if feedback-hold began less than 200ms ago.
+        if self.previous.as_ref().map(|(_, times)| history_needs_reset(&stamps, times)).transpose()?.unwrap_or(false) {
+            self.previous = None;
+            self.velocity = [0.; 14];
+            self.last_action = [0.; 14];
+        }
         if let Some((old, times)) = self.previous {
             for n in 0..14 {
                 let dt = stamps[n] - times[n];
-                if dt < 0. || dt > 0.25 {
-                    bail!("关节反馈时间不连续")
-                };
                 velocity[n] = if dt > 1e-6 {
                     (angles[n] - old[n]) / dt
                 } else {
@@ -357,7 +391,7 @@ pub fn execute(
             let (low, high, _) = control::configuration(bus, id)?;
             limits.insert(id, (low, high));
         }
-        model.targets([0.; 14], &feedback, cal, &limits)?;
+        goals = model.targets([0.; 14], &feedback, cal, &limits)?;
         if command["shadow"] == true {
             feedback = bus.read_feedback(&IDS)?;
             let obs = model.observe(shared, &feedback, cal)?;
@@ -398,12 +432,59 @@ pub fn execute(
         model.velocity = [0.; 14];
         model.last_action = [0.; 14];
         stage = "policy-loop";
-        let mut next = Instant::now();
+        let mut clock = control::FrameClock::new(Instant::now());
+        let mut coast = control::FeedbackCoast::default();
+        let mut paused: Option<Instant> = None;
         let mut last_status = Instant::now() - Duration::from_secs(1);
         // Bounded timestamp ring keeps long running policies at constant memory.
         while !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
-            feedback = bus.read_feedback(&IDS)?;
-            let obs = model.observe(shared, &feedback, cal)?;
+            let (fresh, diagnostics) = control::poll_tick(bus, &IDS);
+            // Real faults and bad supply are never hidden by the dropped-read grace.
+            for (id, row) in &fresh { control::validate(*id, Some(row), ORDER.contains(id))?; }
+            let sampled = coast.sample(&fresh, &IDS, Instant::now());
+            bus.diagnostics = coast.diagnostics(diagnostics.clone(), sampled.is_none());
+            if sampled.is_some() && paused.is_some_and(|since| since.elapsed() >= Duration::from_millis(200)) {
+                model.previous = None;
+                model.velocity = [0.; 14];
+                model.last_action = [0.; 14];
+            }
+            // Check actual per-servo timestamps at observation time, including the
+            // few milliseconds between the coast decision and observation.
+            let obs = match &sampled {
+                Some(rows) => observation_or_hold(model.observe(shared, rows, cal))?,
+                None => None,
+            };
+            bus.diagnostics = coast.diagnostics(diagnostics, obs.is_none());
+            if sampled.is_some() && obs.is_none() {
+                bus.diagnostics["feedbackHoldReason"] = json!("feedback-expired");
+            }
+            control::publish(shared, &fresh, &IDS, bus.diagnostics.clone());
+            if obs.is_none() {
+                if paused.is_none() {
+                    if let Some(last) = &coast.last {
+                        goals = ORDER.iter().map(|id| (*id,last[id]["position"].as_i64().unwrap() as i32)).collect();
+                    }
+                    if !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
+                        control::goals(bus, &goals)?;
+                        timing.record(Instant::now());
+                    }
+                    paused = Some(Instant::now());
+                }
+                let mut v = stats(&model, &timing, infer_ms);
+                v["state"] = json!("policy");
+                v["action"] = json!("policy");
+                v["policyPhase"] = json!("feedback-hold");
+                v["feedbackHolding"] = json!(true);
+                v["consecutiveFeedbackFailures"] = json!(coast.misses);
+                v["skippedControlTicks"] = json!(clock.skipped);
+                v["message"] = json!("反馈持续缺失，策略暂停，保持最后测得姿态；等待完整反馈恢复");
+                control::status(shared, v);
+                clock.wait();
+                continue;
+            }
+            feedback = sampled.unwrap();
+            paused.take();
+            let obs = obs.unwrap();
             for id in ORDER {
                 control::validate(id, feedback.get(&id), true)?;
             }
@@ -419,17 +500,19 @@ pub fn execute(
             previous = feedback.clone();
             let tick = Instant::now();
             timing.record(tick);
-            control::publish(shared, &feedback, &IDS, bus.diagnostics.clone());
             if last_status.elapsed() >= Duration::from_millis(200) {
                 let mut v = stats(&model, &timing, infer_ms);
                 v["state"] = json!("policy");
                 v["action"] = json!("policy");
+                v["policyPhase"] = json!(if coast.misses > 0 { "coasting" } else { "running" });
+                v["feedbackHolding"] = json!(false);
+                v["consecutiveFeedbackFailures"] = json!(coast.misses);
+                v["skippedControlTicks"] = json!(clock.skipped);
                 v["message"] = json!("v5 模型站立维持中");
                 control::status(shared, v);
                 last_status = tick;
             }
-            next = (next + Duration::from_millis(20)).max(tick);
-            std::thread::sleep(next.saturating_duration_since(Instant::now()));
+            clock.wait();
         }
         let mut v = if cancel.load(Ordering::Acquire) {
             control::unload(bus)?
@@ -489,6 +572,35 @@ pub fn execute(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn restored_fresh_feedback_resets_history_based_on_sample_gap() {
+        let previous = [99.338777883; 14];
+        // Recovered read at 99.604s: sample gap >250ms but pause <200ms.
+        assert!(history_needs_reset(&[99.604;14], &previous).unwrap());
+        assert!(!history_needs_reset(&previous, &previous).unwrap());
+        assert!(!history_needs_reset(&[99.36;14], &previous).unwrap());
+        let mut one_long = [99.36;14]; one_long[13] = 99.604;
+        assert!(history_needs_reset(&one_long, &previous).unwrap());
+        assert!(history_needs_reset(&[99.3;14], &previous).is_err());
+        assert!(history_needs_reset(&[f64::NAN;14], &previous).is_err());
+    }
+    #[test]
+    fn third_coasted_frame_expiring_during_observation_enters_hold() {
+        let start = Instant::now();
+        let rows = Feedback::from([(20, json!({"position":100,"_receivedMono":582.656195015}))]);
+        let mut coast = control::FeedbackCoast::default();
+        coast.sample(&rows, &[20], start);
+        for ms in [55, 110, 148] {
+            assert!(coast.sample(&Feedback::new(), &[20], start + Duration::from_millis(ms)).is_some());
+        }
+        assert_eq!(coast.misses, 3);
+        assert!(check_feedback_age(20, 582.656195015, 582.804731994).is_ok());
+        let expired = check_feedback_age(20, 582.656195015, 582.807).map(|_| vec![]);
+        assert_eq!(observation_or_hold(expired).unwrap(), None);
+        assert_eq!(coast.diagnostics(json!({}), true)["feedbackHolding"], true);
+        assert_eq!(observation_or_hold(Ok(vec![1.0])).unwrap(), Some(vec![1.0]));
+        assert!(observation_or_hold(Err(anyhow::anyhow!("电压异常"))).is_err());
+    }
     #[test]
     #[ignore = "requires Python generated fixture and native ONNX Runtime"]
     fn python_parity() {

@@ -1,0 +1,13 @@
+[Unit]
+Description=MicroDuck restricted power control socket
+
+[Socket]
+ListenStream=/run/microduck-power.sock
+SocketUser=radxa
+SocketGroup=radxa
+SocketMode=0600
+Accept=yes
+MaxConnections=4
+
+[Install]
+WantedBy=sockets.target

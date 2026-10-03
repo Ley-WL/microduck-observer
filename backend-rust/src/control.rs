@@ -16,6 +16,56 @@ use std::{
 use tokio::sync::{oneshot, OwnedSemaphorePermit};
 
 pub type Feedback = BTreeMap<u8, Value>;
+const PERIOD: Duration = Duration::from_millis(20);
+/// Preserve the original 50Hz schedule; expired ticks are skipped, never replayed.
+pub struct FrameClock {
+    next: Instant,
+    pub skipped: u64,
+}
+impl FrameClock {
+    pub fn new(now: Instant) -> Self { Self { next: now, skipped: 0 } }
+    fn advance(&mut self, now: Instant) -> Instant {
+        self.next += PERIOD;
+        if self.next < now {
+            let missed = now.duration_since(self.next).as_nanos()/PERIOD.as_nanos()+1;
+            self.skipped += missed as u64;
+            self.next += PERIOD * missed as u32;
+        }
+        self.next
+    }
+    pub fn wait(&mut self) {
+        let now = Instant::now();
+        let next = self.advance(now);
+        std::thread::sleep(next.saturating_duration_since(Instant::now()));
+    }
+}
+/// A complete sample may bridge three missed reads; its timestamps remain unchanged.
+/// The existing 150ms feedback age limit still applies after a scheduler stall.
+#[derive(Default)]
+pub struct FeedbackCoast {
+    pub last: Option<Feedback>,
+    at: Option<Instant>,
+    pub misses: u32,
+}
+impl FeedbackCoast {
+    pub fn sample(&mut self, fresh: &Feedback, ids: &[u8], now: Instant) -> Option<Feedback> {
+        if ids.iter().all(|id| fresh.contains_key(id)) {
+            self.last = Some(fresh.clone()); self.at = Some(now); self.misses = 0;
+            return self.last.clone();
+        }
+        self.misses = self.misses.saturating_add(1);
+        if self.misses <= 3 && self.at.is_some_and(|at| now.saturating_duration_since(at) < Duration::from_millis(150)) {
+            self.last.clone()
+        } else { None }
+    }
+    pub fn diagnostics(&self, mut value: Value, holding: bool) -> Value {
+        if !value.is_object() { value = json!({}); }
+        value["consecutiveFeedbackFailures"] = json!(self.misses);
+        value["coasted"] = json!(!holding && self.misses > 0);
+        value["feedbackHolding"] = json!(holding);
+        value
+    }
+}
 pub fn rounded(v: f64, places: i32) -> f64 {
     let scale = 10f64.powi(places);
     (v * scale).round_ties_even() / scale
@@ -45,6 +95,8 @@ impl Timing {
 pub trait Transport {
     fn calibrate(&mut self, id: u8, target: u16) -> Result<()>;
     fn feedback(&mut self, ids: &[u8]) -> Result<Feedback>;
+    fn tick_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.feedback(ids) }
+    fn diagnostics(&self) -> Value { Value::Null }
     fn read(&mut self, id: u8, address: u8, size: u8) -> Result<Vec<u8>>;
     fn write(&mut self, id: u8, address: u8, data: &[u8]) -> Result<()>;
     fn sync(&mut self, address: u8, values: &BTreeMap<u8, Vec<u8>>) -> Result<()>;
@@ -57,6 +109,8 @@ impl Transport for Bus {
     fn feedback(&mut self, ids: &[u8]) -> Result<Feedback> {
         self.read_feedback(ids)
     }
+    fn tick_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.read_tick(ids) }
+    fn diagnostics(&self) -> Value { self.diagnostics.clone() }
     fn read(&mut self, id: u8, address: u8, size: u8) -> Result<Vec<u8>> {
         self.read_register(id, address, size)
     }
@@ -133,7 +187,18 @@ pub fn target(
     let mut goal =
         (reference + angle * 4096. / std::f64::consts::TAU * direction).round_ties_even();
     if nearest {
-        goal += ((start as f64 - goal) / 4096.).round_ties_even() * 4096.;
+        // Choose the nearest equivalent only among encodable, hardware-valid
+        // turns. Unbounded rounding can turn a valid 3656 into invalid -440.
+        let (minimum, maximum) = if high > low {
+            ((low as f64).max(-32767.), (high as f64).min(32767.))
+        } else { (-32767., 32767.) };
+        let first = ((minimum - goal) / 4096.).ceil();
+        let last = ((maximum - goal) / 4096.).floor();
+        if first > last {
+            bail!("#{id} 目标超出编码范围或舵机硬件限位")
+        }
+        let turn = ((start as f64 - goal) / 4096.).round_ties_even().clamp(first, last);
+        goal += turn * 4096.;
     }
     if goal.abs() > 32767. || (high > low && (goal < low as f64 || goal > high as f64)) {
         bail!("#{id} 目标超出编码范围或舵机硬件限位")
@@ -186,6 +251,9 @@ pub fn publish(shared: &Shared, f: &Feedback, ids: &[u8], diagnostics: Value) {
             {
                 r["ageMs"] = json!((now - received).max(0.) * 1000.);
             }
+            if let Some(profile) = r.as_object_mut().unwrap().remove("_profileMono").and_then(|v|v.as_f64()) {
+                r["profileAgeMs"] = json!((now-profile).max(0.)*1000.);
+            }
             r["id"] = json!(id);
             r["online"] = json!(f.contains_key(id));
             r
@@ -199,6 +267,14 @@ pub fn publish(shared: &Shared, f: &Feedback, ids: &[u8], diagnostics: Value) {
 }
 pub fn status(shared: &Shared, v: Value) {
     shared.write().unwrap().control = v;
+}
+pub fn poll_tick<T: Transport>(bus: &mut T, ids: &[u8]) -> (Feedback, Value) {
+    match bus.tick_feedback(ids) {
+        Ok(f) => (f, bus.diagnostics()),
+        Err(e) => (Feedback::new(), json!({"kind":"read","mono":crate::telemetry::monotonic(),
+            "requestedIds":ids,"receivedIds":[],"missingIds":ids,"readError":e.to_string(),
+            "rxBytes":0,"checksumErrors":0,"discardedBytes":0})),
+    }
 }
 fn profile<T: Transport>(bus: &mut T, id: u8, f: &Value) -> Result<()> {
     if f["accelerationRaw"] != 0 {
@@ -262,15 +338,26 @@ pub fn execute<T: Transport>(
             } else {
                 None
             };
-            if let Some(g) = goal {
+            let needs_enable = goal.is_some() && f[&id]["torque"] != 1;
+            if needs_enable {
                 attempted = true;
-                goals(bus, &BTreeMap::from([(id, g)]))?;
+                // Align before enabling: never resume a stale stored goal.
+                goals(bus, &BTreeMap::from([(id, position(&f[&id])?)]))?;
             }
             guard()?;
             profile(bus, id, &f[&id])?;
             guard()?;
-            if goal.is_some() {
+            if needs_enable {
                 bus.sync(40, &BTreeMap::from([(id, vec![1])]))?;
+                let enabled = bus.feedback(&[id])?;
+                validate(id, enabled.get(&id), true)?;
+            }
+            guard()?;
+            if let Some(g) = goal {
+                attempted = true;
+                // HD1910 mode 4: a following torque=1 write can retain the old
+                // internal target. The requested position must be the last write.
+                goals(bus, &BTreeMap::from([(id, g)]))?;
             }
             guard()?;
             let after = bus.feedback(&IDS)?;
@@ -355,23 +442,20 @@ pub fn execute<T: Transport>(
         }
         attempted = true;
         goals(bus, &starts)?;
-        bus.sync(41, &ids.iter().map(|id| (*id, vec![0])).collect())?;
-        bus.sync(
-            46,
-            &ids.iter()
-                .map(|id| (*id, 500u16.to_le_bytes().to_vec()))
-                .collect(),
-        )?;
+        for id in ids { profile(bus, *id, &fresh[id])?; }
         for id in ids {
             guard()?;
             let cap = cfg[id].2.to_le_bytes();
-            bus.write(*id, 48, &cap)?;
-            if bus.read(*id, 48, 2)? != cap {
-                bail!("#{id} 最大输出设置未确认")
+            if fresh[id]["torqueLimitRaw"] != cfg[id].2 {
+                bus.write(*id, 48, &cap)?;
+                if bus.read(*id, 48, 2)? != cap {
+                    bail!("#{id} 最大输出设置未确认")
+                }
             }
         }
         guard()?;
-        bus.sync(40, &ids.iter().map(|id| (*id, vec![1])).collect())?;
+        let disabled: BTreeMap<_,_> = ids.iter().filter(|id| fresh[id]["torque"] != 1).map(|id| (*id,vec![1])).collect();
+        if !disabled.is_empty() { bus.sync(40, &disabled)?; }
         let f = bus.feedback(&IDS)?;
         publish(shared, &f, &IDS, Value::Null);
         for id in ids {
@@ -386,11 +470,20 @@ pub fn execute<T: Transport>(
         if budget - began.elapsed().as_secs_f64() < 2.35 {
             bail!("总线预处理过慢，无法在 3 秒内完成")
         }
-        let mut next = trajectory;
+        let mut clock = FrameClock::new(trajectory);
+        let mut coast = FeedbackCoast::default();
+        coast.sample(&f, ids, trajectory);
         let mut settled = None;
 
         loop {
             guard()?;
+            let (fresh, diagnostics) = poll_tick(bus, &IDS);
+            for (id,row) in &fresh { validate(*id, Some(row), ids.contains(id))?; }
+            let sampled = coast.sample(&fresh, ids, Instant::now());
+            let holding = sampled.is_none();
+            let f = sampled.unwrap_or_else(|| coast.last.as_ref().unwrap().clone());
+            let diagnostics = coast.diagnostics(diagnostics, holding);
+            publish(shared, &fresh, &IDS, diagnostics);
             let ratio = (trajectory.elapsed().as_secs_f64() / 2.2).min(1.);
             let blend = ratio * ratio * (3. - 2. * ratio);
             let commanded = starts
@@ -398,18 +491,18 @@ pub fn execute<T: Transport>(
                 .map(|(id, s)| {
                     (
                         *id,
-                        (*s as f64 + (targets[id] - s) as f64 * blend).round_ties_even() as i32,
+                        if holding { position(&f[id]).unwrap_or(*s) }
+                        else { (*s as f64 + (targets[id] - s) as f64 * blend).round_ties_even() as i32 },
                     )
                 })
                 .collect();
             goals(bus, &commanded)?;
             timing.record(Instant::now());
-            let f = bus.feedback(&IDS)?;
-            publish(shared, &f, &IDS, Value::Null);
-            for id in ids {
-                validate(*id, f.get(id), true)?;
-            }
             let mut state = json!({"state":"moving","action":action,"message":"正在过渡到官方站姿","progress":ratio,"remainingSeconds":rounded((budget-began.elapsed().as_secs_f64()).max(0.),1)});
+            state["consecutiveFeedbackFailures"] = json!(coast.misses);
+            state["feedbackHolding"] = json!(holding);
+            state["skippedControlTicks"] = json!(clock.skipped);
+            if holding { state["message"] = json!("反馈持续缺失，暂停过渡并保持最后测得姿态"); }
             for (key, value) in timing.stats().as_object().unwrap() {
                 state[key] = value.clone();
             }
@@ -417,7 +510,7 @@ pub fn execute<T: Transport>(
                 state["commandMaxGapMs"] = Value::Null;
             }
             status(shared, state.clone());
-            if ratio == 1.
+            if coast.misses == 0 && ratio == 1.
                 && ids.iter().all(|id| {
                     (position(&f[id]).unwrap_or(i32::MIN) as f64 - targets[id] as f64).abs()
                         <= 5. * 4096. / 360.
@@ -433,8 +526,7 @@ pub fn execute<T: Transport>(
             } else {
                 settled = None;
             }
-            next = (next + Duration::from_millis(20)).max(Instant::now());
-            std::thread::sleep(next.saturating_duration_since(Instant::now()));
+            clock.wait();
         }
     })();
     match result {
@@ -534,7 +626,7 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
         halt: halt.clone(),
     };
     std::thread::Builder::new().name("servo-owner".into()).spawn(move||{
-        let mut bus=None;let mut stamps=std::collections::VecDeque::new();
+        let mut bus=None;let mut stamps=std::collections::VecDeque::new();let mut clock=FrameClock::new(Instant::now());
         while !stop.load(Ordering::Acquire){
             if bus.is_none(){bus=Bus::open(&port).ok();}
             match rx.try_recv(){
@@ -547,9 +639,9 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
                 Err(mpsc::TryRecvError::Disconnected)=>break,
                 Err(mpsc::TryRecvError::Empty)=>{
                     let start=Instant::now();
-                    if let Some(b)=bus.as_mut(){match b.read_feedback(&ids){Ok(f)=>{stamps.push_back(start);if stamps.len()>100{stamps.pop_front();}let mut d=b.diagnostics.clone();d["observedScanHz"]=if stamps.len()>1{json!((stamps.len()-1) as f64/(start-*stamps.front().unwrap()).as_secs_f64())}else{Value::Null};publish(&shared,&f,&ids,d)},Err(e)=>{shared.write().unwrap().log("WARN","servos",&e.to_string());bus=None;}}}
+                    if let Some(b)=bus.as_mut(){match b.read_tick(&ids){Ok(f)=>{stamps.push_back(start);if stamps.len()>100{stamps.pop_front();}let mut d=b.diagnostics.clone();d["skippedScanTicks"]=json!(clock.skipped);d["observedScanHz"]=if stamps.len()>1{json!((stamps.len()-1) as f64/(start-*stamps.front().unwrap()).as_secs_f64())}else{Value::Null};publish(&shared,&f,&ids,d)},Err(e)=>{shared.write().unwrap().log("WARN","servos",&e.to_string());bus=None;}}}
                     else{shared.write().unwrap().sample("joints",json!({"configuredIds":ids,"servos":ids.iter().map(|id|json!({"id":id,"online":false,"ageMs":0})).collect::<Vec<_>>(),"error":"舵机串口不可用","targetHz":50,"readMode":"sync-read"}),true,Instant::now());}
-                    std::thread::sleep(Duration::from_millis(if bus.is_some(){20}else{200}).saturating_sub(start.elapsed()));
+                    if bus.is_some(){clock.wait();}else{std::thread::sleep(Duration::from_millis(200).saturating_sub(start.elapsed()));clock=FrameClock::new(Instant::now());}
                 }
             }
         }
@@ -559,6 +651,38 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn three_failed_reads_coast_without_mixing_or_restamping_then_hold_and_recover() {
+        let now=Instant::now();
+        let initial=Feedback::from([(12,json!({"position":100,"_receivedMono":1.0})),(14,json!({"position":200,"_receivedMono":1.0}))]);
+        let partial=Feedback::from([(12,json!({"position":999,"_receivedMono":2.0}))]);
+        let mut coast=FeedbackCoast::default();
+        assert_eq!(coast.sample(&initial,&[12,14],now),Some(initial.clone()));
+        for n in 1..=3 {
+            assert_eq!(coast.sample(&partial,&[12,14],now+PERIOD*n),Some(initial.clone()));
+            assert_eq!(coast.misses,n);
+        }
+        assert_eq!(coast.sample(&partial,&[12,14],now+PERIOD*4),None);
+        let diagnostic=coast.diagnostics(json!({"missingIds":[14]}),true);
+        assert_eq!(diagnostic["missingIds"],json!([14]));
+        assert_eq!(diagnostic["feedbackHolding"],true);
+        assert_eq!(coast.sample(&initial,&[12,14],now+PERIOD*5),Some(initial));
+        assert_eq!(coast.misses,0);
+    }
+    #[test]
+    fn scheduler_stall_cannot_extend_old_feedback_grace() {
+        let now=Instant::now();let mut coast=FeedbackCoast::default();
+        coast.sample(&Feedback::from([(12,json!({"position":1}))]),&[12],now);
+        assert!(coast.sample(&Feedback::new(),&[12],now+Duration::from_millis(151)).is_none());
+    }
+    #[test]
+    fn expired_ticks_are_skipped_on_original_schedule_without_a_burst() {
+        let now=Instant::now();let mut clock=FrameClock::new(now);
+        assert_eq!(clock.advance(now+Duration::from_millis(65)),now+Duration::from_millis(80));
+        assert_eq!(clock.skipped,3);
+        assert_eq!(clock.advance(now+Duration::from_millis(83)),now+Duration::from_millis(100));
+        assert_eq!(clock.skipped,3);
+    }
     #[test]
     fn timing_retains_total_count() {
         let mut timing = Timing::default();
@@ -570,6 +694,17 @@ mod tests {
         assert_eq!(v["commandCount"], 1000);
         assert_eq!(v["commandHz"], 50.);
         assert_eq!(v["commandMaxGapMs"], 20.);
+    }
+    #[test]
+    fn nearest_turn_must_be_inside_hardware_and_encoding_limits() {
+        let cal = json!({"joints":{"references":{"32":1996},"directions":{}}});
+        let angle = (-145.9114870879065f64).to_radians();
+        assert_eq!(target(32,1368,&cal,0,4095,angle,true).unwrap(),3656);
+        assert_eq!(target(32,-430,&cal,-4096,4095,angle,true).unwrap(),-440);
+        assert!(target(32,1368,&cal,1000,2000,angle,true).is_err());
+        let unlimited = target(32,32767,&cal,0,0,angle,true).unwrap();
+        assert!(unlimited.abs()<=32767);
+        assert_eq!((unlimited-3656)%4096,0);
     }
     #[test]
     fn goals_and_ranges() {
@@ -663,16 +798,73 @@ mod tests {
     fn command() -> Value {
         json!({"action":"angle","id":34,"angleDeg":20,"calibration":{"joints":{"references":{"34":2048},"directions":{}}}})
     }
+    struct Dropping {
+        bus: Mock,
+        tick: u32,
+        voltage_fault: bool,
+        held_targets: Option<BTreeMap<u8,Vec<u8>>>,
+    }
+    impl Transport for Dropping {
+        fn calibrate(&mut self,id:u8,target:u16)->Result<()> { self.bus.calibrate(id,target) }
+        fn feedback(&mut self,ids:&[u8])->Result<Feedback> { self.bus.feedback(ids) }
+        fn tick_feedback(&mut self,ids:&[u8])->Result<Feedback> {
+            self.tick+=1;
+            let mut rows=self.bus.feedback(ids)?;
+            if self.tick<=4 { rows.remove(&12); }
+            if self.voltage_fault { rows.get_mut(&14).unwrap()["voltage"]=json!(3.9); }
+            Ok(rows)
+        }
+        fn read(&mut self,id:u8,address:u8,size:u8)->Result<Vec<u8>> { self.bus.read(id,address,size) }
+        fn write(&mut self,id:u8,address:u8,data:&[u8])->Result<()> { self.bus.write(id,address,data) }
+        fn sync(&mut self,address:u8,values:&BTreeMap<u8,Vec<u8>>)->Result<()> {
+            if self.tick==4 && address==42 { self.held_targets=Some(values.clone()); }
+            self.bus.sync(address,values)
+        }
+    }
     #[test]
-    fn angle_target_first_current_pid_untouched() {
+    fn stand_bridges_three_misses_holds_on_fourth_and_recovers_without_reenabling() {
+        let mut bus=Dropping {bus:Mock::new(),tick:0,voltage_fault:false,held_targets:None};
+        for row in bus.bus.rows.values_mut() {
+            row["torque"]=json!(1);row["accelerationRaw"]=json!(0);
+            row["speedLimitRaw"]=json!(500);row["torqueLimitRaw"]=json!(1000);
+        }
+        let references:BTreeMap<_,_>=IDS.into_iter().map(|id|(id.to_string(),2048)).collect();
+        let result=execute(&mut bus,&json!({"action":"stand","calibration":{"joints":{"references":references,"directions":{}}}}),&AtomicBool::new(false),&shared()).unwrap();
+        assert_eq!(result["state"],"holding");
+        assert!(bus.held_targets.unwrap().values().all(|value|value==&2048u16.to_le_bytes()));
+        assert!(bus.bus.writes.iter().all(|(address,_)|*address==42));
+    }
+    #[test]
+    fn valid_voltage_fault_during_a_partial_read_bypasses_coast_and_unloads() {
+        let mut bus=Dropping {bus:Mock::new(),tick:0,voltage_fault:true,held_targets:None};
+        let references:BTreeMap<_,_>=IDS.into_iter().map(|id|(id.to_string(),2048)).collect();
+        let result=execute(&mut bus,&json!({"action":"stand","calibration":{"joints":{"references":references,"directions":{}}}}),&AtomicBool::new(false),&shared());
+        assert!(result.unwrap_err().to_string().contains("3.9"));
+        assert_eq!(bus.tick,1);
+        assert_eq!(bus.bus.writes.last().unwrap().0,40);
+        assert!(bus.bus.writes.last().unwrap().1.values().all(|value|value==&[0]));
+    }
+    #[test]
+    fn angle_aligns_then_enables_then_sends_target_current_pid_untouched() {
         let mut bus = Mock::new();
         let result = execute(&mut bus, &command(), &AtomicBool::new(false), &shared()).unwrap();
         assert_eq!(result["state"], "commanded");
         assert_eq!(
             bus.writes.iter().map(|(a, _)| *a).collect::<Vec<_>>(),
-            [42, 41, 46, 40]
+            [42, 41, 46, 40, 42]
         );
+        assert_eq!(bus.writes[0].1[&34], 2048u16.to_le_bytes());
+        assert_ne!(bus.writes[4].1[&34], bus.writes[0].1[&34]);
         assert!(bus.writes.iter().all(|(_, v)| v.keys().all(|id| *id == 34)));
+    }
+    #[test]
+    fn angle_on_enabled_servo_never_rewrites_enable() {
+        let mut bus = Mock::new();
+        bus.rows.get_mut(&34).unwrap()["torque"] = json!(1);
+        bus.rows.get_mut(&34).unwrap()["accelerationRaw"] = json!(0);
+        bus.rows.get_mut(&34).unwrap()["speedLimitRaw"] = json!(500);
+        execute(&mut bus, &command(), &AtomicBool::new(false), &shared()).unwrap();
+        assert_eq!(bus.writes.iter().map(|(a, _)| *a).collect::<Vec<_>>(), [42]);
     }
     #[test]
     fn preflight_failure_never_writes() {

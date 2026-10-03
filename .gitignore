@@ -4,6 +4,7 @@ debug-server/.venv/
 *.log
 *.tsbuildinfo
 deploy/staging/
+deploy/*.tar.gz
 
 __pycache__/
 *.py[cod]

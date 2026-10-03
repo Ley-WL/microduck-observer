@@ -1,0 +1,134 @@
+[
+  {
+    "control": {
+      "action": "angle",
+      "angleDeg": -4.4,
+      "id": 23,
+      "message": "#23 已发送 -4.4°，已使能；到位情况看实时角度",
+      "state": "commanded",
+      "target": 2137
+    },
+    "servo": {
+      "accelerationRaw": 0,
+      "ageMs": 4.604204999850481,
+      "angle": null,
+      "currentRaw": 37,
+      "fault": 0,
+      "goalCurrentRaw": 500,
+      "goalPositionRaw": 2137,
+      "id": 23,
+      "kdRaw": 40,
+      "kiRaw": 0,
+      "kpRaw": 32,
+      "load": 28,
+      "online": true,
+      "position": 2311,
+      "readMs": 4.20806,
+      "speedLimitRaw": 500,
+      "target": 2308,
+      "temperature": 43,
+      "torque": 1,
+      "torqueLimitRaw": 1000,
+      "voltage": 7.6
+    }
+  },
+  {
+    "control": {
+      "action": "angle",
+      "angleDeg": -4.4,
+      "id": 23,
+      "message": "#23 已发送 -4.4°，已使能；到位情况看实时角度",
+      "state": "commanded",
+      "target": 2137
+    },
+    "servo": {
+      "accelerationRaw": 0,
+      "ageMs": 3.37962300000072,
+      "angle": null,
+      "currentRaw": 37,
+      "fault": 0,
+      "goalCurrentRaw": 500,
+      "goalPositionRaw": 2137,
+      "id": 23,
+      "kdRaw": 40,
+      "kiRaw": 0,
+      "kpRaw": 32,
+      "load": 28,
+      "online": true,
+      "position": 2311,
+      "readMs": 4.163752,
+      "speedLimitRaw": 500,
+      "target": 2308,
+      "temperature": 43,
+      "torque": 1,
+      "torqueLimitRaw": 1000,
+      "voltage": 7.6
+    }
+  },
+  {
+    "control": {
+      "action": "angle",
+      "angleDeg": -4.4,
+      "id": 23,
+      "message": "#23 已发送 -4.4°，已使能；到位情况看实时角度",
+      "state": "commanded",
+      "target": 2137
+    },
+    "servo": {
+      "accelerationRaw": 0,
+      "ageMs": 3.37962300000072,
+      "angle": null,
+      "currentRaw": 37,
+      "fault": 0,
+      "goalCurrentRaw": 500,
+      "goalPositionRaw": 2137,
+      "id": 23,
+      "kdRaw": 40,
+      "kiRaw": 0,
+      "kpRaw": 32,
+      "load": 28,
+      "online": true,
+      "position": 2311,
+      "readMs": 4.163752,
+      "speedLimitRaw": 500,
+      "target": 2308,
+      "temperature": 43,
+      "torque": 1,
+      "torqueLimitRaw": 1000,
+      "voltage": 7.6
+    }
+  },
+  {
+    "control": {
+      "action": "angle",
+      "angleDeg": -4.4,
+      "id": 23,
+      "message": "#23 已发送 -4.4°，已使能；到位情况看实时角度",
+      "state": "commanded",
+      "target": 2137
+    },
+    "servo": {
+      "accelerationRaw": 0,
+      "ageMs": 2.6272689992765663,
+      "angle": null,
+      "currentRaw": 33,
+      "fault": 0,
+      "goalCurrentRaw": 500,
+      "goalPositionRaw": 2137,
+      "id": 23,
+      "kdRaw": 40,
+      "kiRaw": 0,
+      "kpRaw": 32,
+      "load": 28,
+      "online": true,
+      "position": 2311,
+      "readMs": 4.3922859999999995,
+      "speedLimitRaw": 500,
+      "target": 2308,
+      "temperature": 43,
+      "torque": 1,
+      "torqueLimitRaw": 1000,
+      "voltage": 7.6
+    }
+  }
+]
