@@ -1,0 +1,23 @@
+{
+  "payload": {
+    "packageName": "io.microduck.control",
+    "versionCode": 24,
+    "versionName": "0.9.5",
+    "minSdk": 26,
+    "apkUrl": "http://8.133.210.70:6661/microduck/MicroDuck-0.9.5.apk",
+    "size": 6866487,
+    "sha256": "e94a8b7ded0b420f3be64717e8c7599328226bc2f750387fdd5a06703a19c004",
+    "releaseNotes": "设备页适配横屏：左侧连接/网络/工具分类，右侧并排操作；连接状态合并到顶部，常用按钮无需长页滚动，Wi-Fi备用连接改为弹窗。"
+  },
+  "manifestMatchesLocal": true,
+  "appPublicKeySignatureValid": true,
+  "apkSizeAndSha256Match": true,
+  "downloadPageUpdated": true,
+  "apkSignerMatches094": true,
+  "smallLandscapeDp": [
+    640,
+    360
+  ],
+  "deviceLayoutChecks": 23,
+  "motionCommands": 0
+}

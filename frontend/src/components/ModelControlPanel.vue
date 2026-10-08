@@ -5,7 +5,7 @@ import { POLICY_OPTIONS, SKILLS, idleMove, keyboardMove, joystickMove, editableT
 import ModelRuntime from './ModelRuntime.vue';
 const state = useTelemetry();
 const root = ref<HTMLElement>();
-const mode = ref<'manual' | 'preview' | 'robot'>('manual');
+const mode = ref<'manual' | 'preview' | 'robot'>('robot');
 const active = ref(false), tab = ref<'drive' | 'skills'>('drive');
 const selected = ref<string>('alpha_stand.onnx');
 const action = ref('模型站立');
@@ -50,10 +50,10 @@ onBeforeUnmount(() => { stop(); window.removeEventListener('blur', zero); docume
 
 <template>
   <section ref="root" class="model-controls" tabindex="0" aria-label="模型控制操作预览" @keydown="keyboard($event, true)" @keyup="keyboard($event, false)" @focusout="loseFocus">
-    <div class="control-heading"><div><span class="control-symbol">◇</span><strong>模型控制</strong><span class="version">官方 v5</span></div><span class="backend-tag">{{ mode === 'robot' ? 'HD1910 · 实机模型' : '操作预览' }}</span></div>
+    <div class="control-heading"><div><span class="control-symbol">◇</span><strong>模型控制</strong><span class="version">模型控制</span></div><span class="backend-tag">{{ mode === 'robot' ? '实机控制' : '界面演示 · 不控实物' }}</span></div>
     <div class="control-modes" role="group" aria-label="控制模式">
       <button :class="{ selected: mode === 'manual' }" :aria-pressed="mode === 'manual'" @click="setMode('manual')">手动</button>
-      <button :class="{ selected: mode === 'preview' }" :aria-pressed="mode === 'preview'" @click="setMode('preview')">操作预览</button>
+      <button :class="{ selected: mode === 'preview' }" :aria-pressed="mode === 'preview'" @click="setMode('preview')">界面演示（不控实物）</button>
       <button :class="{ selected: mode === 'robot' }" @click="setMode('robot')">实机模型 <small>站立 / 行走</small></button>
     </div>
     <ModelRuntime v-if="mode === 'robot'" />

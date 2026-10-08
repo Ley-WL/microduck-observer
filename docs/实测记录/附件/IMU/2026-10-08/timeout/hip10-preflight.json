@@ -1,0 +1,41 @@
+{
+  "servo": {
+    "accelerationRaw": 0,
+    "ageMs": 4.953459999995857,
+    "angle": null,
+    "currentRaw": 4,
+    "fault": 0,
+    "goalCurrentRaw": 0,
+    "goalPositionRaw": 1953,
+    "id": 10,
+    "kdRaw": 20,
+    "kiRaw": 0,
+    "kpRaw": 6,
+    "load": 0,
+    "online": true,
+    "position": 1832,
+    "profileAgeMs": 824.6961859999828,
+    "profileFresh": false,
+    "readMs": 0.7163459999999999,
+    "speedLimitRaw": 0,
+    "target": 1832,
+    "temperature": 39,
+    "torque": 0,
+    "torqueLimitRaw": 1000,
+    "velocityRaw": 0,
+    "voltage": 8.3
+  },
+  "reference": 2079.0,
+  "direction": -1,
+  "angleDegrees": 21.708984375,
+  "limits": [
+    -25.783100780887047,
+    12.60507149287811
+  ],
+  "revision": 260,
+  "control": {
+    "action": "policy",
+    "message": "#10 编码位置不在关节角度范围内；只读预检查未通过，未发运动指令",
+    "state": "failed"
+  }
+}

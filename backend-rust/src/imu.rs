@@ -74,9 +74,24 @@ pub fn raw(p: &[u8], a: f64, g: f64) -> Result<Value> {
         json!({"accel":v[..3].iter().map(|x|x*a*9.80665).collect::<Vec<_>>(),"gyro":v[3..].iter().map(|x|x*g.to_radians()).collect::<Vec<_>>() }),
     )
 }
+#[derive(Default)]
+struct ReaderTiming { last_read:Option<Instant>, max_read_gap_ms:f64, last_read_ms:f64, max_read_ms:f64, max_publish_wait_ms:f64, bytes:u64 }
+impl ReaderTiming {
+    fn read(&mut self,at:Instant,elapsed:f64,bytes:usize){
+        if let Some(last)=self.last_read {self.max_read_gap_ms=self.max_read_gap_ms.max(at.duration_since(last).as_secs_f64()*1000.);}
+        self.last_read=Some(at);self.last_read_ms=elapsed;self.max_read_ms=self.max_read_ms.max(elapsed);self.bytes+=bytes as u64;
+    }
+    fn publish(&mut self,shared:&Shared,topic:&str,data:Value,valid:bool,received:Instant){
+        let began=Instant::now();let mut state=shared.write().unwrap();
+        self.max_publish_wait_ms=self.max_publish_wait_ms.max(began.elapsed().as_secs_f64()*1000.);
+        state.sample(topic,data,valid,received);
+    }
+    fn value(&self)->Value{json!({"maxReadGapMs":self.max_read_gap_ms,"lastSerialReadMs":self.last_read_ms,"maxSerialReadMs":self.max_read_ms,"maxPublishLockWaitMs":self.max_publish_wait_ms,"receivedBytes":self.bytes,"timestampBasis":"host_receive"})}
+}
 pub fn spawn_reader(port: String, shared: Shared, stop: Arc<AtomicBool>) {
     std::thread::Builder::new().name("imu-reader".into()).spawn(move || {
         let began = Instant::now(); let mut errors=0u64; let mut counts=[0u64;2];
+        let mut timing=ReaderTiming::default();
         let mut frames=std::collections::BTreeMap::<String,u64>::new(); let mut checksum=0u64;let mut unparsed=0u64;
         while !stop.load(Ordering::Acquire) {
             let result=(||->Result<()> {
@@ -85,19 +100,19 @@ pub fn spawn_reader(port: String, shared: Shared, stop: Arc<AtomicBool>) {
                 let mut queries=Instant::now()-Duration::from_secs(3);let mut last=Instant::now();let mut health=Instant::now()-Duration::from_secs(1);
                 while !stop.load(Ordering::Acquire) {
                     if queries.elapsed()>Duration::from_secs(2)&&(ag.is_none()||gd.is_none()){reader.write_all(&query(3))?;reader.write_all(&query(4))?;queries=Instant::now();}
-                    let mut buf=[0;4096];let n=match reader.read(&mut buf){Ok(n)=>n,Err(e)if e.kind()==std::io::ErrorKind::TimedOut=>0,Err(e)=>return Err(e.into())};
-                    let now=Instant::now();let bad=parser.bad;let parsed=parser.feed(&buf[..n]);checksum+=parser.bad-bad;
+                    let read_start=Instant::now();let mut buf=[0;4096];let n=match reader.read(&mut buf){Ok(n)=>n,Err(e)if e.kind()==std::io::ErrorKind::TimedOut=>0,Err(e)=>return Err(e.into())};
+                    let now=Instant::now();timing.read(now,read_start.elapsed().as_secs_f64()*1000.,n);let bad=parser.bad;let parsed=parser.feed(&buf[..n]);checksum+=parser.bad-bad;
                     for(head,kind,p)in parsed {
                         last=now;if head==0xaf {if p.len()==1&&p[0]<4{if kind==3{gd=Some([250.,500.,1000.,2000.][p[0]as usize]);}if kind==4{ag=Some([2.,4.,8.,16.][p[0]as usize]);}}continue;}
                         *frames.entry(format!("{kind:02x}")).or_default()+=1;
                         if kind==2 {
-                            match quaternion(&p) {Ok(q)=>{counts[0]+=1;let valid=(q.iter().map(|x|x*x).sum::<f64>().sqrt()-1.).abs()<0.05;shared.write().unwrap().sample("imu.orientation",json!({"frame":"sensor","device":"MS901M","timestampBasis":"host_receive","quaternion":q,"accuracy":null,"calibrationId":null,"mountingCalibrated":false}),valid,now);},Err(_)=>unparsed+=1}
+                            match quaternion(&p) {Ok(q)=>{counts[0]+=1;let valid=(q.iter().map(|x|x*x).sum::<f64>().sqrt()-1.).abs()<0.05;timing.publish(&shared,"imu.orientation",json!({"frame":"sensor","device":"MS901M","timestampBasis":"host_receive","quaternion":q,"accuracy":null,"calibrationId":null,"mountingCalibrated":false}),valid,now);},Err(_)=>unparsed+=1}
                         }else if kind==3 {
-                            if let (Some(a),Some(g))=(ag,gd){match raw(&p,a,g){Ok(mut v)=>{counts[1]+=1;for(k,x)in json!({"frame":"sensor","device":"MS901M","timestampBasis":"host_receive","accelAccuracy":null,"gyroAccuracy":null,"accelUnit":"m/s²","gyroUnit":"rad/s"}).as_object().unwrap(){v[k]=x.clone();}shared.write().unwrap().sample("imu.raw",v,true,now);},Err(_)=>unparsed+=1}}
+                            if let (Some(a),Some(g))=(ag,gd){match raw(&p,a,g){Ok(mut v)=>{counts[1]+=1;for(k,x)in json!({"frame":"sensor","device":"MS901M","timestampBasis":"host_receive","accelAccuracy":null,"gyroAccuracy":null,"accelUnit":"m/s²","gyroUnit":"rad/s"}).as_object().unwrap(){v[k]=x.clone();}timing.publish(&shared,"imu.raw",v,true,now);},Err(_)=>unparsed+=1}}
                         }
                     }
                     if health.elapsed()>=Duration::from_millis(500) {
-                        let t=began.elapsed().as_secs_f64().max(0.001);shared.write().unwrap().imu=json!({"device":port,"address":null,"productId":null,"state":"unavailable","sampleAgeMs":null,"counts":{"quaternion":counts[0],"accel":counts[1],"gyro":counts[1]},"observedHz":{"quaternion":counts[0]as f64/t,"accel":counts[1]as f64/t,"gyro":counts[1]as f64/t},"ioErrors":errors,"unparsedReports":unparsed,"droppedEvents":0,"mountingCalibrated":false,"model":"MS901M","baud":115200,"ranges":{"accelG":ag,"gyroDps":gd},"checksumErrors":checksum,"frames":frames,"rangeState":if ag.is_some()&&gd.is_some(){"confirmed"}else{"unknown"}});health=now;
+                        let t=began.elapsed().as_secs_f64().max(0.001);shared.write().unwrap().imu=json!({"device":port,"address":null,"productId":null,"state":"unavailable","sampleAgeMs":null,"counts":{"quaternion":counts[0],"accel":counts[1],"gyro":counts[1]},"observedHz":{"quaternion":counts[0]as f64/t,"accel":counts[1]as f64/t,"gyro":counts[1]as f64/t},"ioErrors":errors,"unparsedReports":unparsed,"droppedEvents":0,"mountingCalibrated":false,"model":"MS901M","baud":115200,"ranges":{"accelG":ag,"gyroDps":gd},"checksumErrors":checksum,"frames":frames,"readerTiming":timing.value(),"rangeState":if ag.is_some()&&gd.is_some(){"confirmed"}else{"unknown"}});health=now;
                     }
                     if last.elapsed()>Duration::from_secs(3){bail!("IMU 数据流中断")}
                 }Ok(())

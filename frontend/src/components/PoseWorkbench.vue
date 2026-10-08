@@ -111,6 +111,7 @@ const value = (values: number[] | undefined, i: number) =>
           }}</span>
           <button class="bench-home" @click="robot?.home()">↺ 回正视角</button>
         </div>
+        <div class="bench-controls">
         <div class="bench-calibration">
           <button
             class="button compact"
@@ -146,6 +147,7 @@ const value = (values: number[] | undefined, i: number) =>
           </select>
           <small>安装方向保存到主板；更改后核对前倾与左倾。</small>
         </label>
+        </div>
       </section>
       <section class="panel bench-imu">
         <div class="bench-panel-head">
@@ -309,9 +311,13 @@ const value = (values: number[] | undefined, i: number) =>
 }
 .bench-model-stage {
   position: relative;
-  flex: 1;
-  min-height: 70px;
+  flex: 1 1 0;
+  min-height: 0;
   background: radial-gradient(ellipse at center, #edf3e8, #fafcf7);
+}
+.bench-controls {
+  flex: 0 0 auto;
+  min-height: 0;
 }
 .bench-model-state {
   position: absolute;
@@ -347,7 +353,8 @@ const value = (values: number[] | undefined, i: number) =>
 .bench-calibration > span {
   font-size: 9px;
   color: #91a17f;
-  width: 100%;
+  flex: 1;
+  min-width: 120px;
 }
 .bench-angles {
   display: grid;

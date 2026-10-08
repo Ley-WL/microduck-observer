@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-08",
+  "scope": "local controls integration only",
+  "frontend": {
+    "testsPassed": 54,
+    "build": "passed"
+  },
+  "gateway": {
+    "testsPassed": 43
+  },
+  "rust": {
+    "testsPassed": 67,
+    "ignored": 1,
+    "arm64Build": "passed"
+  },
+  "android": {
+    "version": "0.9.0",
+    "versionCode": 19,
+    "build": "passed",
+    "lint": "passed",
+    "deviceUITested": false,
+    "apkSha256": "ff93757f9a21665fc1772c39cf7da6645aa25ea2401b5d9a748fc211370b5581"
+  },
+  "package": {
+    "path": "microduck-observer\\deploy\\staging\\observer-xgoduck-controls-20261008.tar.gz",
+    "sha256": "47adb42da4c5f828531383f9b9cf12ab2fdc7dca74a67113ae3fe68b5b19ba29"
+  },
+  "boardDeployed": false,
+  "otaPublished": false,
+  "physicalMotionTested": false
+}

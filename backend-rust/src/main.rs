@@ -1,5 +1,8 @@
 mod calibration;
 mod control;
+mod ducklink;
+mod ducklink_motion;
+mod ducklink_protocol;
 mod guided;
 mod imu;
 mod orientation;
@@ -104,7 +107,7 @@ async fn info(State(a): State<App>) -> Json<Value> {
 async fn health(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     Json(
-        json!({"status":if a.hardware&&s.imu_health()["state"]!="streaming"{"degraded"}else{"ok"},"source":s.source,"imu":s.imu_health(),"tof":if a.tof{s.tof_health()}else{Value::Null},"joints":s.latest.get("joints").map(|v|s.stamp(v)),"logCount":s.logs.len()}),
+        json!({"status":if a.hardware&&s.imu_health()["state"]!="streaming"{"degraded"}else{"ok"},"source":s.source,"imu":s.imu_health(),"bluetooth":s.ble_health,"tof":if a.tof{s.tof_health()}else{Value::Null},"joints":s.latest.get("joints").map(|v|s.stamp(v)),"logCount":s.logs.len()}),
     )
 }
 async fn power_action(State(a): State<App>, Path(action): Path<String>, headers: HeaderMap, body: Bytes) -> Response {
@@ -327,11 +330,17 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
 async fn policy_info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     let meta = policy::metadata_for("stand");
-    let walk = policy::metadata_for("walk");
-    let xgoduck = policy::metadata_for("xgoduck");
+    let models: Vec<Value> = ["stand","walk","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","sitstand_sit","sitstand_stand"].iter().map(|kind| {
+        let metadata=policy::metadata_for(kind);
+        json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata})
+    }).collect();
     Json(
-        json!({"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":[{"kind":"stand","policy":policy::model_id("stand"),"available":meta.is_some(),"metadata":meta},{"kind":"walk","policy":policy::model_id("walk"),"available":walk.is_some(),"metadata":walk},{"kind":"xgoduck","policy":policy::model_id("xgoduck"),"available":xgoduck.is_some(),"metadata":xgoduck}],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
+}
+fn policy_home_command(kind:&str,cal:Value)->anyhow::Result<Value> {
+    let targets=policy::home_targets_for(kind)?;
+    Ok(json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind}))
 }
 async fn policy_action(
     State(a): State<App>,
@@ -339,7 +348,7 @@ async fn policy_action(
     h: HeaderMap,
     b: Bytes,
 ) -> Response {
-    if !["start", "stop", "shadow", "home", "command"].contains(&action.as_str()) {
+    if !["start", "stop", "shadow", "home", "command", "skill", "mouth"].contains(&action.as_str()) {
         return error(StatusCode::NOT_FOUND, "Not Found");
     }
     let body = match check_action(&h, &b, 1024) {
@@ -350,10 +359,27 @@ async fn policy_action(
         return error(StatusCode::CONFLICT, "需要实机传感器与舵机服务");
     };
     if action == "stop" {
-        a.telemetry.write().unwrap().drive = None;
+        let mut shared=a.telemetry.write().unwrap();shared.drive=None;shared.pending_skill=None;
         owner.halt.store(true, Ordering::Release);
         return Json(json!({"state":"stopping","message":"停止模型请求已发送，保持最后目标"}))
             .into_response();
+    }
+    if action=="skill" {
+        let kind=match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())};
+        if policy::metadata_for(kind).is_none() {return error(StatusCode::CONFLICT,"动作模型不可用");}
+        let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少动作序号");};
+        let mut shared=a.telemetry.write().unwrap();
+        if !shared.queue_skill(body["session"].as_str().unwrap_or(""),sequence,kind) {
+            return error(StatusCode::CONFLICT,"动作会话/序号无效，或当前动作/反馈尚未就绪");
+        }
+        return Json(json!({"state":"queued","skill":body["skill"],"sequence":sequence})).into_response();
+    }
+    if action=="mouth" {
+        let Some(degrees)=body["angleDeg"].as_f64().filter(|v|v.is_finite() && (0. ..=30.).contains(v)) else {return error(StatusCode::BAD_REQUEST,"嘴部角度须为0–30°");};
+        let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少指令序号");};
+        let mut shared=a.telemetry.write().unwrap();
+        if !shared.queue_mouth(body["session"].as_str().unwrap_or(""),sequence,degrees) {return error(StatusCode::CONFLICT,"嘴部会话/序号无效，或动作/反馈尚未就绪");}
+        return Json(json!({"state":"queued","angleDeg":degrees})).into_response();
     }
     if action == "command" {
         let twist=match policy::drive_twist(&body) { Ok(v)=>v, Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string()) };
@@ -361,6 +387,20 @@ async fn policy_action(
         let mut shared=a.telemetry.write().unwrap();
         if shared.control["state"]!="policy" || shared.control["kind"]!="xgoduck" {
             return error(StatusCode::CONFLICT,"请先启动XgoDuck零速度平衡，等待预备姿势完成");
+        }
+        if shared.control["feedbackHolding"]==true {
+            let message = if shared.control["policyPhase"]=="imu-hold" {
+                "IMU数据暂时过期，行走已暂停；恢复后请松开并重新按住方向"
+            } else {
+                "舵机反馈暂缺，行走已暂停；恢复后请松开并重新按住方向"
+            };
+            return error(StatusCode::CONFLICT,message);
+        }
+        if shared.control["activeSkill"]=="sitstand_sit" {
+            return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
+        }
+        if shared.pending_skill.is_some() || shared.control["activeSkill"].as_str().is_some_and(|kind|kind!="xgoduck") {
+            return error(StatusCode::CONFLICT,"动作执行中，方向指令暂不可用");
         }
         let Some(drive)=shared.drive.as_mut() else { return error(StatusCode::CONFLICT,"行走会话已结束"); };
         if !drive.update(body["session"].as_str().unwrap_or(""),sequence,twist) {
@@ -372,6 +412,7 @@ async fn policy_action(
         Ok(profile) => profile,
         Err(e) => return error(StatusCode::BAD_REQUEST, &e.to_string()),
     };
+    if action=="home" && matches!(kind,"xgoduck_getup"|"sitstand_stand") {return error(StatusCode::BAD_REQUEST,"起身从当前姿态启动，不使用站立HOME");}
     let permit = match a.gate.clone().try_acquire_owned() {
         Ok(p) => p,
         Err(_) => return error(StatusCode::CONFLICT, "已有标定或运动任务正在执行"),
@@ -382,17 +423,14 @@ async fn policy_action(
         return error(StatusCode::CONFLICT, "标定已更新，请刷新后重试");
     }
     let command = if action == "home" {
-        let targets = match policy::home_targets_for(kind) {
-            Ok(targets) => targets,
-            Err(e) => return error(StatusCode::CONFLICT, &e.to_string()),
-        };
-        json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind})
+        match policy_home_command(kind,cal) {Ok(command)=>command,Err(e)=>return error(StatusCode::CONFLICT,&e.to_string())}
     } else {
         json!({"action":"policy","calibration":cal,"shadow":action=="shadow","kind":kind,"speed":speed})
     };
     let drive_session=uuid::Uuid::new_v4().to_string();
     if action=="start" {
-        a.telemetry.write().unwrap().drive = if kind=="xgoduck" { Some(crate::telemetry::DriveCommand {
+        {let mut state=a.telemetry.write().unwrap();state.pending_skill=None;state.pending_mouth=None;state.mouth_degrees=0.;}
+        a.telemetry.write().unwrap().drive = if policy::is_xgoduck(kind) { Some(crate::telemetry::DriveCommand {
             session:drive_session.clone(),sequence:0,twist:[0.;3],updated:Instant::now(),
         }) } else {None};
     }
@@ -405,7 +443,7 @@ async fn policy_action(
             let _ = rx.await;
         });
         return Json(
-            json!({"state":"preflight","policy":policy::model_id(kind),"kind":kind,"driveSession":drive_session,"message":"模型启动，先过渡到所选模型姿势，再持续推理"}),
+            json!({"state":"preflight","policy":policy::model_id(kind),"kind":kind,"driveSession":drive_session,"message":if kind=="xgoduck_getup" {"起身模型启动，从当前姿态使能后推理"} else {"模型启动，先过渡到所选模型姿势，再持续推理"}}),
         )
         .into_response();
     }
@@ -607,6 +645,7 @@ async fn main() -> anyhow::Result<()> {
         .allow_methods([Method::GET, Method::POST])
         .allow_headers([axum::http::header::CONTENT_TYPE]);
     let shutdown_app = a.clone();
+    let ble_app = a.clone();
     let owner = a.owner.clone();
     let router = Router::new()
         .route("/api/v1/info", get(info))
@@ -628,6 +667,9 @@ async fn main() -> anyhow::Result<()> {
         .layer(cors)
         .layer(axum::middleware::from_fn(api_errors))
         .with_state(a);
+    if env("MICRODUCK_BLE_ENABLED", "0") == "1" {
+        ducklink::spawn(ble_app, router.clone(), stop.clone());
+    }
     let listener = tokio::net::TcpListener::bind(env("MICRODUCK_BIND", "127.0.0.1:8878")).await?;
     axum::serve(listener, router)
         .with_graceful_shutdown(shutdown_signal(shutdown_app))

@@ -1,0 +1,65 @@
+Oct 08 20:29:47 microduck kernel: mmcblk1: mmc1:e624 SN64G 59.5 GiB 
+Oct 08 20:29:47 microduck kernel:  mmcblk1: p1
+Oct 08 20:29:47 microduck kernel: EXT4-fs (mmcblk1p1): mounted filesystem with writeback data mode. Quota mode: none.
+Oct 08 20:29:47 microduck kernel: EXT4-fs (mmcblk1p1): re-mounted. Quota mode: none.
+Oct 08 20:29:47 microduck kernel: EXT4-fs (zram1): mounted filesystem without journal. Quota mode: none.
+Oct 08 20:56:10 microduck kernel: I/O error, dev mmcblk1, sector 2134920 op 0x1:(WRITE) flags 0x9800 phys_seg 1 prio class 2
+Oct 08 20:56:10 microduck kernel: Aborting journal on device mmcblk1p1-8.
+Oct 08 20:56:10 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm (sd-rmrf): Detected aborted journal
+Oct 08 20:56:10 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:15 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:56:15 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:15 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:56:15 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:23 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:56:23 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:23 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:56:23 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:31 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:56:31 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:31 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:56:31 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:35 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd-timesyn: Detected aborted journal
+Oct 08 20:56:35 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:39 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:56:39 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:39 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:56:39 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:48 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:56:48 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:48 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:56:48 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:56 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:56:56 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:56:56 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:56:56 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:04 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:57:04 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:04 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:57:04 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:08 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd-timesyn: Detected aborted journal
+Oct 08 20:57:08 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:12 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:57:12 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:12 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:57:12 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:21 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:57:21 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:21 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:57:21 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:29 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:57:29 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:29 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:57:29 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:37 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:57:37 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:37 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:57:37 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:45 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:57:45 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:45 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:57:45 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:53 microduck kernel: EXT4-fs error (device mmcblk1p1): ext4_journal_check_start:83: comm systemd: Detected aborted journal
+Oct 08 20:57:53 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only
+Oct 08 20:57:53 microduck kernel: EXT4-fs error (device mmcblk1p1) in __ext4_new_inode:1088: Journal has aborted
+Oct 08 20:57:53 microduck kernel: EXT4-fs (mmcblk1p1): Remounting filesystem read-only

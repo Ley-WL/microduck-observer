@@ -1,5 +1,23 @@
 # IMU实测
 
+## 2026-10-08 IMU暂停恢复机制已部署（只读验证）
+
+用户授权短暂过期暂停/恢复。policy-loop在处理异步推理结果与写新模型目标前检查姿态/raw有效性和年龄；缺失或≥150ms清在途generation结果、暂停推理、清待发动作/嘴请求、行走归零，保持最后测得14关节姿态。反馈保持时方向指令也拒绝；恢复同会话/valid硬件新鲜数据才重新提交观测，暂停≥200ms清动作/速度/陀螺滤波历史。动作有效进度在暂停期间不推进；恢复行走需要重新按住，非自动续旧指令。任一数据年龄≥1000ms或无法取得数据连续1秒仍卸力；预检查过期仍拒绝启动，非法数据/IMU会话错误/真实舵机故障/电压保护保持。1秒为本机恢复等待配置，不冒称上游参数。
+
+采集新增readerTiming：maxReadGapMs、last/maxSerialReadMs、maxPublishLockWaitMs、receivedBytes，保持host_receive真实采集时间，不刷新旧样本时间戳。故障证据包含readerDiagnostics。71 Rust测试通过/1忽略、ARM构建通过；短过期/恢复/持续中断/无效数据/取消旧方向与排队动作有测试。部署release20261008-imu-pause-v1成功；模型/网页文件保持，物理标定/舵机寄存器保持，20部署快照与另25只读快照均无缺、15未使能。未启动策略/人为断开IMU/发动作，暂停恢复运动效果尚未实物验收。
+
+部署后只读诊断：maxPublishLockWaitMs167.264905、maxReadGapMs167.688112、maxSerialReadMs27.12824。这明确捕捉到主机遥测发布锁等待能够拉长采集间隔，不能仅归因于MS901M断流；尚未定位哪个持锁者及不能证明原234ms故障唯一根因。硬件/温度/调度问题仍待进一步定位。证据附件/平台/2026-10-08/imu-pause/{deployment,readonly-verification}.json。
+
+## 2026-10-08 IMU短暂过期触发策略卸力（只读诊断）
+
+用户报告imu.orientation age234.162677ms、policy-loop、15卸力。故障包activeSkill=xgoduck（零速度walk），不是坐下/站起模型；本次15舵机回包完整、315字节、校验0，读取14.348406ms。现有policy.observe对姿态/原始IMU任一年龄≥150ms直接返回错误，外层执行卸力；仅舵机StaleFeedback进入保持路径，IMU暂时过期没有恢复等待。失败后IMU已恢复，15torque0/fault0。
+
+8秒只读HTTP采集170份，最大姿态年龄177.283ms、raw175.012ms，HTTP最长258.311ms；累计IMU约199.8Hz、ioErrors0/checksumErrors0/unparsed0。主板只读SoC温度约85℃、频率816MHz，存在调度/热状态影响可能，但未证明热降频或共享锁是根因，亦不能凭零I/O错误排除传感器/驱动短暂停顿。当前采集时间为host_receive，缺少serial-read/锁等待时间和失败瞬间采集计数；保存异常后传感器可能已更新，不能把lastInferenceSensors冒称导致失败的过期样本。
+
+核对固定上游版本：XgoDuck runtime_arduino 8cdbbd8 controller.py，hold/policy下反馈age>.15或imu_ok=false转shadow/关闭使能；不是无限沿用旧IMU。MicroDuck官方dec725c robotd：总线失败使用Coast最多3帧（50Hz约60ms），随后停止推理并保持最后测得姿态，≥200ms暂停恢复清动作上下文。官方IMU使用LSM6DSV16X总线板，重复完整IMU块计数/告警仍decode，不是本机MS901M异步串口150ms年龄协议。不能直接把3帧理解成允许234ms旧IMU继续推理。
+
+建议本机将短暂IMU过期作为暂停推理/清在途结果/方向归零与保持路径，在新鲜同会话数据恢复后恢复；真实长期中断保留停机，避免无限旧姿态闭环。需要同步记录采集间隔、锁等待、控制tick延迟才能继续定位根因。本次仅诊断/查上游，未改阈值、标定、保护或发动作。证据附件/IMU/2026-10-08/timeout/{policy-failure-latest,snapshot,readonly-samples,analysis}.json及sources。
+
 ## 2026-10-05 failed结束状态阻止再次归零修复（最新）
 
 用户反馈Roll不对且无法再次归零。只读快照revision225，旧IMU参考/安装/target均在，当前有效IMU同会话；servoControl残留旧“未完成IMU标定”failed信息。按网页同一公式计算roll约−16.084°、pitch0.778°、yaw−172.583°；数值是旧参考与当前姿态的相对结果，不能证明实物真实侧倾或安装方向故障，未因此自动改参考。

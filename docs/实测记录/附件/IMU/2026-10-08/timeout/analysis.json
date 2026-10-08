@@ -1,0 +1,19 @@
+{
+  "error": "IMU 数据缺失或过期（imu.orientation，age=234.1626770000439ms）",
+  "activeSkill": "xgoduck",
+  "missing": [],
+  "checksumErrors": 0,
+  "readMs": 14.348405999999999,
+  "unload": {
+    "message": "15 个舵机已失能（卸力）",
+    "state": "disabled",
+    "unconfirmedIds": []
+  },
+  "readonlySampleCount": 170,
+  "maxOrientationAgeMs": 177.2829990000464,
+  "maxRawAgeMs": 175.01207699987572,
+  "imuErrors": 0,
+  "imuChecksumErrors": 0,
+  "temperatureC": 85.0,
+  "conclusion": "IMU freshness guard caused immediate unload. Intermittent host-visible sample staleness observed; serial stream failure versus scheduling/lock delay unresolved. No motion or control changes."
+}

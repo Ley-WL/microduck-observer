@@ -1,0 +1,12 @@
+{
+  "artifact": "microduck-observer\\deploy\\staging\\observer-xgoduck-skills-20261008.tar.gz",
+  "sha256": "89d1ed5ae1352e95ed8a59272fde9667d7023b4940247373e57b2df1c43a952b",
+  "models": [
+    "xgoduck_walk",
+    "xgoduck_getup",
+    "xgoduck_pick",
+    "xgoduck_roulade"
+  ],
+  "deployed": false,
+  "reason": "user powered board off and requested program preparation only"
+}

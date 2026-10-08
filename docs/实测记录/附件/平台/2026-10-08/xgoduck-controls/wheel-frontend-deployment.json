@@ -1,0 +1,15 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/20261008-xgoduck-skills-v1",
+  "backup": "/home/radxa/microduck-observer/releases/20261008-xgoduck-skills-v1/frontend/dist/index.before-wheel-20261008.html",
+  "httpHashesMatch": {
+    "index.html": true,
+    "model/NOTICE.md": true,
+    "model/LICENSE": true,
+    "model/meshes.bin": true,
+    "model/model.json": true,
+    "assets/index-CamKRCqc.css": true,
+    "assets/index-CVVf8CbH.js": true
+  },
+  "serviceRestarted": false,
+  "motorCommands": 0
+}

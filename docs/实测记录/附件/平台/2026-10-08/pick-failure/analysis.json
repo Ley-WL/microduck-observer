@@ -1,0 +1,20 @@
+{
+  "model": "xgoduck_pick",
+  "rawNeckTargetDegrees": -131.7974339228304,
+  "sentNeckTargetDegrees": -90.0,
+  "limitDegrees": [
+    -90,
+    60
+  ],
+  "triggerPosition": 3105,
+  "triggerAngleDegrees": -90.84411621093749,
+  "previousSavedPosition": 3081,
+  "previousSavedAngleDegrees": -88.73474121093749,
+  "goalPosition": 3095,
+  "goalAngleDegrees": -89.96520996093749,
+  "beyondLowerLimitDegrees": 0.8441162109374858,
+  "goalOvershootSteps": 10,
+  "allChecksumValid": true,
+  "interpretation": "target saturated at range edge; successive positions approach boundary then exceed it; likely tracking overshoot, cannot establish physical cause from one trace",
+  "motorCommands": 0
+}

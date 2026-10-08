@@ -1,0 +1,43 @@
+{
+  "models": [
+    [
+      "stand",
+      true
+    ],
+    [
+      "walk",
+      true
+    ],
+    [
+      "xgoduck",
+      true
+    ],
+    [
+      "xgoduck_getup",
+      true
+    ],
+    [
+      "xgoduck_pick",
+      true
+    ],
+    [
+      "xgoduck_roulade",
+      true
+    ],
+    [
+      "sitstand_sit",
+      true
+    ],
+    [
+      "sitstand_stand",
+      true
+    ]
+  ],
+  "state": "idle",
+  "sourceRevision": "6677ec007142bbaf05123a468f6ae58d13808786",
+  "resources": {
+    "http://192.168.31.186:8877/index.html": "5cef2eb9cd4d492701d1ec811a2dac7cbc100371062a03c95e205478aaa4dedd",
+    "http://192.168.31.186:8877/assets/index-Bi9w_e6u.js": "6ee88274ddb90b759bef1c42532d1a5a50c40f3ecddfee72c894b00848c76477",
+    "http://192.168.31.186:8877/assets/index-Bo-cIt4P.css": "0605ecc100be9c9b88548c73438a633e10f5f296b22e909741008d8737a80326"
+  }
+}

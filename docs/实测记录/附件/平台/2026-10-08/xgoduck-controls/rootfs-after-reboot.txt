@@ -1,0 +1,7 @@
+Oct 08 20:29:47 microduck kernel: mmcblk1: mmc1:e624 SN64G 59.5 GiB 
+Oct 08 20:29:47 microduck kernel:  mmcblk1: p1
+Oct 08 20:29:47 microduck kernel: EXT4-fs (mmcblk1p1): mounted filesystem with writeback data mode. Quota mode: none.
+Oct 08 20:29:47 microduck kernel: EXT4-fs (mmcblk1p1): re-mounted. Quota mode: none.
+Oct 08 20:29:47 microduck kernel: EXT4-fs (zram1): mounted filesystem without journal. Quota mode: none.
+active
+active

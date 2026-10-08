@@ -24,17 +24,67 @@ impl std::fmt::Display for StaleFeedback {
     }
 }
 impl std::error::Error for StaleFeedback {}
+const IMU_FRESH_MS: f64 = 150.;
+const IMU_STOP_MS: f64 = 1000.;
+#[derive(Debug)]
+struct StaleImu { topic: &'static str, age_ms: f64 }
+impl std::fmt::Display for StaleImu {
+    fn fmt(&self,f:&mut std::fmt::Formatter<'_>)->std::fmt::Result {
+        write!(f,"IMU 数据缺失或过期（{}，age={}ms）",self.topic,self.age_ms)
+    }
+}
+impl std::error::Error for StaleImu {}
+fn imu_samples(shared:&Shared)->Result<BTreeMap<&'static str,Value>> {
+    let state=shared.read().unwrap();
+    let mut samples=BTreeMap::new();
+    let mut stale:Option<StaleImu>=None;
+    for topic in ["imu.orientation","imu.raw"] {
+        let Some(sample)=state.latest.get(topic) else {stale=Some(StaleImu{topic,age_ms:f64::INFINITY});continue;};
+        // Invalid data and session errors remain fatal; only missing/aged samples pause.
+        if sample["valid"]!=true || sample["source"]!="hardware" {bail!("IMU 数据无效（{topic}）");}
+        let age_ms=state.stamp(sample)["ageMs"].as_f64().unwrap_or(f64::INFINITY);
+        if (!age_ms.is_finite() || !(0. ..IMU_FRESH_MS).contains(&age_ms)) && stale.as_ref().is_none_or(|old|age_ms>old.age_ms) {stale=Some(StaleImu{topic,age_ms});}
+        samples.insert(topic,sample.clone());
+    }
+    if samples.len()==2 && samples["imu.orientation"]["bootId"]!=samples["imu.raw"]["bootId"] {bail!("IMU 会话不一致");}
+    if let Some(stale)=stale {return Err(stale.into());}
+    Ok(samples)
+}
+#[derive(Default)]
+struct ImuPause { since:Option<Instant>, episodes:u64, recoveries:u64, last_age_ms:f64 }
+impl ImuPause {
+    fn assess(&mut self,result:Result<BTreeMap<&'static str,Value>>,now:Instant)->Result<bool> {
+        match result {
+            Ok(_) => {if self.since.take().is_some(){self.recoveries+=1;} Ok(true)}
+            Err(error) if error.is::<StaleImu>() => {
+                let stale=error.downcast_ref::<StaleImu>().unwrap();self.last_age_ms=stale.age_ms;
+                let since=*self.since.get_or_insert_with(||{self.episodes+=1;now});
+                if (stale.age_ms.is_finite() && stale.age_ms>=IMU_STOP_MS) || now.duration_since(since)>=Duration::from_millis(IMU_STOP_MS as u64) {
+                    bail!("IMU 持续中断，停机卸力：{error}");
+                }
+                Ok(false)
+            }
+            Err(error)=>Err(error),
+        }
+    }
+}
+fn pause_drive(shared:&Shared) {
+    let mut state=shared.write().unwrap();
+    if let Some(drive)=state.drive.as_mut(){drive.twist=[0.;3];drive.updated=Instant::now();}
+    state.pending_skill=None;state.pending_mouth=None;
+    state.control["feedbackHolding"]=json!(true);
+}
 fn check_feedback_age(id: u8, received: f64, now: f64) -> Result<()> {
     if !(0.0..0.15).contains(&(now - received)) {
         return Err(StaleFeedback(id).into());
     }
     Ok(())
 }
-// Only servo age expiration enters the hold path; other sensor/fault errors propagate.
+// Only sample absence/age enters the hold path; invalid data and real faults propagate.
 fn observation_or_hold(result: Result<Vec<f32>>) -> Result<Option<Vec<f32>>> {
     match result {
         Ok(obs) => Ok(Some(obs)),
-        Err(e) if e.is::<StaleFeedback>() => Ok(None),
+        Err(e) if e.is::<StaleFeedback>() || e.is::<StaleImu>() => Ok(None),
         Err(e) => Err(e),
     }
 }
@@ -72,14 +122,40 @@ pub fn path() -> PathBuf {
 }
 pub fn path_for(kind: &str) -> Result<PathBuf> {
     match kind {
+        "sitstand_sit" | "sitstand_stand" => Ok(path().with_file_name("alpha_sitstand.onnx")),
         "stand" => Ok(path()),
         "walk" => Ok(path().with_file_name("hd1910-walk-v6-symmetry500.onnx")),
         "xgoduck" => Ok(path().with_file_name("xgoduck_walk.onnx")),
+        "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" => Ok(path().with_file_name(format!("{kind}.onnx"))),
         _ => bail!("未知模型类型"),
     }
 }
 pub fn model_id(kind: &str) -> &'static str {
-    match kind { "walk" => "hd1910-walk-v6-symmetry500", "xgoduck" => "xgoduck_walk", _ => "hd1910-head-v5" }
+    match kind { "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "walk" => "hd1910-walk-v6-symmetry500", "xgoduck" => "xgoduck_walk",
+        "xgoduck_getup" => "xgoduck_getup", "xgoduck_pick" => "xgoduck_pick",
+        "xgoduck_roulade" => "xgoduck_roulade", _ => "hd1910-head-v5" }
+}
+pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
+pub fn skill_kind(value: &Value) -> Result<&str> {
+    match value.as_str() {
+        Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
+        Some("sit") => Ok("sitstand_sit"), Some("standup") => Ok("sitstand_stand"),
+        Some("roulade") => Ok("xgoduck_roulade"), _ => bail!("动作须为getup/pick/roulade/sit/standup"),
+    }
+}
+fn skill_twist(kind: &str, progress: f64) -> [f32;3] {
+    if kind == "sitstand_sit" { [1.,0.,0.] } else if kind == "xgoduck_pick" {
+        let phase = std::f64::consts::TAU * (progress / 4.).clamp(0., 1.);
+        [phase.cos() as f32, phase.sin() as f32, 0.]
+    } else { [0.;3] }
+}
+fn skill_complete(kind: &str, progress: f64, upright: f64) -> bool {
+    match kind { "sitstand_stand" => progress >= 1., "xgoduck_pick" => progress >= 4., "xgoduck_roulade" => progress >= 1.9,
+        "xgoduck_getup" => upright >= 1., _ => false }
+}
+fn tilt(obs: &[f32]) -> f64 {
+    let norm = obs[3..6].iter().map(|v| (*v as f64).powi(2)).sum::<f64>().sqrt();
+    (-(obs[5] as f64) / norm).clamp(-1.,1.).acos().to_degrees()
 }
 pub fn request_profile(body: &Value) -> Result<(&str, f32)> {
     let kind = match body.get("kind") {
@@ -162,7 +238,8 @@ fn verified_metadata_for(kind: &str) -> Result<Value> {
         bail!("模型关节顺序或频率不匹配")
     }
     if kind == "walk" && meta["task"] != "Mjlab-Walk-Flat-MicroDuck-HD1910" { bail!("行走模型任务不匹配") }
-    if kind == "xgoduck" && meta["task"] != "Mjlab-Velocity-Flat-XgoDuck" { bail!("XgoDuck模型任务不匹配") }
+    if kind.starts_with("sitstand_") && (meta["runtimeKind"]!="official_sitstand" || meta["task"]!="Mjlab-SitStand-Flat-MicroDuck") { bail!("官方坐站模型任务不匹配") }
+    if is_xgoduck(kind) && !kind.starts_with("sitstand_") && meta["runtimeKind"] != kind && !(kind=="xgoduck" && meta["task"]=="Mjlab-Velocity-Flat-XgoDuck") { bail!("XgoDuck模型任务不匹配") }
     let sha = format!("{:x}", Sha256::digest(std::fs::read(p)?));
     if meta["policySha256"] != sha {
         bail!("模型 SHA256 不匹配")
@@ -176,10 +253,43 @@ pub fn home_targets_for(kind: &str) -> Result<BTreeMap<u8, f64>> {
     Ok(ORDER.into_iter().zip(orientation::vector::<14>(&meta["homeRadians"])?
         .map(|v| v as f32 as f64)).collect())
 }
-fn smooth_action(previous: &[f32; 14], raw: &[f32; 14]) -> [f32; 14] {
-    std::array::from_fn(|n| previous[n] * 0.45 + raw[n] * 0.55)
+fn smooth_action(previous: &[f32; 14], raw: &[f32; 14]) -> [f32; 14] { smooth_skill("xgoduck",previous,raw) }
+fn smooth_skill(kind:&str, previous:&[f32;14], raw:&[f32;14]) -> [f32;14] {
+    let alpha=if kind=="xgoduck_roulade" {0.15} else {0.45};
+    std::array::from_fn(|n|previous[n]*alpha+raw[n]*(1.-alpha))
+}
+fn arm_current<T: control::Transport>(bus: &mut T, ids: &[u8], feedback: &Feedback, gains:(u8,u8), cancel:&AtomicBool, halt:&AtomicBool) -> Result<()> {
+    let guard=|| -> Result<()> {if cancel.load(Ordering::Acquire)||halt.load(Ordering::Acquire) {bail!("启动动作已取消");} Ok(())};
+    guard()?;
+    let mut positions=BTreeMap::new();
+    for id in ids {
+        control::validate(*id,feedback.get(id),false)?;
+        let position=feedback[id]["position"].as_i64().ok_or_else(||anyhow::anyhow!("位置无效"))? as i32;
+        control::encode(position)?;
+        let (lo,hi,cap)=control::configuration(bus,*id)?;
+        if cap==0 || cap>1000 || (hi>lo && (position<lo || position>hi)) {bail!("#{id} 硬件配置或当前位置不支持使能");}
+        positions.insert(*id,position);
+    }
+    guard()?;
+    control::goals(bus,&positions)?;
+    control::profiles_with_gains(bus,ids,feedback,gains)?;
+    let disabled=ids.iter().filter(|id|feedback[id]["torque"]!=1).map(|id|(*id,vec![1])).collect::<BTreeMap<_,_>>();
+    guard()?;
+    if !disabled.is_empty() {bus.sync(40,&disabled)?;}
+    let enabled=bus.feedback(ids)?;
+    for id in ids {
+        control::validate(*id,enabled.get(id),true)?;
+        if enabled[id]["kpRaw"]!=gains.0 || enabled[id]["kdRaw"]!=gains.1 {bail!("#{id} 临时增益未确认");}
+    }
+    // Reassert aligned targets last; never put torque-enable after a goal.
+    guard()?;
+    control::goals(bus,&positions)?;
+    Ok(())
 }
 struct Model {
+    kind: String,
+    progress: f64,
+    upright: f64,
     session: std::sync::Arc<std::sync::Mutex<Session>>,
     command_twist: [f32;3],
     home: [f32; 14],
@@ -318,8 +428,10 @@ impl Model {
             if values.len()!=14 || values.iter().any(|value|!value.is_finite()) { bail!("模型预热输出无效") }
         }
         Ok(Self {
+            kind: kind.to_owned(),
+            progress: 0., upright: 0.,
             session: std::sync::Arc::new(std::sync::Mutex::new(session)),
-            command_twist: [speed,0.,0.],
+            command_twist: if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
             home,
             sha,
             previous: None,
@@ -333,27 +445,8 @@ impl Model {
         })
     }
     fn observe(&mut self, shared: &Shared, feedback: &Feedback, cal: &Value) -> Result<Vec<f32>> {
-        let s = shared.read().unwrap();
-        let now = crate::telemetry::monotonic();
-        let mut sensors = BTreeMap::new();
-        for key in ["imu.orientation", "imu.raw"] {
-            let sample = s
-                .latest
-                .get(key)
-                .ok_or_else(|| anyhow::anyhow!("IMU 数据缺失或过期（{key}）"))?;
-            let age = s.stamp(sample)["ageMs"].as_f64().unwrap_or(f64::INFINITY);
-            if sample["valid"] != true
-                || sample["source"] != "hardware"
-                || !(0.0..150.).contains(&age)
-            {
-                bail!("IMU 数据缺失或过期（{key}，age={age}ms）")
-            };
-            sensors.insert(key, sample.clone());
-        }
-        if sensors["imu.orientation"]["bootId"] != sensors["imu.raw"]["bootId"] {
-            bail!("IMU 会话不一致")
-        }
-        drop(s);
+        let sensors=imu_samples(shared)?;
+        let now=crate::telemetry::monotonic();
         let imu = &cal["imu"];
         if imu["initialized"] != true || imu["mountingQuaternion"].is_null() {
             bail!("请先完成 IMU 位置和安装方向标定")
@@ -502,6 +595,13 @@ pub fn execute(
 ) -> Result<Value> {
     let (kind, speed) = request_profile(command)?;
     let mut model = Model::open_for(kind, speed)?;
+    // Load and warm before any enable/goal write; transitions never load a graph on UART.
+    let mut bank = BTreeMap::new();
+    if is_xgoduck(kind) && command["shadow"] != true {
+        for next in ["xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand"] {
+            if next != kind { bank.insert(next.to_owned(), Model::open_for(next, 0.)?); }
+        }
+    }
     let cal = &command["calibration"];
     let mut attempted = false;
     let mut stage = "preflight";
@@ -515,7 +615,7 @@ pub fn execute(
     let stats = |model: &Model, timing: &control::Timing, infer_ms: f64| -> Value {
         let mut v = timing.stats();
         v["commandTargetHz"]=json!(100);
-        for (key,value) in json!({"policy":model_id(kind),"kind":kind,"walkSpeedMps":speed,"policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"runtimeProfile":"xgoduck-schedule100-v1","homeCommandTargetHz":50,"feedbackReplyBudgetMs":6,"feedbackTargetHz":100,"inferenceTargetHz":50,"actionAlpha":0.45,"velocitySource":"servo-register","velocityAlphaAt100Hz":0.4,"kpRun":control::POLICY_GAINS.0,"kdRun":control::POLICY_GAINS.1,"kpHome":control::MANUAL_GAINS.0,"kdHome":control::MANUAL_GAINS.1,"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
+        for (key,value) in json!({"policy":model_id(&model.kind),"kind":if is_xgoduck(kind) {"xgoduck"} else {kind},"requestedKind":kind,"activeSkill":model.kind,"skillProgressSeconds":model.progress,"posture":if model.kind=="sitstand_sit" {if model.progress>=2. {"seated"} else {"sitting"}} else if model.kind=="sitstand_stand" {"rising"} else {"standing"},"walkSpeedMps":speed,"policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"runtimeProfile":"xgoduck-schedule100-v1","homeCommandTargetHz":50,"feedbackReplyBudgetMs":6,"feedbackTargetHz":100,"inferenceTargetHz":50,"actionAlpha":if model.kind=="xgoduck_roulade" {0.15} else {0.45},"velocitySource":"servo-register","velocityAlphaAt100Hz":0.4,"kpRun":control::POLICY_GAINS.0,"kdRun":control::POLICY_GAINS.1,"kpHome":control::MANUAL_GAINS.0,"kdHome":control::MANUAL_GAINS.1,"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
         let s = shared.read().unwrap();
         let ages: BTreeMap<_, _> = ["imu.orientation", "imu.raw"]
             .into_iter()
@@ -530,7 +630,7 @@ pub fn execute(
             .collect();
         v["imuAgeMs"] = json!(ages);
         v["commandTwist"] = json!(model.command_twist);
-        v["walkSpeedMps"] = json!(model.command_twist[0]);
+        v["walkSpeedMps"] = json!(if model.kind.starts_with("sitstand_") {0.} else {model.command_twist[0]});
         v["driveSession"] = json!(s.drive.as_ref().map(|d|d.session.as_str()));
         v["cycleCosts"] = costs.lock().unwrap().value();
         v
@@ -544,7 +644,10 @@ pub fn execute(
             json!({"state":"preflight","action":"policy","policy":model_id(kind),"kind":kind,"message":format!("{}模型与实时传感器预检查",if kind=="walk" {"行走"} else {"站立"})}),
         );
         feedback = bus.read_feedback(&IDS)?;
-        model.observe(shared, &feedback, cal)?;
+        let initial_obs = model.observe(shared, &feedback, cal)?;
+        if matches!(kind,"xgoduck_pick"|"xgoduck_roulade"|"sitstand_sit"|"sitstand_stand") && tilt(&initial_obs)>55. {
+            bail!("拾取/翻滚需要先处于直立平衡状态");
+        }
         let mut limits = BTreeMap::new();
         for id in ORDER {
             let (low, high, _) = control::configuration(bus, id)?;
@@ -556,7 +659,7 @@ pub fn execute(
             let obs = model.observe(shared, &feedback, cal)?;
             let (action, ms) = model.infer(obs)?;
             infer_ms = ms;
-            let (compatible, reason) = match model.targets(smooth_action(&model.filtered_action, &action), &feedback, cal, &limits) {
+            let (compatible, reason) = match model.targets(smooth_skill(&model.kind,&model.filtered_action, &action), &feedback, cal, &limits) {
                 Ok(g) => {
                     goals = g;
                     (true, String::new())
@@ -569,7 +672,7 @@ pub fn execute(
             v["message"] = json!("模型只读推理完成，未发运动指令");
             v["targets"] = json!(goals);
             v["targetDegrees"] = json!((0..14)
-                .map(|n| ((model.home[n] + smooth_action(&model.filtered_action, &action)[n]) as f64).to_degrees())
+                .map(|n| ((model.home[n] + smooth_skill(&model.kind,&model.filtered_action, &action)[n]) as f64).to_degrees())
                 .collect::<Vec<_>>());
             v["currentPoseTargetsCompatible"] = json!(compatible);
             v["reason"] = json!(reason);
@@ -579,14 +682,15 @@ pub fn execute(
             .into_iter()
             .zip(model.home.map(|v| v as f64))
             .collect();
-        stage = "home-transition";
+        stage = if matches!(kind,"xgoduck_getup"|"sitstand_stand") {"current-pose-enable"} else {"home-transition"};
         attempted = true;
-        control::execute(
-            bus,
-            &json!({"action":"stand","calibration":cal,"standTargets":home}),
-            cancel,
-            shared,
-        )?;
+        if matches!(kind,"xgoduck_getup"|"sitstand_stand") {
+            // Fallen starts must not use the upright HOME transition.
+            arm_current(bus,&ORDER,&feedback,control::MANUAL_GAINS,cancel,halt)?;
+        } else {
+            control::execute(bus,&json!({"action":"stand","calibration":cal,"standTargets":home}),cancel,shared)?;
+        }
+        if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) { return control::unload(bus); }
         // HOME completes with the manual gains. Switch only the model joints
         // after arrival; retain enabled state and HOME goals throughout.
         stage = "policy-profile";
@@ -606,20 +710,35 @@ pub fn execute(
         model.last_action = [0.; 14];
         model.filtered_action = [0.; 14];
         model.filtered_gyro = None;
-        goals=model.targets([0.;14],&feedback,cal,&limits)?;
-        let worker=InferenceWorker::new(model.session.clone());
+        goals=if matches!(kind,"xgoduck_getup"|"sitstand_stand") { ORDER.iter().map(|id|(*id,feedback[id]["position"].as_i64().unwrap() as i32)).collect() }
+            else {model.targets([0.;14],&feedback,cal,&limits)?};
+        let mouth_limits = if is_xgoduck(kind) {Some(control::configuration(bus,34)?)} else {None};
+        let mut mouth_owned = false;
+        if kind=="xgoduck_pick" { arm_current(bus,&[34],&feedback,control::MANUAL_GAINS,cancel,halt)?; mouth_owned=true; }
+        let mut worker=InferenceWorker::new(model.session.clone());
         let mut generation=0u64;
         stage = "policy-loop";
         let mut clock = control::FrameClock::with_period(Instant::now(), Duration::from_millis(10));
         let mut next_inference = Instant::now();
         let mut coast = control::FeedbackCoast::default();
         let mut paused: Option<Instant> = None;
+        let mut imu_pause=ImuPause::default();
         let mut last_status = Instant::now() - Duration::from_secs(1);
         // Bounded timestamp ring keeps long running policies at constant memory.
         while !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
             let cycle_start=Instant::now();
-            if kind=="xgoduck" {
-                let twist=shared.read().unwrap().drive.as_ref().map(|d|d.current()).unwrap_or([0.;3]);
+            let imu_ready=imu_pause.assess(imu_samples(shared),cycle_start)?;
+            if !imu_ready {
+                pause_drive(shared);model.command_twist=[0.;3];
+                if paused.is_none() {
+                    generation+=1;worker.clear();paused=Some(cycle_start);
+                    goals=ORDER.iter().map(|id|(*id,feedback[id]["position"].as_i64().unwrap() as i32)).collect();
+                    if mouth_owned {goals.insert(34,feedback[&34]["position"].as_i64().unwrap() as i32);}
+                }
+            }
+            if is_xgoduck(kind) {
+                let twist=if model.kind=="xgoduck" {shared.read().unwrap().drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])}
+                    else {skill_twist(&model.kind,model.progress)};
                 if twist!=model.command_twist {
                     model.command_twist=twist;
                     generation+=1; worker.clear(); next_inference=Instant::now();
@@ -633,7 +752,10 @@ pub fn execute(
                     if result_generation==generation && submitted.elapsed()<Duration::from_millis(150) {
                         costs.lock().unwrap().result_age_ms=submitted.elapsed().as_secs_f64()*1000.;
                         let (action,ms)=result?;infer_ms=ms;last_obs=Some(result_obs);
-                        let filtered=smooth_action(&model.filtered_action,&action);
+                        let filtered=smooth_skill(&model.kind,&model.filtered_action,&action);
+                        if model.kind=="xgoduck_getup" {
+                            model.upright=if tilt(last_obs.as_ref().unwrap())<15. {model.upright+0.02} else {0.};
+                        }
                         goals=model.targets(filtered,&feedback,cal,&limits)?;
                         accepted_action=Some((action,filtered));
                     }
@@ -641,6 +763,18 @@ pub fn execute(
             }
             if worker.thread.as_ref().is_some_and(|t|t.is_finished()) { bail!("模型推理线程意外退出"); }
             if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) { break; }
+            let mouth_request=if paused.is_none() && feedback_recent {shared.write().unwrap().pending_mouth.take()} else {None};
+            if let Some(degrees)=mouth_request {
+                if model.kind=="xgoduck" {
+                    if !mouth_owned {arm_current(bus,&[34],&feedback,control::MANUAL_GAINS,cancel,halt)?;mouth_owned=true;}
+                    shared.write().unwrap().mouth_degrees=degrees;
+                }
+            }
+            if mouth_owned && paused.is_none() {
+                let degrees = if model.kind=="xgoduck_pick" && model.progress<1.6 {30f64} else if model.kind=="xgoduck" {shared.read().unwrap().mouth_degrees} else {0.};
+                let (lo,hi,_) = mouth_limits.unwrap();
+                goals.insert(34,control::target(34,feedback[&34]["position"].as_i64().unwrap() as i32,cal,lo,hi,degrees.to_radians(),true)?);
+            }
             let write_at=Instant::now();
             let (mut fresh,mut diagnostics,write_ms,read_ms)=policy_bus_cycle(bus,&goals)?;
             let confirmation_at = Instant::now();
@@ -654,6 +788,7 @@ pub fn execute(
             timing.record(write_at);
             if let Some((action,filtered))=accepted_action {
                 model.last_action=action;model.filtered_action=filtered;
+                if model.kind!="xgoduck" {model.progress+=0.02;}
                 previous=feedback.clone();costs.lock().unwrap().inference_results+=1;
             }
             {
@@ -664,7 +799,7 @@ pub fn execute(
             }
             diagnostics["feedbackTargetHz"] = json!(100);
             // Real faults and bad supply are never hidden by the dropped-read grace.
-            for (id, row) in &fresh { control::validate(*id, Some(row), ORDER.contains(id))?; }
+            for (id, row) in &fresh { control::validate(*id, Some(row), ORDER.contains(id) || (*id==34 && mouth_owned))?; }
             let sampled = if fault_unconfirmed {
                 // Do not bridge a possible hardware fault with historical feedback.
                 coast.sample(&fresh, &IDS, Instant::now());
@@ -682,16 +817,25 @@ pub fn execute(
             // few milliseconds between the coast decision and observation.
             let observe_start=Instant::now();
             let obs = match &sampled {
-                Some(rows) => observation_or_hold(model.observe(shared, rows, cal))?,
+                Some(rows) => {
+                    let result=model.observe(shared,rows,cal);
+                    if result.as_ref().err().is_some_and(|e|e.is::<StaleImu>()) {
+                        let error=result.unwrap_err();
+                        imu_pause.assess(Err(error),Instant::now())?;
+                        None
+                    } else {let observed=observation_or_hold(result)?;if imu_ready {observed}else{None}}
+                },
                 None => None,
             };
             costs.lock().unwrap().cost(1,observe_start.elapsed().as_secs_f64()*1000.);
             bus.diagnostics = coast.diagnostics(diagnostics, obs.is_none());
             if sampled.is_some() && obs.is_none() {
-                bus.diagnostics["feedbackHoldReason"] = json!("feedback-expired");
+                bus.diagnostics["feedbackHoldReason"] = json!(if imu_pause.since.is_some(){"imu-expired"}else{"feedback-expired"});
             }
             control::publish(shared, &fresh, &IDS, bus.diagnostics.clone());
             if obs.is_none() {
+                model.upright=0.;
+                if imu_pause.since.is_some(){pause_drive(shared);model.command_twist=[0.;3];}
                 if paused.is_none() {
                     generation+=1; worker.clear();
                     if let Some(last) = &coast.last {
@@ -702,21 +846,60 @@ pub fn execute(
                 let mut v = stats(&model, &timing, infer_ms);
                 v["state"] = json!("policy");
                 v["action"] = json!("policy");
-                v["policyPhase"] = json!("feedback-hold");
+                v["policyPhase"] = json!(if imu_pause.since.is_some(){"imu-hold"}else{"feedback-hold"});
+                v["imuPauseCount"]=json!(imu_pause.episodes);v["imuRecoveryCount"]=json!(imu_pause.recoveries);
+                v["imuHoldAgeMs"]=json!(imu_pause.last_age_ms);
+                v["imuFreshLimitMs"]=json!(IMU_FRESH_MS);v["imuStopAgeMs"]=json!(IMU_STOP_MS);
                 v["feedbackHolding"] = json!(true);
                 v["consecutiveFeedbackFailures"] = json!(coast.misses);
                 v["skippedControlTicks"] = json!(clock.skipped);
-                v["message"] = json!("反馈持续缺失，策略暂停，保持最后测得姿态；等待完整反馈恢复");
+                v["message"] = json!(if imu_pause.since.is_some(){"IMU 暂时过期，暂停推理并保持姿态；行走归零，等待新鲜数据"}else{"反馈持续缺失，策略暂停，保持最后测得姿态；等待完整反馈恢复"});
                 control::status(shared, v);
                 costs.lock().unwrap().cost(3,cycle_start.elapsed().as_secs_f64()*1000.);
                 clock.wait();
                 continue;
             }
             feedback = sampled.unwrap();
-            paused.take();
+            if paused.take().is_some(){
+                generation+=1;worker.clear();next_inference=Instant::now();
+                let mut state=shared.write().unwrap();state.control["feedbackHolding"]=json!(false);
+            }
             let obs = obs.unwrap();
             let now = Instant::now();
             if now >= next_inference {
+                let requested = if is_xgoduck(kind) {
+                    let mut state=shared.write().unwrap();let pending=state.pending_skill.take();
+                    if pending.is_some() {state.control["activeSkill"]=json!("transitioning");}
+                    pending
+                } else {None};
+                let next = requested.or_else(||skill_complete(&model.kind,model.progress,model.upright)
+                    .then(||if model.kind!="sitstand_stand" && tilt(&obs)>55. {"xgoduck_getup".to_owned()} else {"xgoduck".to_owned()}));
+                if let Some(next) = next.filter(|next|next!=&model.kind) {
+                    if next!="xgoduck_getup" && tilt(&obs)>55. { bail!("当前姿态不支持拾取/翻滚或返回平衡"); }
+                    shared.write().unwrap().mouth_degrees=0.;
+                    if next=="xgoduck_pick" && !mouth_owned {
+                        arm_current(bus,&[34],&feedback,control::MANUAL_GAINS,cancel,halt)?; mouth_owned=true;
+                    }
+                    let mut selected=bank.remove(&next).ok_or_else(||anyhow::anyhow!("动作模型未预加载"))?;
+                    selected.previous=model.previous.take();selected.velocity=model.velocity;
+                    selected.filtered_gyro=model.filtered_gyro.take();selected.last_action=[0.;14];
+                    selected.filtered_action=[0.;14];selected.progress=0.;selected.upright=0.;selected.command_twist=skill_twist(&next,0.);
+                    generation+=1;worker.clear();drop(worker);
+                    let old=std::mem::replace(&mut model,selected);bank.insert(old.kind.clone(),old);
+                    worker=InferenceWorker::new(model.session.clone());
+                    let mut state=shared.write().unwrap();
+                    if let Some(drive)=state.drive.as_mut() {drive.twist=[0.;3];drive.updated=Instant::now();}
+                    // Model-relative angle deltas and previous actions must be rebuilt.
+                    drop(state);
+                    let transitioned=model.observe(shared,&feedback,cal)?;
+                    worker.submit(generation,transitioned);
+                    next_inference=now+Duration::from_millis(20);
+                    let mut status=stats(&model,&timing,infer_ms);
+                    status["state"]=json!("policy");status["action"]=json!("policy");status["feedbackHolding"]=json!(false);
+                    status["policyPhase"]=json!("running");control::status(shared,status);
+                    clock.wait();
+                    continue;
+                }
                 while next_inference <= now { next_inference += Duration::from_millis(20); }
                 worker.submit(generation,obs);
             }
@@ -724,12 +907,14 @@ pub fn execute(
             if last_status.elapsed() >= Duration::from_millis(200) {
                 let mut v = stats(&model, &timing, infer_ms);
                 v["state"] = json!("policy");
+                v["imuPauseCount"]=json!(imu_pause.episodes);v["imuRecoveryCount"]=json!(imu_pause.recoveries);
+                v["imuFreshLimitMs"]=json!(IMU_FRESH_MS);v["imuStopAgeMs"]=json!(IMU_STOP_MS);
                 v["action"] = json!("policy");
                 v["policyPhase"] = json!(if coast.misses > 0 { "coasting" } else { "running" });
                 v["feedbackHolding"] = json!(false);
                 v["consecutiveFeedbackFailures"] = json!(coast.misses);
                 v["skippedControlTicks"] = json!(clock.skipped);
-                v["message"] = json!(if kind=="xgoduck" { if model.command_twist==[0.;3] {"XgoDuck 原地平衡，按住方向键行走"} else {"XgoDuck 按住行走中"} } else if kind=="walk" { "v6 模型行走中" } else { "v5 模型站立维持中" });
+                v["message"] = json!(if model.kind=="sitstand_sit" {"官方坐下模型维持坐姿，点站起恢复行走"} else if model.kind=="sitstand_stand" {"官方站起模型过渡中"} else if model.kind=="xgoduck_getup" {"XgoDuck 起身中，直立稳定后返回零速度平衡"} else if model.kind=="xgoduck_pick" {"XgoDuck 拾取中"} else if model.kind=="xgoduck_roulade" {"XgoDuck 翻滚中"} else if is_xgoduck(kind) { if model.command_twist==[0.;3] {"XgoDuck 原地平衡，按住方向键行走"} else {"XgoDuck 按住行走中"} } else if kind=="walk" { "v6 模型行走中" } else { "v5 模型站立维持中" });
                 control::status(shared, v);
                 last_status = tick;
             }
@@ -758,7 +943,7 @@ pub fn execute(
             let trace = bus.trace.clone();
             let sensors = {
                 let s = shared.read().unwrap();
-                json!({"imu.orientation":s.latest.get("imu.orientation"),"imu.raw":s.latest.get("imu.raw")})
+                json!({"imu.orientation":s.latest.get("imu.orientation"),"imu.raw":s.latest.get("imu.raw"),"readerDiagnostics":s.imu_health()})
             };
             let off = control::unload(bus).unwrap_or_else(
                 |e| json!({"state":"failed","message":format!("全部失能未确认：{e}")}),
@@ -794,6 +979,99 @@ pub fn execute(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn imu_pause_recovers_but_never_accepts_stale_for_inference() {
+        let mut pause=ImuPause::default();let start=Instant::now();
+        let stale=||Err(StaleImu{topic:"imu.orientation",age_ms:234.}.into());
+        assert!(!pause.assess(stale(),start).unwrap());
+        assert!(!pause.assess(stale(),start+Duration::from_millis(300)).unwrap());
+        assert!(pause.assess(Ok(BTreeMap::new()),start+Duration::from_millis(350)).unwrap());
+        assert_eq!(pause.episodes,1);assert_eq!(pause.recoveries,1);
+        assert!(pause.assess(Err(StaleImu{topic:"imu.raw",age_ms:1000.}.into()),start).is_err());
+        let mut absent=ImuPause::default();
+        let missing=||Err(StaleImu{topic:"imu.raw",age_ms:f64::INFINITY}.into());
+        assert!(!absent.assess(missing(),start).unwrap());
+        assert!(absent.assess(missing(),start+Duration::from_secs(1)).is_err());
+        assert!(ImuPause::default().assess(Err(anyhow::anyhow!("IMU 数据无效")),start).is_err());
+        assert!(observation_or_hold(Err(StaleImu{topic:"imu.raw",age_ms:234.}.into())).unwrap().is_none());
+    }
+    #[test]
+    fn imu_pause_cancels_old_drive_and_queued_skills() {
+        let shared=std::sync::Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(true)));
+        shared.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"s".into(),sequence:4,twist:[0.1,0.,0.],updated:Instant::now()});
+        shared.write().unwrap().pending_skill=Some("xgoduck_pick".into());
+        pause_drive(&shared);
+        let state=shared.read().unwrap();assert_eq!(state.drive.as_ref().unwrap().current(),[0.;3]);
+        assert_eq!(state.drive.as_ref().unwrap().sequence,4);assert!(state.pending_skill.is_none());
+        assert_eq!(state.control["feedbackHolding"],true);
+    }
+
+    #[test]
+    fn official_posture_flag_is_not_velocity_and_sit_has_no_timeout() {
+        assert_eq!(skill_twist("sitstand_sit",0.),[1.,0.,0.]);
+        assert_eq!(skill_twist("sitstand_stand",0.),[0.;3]);
+        assert!(!skill_complete("sitstand_sit",1000.,1.));
+        assert!(!skill_complete("sitstand_stand",0.98,0.));
+        assert!(skill_complete("sitstand_stand",1.,0.));
+        assert_eq!(skill_kind(&json!("sit")).unwrap(),"sitstand_sit");
+        assert_eq!(skill_kind(&json!("standup")).unwrap(),"sitstand_stand");
+    }
+
+    #[test]
+    fn donor_skills_have_separate_model_paths_and_never_accept_walk_speed() {
+        for kind in ["xgoduck_getup","xgoduck_pick","xgoduck_roulade"] {
+            assert_eq!(request_profile(&json!({"kind":kind})).unwrap(),(kind,0.));
+            assert_eq!(path_for(kind).unwrap().file_name().unwrap().to_str().unwrap(),format!("{kind}.onnx"));
+            assert!(request_profile(&json!({"kind":kind,"speed":0.1})).is_err());
+        }
+        assert!(skill_kind(&json!("../getup")).is_err());
+        assert_eq!(skill_kind(&json!("getup")).unwrap(),"xgoduck_getup");
+    }
+    #[test]
+    fn donor_action_phase_completion_and_upright_recovery_are_independent() {
+        assert!(!skill_complete("xgoduck_pick",3.98,0.));
+        assert!(skill_complete("xgoduck_pick",4.,0.));
+        assert!(!skill_complete("xgoduck_roulade",1.88,0.));
+        assert!(skill_complete("xgoduck_roulade",1.9,0.));
+        assert!(!skill_complete("xgoduck_getup",30.,0.98));
+        assert!(skill_complete("xgoduck_getup",2.,1.));
+        assert_eq!(skill_twist("xgoduck_getup",0.),[0.;3]);
+        let pick=skill_twist("xgoduck_pick",1.);
+        assert!(pick[0].abs()<1e-6 && (pick[1]-1.).abs()<1e-6);
+        let mut obs=vec![0.;61];obs[5]=-1.;assert!(tilt(&obs)<1e-6);
+        obs[5]=1.;assert!((tilt(&obs)-180.).abs()<1e-6);
+        assert!((smooth_skill("xgoduck_roulade",&[0.;14],&[1.;14])[0]-0.85).abs()<1e-6);
+    }
+    #[test]
+    fn getup_and_mouth_enable_align_before_enable_and_never_write_eeprom() {
+        struct Wire { row:Value, writes:Vec<u8> }
+        impl control::Transport for Wire {
+            fn calibrate(&mut self,_:u8,_:u16)->Result<()> {bail!("unused")}
+            fn feedback(&mut self,ids:&[u8])->Result<Feedback> {Ok(ids.iter().map(|id|(*id,self.row.clone())).collect())}
+            fn read(&mut self,_:u8,address:u8,_:u8)->Result<Vec<u8>> {
+                assert_eq!(address,0);let mut c=vec![0;40];c[..2].copy_from_slice(&[3,46]);
+                c[11..13].copy_from_slice(&4095u16.to_le_bytes());c[16..18].copy_from_slice(&1000u16.to_le_bytes());c[33]=4;Ok(c)
+            }
+            fn write(&mut self,_:u8,address:u8,_:&[u8])->Result<()> {assert!(address>=40);self.writes.push(address);Ok(())}
+            fn sync(&mut self,address:u8,values:&BTreeMap<u8,Vec<u8>>)->Result<()> {
+                assert!(address>=40);self.writes.push(address);
+                if address==40 {self.row["torque"]=json!(1);}
+                if address==50 {let value=values.values().next().unwrap();self.row["kpRaw"]=json!(value[0]);self.row["kdRaw"]=json!(value[1]);}
+                Ok(())
+            }
+        }
+        let row=json!({"fault":0,"voltage":7.3,"position":2048,"torque":0,"kpRaw":6,"kdRaw":20,"accelerationRaw":0,"speedLimitRaw":0});
+        let mut wire=Wire {row,writes:vec![]};
+        let stop=AtomicBool::new(true);let halt=AtomicBool::new(false);
+        let feedback=Feedback::from([(34,wire.row.clone())]);
+        assert!(arm_current(&mut wire,&[34],&feedback,(32,40),&stop,&halt).is_err());
+        assert!(wire.writes.is_empty());stop.store(false,Ordering::Release);
+        arm_current(&mut wire,&[34],&feedback,(32,40),&stop,&halt).unwrap();
+        assert_eq!(wire.writes,vec![42,50,40,42]);
+        wire.writes.clear();let feedback=Feedback::from([(34,wire.row.clone())]);
+        arm_current(&mut wire,&[34],&feedback,(32,40),&stop,&halt).unwrap();
+        assert_eq!(wire.writes,vec![42,42]);
+    }
     #[test]
     fn each_policy_tick_writes_latest_target_before_read_even_without_new_inference() {
         struct Wire { events:Vec<&'static str>, goals:Vec<BTreeMap<u8,Vec<u8>>> }

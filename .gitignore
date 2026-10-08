@@ -12,3 +12,6 @@ __pycache__/
 .env.*
 *.pem
 *.key
+
+# Local browser profiles and temporary QA files.
+/.local/

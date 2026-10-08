@@ -1,0 +1,38 @@
+{
+  "beforeControl": {
+    "message": "等待操作",
+    "state": "idle"
+  },
+  "bootId": "2ab91973-9d64-4c27-89a2-1c8b2bf262e0",
+  "response": {
+    "accepted": true,
+    "action": "poweroff",
+    "delaySeconds": 5
+  },
+  "checks": [
+    {
+      "8877": "reachable",
+      "22": "reachable"
+    },
+    {
+      "8877": "unreachable",
+      "22": "unreachable"
+    },
+    {
+      "8877": "unreachable",
+      "22": "unreachable"
+    },
+    {
+      "8877": "unreachable",
+      "22": "unreachable"
+    },
+    {
+      "8877": "unreachable",
+      "22": "unreachable"
+    },
+    {
+      "8877": "unreachable",
+      "22": "unreachable"
+    }
+  ]
+}

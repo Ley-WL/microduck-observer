@@ -1,0 +1,109 @@
+{
+  "jointRangesMatchUpstreamXml": {
+    "left_hip_yaw": {
+      "id": 20,
+      "degrees": [
+        -12.60507149287811,
+        25.783100780887047
+      ]
+    },
+    "left_hip_roll": {
+      "id": 21,
+      "degrees": [
+        -22.0,
+        22.0
+      ]
+    },
+    "left_hip_pitch": {
+      "id": 22,
+      "degrees": [
+        -90.0,
+        90.0
+      ]
+    },
+    "left_knee": {
+      "id": 23,
+      "degrees": [
+        -90.0,
+        90.0
+      ]
+    },
+    "left_ankle": {
+      "id": 24,
+      "degrees": [
+        -90.0,
+        90.0
+      ]
+    },
+    "neck_pitch": {
+      "id": 30,
+      "degrees": [
+        -135.0,
+        60.0
+      ]
+    },
+    "head_pitch": {
+      "id": 31,
+      "degrees": [
+        -105.0,
+        105.0
+      ]
+    },
+    "head_yaw": {
+      "id": 32,
+      "degrees": [
+        -170.0,
+        170.0
+      ]
+    },
+    "head_roll": {
+      "id": 33,
+      "degrees": [
+        -25.0,
+        25.0
+      ]
+    },
+    "right_hip_yaw": {
+      "id": 10,
+      "degrees": [
+        -25.783100780887047,
+        12.60507149287811
+      ]
+    },
+    "right_hip_roll": {
+      "id": 11,
+      "degrees": [
+        -22.0,
+        22.0
+      ]
+    },
+    "right_hip_pitch": {
+      "id": 12,
+      "degrees": [
+        -90.0,
+        90.0
+      ]
+    },
+    "right_knee": {
+      "id": 13,
+      "degrees": [
+        -90.0,
+        90.0
+      ]
+    },
+    "right_ankle": {
+      "id": 14,
+      "degrees": [
+        -90.0,
+        90.0
+      ]
+    }
+  },
+  "frontendModelBytesMatch": true,
+  "mouthRange": [
+    0.0,
+    30.0
+  ],
+  "previousFailureAngleAccepted": true,
+  "motorCommands": 0
+}

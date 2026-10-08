@@ -19,11 +19,12 @@ pub fn epoch_ms() -> u128 {
 }
 pub fn limit(id: u8) -> Option<(f64, f64)> {
     Some(match id {
-        10 => (-30., 25.),
-        20 => (-25., 30.),
+        10 => ((-0.45f64).to_degrees(), (0.22f64).to_degrees()),
+        20 => ((-0.22f64).to_degrees(), (0.45f64).to_degrees()),
         11 | 21 => (-22., 22.),
-        12..=14 | 22..=24 | 31 => (-90., 90.),
-        30 => (-90., 60.),
+        12..=14 | 22..=24 => (-90., 90.),
+        31 => (-105., 105.),
+        30 => (-135., 60.),
         32 => (-170., 170.),
         33 => (-25., 25.),
         34 => (0., 30.),
@@ -49,6 +50,9 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub pending_skill: Option<String>,
+    pub pending_mouth: Option<f64>,
+    pub mouth_degrees: f64,
     pub drive: Option<DriveCommand>,
     pub boot: String,
     pub source: String,
@@ -57,6 +61,7 @@ pub struct Telemetry {
     pub logs: VecDeque<Value>,
     seq: BTreeMap<String, u64>,
     pub control: Value,
+    pub ble_health: Value,
     pub imu: Value,
     pub tof: Value,
     pub scenario: String,
@@ -67,6 +72,22 @@ pub struct DriveCommand {
     pub sequence: u64,
     pub twist: [f32; 3],
     pub updated: Instant,
+}
+impl Telemetry {
+    pub fn queue_mouth(&mut self,session:&str,sequence:u64,degrees:f64)->bool {
+        if !degrees.is_finite() || !(0. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
+        let Some(drive)=self.drive.as_mut() else {return false;};
+        if !drive.update(session,sequence,[0.;3]) {return false;}
+        self.pending_mouth=Some(degrees);true
+    }
+    pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
+        if self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
+            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=2.))
+            || self.pending_skill.is_some() { return false; }
+        let Some(drive)=self.drive.as_mut() else {return false;};
+        if !drive.update(session,sequence,[0.;3]) {return false;}
+        self.pending_mouth=None;self.pending_skill=Some(kind.to_owned());true
+    }
 }
 impl DriveCommand {
     pub fn update(&mut self, session: &str, sequence: u64, twist: [f32;3]) -> bool {
@@ -80,6 +101,49 @@ impl DriveCommand {
 #[cfg(test)]
 mod drive_tests {
     use super::*;
+    #[test]
+    fn seated_only_accepts_rise_after_settle_with_fresh_session() {
+        let mut state=Telemetry::new(true);
+        state.drive=Some(DriveCommand{session:"live".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"sitstand_sit","skillProgressSeconds":1.9});
+        assert!(!state.queue_skill("live",1,"sitstand_stand"));
+        state.control["skillProgressSeconds"]=json!(2.);
+        assert!(!state.queue_skill("foreign",1,"sitstand_stand"));
+        assert!(!state.queue_skill("live",1,"xgoduck_pick"));
+        assert!(!state.queue_mouth("live",1,30.));
+        assert!(state.queue_skill("live",1,"sitstand_stand"));
+        assert!(!state.queue_skill("live",2,"sitstand_stand"));
+    }
+    #[test]
+    fn mouth_shares_sequence_and_rejects_skill_hold_and_bad_angles() {
+        let mut state=Telemetry::new(true);
+        state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck"});
+        state.drive=Some(DriveCommand{session:"live".into(),sequence:4,twist:[0.2,0.,0.],updated:Instant::now()});
+        assert!(!state.queue_mouth("old",5,30.));
+        assert!(!state.queue_mouth("live",5,31.));
+        assert!(state.queue_mouth("live",5,30.));
+        assert_eq!(state.drive.as_ref().unwrap().twist,[0.;3]);
+        assert!(!state.queue_mouth("live",5,0.));
+        assert!(state.queue_skill("live",6,"xgoduck_pick"));
+        assert!(!state.queue_mouth("live",7,0.));
+        state.pending_skill=None;state.control["feedbackHolding"]=json!(true);
+        assert!(!state.queue_mouth("live",7,0.));
+    }
+    #[test]
+    fn skill_queue_rejects_foreign_replayed_busy_and_held_requests() {
+        let mut state=Telemetry::new(true);
+        state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck","feedbackHolding":false});
+        state.drive=Some(DriveCommand {session:"live".into(),sequence:5,twist:[0.2,0.,0.],updated:Instant::now()});
+        assert!(!state.queue_skill("old",6,"xgoduck_pick"));
+        assert!(!state.queue_skill("live",5,"xgoduck_pick"));
+        assert!(state.queue_skill("live",6,"xgoduck_pick"));
+        assert_eq!(state.drive.as_ref().unwrap().twist,[0.;3]);
+        assert!(!state.queue_skill("live",7,"xgoduck_roulade"));
+        state.pending_skill=None;state.control["activeSkill"]=json!("transitioning");
+        assert!(!state.queue_skill("live",7,"xgoduck_roulade"));
+        state.control["activeSkill"]=json!("xgoduck");state.control["feedbackHolding"]=json!(true);
+        assert!(!state.queue_skill("live",7,"xgoduck_getup"));
+    }
     #[test]
     fn released_commands_cannot_be_overwritten_by_late_packets_or_old_sessions() {
         let mut d=DriveCommand{session:"new".into(),sequence:0,twist:[0.;3],updated:Instant::now()};
@@ -134,6 +198,8 @@ impl Telemetry {
     pub fn new(hardware: bool) -> Self {
         let mut s = Self {
             drive: None,
+            pending_skill: None,
+            pending_mouth: None, mouth_degrees: 0.,
             resources: Value::Null,
             boot: Uuid::new_v4().to_string(),
             source: if hardware { "hardware" } else { "simulation" }.into(),
@@ -142,6 +208,7 @@ impl Telemetry {
             logs: VecDeque::new(),
             seq: BTreeMap::new(),
             control: json!({"state":"idle","message":"等待操作"}),
+            ble_health: json!({"state":"disabled","backend":"rust","protocol":1}),
             imu: Value::Null,
             tof: json!({"state":"offline","error":"ToF stream timeout","ageMs":null,"hz":0}),
             scenario: "motion".into(),
@@ -235,7 +302,9 @@ mod tests {
     #[test]
     fn limits_match() {
         assert_eq!(limit(34), Some((0., 30.)));
-        assert_eq!(limit(20), Some((-25., 30.)));
+        assert_eq!(limit(20), Some(((-0.22f64).to_degrees(), (0.45f64).to_degrees())));
+        assert_eq!(limit(30), Some((-135.,60.)));
+        assert_eq!(limit(31), Some((-105.,105.)));
         assert_eq!(limit(1), None);
     }
 }
