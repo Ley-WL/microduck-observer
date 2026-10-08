@@ -1,0 +1,84 @@
+import gc
+GC_EVENTS=[]
+def gc_trace(phase,info):GC_EVENTS.append([time.monotonic(),phase,info["generation"]])
+import json,time,subprocess,urllib.request,serial,collections,gzip
+from pathlib import Path
+IDS=[10,11,12,13,14,20,21,22,23,24,30,31,32,33,34]
+def snapshot():return json.load(urllib.request.urlopen('http://127.0.0.1:8877/api/v1/snapshot',timeout=5))
+def packet(id,op,args):
+ b=bytes([id,len(args)+2,op,*args]);return b'\xff\xff'+b+bytes([~sum(b)&255])
+def signed(x):return -(x&32767) if x&32768 else x
+def read(tx,ids):
+ stale=port.read(port.in_waiting);port.write(tx);port.flush();start=time.monotonic();raw=bytearray();pending=bytearray();rows={};bad=0;discard=0; events=[];cpu=time.thread_time();last=start
+ while time.monotonic()-start<.03:
+  t0=time.monotonic(); avail=port.in_waiting; data=port.read(max(1,min(avail,1024))); t1=time.monotonic(); events.append([1000*(t0-start),1000*(t1-t0),avail,len(data),1000*(t0-last)]);last=t1;raw.extend(data);pending.extend(data)
+  while len(pending)>=4:
+   if pending[:2]!=b'\xff\xff' or not 2<=pending[3]<=64:del pending[0];discard+=1;continue
+   size=pending[3]+4
+   if len(pending)<size:break
+   f=bytes(pending[:size])
+   if sum(f[2:])%256!=255:bad+=1;del pending[0];discard+=1;continue
+   del pending[:size]
+   if f[2] in ids and len(f)==37:
+    d=f[5:-1];word=lambda n:int.from_bytes(d[n:n+2],'little')
+    rows[f[2]]={'torque':d[0],'position':signed(word(16)),'voltage':d[22]/10,'currentRaw':signed(word(29)),'fault':d[25]|f[4]}
+  if all(id in rows for id in ids):break
+ elapsed=time.monotonic()-start; late=bytearray();lateEvents=[]
+ if len(rows)<len(ids):
+  end=time.monotonic()+.2
+  while time.monotonic()<end:
+   d=port.read(max(1,port.in_waiting));late.extend(d)
+   if d:lateEvents.append([1000*(time.monotonic()-start),len(d)])
+   if len(raw)+len(late)>=555:break
+ return {'gcEvents':[[1000*(t-start),phase,gen] for t,phase,gen in GC_EVENTS if t>=start],'cpuMs':(time.thread_time()-cpu)*1000,'deadlineReadMs':elapsed*1000,'events':events if elapsed>.02 else [],'lateHex':late.hex(),'lateEvents':lateEvents,'txHex':tx.hex(),'rxHex':raw.hex(),'residualHex':stale.hex(),'pendingHex':pending.hex(),'rows':rows,'missing':[id for id in ids if id not in rows],'checksumErrors':bad,'discarded':discard,'readMs':(time.monotonic()-start)*1000}
+gc.callbacks.append(gc_trace)
+out={'registerWrites':0,'positionCommands':0,'before':snapshot(),'rounds':[]};port=None;stopped=False
+try:
+ assert out['before']['system']['data']['servoControl']['state'] not in ('policy','moving','preflight','disabling')
+ assert True  # Platform is deliberately not connected to this USB test bus.
+ subprocess.run(['systemctl','stop','microduck-observer'],check=True);stopped=True
+ port=serial.Serial('/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79076110-if00',1000000,timeout=.0005,exclusive=True)
+ out['usbBaseline']=read(packet(254,0x82,[40,31,*IDS]),IDS)
+ assert not out['usbBaseline']['missing'], 'USB转接板基线未收齐15颗，先不启动长测'
+ assert all(r['torque']==0 for r in out['usbBaseline']['rows'].values()), '只读对照要求全卸力，不自动改变状态'
+ for repetition in range(1,2):
+  for mode in ['hd-sync-read']:
+   run={'round':repetition,'mode':mode,'kernelBefore':Path('/proc/tty/driver/serial').read_text(),'frames':[]};out['rounds'].append(run);began=time.monotonic();due=began;times=[]
+   gc.collect();gc.disable()
+   for n in range(3000):
+    time.sleep(max(0,due-time.monotonic()));times.append(time.monotonic());scans=[]
+    if mode=='standard-read':
+     for id in IDS:scans.append(read(packet(id,2,[40,31]),[id]))
+    else:scans.append(read(packet(254,0x82,[40,31,*IDS]),IDS))
+    run['frames'].append(scans)
+    for scan in scans:
+     assert all(r['torque']==0 and r['fault']==0 and 4<=r['voltage']<=8.4 for r in scan['rows'].values()),'收到真实状态异常，停止试验'
+    if (n+1)%750==0:print(json.dumps({'progressRound':repetition,'frames':n+1}),flush=True)
+    due+=.02
+    if due<time.monotonic():due=began+(int((time.monotonic()-began)/.02)+1)*.02
+   gc.enable()
+   missing=collections.Counter();bad=0;incomplete=0
+   for scans in run['frames']:
+    ids=[]
+    for scan in scans:ids+=scan['missing'];bad+=scan['checksumErrors']>0
+    missing.update(ids);incomplete+=bool(ids)
+   run['kernelAfter']=Path('/proc/tty/driver/serial').read_text()
+   run['summary']={'round':repetition,'mode':mode,'frames':3000,'missingFrames':incomplete,'missingResponses':sum(missing.values()),'expectedResponses':45000,'missingById':dict(missing),'checksumTransactions':bad,'frameHz':2999/(times[-1]-times[0]),'maxFrameGapMs':max(b-a for a,b in zip(times,times[1:]))*1000}
+   with gzip.open('/home/radxa/usb-gc-disabled-round-'+str(repetition)+'.json.gz','wt') as f:json.dump(run,f)
+   run['failures']=[{'frame':n+1,'scans':scans} for n,scans in enumerate(run['frames']) if any(s['missing'] or s['checksumErrors'] for s in scans)]
+   del run['frames']
+   Path('/home/radxa/usb-gc-disabled-summary.json').write_text(json.dumps(out));print(json.dumps(run['summary']),flush=True)
+except Exception as e:out['error']=str(e);raise
+finally:
+ if port:
+  out['usbAfter']=read(packet(254,0x82,[40,31,*IDS]),IDS)
+  port.close()
+ if stopped:
+  subprocess.run(['systemctl','start','microduck-observer'],check=True)
+  for _ in range(40):
+   try:
+    s=snapshot()
+    out['after']=s;break
+   except Exception:pass
+   time.sleep(.2)
+ Path('/home/radxa/usb-gc-disabled-summary.json').write_text(json.dumps(out))

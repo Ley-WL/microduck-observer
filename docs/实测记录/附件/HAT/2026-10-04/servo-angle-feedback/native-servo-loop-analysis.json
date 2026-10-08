@@ -1,0 +1,110 @@
+{
+  "total": {
+    "commands": 1500,
+    "actualCommandHz": 49.99885920548181,
+    "maxCommandGapMs": 24.892579999999498,
+    "expectedResponses": 22500,
+    "missingResponses": 0,
+    "missingById": {},
+    "missingResponsePercent": 0.0,
+    "incompleteFrames": 0,
+    "checksumErrors": 0,
+    "checksumErrorFrames": 0,
+    "maxConsecutiveIncomplete": 0,
+    "coastedFrames": 0,
+    "holdingFrames": 0,
+    "readLengths": {
+      "15": 1471,
+      "31": 29
+    },
+    "position23Range": [
+      2111,
+      2132
+    ]
+  },
+  "rounds": {
+    "1": {
+      "commands": 500,
+      "actualCommandHz": 49.99838420552414,
+      "maxCommandGapMs": 23.33447100000008,
+      "expectedResponses": 7500,
+      "missingResponses": 0,
+      "missingById": {},
+      "missingResponsePercent": 0.0,
+      "incompleteFrames": 0,
+      "checksumErrors": 0,
+      "checksumErrorFrames": 0,
+      "maxConsecutiveIncomplete": 0,
+      "coastedFrames": 0,
+      "holdingFrames": 0,
+      "readLengths": {
+        "15": 491,
+        "31": 9
+      },
+      "position23Range": [
+        2111,
+        2132
+      ]
+    },
+    "2": {
+      "commands": 500,
+      "actualCommandHz": 49.99554677942433,
+      "maxCommandGapMs": 24.892579999999498,
+      "expectedResponses": 7500,
+      "missingResponses": 0,
+      "missingById": {},
+      "missingResponsePercent": 0.0,
+      "incompleteFrames": 0,
+      "checksumErrors": 0,
+      "checksumErrorFrames": 0,
+      "maxConsecutiveIncomplete": 0,
+      "coastedFrames": 0,
+      "holdingFrames": 0,
+      "readLengths": {
+        "15": 490,
+        "31": 10
+      },
+      "position23Range": [
+        2111,
+        2132
+      ]
+    },
+    "3": {
+      "commands": 500,
+      "actualCommandHz": 50.001295063603045,
+      "maxCommandGapMs": 23.738146999999543,
+      "expectedResponses": 7500,
+      "missingResponses": 0,
+      "missingById": {},
+      "missingResponsePercent": 0.0,
+      "incompleteFrames": 0,
+      "checksumErrors": 0,
+      "checksumErrorFrames": 0,
+      "maxConsecutiveIncomplete": 0,
+      "coastedFrames": 0,
+      "holdingFrames": 0,
+      "readLengths": {
+        "15": 490,
+        "31": 10
+      },
+      "position23Range": [
+        2111,
+        2132
+      ]
+    }
+  },
+  "skippedTicks": 0,
+  "kernelCounterDeltas": {
+    "tx": 51385,
+    "rx": 484374,
+    "oe": 0
+  },
+  "calibrationUnchanged": true,
+  "finalDisabled": {
+    "message": "15 个舵机已失能（卸力）",
+    "state": "disabled",
+    "unconfirmedIds": []
+  },
+  "error": null,
+  "scope": "Native single23 movement/read-all15; production I/O/clock/coast reused; no IMU/model inference"
+}

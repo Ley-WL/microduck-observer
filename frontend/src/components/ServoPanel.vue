@@ -83,7 +83,7 @@ async function sendAngle(command: { id: number; angle: number; endpoint: string;
     const result = await response.json();
     if (endpoint !== state.endpoint || boot !== state.joints?.bootId || revision !== board.data?.revision) return;
     if (!response.ok) throw new Error(result.detail || '操作被拒绝');
-    message.value = ''; // Live angle feedback is enough; no per-drag success banner.
+    message.value = result.feedbackConfirmed === false ? result.message : '';
   } catch (error) {
     if (endpoint === state.endpoint && boot === state.joints?.bootId) {
       failed.value = true; message.value = error instanceof Error ? error.message : '未收到操作结果，请核对实时角度与使能状态';

@@ -1,0 +1,50 @@
+{
+  "assets": {
+    "/assets/index-DbrAH4G5.js": "cafd865ecb4d27cfadcef2f17425ef82ad338ec2fbdf952e70c37efae600b9c9",
+    "/assets/index-6q_SFKJT.css": "dbe331eadb63430db55801c8128f61e7ecacec2030ab593aa2ed818a1eafba6f"
+  },
+  "rejectedCommands": [
+    {
+      "twist": [
+        0.2,
+        0,
+        0
+      ],
+      "status": 409,
+      "body": {
+        "detail": "请先启动XgoDuck零速度平衡，等待预备姿势完成"
+      }
+    },
+    {
+      "twist": [
+        0.3,
+        0,
+        0
+      ],
+      "status": 400,
+      "body": {
+        "detail": "行走指令超出范围"
+      }
+    },
+    {
+      "twist": [
+        0,
+        0,
+        0
+      ],
+      "status": 409,
+      "body": {
+        "detail": "请先启动XgoDuck零速度平衡，等待预备姿势完成"
+      }
+    }
+  ],
+  "stateBefore": {
+    "message": "等待操作",
+    "state": "idle"
+  },
+  "stateAfter": {
+    "message": "等待操作",
+    "state": "idle"
+  },
+  "hardwareMotionTest": false
+}

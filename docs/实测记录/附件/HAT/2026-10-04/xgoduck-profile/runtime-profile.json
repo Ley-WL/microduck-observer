@@ -1,0 +1,28 @@
+{
+  "name": "xgoduck-v1",
+  "referenceRuntimeCommit": "8cdbbd84710d856581982c9eaf0d5e2970666232",
+  "actionScale": 1,
+  "actionAlpha": 0.45,
+  "previousAction": "raw network output after successful send",
+  "feedbackTargetHz": 100,
+  "policyHz": 50,
+  "velocitySource": "servo register",
+  "velocityStepsPerSecondPerUnit": 50,
+  "velocityAlphaAt100Hz": 0.4,
+  "gyroAlphaAt100Hz": 0.5,
+  "goalWrite": {
+    "address": 42,
+    "length": 6,
+    "goalCurrent": 0,
+    "speed": 0
+  },
+  "temporaryGains": {
+    "kp": 6,
+    "kd": 20,
+    "mouthKp": 10
+  },
+  "calibration": "current physical robot shared calibration",
+  "imuOrientation": "existing calibrated quaternion frame",
+  "trainActionAlpha": 0.45,
+  "newTrainingStarted": false
+}

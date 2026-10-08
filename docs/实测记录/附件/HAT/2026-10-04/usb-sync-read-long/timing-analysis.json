@@ -1,0 +1,219 @@
+{
+  "usb-read-timing": {
+    "error": null,
+    "beforeTorque": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "afterTorque": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "rounds": [
+      {
+        "round": 1,
+        "mode": "hd-sync-read",
+        "frames": 3000,
+        "missingFrames": 3,
+        "missingResponses": 22,
+        "expectedResponses": 45000,
+        "missingById": {
+          "20": 2,
+          "21": 2,
+          "22": 2,
+          "23": 2,
+          "24": 2,
+          "30": 2,
+          "31": 2,
+          "32": 2,
+          "33": 3,
+          "34": 3
+        },
+        "checksumTransactions": 0,
+        "frameHz": 49.916686533535646,
+        "maxFrameGapMs": 80.08450000033918
+      },
+      {
+        "round": 2,
+        "mode": "hd-sync-read",
+        "frames": 3000,
+        "missingFrames": 0,
+        "missingResponses": 0,
+        "expectedResponses": 45000,
+        "missingById": {},
+        "checksumTransactions": 0,
+        "frameHz": 49.95611542324825,
+        "maxFrameGapMs": 40.01678399981756
+      },
+      {
+        "round": 3,
+        "mode": "hd-sync-read",
+        "frames": 3000,
+        "missingFrames": 2,
+        "missingResponses": 15,
+        "expectedResponses": 45000,
+        "missingById": {
+          "12": 1,
+          "13": 1,
+          "14": 1,
+          "20": 1,
+          "21": 1,
+          "22": 1,
+          "23": 1,
+          "24": 1,
+          "30": 1,
+          "31": 1,
+          "32": 1,
+          "33": 2,
+          "34": 2
+        },
+        "checksumTransactions": 0,
+        "frameHz": 49.95519015528596,
+        "maxFrameGapMs": 59.881473000132246
+      }
+    ]
+  },
+  "usb-gc-timing": {
+    "error": null,
+    "beforeTorque": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "afterTorque": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "rounds": [
+      {
+        "round": 1,
+        "mode": "hd-sync-read",
+        "frames": 3000,
+        "missingFrames": 1,
+        "missingResponses": 14,
+        "expectedResponses": 45000,
+        "missingById": {
+          "11": 1,
+          "12": 1,
+          "13": 1,
+          "14": 1,
+          "20": 1,
+          "21": 1,
+          "22": 1,
+          "23": 1,
+          "24": 1,
+          "30": 1,
+          "31": 1,
+          "32": 1,
+          "33": 1,
+          "34": 1
+        },
+        "checksumTransactions": 0,
+        "frameHz": 49.93340239099477,
+        "maxFrameGapMs": 80.07063699915307
+      }
+    ]
+  },
+  "usb-gc-disabled": {
+    "error": null,
+    "beforeTorque": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "afterTorque": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "rounds": [
+      {
+        "round": 1,
+        "mode": "hd-sync-read",
+        "frames": 3000,
+        "missingFrames": 0,
+        "missingResponses": 0,
+        "expectedResponses": 45000,
+        "missingById": {},
+        "checksumTransactions": 0,
+        "frameHz": 50.00922086239314,
+        "maxFrameGapMs": 22.489263000352366
+      }
+    ]
+  }
+}

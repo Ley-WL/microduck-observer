@@ -1,0 +1,302 @@
+[
+  {
+    "mono": 221.251027976,
+    "id": 10,
+    "position": 2077,
+    "goal": 2079,
+    "errorDeg": -0.1758,
+    "velocityRaw": 0,
+    "currentRaw": -10,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.251027976,
+    "id": 11,
+    "position": 2000,
+    "goal": 1982,
+    "errorDeg": 1.582,
+    "velocityRaw": 0,
+    "currentRaw": 54,
+    "voltage": 7.3
+  },
+  {
+    "mono": 221.251027976,
+    "id": 12,
+    "position": 1777,
+    "goal": 1781,
+    "errorDeg": -0.3516,
+    "velocityRaw": 0,
+    "currentRaw": -3,
+    "voltage": 7.2
+  },
+  {
+    "mono": 221.251027976,
+    "id": 13,
+    "position": 2022,
+    "goal": 1954,
+    "errorDeg": 5.9766,
+    "velocityRaw": 0,
+    "currentRaw": 173,
+    "voltage": 7.2
+  },
+  {
+    "mono": 221.251027976,
+    "id": 14,
+    "position": 2287,
+    "goal": 2296,
+    "errorDeg": -0.791,
+    "velocityRaw": 0,
+    "currentRaw": -19,
+    "voltage": 7.2
+  },
+  {
+    "mono": 221.251027976,
+    "id": 20,
+    "position": 2063,
+    "goal": 2060,
+    "errorDeg": 0.2637,
+    "velocityRaw": 0,
+    "currentRaw": 25,
+    "voltage": 7.7
+  },
+  {
+    "mono": 221.251027976,
+    "id": 21,
+    "position": 2082,
+    "goal": 2120,
+    "errorDeg": -3.3398,
+    "velocityRaw": 0,
+    "currentRaw": -72,
+    "voltage": 7.4
+  },
+  {
+    "mono": 221.251027976,
+    "id": 22,
+    "position": 2285,
+    "goal": 2280,
+    "errorDeg": 0.4395,
+    "velocityRaw": 0,
+    "currentRaw": 30,
+    "voltage": 7.7
+  },
+  {
+    "mono": 221.251027976,
+    "id": 23,
+    "position": 2072,
+    "goal": 2112,
+    "errorDeg": -3.5156,
+    "velocityRaw": 0,
+    "currentRaw": -72,
+    "voltage": 7.4
+  },
+  {
+    "mono": 221.251027976,
+    "id": 24,
+    "position": 1771,
+    "goal": 1765,
+    "errorDeg": 0.5273,
+    "velocityRaw": 0,
+    "currentRaw": 24,
+    "voltage": 7.5
+  },
+  {
+    "mono": 221.251027976,
+    "id": 30,
+    "position": 1848,
+    "goal": 1844,
+    "errorDeg": 0.3516,
+    "velocityRaw": 0,
+    "currentRaw": 21,
+    "voltage": 7.9
+  },
+  {
+    "mono": 221.251027976,
+    "id": 31,
+    "position": 1809,
+    "goal": 1814,
+    "errorDeg": -0.4395,
+    "velocityRaw": 0,
+    "currentRaw": -9,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.251027976,
+    "id": 32,
+    "position": 2006,
+    "goal": 2005,
+    "errorDeg": 0.0879,
+    "velocityRaw": 0,
+    "currentRaw": 0,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.251027976,
+    "id": 33,
+    "position": 2113,
+    "goal": 2111,
+    "errorDeg": 0.1758,
+    "velocityRaw": 0,
+    "currentRaw": 17,
+    "voltage": 7.2
+  },
+  {
+    "mono": 221.251027976,
+    "id": 34,
+    "position": 2016,
+    "goal": 2016,
+    "errorDeg": 0.0,
+    "velocityRaw": 0,
+    "currentRaw": 4,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.271048214,
+    "id": 10,
+    "position": 2077,
+    "goal": 2079,
+    "errorDeg": -0.1758,
+    "velocityRaw": 0,
+    "currentRaw": -11,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.271048214,
+    "id": 11,
+    "position": 2000,
+    "goal": 1982,
+    "errorDeg": 1.582,
+    "velocityRaw": 0,
+    "currentRaw": 58,
+    "voltage": 7.3
+  },
+  {
+    "mono": 221.271048214,
+    "id": 12,
+    "position": 1777,
+    "goal": 1781,
+    "errorDeg": -0.3516,
+    "velocityRaw": 0,
+    "currentRaw": -4,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.271048214,
+    "id": 13,
+    "position": 2022,
+    "goal": 1954,
+    "errorDeg": 5.9766,
+    "velocityRaw": 0,
+    "currentRaw": 171,
+    "voltage": 7.2
+  },
+  {
+    "mono": 221.271048214,
+    "id": 14,
+    "position": 2287,
+    "goal": 2296,
+    "errorDeg": -0.791,
+    "velocityRaw": 0,
+    "currentRaw": -20,
+    "voltage": 7.2
+  },
+  {
+    "mono": 221.271048214,
+    "id": 20,
+    "position": 2063,
+    "goal": 2060,
+    "errorDeg": 0.2637,
+    "velocityRaw": 0,
+    "currentRaw": 25,
+    "voltage": 7.6
+  },
+  {
+    "mono": 221.271048214,
+    "id": 21,
+    "position": 2082,
+    "goal": 2120,
+    "errorDeg": -3.3398,
+    "velocityRaw": 0,
+    "currentRaw": -73,
+    "voltage": 7.4
+  },
+  {
+    "mono": 221.271048214,
+    "id": 22,
+    "position": 2285,
+    "goal": 2280,
+    "errorDeg": 0.4395,
+    "velocityRaw": 0,
+    "currentRaw": 31,
+    "voltage": 7.7
+  },
+  {
+    "mono": 221.271048214,
+    "id": 23,
+    "position": 2072,
+    "goal": 2112,
+    "errorDeg": -3.5156,
+    "velocityRaw": 0,
+    "currentRaw": -69,
+    "voltage": 7.4
+  },
+  {
+    "mono": 221.271048214,
+    "id": 24,
+    "position": 1771,
+    "goal": 1765,
+    "errorDeg": 0.5273,
+    "velocityRaw": 0,
+    "currentRaw": 25,
+    "voltage": 7.5
+  },
+  {
+    "mono": 221.271048214,
+    "id": 30,
+    "position": 1848,
+    "goal": 1844,
+    "errorDeg": 0.3516,
+    "velocityRaw": 0,
+    "currentRaw": 26,
+    "voltage": 7.9
+  },
+  {
+    "mono": 221.271048214,
+    "id": 31,
+    "position": 1809,
+    "goal": 1814,
+    "errorDeg": -0.4395,
+    "velocityRaw": 0,
+    "currentRaw": -8,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.271048214,
+    "id": 32,
+    "position": 2006,
+    "goal": 2005,
+    "errorDeg": 0.0879,
+    "velocityRaw": 0,
+    "currentRaw": 0,
+    "voltage": 7.1
+  },
+  {
+    "mono": 221.271048214,
+    "id": 33,
+    "position": 2113,
+    "goal": 2111,
+    "errorDeg": 0.1758,
+    "velocityRaw": 0,
+    "currentRaw": 18,
+    "voltage": 7.2
+  },
+  {
+    "mono": 221.271048214,
+    "id": 34,
+    "position": 2016,
+    "goal": 2016,
+    "errorDeg": 0.0,
+    "velocityRaw": 0,
+    "currentRaw": 4,
+    "voltage": 7.1
+  }
+]

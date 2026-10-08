@@ -25,7 +25,7 @@ sensors = {
     'imu.raw': {'valid': True, 'source': 'hardware', 'bootId': 'fixture',
                 'received': now, 'data': {'gyro': [.01, -.03, .02]}}}
 feedback = {i: {'position': round(2048 - (float(model.home[n]) + .01) * 4096 / (2 * math.pi)),
-                 'fault': 0, 'voltage': 5.9, 'torque': 0, 'received': now}
+                 'velocityRaw': 0, 'fault': 0, 'voltage': 5.9, 'torque': 0, 'received': now}
             for n, i in enumerate(JOINT_IDS)}
 obs = model.observe(sensors, feedback, cal, now=now)
 action, _ = model.infer(obs)

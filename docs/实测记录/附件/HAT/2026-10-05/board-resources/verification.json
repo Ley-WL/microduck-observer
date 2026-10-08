@@ -1,0 +1,28 @@
+{
+  "latest": {
+    "cpuUsagePercent": 25.164690382081687,
+    "intervalMs": 2000,
+    "memory": {
+      "availableBytes": 1863405568,
+      "totalBytes": 2063155200,
+      "usagePercent": 9.681755012904507,
+      "usedBytes": 199749632
+    },
+    "sampleMonoMs": 120098.54379899999,
+    "temperature": {
+      "celsius": 68.75,
+      "sensor": "soc-thermal"
+    }
+  },
+  "sampleIntervalsMs": [
+    2002.1534910000046,
+    2001.846046999999,
+    2001.1840399999928
+  ],
+  "assetsMatch": {
+    "/assets/index-lAJJwmmY.js": true,
+    "/assets/index-CRP41AuG.css": true
+  },
+  "idleAllSnapshots": true,
+  "finalRelease": "20261005-board-resources-v2"
+}

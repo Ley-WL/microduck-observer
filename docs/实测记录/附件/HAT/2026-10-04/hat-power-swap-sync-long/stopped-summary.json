@@ -1,0 +1,17 @@
+{
+  "completedRounds": 16,
+  "frames": 48000,
+  "missingResponses": 82,
+  "checksumTransactions": 34,
+  "incompleteFrames": 35,
+  "uartDeltaCompleted": {
+    "oe": 40,
+    "fe": 0
+  },
+  "partialRounds": [
+    [
+      17,
+      481
+    ]
+  ]
+}

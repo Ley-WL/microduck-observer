@@ -417,7 +417,7 @@ pub fn hardware<T: Transport>(
                     f.get(&id)
                         .and_then(|r| r["position"].as_i64())
                         .ok_or_else(|| anyhow::anyhow!("收尾位置丢失"))? as i32;
-                bus.write(id, 42, &crate::control::encode(position)?)?;
+                bus.write(id, 42, &crate::control::goal_payload(position)?)?;
                 Ok(())
             })();
             // Even if alignment fails, independently attempt to lock EEPROM.

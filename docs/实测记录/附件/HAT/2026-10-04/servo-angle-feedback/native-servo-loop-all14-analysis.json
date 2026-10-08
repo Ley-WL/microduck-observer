@@ -1,0 +1,199 @@
+{
+  "total": {
+    "commands": 1500,
+    "actualCommandHz": 49.99862432904458,
+    "maxCommandGapMs": 24.187558999997805,
+    "expectedResponses": 22500,
+    "missingResponses": 0,
+    "missingById": {},
+    "missingResponsePercent": 0.0,
+    "incompleteFrames": 0,
+    "checksumErrors": 0,
+    "checksumErrorFrames": 0,
+    "maxConsecutiveIncomplete": 0,
+    "coastedFrames": 0,
+    "holdingFrames": 0,
+    "readLengths": {
+      "15": 1471,
+      "31": 29
+    },
+    "position23Range": [
+      2112,
+      2135
+    ]
+  },
+  "rounds": {
+    "1": {
+      "commands": 500,
+      "actualCommandHz": 49.99913821625648,
+      "maxCommandGapMs": 23.108472999998853,
+      "expectedResponses": 7500,
+      "missingResponses": 0,
+      "missingById": {},
+      "missingResponsePercent": 0.0,
+      "incompleteFrames": 0,
+      "checksumErrors": 0,
+      "checksumErrorFrames": 0,
+      "maxConsecutiveIncomplete": 0,
+      "coastedFrames": 0,
+      "holdingFrames": 0,
+      "readLengths": {
+        "15": 491,
+        "31": 9
+      },
+      "position23Range": [
+        2112,
+        2134
+      ]
+    },
+    "2": {
+      "commands": 500,
+      "actualCommandHz": 49.996385566912636,
+      "maxCommandGapMs": 24.187558999997805,
+      "expectedResponses": 7500,
+      "missingResponses": 0,
+      "missingById": {},
+      "missingResponsePercent": 0.0,
+      "incompleteFrames": 0,
+      "checksumErrors": 0,
+      "checksumErrorFrames": 0,
+      "maxConsecutiveIncomplete": 0,
+      "coastedFrames": 0,
+      "holdingFrames": 0,
+      "readLengths": {
+        "15": 490,
+        "31": 10
+      },
+      "position23Range": [
+        2112,
+        2135
+      ]
+    },
+    "3": {
+      "commands": 500,
+      "actualCommandHz": 50.002667056083816,
+      "maxCommandGapMs": 23.730284999999185,
+      "expectedResponses": 7500,
+      "missingResponses": 0,
+      "missingById": {},
+      "missingResponsePercent": 0.0,
+      "incompleteFrames": 0,
+      "checksumErrors": 0,
+      "checksumErrorFrames": 0,
+      "maxConsecutiveIncomplete": 0,
+      "coastedFrames": 0,
+      "holdingFrames": 0,
+      "readLengths": {
+        "15": 490,
+        "31": 10
+      },
+      "position23Range": [
+        2112,
+        2135
+      ]
+    }
+  },
+  "skippedTicks": 0,
+  "kernelCounterDeltas": {
+    "rx": 484922,
+    "oe": 0,
+    "tx": 110209
+  },
+  "calibrationUnchanged": true,
+  "finalDisabled": {
+    "message": "15 个舵机已失能（卸力）",
+    "state": "disabled",
+    "unconfirmedIds": []
+  },
+  "error": null,
+  "scope": "Native supported-joint movement/read-all15; production I/O/clock/coast reused; no IMU/model inference",
+  "positionRangesById": {
+    "10": {
+      "min": 2023,
+      "max": 2040,
+      "spanDeg": 1.494140625
+    },
+    "11": {
+      "min": 2001,
+      "max": 2023,
+      "spanDeg": 1.93359375
+    },
+    "12": {
+      "min": 1848,
+      "max": 1865,
+      "spanDeg": 1.494140625
+    },
+    "13": {
+      "min": 1838,
+      "max": 1861,
+      "spanDeg": 2.021484375
+    },
+    "14": {
+      "min": 2386,
+      "max": 2408,
+      "spanDeg": 1.93359375
+    },
+    "20": {
+      "min": 2087,
+      "max": 2104,
+      "spanDeg": 1.494140625
+    },
+    "21": {
+      "min": 2129,
+      "max": 2150,
+      "spanDeg": 1.845703125
+    },
+    "22": {
+      "min": 2148,
+      "max": 2167,
+      "spanDeg": 1.669921875
+    },
+    "23": {
+      "min": 2112,
+      "max": 2135,
+      "spanDeg": 2.021484375
+    },
+    "24": {
+      "min": 1661,
+      "max": 1683,
+      "spanDeg": 1.93359375
+    },
+    "30": {
+      "min": 1862,
+      "max": 1874,
+      "spanDeg": 1.0546875
+    },
+    "31": {
+      "min": 2276,
+      "max": 2293,
+      "spanDeg": 1.494140625
+    },
+    "32": {
+      "min": 1968,
+      "max": 1990,
+      "spanDeg": 1.93359375
+    },
+    "33": {
+      "min": 2065,
+      "max": 2086,
+      "spanDeg": 1.845703125
+    }
+  },
+  "restoreErrorDegById": {
+    "10": 0.0,
+    "11": 0.087890625,
+    "12": 0.263671875,
+    "13": 0.087890625,
+    "14": 0.087890625,
+    "20": 0.087890625,
+    "21": 0.087890625,
+    "22": 0.087890625,
+    "23": 0.087890625,
+    "24": 0.087890625,
+    "30": 0.087890625,
+    "31": 0.439453125,
+    "32": 0.0,
+    "33": 0.0
+  },
+  "currentAndPidUnchanged": true
+}

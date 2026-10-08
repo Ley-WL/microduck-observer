@@ -1,5 +1,43 @@
 # IMU实测
 
+## 2026-10-05 failed结束状态阻止再次归零修复（最新）
+
+用户反馈Roll不对且无法再次归零。只读快照revision225，旧IMU参考/安装/target均在，当前有效IMU同会话；servoControl残留旧“未完成IMU标定”failed信息。按网页同一公式计算roll约−16.084°、pitch0.778°、yaw−172.583°；数值是旧参考与当前姿态的相对结果，不能证明实物真实侧倾或安装方向故障，未因此自动改参考。
+
+此前按钮白名单漏掉failed，导致结束的错误任务阻止修复。统一按钮和提交复核条件到store.levelDisabledReason，允许idle/holding/commanded/configured/enabled/disabled/failed等结束状态；模型/过渡/其他运行状态仍阻止。明确显示未连接、暂停、缺参考、安装缺失、会话同步、陈旧IMU、任务进行中等原因，保存错误直接显示。样本四元数有效/同会话/年龄≤500ms复核仍在，完整imu拷贝保存仍保留，禁用原因与写入复核共用函数，避免漂移。
+
+全前端51测试通过，包含failed及其它结束状态重复归零、完整安装/target/采集字段/位置/关节保持、模型运行和陈旧样本拒写；构建通过。仅部署前端且在线资源字节匹配，后端boot和标定225逐项不变，未代用户归零或发动作。用户刷新后摆正躯干再自行点击；显示/实物效果尚未验收。证据附件/IMU/2026-10-05/level-disabled-failed-before.json、level-terminal-state-deployment.json；备份当前release/frontend/dist.before-level-terminal-state-20261005。此前claimed恢复完整参考不代表当前roll自动为0，以此验收边界为准。
+
+## 2026-10-05 完整撤销本次归零（最新覆盖）
+
+用户反馈实物站立但显示全不对，要求恢复。此前224仅恢复安装/target字段，保留了223新归零reference，不能称完整恢复。此次从归零前主板真实快照恢复整份旧imu（参考quaternion、time、mountingQuaternion、targetQuaternion等），仅bootId适配当前会话，revision224→225；全部字段回读与原始值核对相等，关节和mounting位置保持。未发动作/启动策略。证据附件/IMU/2026-10-05/full-imu-restore-before.json、full-imu-restore-after.json。页面及实物姿态效果需用户核对，不凭字段相等宣称站立正确。
+
+## 2026-10-05 归零遗漏安装字段故障修复（最新）
+
+用户点击归零后模型只读预检提示未完成IMU位置/方向标定。实际revision223的imu仅剩quaternion/bootId/time/initialized，mounting位置仍在。根因：Rust calibration.update对patch每个顶级段整体替换，新levelOrientation仅提交参考字段，误删mountingQuaternion和targetQuaternion。已修正levelOrientation和旧orientation写入，复制完整imu并去掉派生validForBoot后仅覆盖参考字段。新增使用整体替换模拟服务的回归测试，验证commanded归零与普通参考更新均保留安装方向、目标、测量字段、位置与关节数据；20项相关测试、前端构建通过。
+
+从本次资源观测部署前真实快照恢复原mountingQuaternion=[−0.07775046684819915,−0.7213640215888535,0.037702265259619595,0.687144346157586]及targetQuaternion=[0,−0.7071067811865476,0,0.7071067811865476]，带revision校验223→224；用户刚归零的参考四元数、位置、关节逐项保持，不发动作。修正前端已部署，在线资源字节核对通过，后端未重启。用户需刷新网页后再操作；未代用户启动模型或宣称站立恢复。证据附件/IMU/2026-10-05/level-repair-before.json、level-repair-after.json、level-preserve-deployment.json。此前“只归零保留安装”的描述为设计意图，首次实现存在上述缺陷，以本节修复为准。
+
+## 2026-10-05 归零按钮误禁用修复
+
+用户反馈按钮不可点击，实时读取显示IMU有效且同会话，控制为嘴部#34手动angle完成后的commanded状态。此前仅允许idle/holding导致误禁用；按钮与写入复核同步增加commanded。模型及过渡阶段仍禁止。前端构建、部署资源核对通过，标定未变，未代用户点击/发动作或重启后端；证据附件/IMU/2026-10-05/level-commanded-fix.json。此条覆盖上一节idle/holding限定。
+
+## 2026-10-05 一键Pitch/Roll归零按钮
+
+按用户要求在位置标定旁增加“Pitch / Roll 归零”。点击时读取同会话新鲜实时IMU姿态，通过既有bodyRelativeQuaternion公式反解共享imu.quaternion，使当前躯干ZYX俯仰/横滚为0，保留当前航向、targetQuaternion、安装矩阵、关节标定和位置。保存经现有revision校验到主板，重启沿用；之后启动的模型使用同一共享参考。按钮提示先把躯干摆正，只校正参考，不驱动关节。离线、暂停、无已保存参考、保存中或非idle/holding禁止操作，写入时复核样本有效/会话/年龄≤500ms及控制状态。
+
+含非单位安装/目标情况下的Pitch/Roll归零和Yaw保留数值验证，calibration测试12项及前端构建通过；静态前端部署/在线JS CSS字节核对通过，部署前后共享标定逐项未变，未替用户点击归零、未重启后端、未发动作。浏览器点击及实物摆正后精度待用户验收；归零不能当作实物自动平衡修复。证据附件/IMU/2026-10-05/level-button-deployment.json；当前release/frontend/dist.before-level-button-20261005保留旧前端。
+
+## 2026-10-04 用户确认躯干竖直后刷新共享参考，模型仍有明显输出
+
+排查模型站不住时用户托稳、确认固定站姿基本不动，并从实物正面/侧面确认躯干基本竖直。更新前当前IMU streaming约198.5Hz，revision183；以policy.observe相同矩阵公式求得roll−6.276°/pitch−5.269°，需作为用户确认姿态与旧参考之间的偏差处理，不当作外部量具测得倾角或证明安装轴正确。
+
+备份calibration-before.json后采集20份同会话有效四元数，同号归一平均，仅更新共享imu.quaternion/bootId/time/targetQuaternion（原target已为单位四元数）；安装mountingQuaternion、安装采集字段、关节references/directions、mounting位置完全保留。通过revision183写入184，硬件目标/使能/电流/加速度/速度/输出限制/PID逐项回读完全一致，无舵机动作。新参考quaternion=[−0.1748077958,0.6916061642,0.1577342841,0.6828199205]；以用户当前姿态为参考，未独立验水平精度/松手平衡/重启重复性。
+
+写后5.04秒78只读快照：roll均值−0.00377°（−0.01096至+0.00268）、pitch均值+0.01621°（+0.00276至+0.02364），投影重力≈[0.0002829,0.0000658,−0.99999995]；15反馈完整无坏校验，14仍保持原固定站姿目标，最大跟随误差0.615°。随后三次只读模型推理（commandCount0，硬件寄存器前后不变）仍要求#12−13.01°/#22+12.22°/#14−7.29°/#24+11.43°、头颈约24.35°/18.46°，所以参考偏差不是全部大动作的解释，不能继续反复归零替代安装轴/模型动力学检查。下一步需用户托稳下整机小幅前倾/侧倾与实际IMU方向对照，未执行该对照或真实模型动作。
+
+证据统一位于附件/HAT/2026-10-04/static-stance-supported：calibration-before.json、imu-reference-update.json、observation-after-reference.json、analysis-after-reference.json、shadow-after-reference.json；原183观察/推理证据保留不覆盖。工具tools/refresh-supported-imu-reference.py及静态观察/分析/shadow脚本，详情见[HAT排查](07-HAT实测.md)。
+
 ## 2026-10-03 当前用户确认标准站姿重新保存IMU位置参考
 
 用户明确现在站姿挺标准，要求重新标定位置。采集25份同会话有效硬件四元数，符号对齐平均，按现有mounting/target反解使当前躯干姿态为单位四元数的参考，仅更新imu.quaternion/bootId/time，保留其余IMU字段、安装矩阵、关节零点/方向；没有舵机命令。写前备份standing-reference-before.json，revision175→176，通过revision校验保存。写前末帧前端公式roll=-4.658°/pitch=2.443°/yaw=179.792°；写后10份roll约-0.010至-0.004°、pitch约-0.042至-0.006°、yaw约-0.004至+0.001°，参考归零验证通过。关节及安装矩阵回读完全一致；当前保持已调站姿目标，不持久改stand模板。

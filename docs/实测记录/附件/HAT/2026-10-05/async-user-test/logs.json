@@ -1,0 +1,1 @@
+{"gap": false, "items": [{"ageMs": 39937.618513, "bootId": "ae88d06d-1e9e-4a4c-863c-d5a1368707b3", "data": {"eventTimeMs": 1791158404157, "level": "INFO", "message": "Rust \u540e\u7aef\u542f\u52a8", "module": "server"}, "protocolVersion": 1, "sampleMonoMs": 0.020125, "seq": 1, "source": "hardware", "topic": "logs", "type": "sample", "valid": true}], "nextCursor": 1}

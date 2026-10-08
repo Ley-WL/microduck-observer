@@ -6,6 +6,7 @@ import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
 import SensorWorkbench from "./components/SensorWorkbench.vue";
 import PowerControls from "./components/PowerControls.vue";
+import BoardResources from "./components/BoardResources.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
 import { bodyRelativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
@@ -151,6 +152,7 @@ onMounted(() => state.connect());
         <div class="breadcrumb">
           工作空间 <span>/</span> MicroDuck Lab <span>/</span> <b>{{ page }}</b>
         </div>
+        <BoardResources />
         <div class="header-right">
           <PowerControls />
           <span class="source-badge">{{ state.source }}</span

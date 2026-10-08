@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { relativeQuaternion, bodyRelativeQuaternion, mountingQuaternion } from "./calibration";
+import { relativeQuaternion, bodyRelativeQuaternion, mountingQuaternion, levelReference } from "./calibration";
 import { euler } from "./protocol";
 
 describe("initial orientation reference", () => {
+  it("levels pitch and roll with nonidentity installation and target while preserving yaw", () => {
+    const reference=[.2,.3,.4,Math.sqrt(.71)], current=[-.1,.5,.2,Math.sqrt(.7)];
+    const mounting=[.5,.5,.5,.5], target=[0,-Math.SQRT1_2,0,Math.SQRT1_2];
+    const before=euler(bodyRelativeQuaternion(reference,current,mounting,target));
+    const updated=levelReference(reference,current,mounting,target);
+    const after=euler(bodyRelativeQuaternion(updated,current,mounting,target));
+    expect(after[0]).toBeCloseTo(0);expect(after[1]).toBeCloseTo(0);expect(after[2]).toBeCloseTo(before[2]);
+  });
   it("shows a supine body at the captured reference instead of standing upright", () => {
     const q=[.5,.5,.5,.5], target=[0,-Math.SQRT1_2,0,Math.SQRT1_2];
     const result=bodyRelativeQuaternion(q,q,undefined,target);

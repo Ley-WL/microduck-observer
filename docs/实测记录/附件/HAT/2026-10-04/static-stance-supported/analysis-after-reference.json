@@ -1,0 +1,21 @@
+{
+  "imuBody": {
+    "rollDeg": {
+      "mean": -0.0037720320963871784,
+      "min": -0.010960498506817868,
+      "max": 0.0026819367026008137
+    },
+    "pitchDeg": {
+      "mean": 0.016210548961142355,
+      "min": 0.002755706737510888,
+      "max": 0.02364215034059235
+    }
+  },
+  "projectedGravityMean": [
+    0.0002829274474916219,
+    6.583437629003934e-05,
+    -0.9999999497641809
+  ],
+  "maxEnabledGoalErrorDeg": 0.615234375,
+  "userObservation": "User reports static stance basically motionless while supported; not a free-standing balance acceptance"
+}

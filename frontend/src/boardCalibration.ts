@@ -1,7 +1,9 @@
-import { ref, watch, onScopeDispose } from "vue";
+import { ref, computed, watch, onScopeDispose } from "vue";
 import { defineStore } from "pinia";
 import { useTelemetry } from "./store";
 import { calibrationKey, loadCalibration } from "./savedCalibration";
+import { levelReference } from "./calibration";
+import { validQuaternion } from "./protocol";
 
 export const useBoardCalibration = defineStore("board-calibration", () => {
   const telemetry = useTelemetry();
@@ -46,7 +48,37 @@ export const useBoardCalibration = defineStore("board-calibration", () => {
     return write(current => { const j = JSON.parse(JSON.stringify(current.joints)); edit(j); return { joints: { references: j.references, directions: j.directions } }; });
   }
   function orientation(quaternion: number[] | null, bootId: string, time: string) {
-    return write(() => ({ imu: { quaternion, bootId, time } }));
+    return write(current => {
+      const { validForBoot: _, ...imu } = current.imu;
+      return { imu: { ...imu, quaternion, bootId, time } };
+    });
+  }
+  function levelContextError(current: any): string {
+    if (telemetry.connection !== "在线") return "主板未连接";
+    if (telemetry.paused) return "请先恢复实时姿态";
+    const sample = telemetry.orientation;
+    if (!sample?.valid || !validQuaternion(sample.data?.quaternion) || !Number.isFinite(telemetry.age) || telemetry.age > 500)
+      return "等待新鲜的实时 IMU 数据";
+    if (sample.bootId !== current?.bootId) return "IMU 会话正在同步";
+    if (!validQuaternion(current?.imu?.quaternion)) return "请先保存 IMU 参考";
+    if (!telemetry.sensorOnly && !validQuaternion(current?.imu?.mountingQuaternion)) return "缺少 IMU 安装方向标定";
+    const control = telemetry.system?.data.servoControl?.state;
+    if (control && !["idle", "holding", "commanded", "configured", "enabled", "disabled", "failed"].includes(control))
+      return "请先停止模型或姿势切换，再矫正角度";
+    return "";
+  }
+  const levelDisabledReason = computed(() => !ready.value ? "主板标定正在加载" : saving.value ? "标定正在保存" : levelContextError(data.value));
+  function levelOrientation() {
+    return write(current => {
+      const reason = levelContextError(current);
+      if (reason) throw new Error(reason);
+      const sample = telemetry.orientation!;
+      const fallback = telemetry.sensorOnly ? [0,0,Math.sin(-(current.mounting?.yaw ?? -90)*Math.PI/360),Math.cos(-(current.mounting?.yaw ?? -90)*Math.PI/360)] : undefined;
+      const { validForBoot: _, ...imu } = current.imu;
+      return { imu: { ...imu, quaternion: levelReference(current.imu.quaternion, sample.data.quaternion,
+        current.imu.mountingQuaternion ?? fallback, current.imu.targetQuaternion),
+        bootId: sample.bootId, time: new Date().toLocaleString("zh-CN", { hour12:false }) } };
+    });
   }
   function confirmReference(bootId: string) {
     return write(current => {
@@ -98,5 +130,5 @@ export const useBoardCalibration = defineStore("board-calibration", () => {
     void confirmReference(sample.bootId);
   });
   const timer=setInterval(()=>{void refresh();},1500);onScopeDispose(()=>clearInterval(timer));
-  return { data, ready, saving, error, refresh, joints, orientation, mounting, installation, confirmReference };
+  return { data, ready, saving, error, refresh, joints, orientation, levelOrientation, levelDisabledReason, mounting, installation, confirmReference };
 });

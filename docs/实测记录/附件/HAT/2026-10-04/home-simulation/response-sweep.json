@@ -1,0 +1,36 @@
+{
+  "hardwareAccess": false,
+  "note": "synthetic BAM gain sweep; no equivalence asserted to hardware kpRaw=32",
+  "results": [
+    {
+      "bamGain": 10,
+      "seconds": 20,
+      "maxTiltDeg": 0.8135861816847275,
+      "tailMaxTiltDeg": 0.623340826876158,
+      "endHeight": 0.11613492646731159,
+      "maxPhysicalChangeDeg": 6.492602629000341,
+      "maxTailPositionSpanDeg": 0.16792454207038457,
+      "maxTailTargetSpanDeg": 0.09097299710269233
+    },
+    {
+      "bamGain": 20,
+      "seconds": 20,
+      "maxTiltDeg": 0.8616814378427575,
+      "tailMaxTiltDeg": 0.740848527301839,
+      "endHeight": 0.11681157065452634,
+      "maxPhysicalChangeDeg": 6.0875930365577045,
+      "maxTailPositionSpanDeg": 0.08763133304858747,
+      "maxTailTargetSpanDeg": 0.1580676528670201
+    },
+    {
+      "bamGain": 32,
+      "seconds": 20,
+      "maxTiltDeg": 157.24185801493954,
+      "tailMaxTiltDeg": 112.21560799491101,
+      "endHeight": 0.04736888816426732,
+      "maxPhysicalChangeDeg": 107.72946256486897,
+      "maxTailPositionSpanDeg": 28.007235488128657,
+      "maxTailTargetSpanDeg": 79.1697360989359
+    }
+  ]
+}

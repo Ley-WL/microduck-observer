@@ -1,0 +1,10 @@
+serinfo:1.0 driver revision:
+1: uart:16550A mmio:0xFE650000 irq:31 tx:3191 rx:883 RTS|CTS|DTR
+2: uart:16550A mmio:0xFE660000 irq:32 tx:905062 rx:11031209 fe:43574 brk:33334 oe:6 RTS|DTR
+4: uart:16550A mmio:0xFE680000 irq:33 tx:0 rx:0 CTS
+9: uart:16550A mmio:0xFE6D0000 irq:34 tx:3384 rx:0 RTS|CTS|DTR
+serinfo:1.0 driver revision:
+1: uart:16550A mmio:0xFE650000 irq:31 tx:3191 rx:883 RTS|CTS|DTR
+2: uart:16550A mmio:0xFE660000 irq:32 tx:906672 rx:11033932 fe:44541 brk:34008 oe:6 RTS|DTR
+4: uart:16550A mmio:0xFE680000 irq:33 tx:0 rx:0 CTS
+9: uart:16550A mmio:0xFE6D0000 irq:34 tx:3396 rx:0 CTS

@@ -16,20 +16,43 @@ use std::{
 use tokio::sync::{oneshot, OwnedSemaphorePermit};
 
 pub type Feedback = BTreeMap<u8, Value>;
+/// Never feed a single fault-bearing packet into inference. Re-read only the
+/// affected IDs on the serial owner, without sending another position target.
+/// A clean repeat replaces it; a repeated fault is left for normal validation.
+/// A missing repeat forces feedback hold instead of reusing the suspect sample.
+pub fn confirm_policy_faults<F>(fresh: &mut Feedback, diagnostics: &mut Value, mut read: F) -> Result<bool>
+where F: FnMut(&[u8]) -> Result<(Feedback, Value)> {
+    let ids: Vec<u8> = fresh.iter().filter(|(_, row)| row["fault"].as_u64() != Some(0))
+        .map(|(&id, _)| id).collect();
+    if ids.is_empty() { return Ok(false); }
+    let suspect: Feedback = ids.iter().map(|id| (*id, fresh.remove(id).unwrap())).collect();
+    let (confirmed, repeat_diagnostics) = read(&ids)?;
+    let missing: Vec<u8> = ids.iter().filter(|id| !confirmed.contains_key(id)).copied().collect();
+    diagnostics["faultConfirmation"] = json!({"suspect":suspect,"feedback":confirmed,
+        "read":repeat_diagnostics,"unconfirmedIds":missing});
+    for id in &ids {
+        if let Some(row) = confirmed.get(id) { fresh.insert(*id, row.clone()); }
+    }
+    Ok(!missing.is_empty())
+}
 const PERIOD: Duration = Duration::from_millis(20);
 /// Preserve the original 50Hz schedule; expired ticks are skipped, never replayed.
 pub struct FrameClock {
     next: Instant,
+    period: Duration,
     pub skipped: u64,
 }
 impl FrameClock {
-    pub fn new(now: Instant) -> Self { Self { next: now, skipped: 0 } }
+    pub fn new(now: Instant) -> Self { Self::with_period(now, PERIOD) }
+    pub fn with_period(now: Instant, period: Duration) -> Self {
+        assert!(!period.is_zero()); Self { next: now, period, skipped: 0 }
+    }
     fn advance(&mut self, now: Instant) -> Instant {
-        self.next += PERIOD;
+        self.next += self.period;
         if self.next < now {
-            let missed = now.duration_since(self.next).as_nanos()/PERIOD.as_nanos()+1;
+            let missed = now.duration_since(self.next).as_nanos()/self.period.as_nanos()+1;
             self.skipped += missed as u64;
-            self.next += PERIOD * missed as u32;
+            self.next += self.period * missed as u32;
         }
         self.next
     }
@@ -95,8 +118,14 @@ impl Timing {
 pub trait Transport {
     fn calibrate(&mut self, id: u8, target: u16) -> Result<()>;
     fn feedback(&mut self, ids: &[u8]) -> Result<Feedback>;
+    fn control_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.feedback(ids) }
+    fn configuration_bytes(&mut self, id: u8) -> Result<Vec<u8>> { self.read(id, 0, 40) }
     fn tick_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.feedback(ids) }
+    fn policy_tick_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.tick_feedback(ids) }
+    fn fast_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.tick_feedback(ids) }
     fn diagnostics(&self) -> Value { Value::Null }
+    fn serial_trace(&self) -> Value { Value::Null }
+    fn save_control_failure(&mut self, _evidence: &Value) -> Result<()> { Ok(()) }
     fn read(&mut self, id: u8, address: u8, size: u8) -> Result<Vec<u8>>;
     fn write(&mut self, id: u8, address: u8, data: &[u8]) -> Result<()>;
     fn sync(&mut self, address: u8, values: &BTreeMap<u8, Vec<u8>>) -> Result<()>;
@@ -109,8 +138,22 @@ impl Transport for Bus {
     fn feedback(&mut self, ids: &[u8]) -> Result<Feedback> {
         self.read_feedback(ids)
     }
+    fn control_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.read_control_feedback(ids) }
+    fn configuration_bytes(&mut self, id: u8) -> Result<Vec<u8>> { self.read_configuration(id) }
     fn tick_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.read_tick(ids) }
+    fn policy_tick_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.read_policy_tick(ids) }
+    fn fast_feedback(&mut self, ids: &[u8]) -> Result<Feedback> { self.read_fast(ids) }
     fn diagnostics(&self) -> Value { self.diagnostics.clone() }
+    fn serial_trace(&self) -> Value { json!(self.trace) }
+    fn save_control_failure(&mut self, evidence: &Value) -> Result<()> {
+        let calibration = std::path::PathBuf::from(std::env::var("MICRODUCK_CALIBRATION_FILE")
+            .unwrap_or_else(|_| "/var/lib/microduck-observer/calibration.json".into()));
+        let parent = calibration.parent().ok_or_else(|| anyhow::anyhow!("标定路径没有父目录"))?;
+        let temporary = parent.join("control-failure-latest.json.tmp");
+        std::fs::write(&temporary, serde_json::to_vec(evidence)?)?;
+        std::fs::rename(temporary, parent.join("control-failure-latest.json"))?;
+        Ok(())
+    }
     fn read(&mut self, id: u8, address: u8, size: u8) -> Result<Vec<u8>> {
         self.read_register(id, address, size)
     }
@@ -206,7 +249,7 @@ pub fn target(
     Ok(goal as i32)
 }
 pub fn configuration<T: Transport>(bus: &mut T, id: u8) -> Result<(i32, i32, u16)> {
-    let c = bus.read(id, 0, 40)?;
+    let c = bus.configuration_bytes(id)?;
     if c.len() != 40 || c[..2] != [3, 46] || c[33] != 4 {
         bail!("#{id} 固件或运行模式未经验证")
     }
@@ -218,10 +261,15 @@ fn position(f: &Value) -> Result<i32> {
         .as_i64()
         .ok_or_else(|| anyhow::anyhow!("Invalid encoder"))? as i32)
 }
+pub fn goal_payload(value: i32) -> Result<Vec<u8>> {
+    let mut bytes = encode(value)?;
+    bytes.extend([0, 0, 0, 0]);
+    Ok(bytes)
+}
 pub fn goals<T: Transport>(bus: &mut T, values: &BTreeMap<u8, i32>) -> Result<()> {
     let bytes = values
         .iter()
-        .map(|(id, v)| Ok((*id, encode(*v)?)))
+        .map(|(id, v)| Ok((*id, goal_payload(*v)?)))
         .collect::<Result<_>>()?;
     bus.sync(42, &bytes)
 }
@@ -260,7 +308,7 @@ pub fn publish(shared: &Shared, f: &Feedback, ids: &[u8], diagnostics: Value) {
         })
         .collect();
     let mut s = shared.write().unwrap();
-    s.sample("joints",json!({"configuredIds":ids,"servos":rows,"error":"","scanMs":diagnostics["elapsedMs"],"targetHz":50,"readMode":"sync-read","diagnostics":diagnostics}),true,Instant::now());
+    s.sample("joints",json!({"configuredIds":ids,"servos":rows,"error":"","scanMs":diagnostics["elapsedMs"],"targetHz":diagnostics["feedbackTargetHz"].as_u64().unwrap_or(50),"readMode":"sync-read","diagnostics":diagnostics}),true,Instant::now());
     if let Some(v) = s.latest.get_mut("joints") {
         v["source"] = json!("hardware");
     }
@@ -276,13 +324,33 @@ pub fn poll_tick<T: Transport>(bus: &mut T, ids: &[u8]) -> (Feedback, Value) {
             "rxBytes":0,"checksumErrors":0,"discardedBytes":0})),
     }
 }
+pub fn poll_policy_tick<T: Transport>(bus: &mut T, ids: &[u8]) -> (Feedback, Value) {
+    match bus.policy_tick_feedback(ids) {
+        Ok(f) => (f, bus.diagnostics()),
+        Err(e) => (Feedback::new(), json!({"kind":"read","mono":crate::telemetry::monotonic(),
+            "requestedIds":ids,"receivedIds":[],"missingIds":ids,"readError":e.to_string(),
+            "rxBytes":0,"checksumErrors":0,"discardedBytes":0})),
+    }
+}
 fn profile<T: Transport>(bus: &mut T, id: u8, f: &Value) -> Result<()> {
-    if f["accelerationRaw"] != 0 {
-        bus.sync(41, &BTreeMap::from([(id, vec![0])]))?;
-    }
-    if f["speedLimitRaw"] != 500 {
-        bus.sync(46, &BTreeMap::from([(id, 500u16.to_le_bytes().to_vec())]))?;
-    }
+    profiles(bus, &[id], &BTreeMap::from([(id, f.clone())]))
+}
+pub const MANUAL_GAINS: (u8,u8) = (32,40);
+pub const POLICY_GAINS: (u8,u8) = (6,20);
+pub fn profiles<T: Transport>(bus: &mut T, ids: &[u8], feedback: &Feedback) -> Result<()> {
+    profiles_with_gains(bus,ids,feedback,MANUAL_GAINS)
+}
+pub fn profiles_with_gains<T: Transport>(bus: &mut T, ids: &[u8], feedback: &Feedback, gains: (u8,u8)) -> Result<()> {
+    let acceleration: BTreeMap<_,_> = ids.iter().filter(|id| feedback[id]["accelerationRaw"] != 0).map(|id| (*id,vec![0])).collect();
+    let speed: BTreeMap<_,_> = ids.iter().filter(|id| feedback[id]["speedLimitRaw"] != 0).map(|id| (*id,0u16.to_le_bytes().to_vec())).collect();
+    if !acceleration.is_empty() { bus.sync(41,&acceleration)?; }
+    if !speed.is_empty() { bus.sync(46,&speed)?; }
+    let gains: BTreeMap<_,_> = ids.iter().filter_map(|id| {
+        let (kp,kd) = gains;
+        (feedback[id]["kpRaw"] != kp || feedback[id]["kdRaw"] != kd)
+            .then_some((*id, vec![kp,kd]))
+    }).collect();
+    if !gains.is_empty() { bus.sync(50,&gains)?; }
     Ok(())
 }
 pub fn execute<T: Transport>(
@@ -308,6 +376,10 @@ pub fn execute<T: Transport>(
     };
     let mut attempted = false;
     let mut timing = Timing::default();
+    let mut last_pose_diagnostics = String::new();
+    let mut pose_frames = std::collections::VecDeque::new();
+    let mut pose_preflight = Value::Null;
+    let mut previous_command: BTreeMap<u8, i32> = BTreeMap::new();
     let result = (|| -> Result<Value> {
         guard()?;
         status(
@@ -321,9 +393,11 @@ pub fn execute<T: Transport>(
                 json!(0)
             };
             let (id, degree) = angle_request(&command["id"], &degree_value)?;
-            let f = bus.feedback(&[id])?;
+            let f = if action == "angle" { bus.control_feedback(&[id])? } else { bus.feedback(&[id])? };
+            let preflight_read_length = bus.diagnostics()["readLength"].clone();
             validate(id, f.get(&id), false)?;
             let (low, high, _) = configuration(bus, id)?;
+            let configuration_cached = bus.diagnostics()["configurationCacheHit"].clone();
             guard()?;
             let goal = if action == "angle" {
                 Some(target(
@@ -360,21 +434,40 @@ pub fn execute<T: Transport>(
                 goals(bus, &BTreeMap::from([(id, g)]))?;
             }
             guard()?;
+            if let Some(goal) = goal {
+                // Short feedback, three bounded observations. Never resend the
+                // target/enable or invent a fresh row from a missing response.
+                let mut confirmed = false;
+                let mut clock = FrameClock::new(Instant::now());
+                let confirmation_deadline = Instant::now() + Duration::from_millis(150);
+                for _ in 0..3 {
+                    guard()?;
+                    clock.wait();
+                    guard()?;
+                    if Instant::now() >= confirmation_deadline { break; }
+                    let after = bus.fast_feedback(&IDS)?;
+                    publish(shared, &after, &IDS, bus.diagnostics());
+                    guard()?;
+                    for (other, row) in &after {
+                        validate(*other, Some(row), *other == id)?;
+                    }
+                    if let Some(row) = after.get(&id) {
+                        validate(id, Some(row), true)?;
+                        confirmed = true;
+                        break;
+                    }
+                }
+                return Ok(json!({"state":"commanded","action":action,"id":id,"angleDeg":degree,"target":goal,"feedbackConfirmed":confirmed,"preflightReadLength":preflight_read_length,"configurationCached":configuration_cached,"message":if confirmed {format!("#{id} 目标已发送，反馈已确认；到位情况看实时角度")} else {format!("#{id} 目标已发送，暂未确认反馈；请核对实时角度，勿视为已到位")}}));
+            }
             let after = bus.feedback(&IDS)?;
             publish(shared, &after, &IDS, Value::Null);
-            validate(id, after.get(&id), goal.is_some())?;
-            return if let Some(goal) = goal {
-                Ok(
-                    json!({"state":"commanded","action":action,"id":id,"angleDeg":degree,"target":goal,"message":format!("#{id} 已发送 {degree}°，已使能；到位情况看实时角度")}),
-                )
-            } else {
-                if after[&id]["accelerationRaw"] != 0 || after[&id]["speedLimitRaw"] != 500 {
-                    bail!("#{id} 参数回读不一致")
-                }
-                Ok(
-                    json!({"state":"configured","action":action,"id":id,"accelerationRaw":0,"speedLimitRaw":500,"message":format!("#{id} 加速度0、速度500已回读确认，未写目标角度或使能")}),
-                )
-            };
+            validate(id, after.get(&id), false)?;
+            if after[&id]["accelerationRaw"] != 0 || after[&id]["speedLimitRaw"] != 0 {
+                bail!("#{id} 参数回读不一致")
+            }
+            return Ok(
+                json!({"state":"configured","action":action,"id":id,"accelerationRaw":0,"speedLimitRaw":0,"message":format!("#{id} XgoDuck加速度0、速度0及运行增益已配置，未写目标角度或使能")}),
+            );
         }
         if !["enable", "stand"].contains(&action) {
             bail!("未知舵机操作")
@@ -437,12 +530,12 @@ pub fn execute<T: Transport>(
             );
         }
         guard()?;
-        if action == "stand" && budget - began.elapsed().as_secs_f64() < 2.5 {
+        if action == "stand" && budget - began.elapsed().as_secs_f64() < 1.65 {
             bail!("总线预检查过慢，未执行运动")
         }
         attempted = true;
         goals(bus, &starts)?;
-        for id in ids { profile(bus, *id, &fresh[id])?; }
+        profiles(bus, ids, &fresh)?;
         for id in ids {
             guard()?;
             let cap = cfg[id].2.to_le_bytes();
@@ -466,8 +559,10 @@ pub fn execute<T: Transport>(
                 json!({"state":"enabled","action":action,"message":"15 个舵机已使能，保持当前位置","progress":1}),
             );
         }
+        pose_preflight = json!({"feedback":f,"starts":starts,"targets":targets,"configuration":cfg});
+        previous_command = starts.clone();
         let trajectory = Instant::now();
-        if budget - began.elapsed().as_secs_f64() < 2.35 {
+        if budget - began.elapsed().as_secs_f64() < 1.65 {
             bail!("总线预处理过慢，无法在 3 秒内完成")
         }
         let mut clock = FrameClock::new(trajectory);
@@ -483,26 +578,45 @@ pub fn execute<T: Transport>(
             let holding = sampled.is_none();
             let f = sampled.unwrap_or_else(|| coast.last.as_ref().unwrap().clone());
             let diagnostics = coast.diagnostics(diagnostics, holding);
-            publish(shared, &fresh, &IDS, diagnostics);
-            let ratio = (trajectory.elapsed().as_secs_f64() / 2.2).min(1.);
-            let blend = ratio * ratio * (3. - 2. * ratio);
-            let commanded = starts
+            publish(shared, &fresh, &IDS, diagnostics.clone());
+            // Manual poses and model HOME use a linear 1.5s trajectory at 50Hz.
+            // Only policy inference applies the action EMA.
+            let ratio = (trajectory.elapsed().as_secs_f64() / 1.5).min(1.0);
+            let errors: BTreeMap<_,_> = ids.iter().map(|id| {
+                let delta = (position(&f[id]).unwrap_or(i32::MIN) as f64 - targets[id] as f64) * 360. / 4096.;
+                (*id, rounded(delta, 2))
+            }).collect();
+            let pending: Vec<_> = ids.iter().filter(|id| {
+                (position(&f[id]).unwrap_or(i32::MIN) as f64-targets[id] as f64).abs()>5.*4096./360.
+            }).map(|id| format!("#{} {}°",id,errors[id])).collect();
+            last_pose_diagnostics = format!("卸力前末帧未到位[{}]；连续缺帧{}；反馈保持{}；到位计时{}ms",pending.join(","),coast.misses,holding,settled.map(|at:Instant| at.elapsed().as_millis()).unwrap_or(0));
+            let commanded: BTreeMap<u8,i32> = starts
                 .iter()
                 .map(|(id, s)| {
                     (
                         *id,
                         if holding { position(&f[id]).unwrap_or(*s) }
-                        else { (*s as f64 + (targets[id] - s) as f64 * blend).round_ties_even() as i32 },
+                        else { (*s as f64 + (targets[id]-s) as f64 * ratio).round_ties_even() as i32 },
                     )
                 })
                 .collect();
+            // The read precedes this frame's write: compare fresh register 67 with
+            // the previous command, not with a newer interpolated target or cached 42.
+            pose_frames.push_back(json!({"elapsedMs":began.elapsed().as_secs_f64()*1000.,
+                "ratio":ratio,"freshFeedback":fresh,"previousCommand":previous_command,
+                "nextCommand":commanded,"diagnostics":diagnostics,
+                "positionErrorsDeg":errors,"holding":holding}));
+            if pose_frames.len()>160 { pose_frames.pop_front(); }
             goals(bus, &commanded)?;
+            previous_command = commanded;
             timing.record(Instant::now());
-            let mut state = json!({"state":"moving","action":action,"message":"正在过渡到官方站姿","progress":ratio,"remainingSeconds":rounded((budget-began.elapsed().as_secs_f64()).max(0.),1)});
+            let mut state = json!({"state":"moving","action":action,"message":"正在匀速分段调整姿势","progress":ratio,"remainingSeconds":rounded((budget-began.elapsed().as_secs_f64()).max(0.),1)});
+            state["positionErrorsDeg"] = json!(errors);
+            state["poseConfirmation"] = json!(last_pose_diagnostics);
             state["consecutiveFeedbackFailures"] = json!(coast.misses);
             state["feedbackHolding"] = json!(holding);
             state["skippedControlTicks"] = json!(clock.skipped);
-            if holding { state["message"] = json!("反馈持续缺失，暂停过渡并保持最后测得姿态"); }
+            if holding { state["message"] = json!("反馈持续缺失，暂停目标下发并保持最后测得姿态"); }
             for (key, value) in timing.stats().as_object().unwrap() {
                 state[key] = value.clone();
             }
@@ -533,13 +647,25 @@ pub fn execute<T: Transport>(
         Ok(v) => Ok(v),
         Err(e) => {
             if attempted {
+                // Capture before unload changes both the feedback and serial ring.
+                let mut evidence = json!({"eventTimeMs":crate::telemetry::epoch_ms(),
+                    "action":action,"error":e.to_string(),"command":command,
+                    "preflight":pose_preflight,"frames":pose_frames,
+                    "lastPoseDiagnostics":last_pose_diagnostics,"stats":timing.stats(),
+                    "serialTraceBeforeUnload":bus.serial_trace()});
                 let off = unload(bus)
                     .map(|v| v["message"].as_str().unwrap_or("").to_owned())
                     .unwrap_or_else(|e| format!("全部失能未确认：{e}"));
+                if action == "stand" {
+                    evidence["unloadMessage"] = json!(off);
+                    if let Err(save_error) = bus.save_control_failure(&evidence) {
+                        shared.write().unwrap().log("WARN","servo-control",&format!("到位故障记录保存失败：{save_error}"));
+                    }
+                }
                 if action == "stand" && timing.count > 0 {
                     let stats = timing.stats();
                     bail!(
-                        "{e}；本次发令 {}Hz（目标50Hz），最大间隔 {}ms；{off}",
+                        "{e}；{last_pose_diagnostics}；本次发令 {}Hz（目标50Hz），最大间隔 {}ms；{off}",
                         stats["commandHz"],
                         stats["commandMaxGapMs"]
                     )
@@ -626,7 +752,7 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
         halt: halt.clone(),
     };
     std::thread::Builder::new().name("servo-owner".into()).spawn(move||{
-        let mut bus=None;let mut stamps=std::collections::VecDeque::new();let mut clock=FrameClock::new(Instant::now());
+        let mut bus=None;let mut stamps=std::collections::VecDeque::new();let mut clock=FrameClock::with_period(Instant::now(), Duration::from_millis(10));
         while !stop.load(Ordering::Acquire){
             if bus.is_none(){bus=Bus::open(&port).ok();}
             match rx.try_recv(){
@@ -639,9 +765,9 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
                 Err(mpsc::TryRecvError::Disconnected)=>break,
                 Err(mpsc::TryRecvError::Empty)=>{
                     let start=Instant::now();
-                    if let Some(b)=bus.as_mut(){match b.read_tick(&ids){Ok(f)=>{stamps.push_back(start);if stamps.len()>100{stamps.pop_front();}let mut d=b.diagnostics.clone();d["skippedScanTicks"]=json!(clock.skipped);d["observedScanHz"]=if stamps.len()>1{json!((stamps.len()-1) as f64/(start-*stamps.front().unwrap()).as_secs_f64())}else{Value::Null};publish(&shared,&f,&ids,d)},Err(e)=>{shared.write().unwrap().log("WARN","servos",&e.to_string());bus=None;}}}
+                    if let Some(b)=bus.as_mut(){match b.read_tick(&ids){Ok(f)=>{stamps.push_back(start);if stamps.len()>100{stamps.pop_front();}let mut d=b.diagnostics.clone();d["feedbackTargetHz"]=json!(100);d["skippedScanTicks"]=json!(clock.skipped);d["observedScanHz"]=if stamps.len()>1{json!((stamps.len()-1) as f64/(start-*stamps.front().unwrap()).as_secs_f64())}else{Value::Null};publish(&shared,&f,&ids,d)},Err(e)=>{shared.write().unwrap().log("WARN","servos",&e.to_string());bus=None;}}}
                     else{shared.write().unwrap().sample("joints",json!({"configuredIds":ids,"servos":ids.iter().map(|id|json!({"id":id,"online":false,"ageMs":0})).collect::<Vec<_>>(),"error":"舵机串口不可用","targetHz":50,"readMode":"sync-read"}),true,Instant::now());}
-                    if bus.is_some(){clock.wait();}else{std::thread::sleep(Duration::from_millis(200).saturating_sub(start.elapsed()));clock=FrameClock::new(Instant::now());}
+                    if bus.is_some(){clock.wait();}else{std::thread::sleep(Duration::from_millis(200).saturating_sub(start.elapsed()));clock=FrameClock::with_period(Instant::now(),Duration::from_millis(10));}
                 }
             }
         }
@@ -650,7 +776,80 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn single_corrupt_fault_is_replaced_only_by_fresh_confirmation() {
+        let mut rows = Feedback::from([(14, json!({"fault":143,"voltage":12.,"_receivedMono":1.}))]);
+        let mut diagnostic = json!({"checksumErrors":3});
+        let holding = confirm_policy_faults(&mut rows, &mut diagnostic, |ids| {
+            assert_eq!(ids, &[14]);
+            Ok((Feedback::from([(14,json!({"fault":0,"voltage":7.3,"_receivedMono":2.}))]),json!({})))
+        }).unwrap();
+        assert!(!holding);
+        assert_eq!(rows[&14]["fault"],0);
+        assert_eq!(rows[&14]["_receivedMono"],2.);
+        assert_eq!(diagnostic["faultConfirmation"]["suspect"]["14"]["fault"],143);
+        assert_eq!(diagnostic["checksumErrors"],3);
+    }
+    #[test]
+    fn confirmed_fault_and_voltage_violation_still_fail_validation() {
+        let mut rows = Feedback::from([(14,json!({"fault":4,"voltage":7.3}))]);
+        confirm_policy_faults(&mut rows,&mut json!({}), |_| Ok((rows_for_fault(4,7.3),json!({})))).unwrap();
+        assert!(validate(14,rows.get(&14),false).unwrap_err().to_string().contains("故障码"));
+        let mut rows = rows_for_fault(143,12.);
+        confirm_policy_faults(&mut rows,&mut json!({}), |_| Ok((rows_for_fault(0,8.5),json!({})))).unwrap();
+        assert!(validate(14,rows.get(&14),false).unwrap_err().to_string().contains("电压"));
+    }
+    fn rows_for_fault(fault:u8,voltage:f64) -> Feedback {
+        Feedback::from([(14,json!({"fault":fault,"voltage":voltage}))])
+    }
+    #[test]
+    fn missing_fault_confirmation_removes_suspect_and_requires_hold() {
+        let mut rows=rows_for_fault(143,12.);
+        assert!(confirm_policy_faults(&mut rows,&mut json!({}), |_| Ok((Feedback::new(),json!({})))).unwrap());
+        assert!(!rows.contains_key(&14));
+    }
+    #[test]
+    fn healthy_policy_feedback_never_adds_a_read() {
+        let mut rows=rows_for_fault(0,7.3);
+        assert!(!confirm_policy_faults(&mut rows,&mut json!({}), |_| panic!("unexpected bus read")).unwrap());
+    }
     use super::*;
+    #[test]
+    fn xgoduck_goal_packet_and_restored_temporary_gains() {
+        assert_eq!(goal_payload(-16).unwrap(), vec![16,128,0,0,0,0]);
+        let mut bus = Mock::new();
+        bus.rows.get_mut(&10).unwrap()["kpRaw"]=json!(6);
+        bus.rows.get_mut(&10).unwrap()["kdRaw"]=json!(20);
+        bus.rows.get_mut(&34).unwrap()["kpRaw"]=json!(10);
+        let rows=bus.rows.clone();
+        profiles(&mut bus,&[10,34],&rows).unwrap();
+        let gain_write=bus.writes.iter().find(|(address,_)|*address==50).unwrap();
+        assert_eq!(gain_write.1[&10],vec![32,40]);
+        assert_eq!(gain_write.1[&34],vec![32,40]);
+        let count=bus.writes.len();
+        let updated=bus.rows.clone();
+        profiles(&mut bus,&[10,34],&updated).unwrap();
+        assert_eq!(bus.writes.len(),count);
+        assert!(bus.writes.iter().all(|(address,_)|*address>=40));
+    }
+    #[test]
+    fn policy_gains_switch_without_enable_or_goal_write_then_manual_restores() {
+        let mut bus=Mock::new();
+        for row in bus.rows.values_mut() { row["accelerationRaw"]=json!(0);row["speedLimitRaw"]=json!(0); }
+        let ids=crate::policy::ORDER;
+        let feedback=bus.rows.clone();
+        profiles_with_gains(&mut bus,&ids,&feedback,POLICY_GAINS).unwrap();
+        assert_eq!(bus.writes.len(),1);
+        assert_eq!(bus.writes[0].0,50);
+        assert_eq!(bus.writes[0].1.len(),14);
+        assert!(bus.writes[0].1.values().all(|v| v==&vec![6,20]));
+        assert!(!bus.writes[0].1.contains_key(&34));
+        let feedback=bus.rows.clone();
+        profiles(&mut bus,&ids,&feedback).unwrap();
+        assert_eq!(bus.writes.len(),2);
+        assert_eq!(bus.writes[1].0,50);
+        assert!(bus.writes[1].1.values().all(|v|v==&vec![32,40]));
+    }
     #[test]
     fn three_failed_reads_coast_without_mixing_or_restamping_then_hold_and_recover() {
         let now=Instant::now();
@@ -731,13 +930,26 @@ mod tests {
         rows: Feedback,
         firmware: bool,
         fail_after_goal: bool,
+        fast_missing: usize,
+        fast_reads: usize,
+        stuck_id: Option<u8>,
+        saved_failure: Option<Value>,
     }
     impl Mock {
         fn new() -> Self {
-            Self{writes:vec![],rows:IDS.into_iter().map(|id|(id,json!({"position":2048,"fault":0,"voltage":5.9,"torque":0,"accelerationRaw":5,"speedLimitRaw":300}))).collect(),firmware:true,fail_after_goal:false}
+            Self{writes:vec![],rows:IDS.into_iter().map(|id|(id,json!({"position":2048,"fault":0,"voltage":5.9,"torque":0,"accelerationRaw":5,"speedLimitRaw":300,"kpRaw":32,"kiRaw":0,"kdRaw":40}))).collect(),firmware:true,fail_after_goal:false,fast_missing:0,fast_reads:0,stuck_id:None,saved_failure:None}
         }
     }
     impl Transport for Mock {
+        fn save_control_failure(&mut self, evidence: &Value) -> Result<()> {
+            self.saved_failure=Some(evidence.clone()); Ok(())
+        }
+        fn fast_feedback(&mut self, ids: &[u8]) -> Result<Feedback> {
+            self.fast_reads += 1;
+            let mut rows = self.feedback(ids)?;
+            if self.fast_reads <= self.fast_missing { rows.remove(&34); }
+            Ok(rows)
+        }
         fn calibrate(&mut self, _: u8, _: u16) -> Result<()> {
             bail!("Not used")
         }
@@ -773,8 +985,17 @@ mod tests {
             self.writes.push((address, values.clone()));
             for (id, v) in values {
                 if address == 42 {
-                    self.rows.get_mut(id).unwrap()["position"] =
-                        json!(crate::servos::signed(u16::from_le_bytes([v[0], v[1]]), 15));
+                    assert_eq!(v.len(),6);
+                    assert_eq!(&v[2..], &[0,0,0,0]);
+                    self.rows.get_mut(id).unwrap()["goalCurrentRaw"] = json!(0);
+                    self.rows.get_mut(id).unwrap()["speedLimitRaw"] = json!(0);
+                    let target=crate::servos::signed(u16::from_le_bytes([v[0],v[1]]),15);
+                    self.rows.get_mut(id).unwrap()["target"]=json!(target);
+                    if self.stuck_id!=Some(*id) { self.rows.get_mut(id).unwrap()["position"]=json!(target); }
+                }
+                if address == 50 {
+                    self.rows.get_mut(id).unwrap()["kpRaw"] = json!(v[0]);
+                    self.rows.get_mut(id).unwrap()["kdRaw"] = json!(v[1]);
                 }
                 if address == 40 {
                     self.rows.get_mut(id).unwrap()["torque"] = json!(v[0]);
@@ -826,12 +1047,12 @@ mod tests {
         let mut bus=Dropping {bus:Mock::new(),tick:0,voltage_fault:false,held_targets:None};
         for row in bus.bus.rows.values_mut() {
             row["torque"]=json!(1);row["accelerationRaw"]=json!(0);
-            row["speedLimitRaw"]=json!(500);row["torqueLimitRaw"]=json!(1000);
+            row["speedLimitRaw"]=json!(0);row["torqueLimitRaw"]=json!(1000);
         }
         let references:BTreeMap<_,_>=IDS.into_iter().map(|id|(id.to_string(),2048)).collect();
         let result=execute(&mut bus,&json!({"action":"stand","calibration":{"joints":{"references":references,"directions":{}}}}),&AtomicBool::new(false),&shared()).unwrap();
         assert_eq!(result["state"],"holding");
-        assert!(bus.held_targets.unwrap().values().all(|value|value==&2048u16.to_le_bytes()));
+        assert!(bus.held_targets.unwrap().values().all(|value|value==&goal_payload(2048).unwrap()));
         assert!(bus.bus.writes.iter().all(|(address,_)|*address==42));
     }
     #[test]
@@ -845,7 +1066,7 @@ mod tests {
         assert!(bus.bus.writes.last().unwrap().1.values().all(|value|value==&[0]));
     }
     #[test]
-    fn angle_aligns_then_enables_then_sends_target_current_pid_untouched() {
+    fn angle_aligns_then_enables_then_sends_six_byte_target() {
         let mut bus = Mock::new();
         let result = execute(&mut bus, &command(), &AtomicBool::new(false), &shared()).unwrap();
         assert_eq!(result["state"], "commanded");
@@ -853,16 +1074,68 @@ mod tests {
             bus.writes.iter().map(|(a, _)| *a).collect::<Vec<_>>(),
             [42, 41, 46, 40, 42]
         );
-        assert_eq!(bus.writes[0].1[&34], 2048u16.to_le_bytes());
+        assert_eq!(bus.writes[0].1[&34], goal_payload(2048).unwrap());
         assert_ne!(bus.writes[4].1[&34], bus.writes[0].1[&34]);
         assert!(bus.writes.iter().all(|(_, v)| v.keys().all(|id| *id == 34)));
+    }
+    #[test]
+    fn angle_retries_short_feedback_without_resending_or_unloading() {
+        for missing in [1, 2, 3, 100] {
+            let mut bus = Mock::new();
+            bus.fast_missing = missing;
+            let state = shared();
+            let result = execute(&mut bus, &command(), &AtomicBool::new(false), &state).unwrap();
+            assert_eq!(result["feedbackConfirmed"], missing < 3);
+            assert_eq!(bus.fast_reads, (missing + 1).min(3));
+            assert_eq!(bus.writes.iter().map(|(a, _)| *a).collect::<Vec<_>>(), [42,41,46,40,42]);
+            assert_eq!(bus.rows[&34]["torque"], 1);
+            let telemetry = state.read().unwrap();
+            assert_eq!(telemetry.latest["joints"]["data"]["configuredIds"].as_array().unwrap().len(), 15);
+            let rows = telemetry.latest["joints"]["data"]["servos"].as_array().unwrap();
+            assert_eq!(rows.iter().find(|row| row["id"] == 34).unwrap()["online"], missing < 3);
+        }
+    }
+    #[test]
+    fn angle_partial_feedback_does_not_hide_a_real_fault() {
+        let mut bus = Mock::new();
+        bus.fast_missing = 100;
+        bus.rows.get_mut(&12).unwrap()["voltage"] = json!(3.9);
+        let error = execute(&mut bus, &command(), &AtomicBool::new(false), &shared()).unwrap_err();
+        assert!(error.to_string().contains("3.9"));
+        assert_eq!(bus.fast_reads, 1);
+        assert_eq!(bus.writes.last().unwrap().0, 40);
+        assert!(bus.writes.last().unwrap().1.values().all(|value| value == &[0]));
+    }
+    #[test]
+    fn bulk_profiles_group_only_changed_fields_and_do_not_write_enable_or_current() {
+        let mut bus=Mock::new();
+        bus.rows.get_mut(&10).unwrap()["accelerationRaw"]=json!(0);
+        bus.rows.get_mut(&11).unwrap()["speedLimitRaw"]=json!(0);
+        let rows=bus.rows.clone();
+        profiles(&mut bus,&[10,11,12],&rows).unwrap();
+        assert_eq!(bus.writes.iter().map(|(address,_)|*address).collect::<Vec<_>>(),[41,46]);
+        assert_eq!(bus.writes[0].1.keys().copied().collect::<Vec<_>>(),[11,12]);
+        assert_eq!(bus.writes[1].1.keys().copied().collect::<Vec<_>>(),[10,12]);
+        let fresh=bus.rows.clone();
+        profiles(&mut bus,&[10,11,12],&fresh).unwrap();
+        assert_eq!(bus.writes.len(),2);
+    }
+    #[test]
+    fn angle_fast_feedback_fault_still_unloads() {
+        let mut bus = Mock::new();
+        bus.rows.get_mut(&34).unwrap()["torque"] = json!(1);
+        bus.fail_after_goal = true;
+        assert!(execute(&mut bus, &command(), &AtomicBool::new(false), &shared()).is_err());
+        assert_eq!(bus.fast_reads, 1);
+        assert_eq!(bus.writes.last().unwrap().0, 40);
+        assert!(bus.writes.last().unwrap().1.values().all(|value| value == &[0]));
     }
     #[test]
     fn angle_on_enabled_servo_never_rewrites_enable() {
         let mut bus = Mock::new();
         bus.rows.get_mut(&34).unwrap()["torque"] = json!(1);
         bus.rows.get_mut(&34).unwrap()["accelerationRaw"] = json!(0);
-        bus.rows.get_mut(&34).unwrap()["speedLimitRaw"] = json!(500);
+        bus.rows.get_mut(&34).unwrap()["speedLimitRaw"] = json!(0);
         execute(&mut bus, &command(), &AtomicBool::new(false), &shared()).unwrap();
         assert_eq!(bus.writes.iter().map(|(a, _)| *a).collect::<Vec<_>>(), [42]);
     }
@@ -922,7 +1195,24 @@ mod tests {
         assert!(values.values().all(|v| v == &[0]));
     }
     #[test]
-    fn stand_50hz_mock_arrives_within_deadline() {
+    fn timeout_evidence_retains_live_target_and_enabled_feedback_before_unload() {
+        let mut bus=Mock::new(); bus.stuck_id=Some(30);
+        let references:BTreeMap<_,_>=IDS.into_iter().map(|id|(id.to_string(),if id==30 { 2200 } else { 2048 })).collect();
+        let result=execute(&mut bus,&json!({"action":"stand","calibration":{"joints":{"references":references,"directions":{}}}}),&AtomicBool::new(false),&shared());
+        assert!(result.unwrap_err().to_string().contains("#30"));
+        let evidence=bus.saved_failure.as_ref().unwrap();
+        let frames=evidence["frames"].as_array().unwrap();
+        assert!(frames.len()>60 && frames.len()<=160);
+        let last=frames.last().unwrap();
+        assert_eq!(last["freshFeedback"]["30"]["position"],2048);
+        assert_eq!(last["freshFeedback"]["30"]["target"],2200);
+        assert_eq!(last["previousCommand"]["30"],2200);
+        assert_eq!(last["freshFeedback"]["30"]["torque"],1);
+        assert_eq!(bus.rows[&30]["torque"],0);
+        assert_eq!(bus.writes.last().unwrap().0,40);
+    }
+    #[test]
+    fn manual_pose_advances_linearly_at_50hz_and_confirms_final_target() {
         let mut bus = Mock::new();
         let references: BTreeMap<_, _> = IDS.into_iter().map(|id| (id.to_string(), 2048)).collect();
         let began = Instant::now();
@@ -936,5 +1226,13 @@ mod tests {
             .filter(|(a, _)| *a == 42)
             .skip(1)
             .all(|(_, v)| v.len() == 14 && !v.contains_key(&34)));
+        let moves: Vec<_> = bus.writes.iter().filter(|(a,_)| *a==42).skip(1).collect();
+        assert!(!moves.is_empty());
+        let final_goal=&moves.last().unwrap().1[&12];
+        assert_ne!(&moves[0].1[&12],final_goal);
+        assert!(moves.len()>60);
+        let midpoint=&moves[moves.len()/2].1[&12];
+        assert_ne!(midpoint,final_goal);
+        assert_ne!(midpoint,&moves[0].1[&12]);
     }
 }

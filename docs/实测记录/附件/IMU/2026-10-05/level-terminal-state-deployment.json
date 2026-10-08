@@ -1,0 +1,14 @@
+{
+  "assetsMatch": {
+    "/assets/index-D_jMPTgd.js": true,
+    "/assets/index-DsD6xEkX.css": true
+  },
+  "calibrationUnchanged": true,
+  "backendBootUnchanged": true,
+  "control": {
+    "action": "policy",
+    "message": "请先完成 IMU 位置和安装方向标定；只读预检查未通过，未发运动指令",
+    "state": "failed"
+  },
+  "noCalibrationClick": true
+}

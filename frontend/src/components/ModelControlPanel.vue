@@ -50,11 +50,11 @@ onBeforeUnmount(() => { stop(); window.removeEventListener('blur', zero); docume
 
 <template>
   <section ref="root" class="model-controls" tabindex="0" aria-label="模型控制操作预览" @keydown="keyboard($event, true)" @keyup="keyboard($event, false)" @focusout="loseFocus">
-    <div class="control-heading"><div><span class="control-symbol">◇</span><strong>模型控制</strong><span class="version">官方 v5</span></div><span class="backend-tag">{{ mode === 'robot' ? 'HD1910 v5 · 实机闭环' : '操作预览' }}</span></div>
+    <div class="control-heading"><div><span class="control-symbol">◇</span><strong>模型控制</strong><span class="version">官方 v5</span></div><span class="backend-tag">{{ mode === 'robot' ? 'HD1910 · 实机模型' : '操作预览' }}</span></div>
     <div class="control-modes" role="group" aria-label="控制模式">
       <button :class="{ selected: mode === 'manual' }" :aria-pressed="mode === 'manual'" @click="setMode('manual')">手动</button>
       <button :class="{ selected: mode === 'preview' }" :aria-pressed="mode === 'preview'" @click="setMode('preview')">操作预览</button>
-      <button :class="{ selected: mode === 'robot' }" @click="setMode('robot')">实机模型 <small>v5</small></button>
+      <button :class="{ selected: mode === 'robot' }" @click="setMode('robot')">实机模型 <small>站立 / 行走</small></button>
     </div>
     <ModelRuntime v-if="mode === 'robot'" />
     <template v-else>

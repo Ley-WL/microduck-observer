@@ -70,16 +70,46 @@ pub fn path() -> PathBuf {
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("../debug-server/models/hd1910-head-v5.onnx"))
 }
-pub fn metadata() -> Option<Value> {
-    let p = path();
-    if !p.is_file() {
-        return None;
+pub fn path_for(kind: &str) -> Result<PathBuf> {
+    match kind {
+        "stand" => Ok(path()),
+        "walk" => Ok(path().with_file_name("hd1910-walk-v6-symmetry500.onnx")),
+        "xgoduck" => Ok(path().with_file_name("xgoduck_walk.onnx")),
+        _ => bail!("未知模型类型"),
     }
-    serde_json::from_slice(&std::fs::read(p.with_extension("metadata.json")).ok()?).ok()
+}
+pub fn model_id(kind: &str) -> &'static str {
+    match kind { "walk" => "hd1910-walk-v6-symmetry500", "xgoduck" => "xgoduck_walk", _ => "hd1910-head-v5" }
+}
+pub fn request_profile(body: &Value) -> Result<(&str, f32)> {
+    let kind = match body.get("kind") {
+        None => "stand",
+        Some(value) => value.as_str().ok_or_else(|| anyhow::anyhow!("模型类型无效"))?,
+    };
+    path_for(kind)?;
+    let speed = match body.get("speed") {
+        None => if kind == "walk" { 0.2 } else { 0.0 },
+        Some(value) => value.as_f64().ok_or_else(|| anyhow::anyhow!("行走速度无效"))?,
+    };
+    if !speed.is_finite() || !(0.0..=0.2).contains(&speed) || (kind != "walk" && speed != 0.0) {
+        bail!("前进速度应在0–0.2m/s内，站立模型速度必须为0")
+    }
+    Ok((kind, speed as f32))
+}
+pub fn drive_twist(body: &Value) -> Result<[f32; 3]> {
+    let twist=orientation::vector::<3>(&body["twist"])?;
+    for (v,max) in twist.iter().zip([0.2,0.1,0.5]) {
+        if !v.is_finite() || v.abs()>max { bail!("行走指令超出范围"); }
+    }
+    Ok(twist.map(|v|v as f32))
+}
+pub fn metadata_for(kind: &str) -> Option<Value> {
+    verified_metadata_for(kind).ok()
 }
 pub fn verify_fixture(path: &std::path::Path) -> Result<Value> {
     let fixture: Value = serde_json::from_slice(&std::fs::read(path)?)?;
-    let mut model = Model::open()?;
+    let (kind, speed) = request_profile(&fixture)?;
+    let mut model = Model::open_for(kind, speed)?;
     let shared = std::sync::Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(
         true,
     )));
@@ -125,28 +155,135 @@ pub fn verify_fixture(path: &std::path::Path) -> Result<Value> {
         json!({"ok":true,"observationMaxAbsError":observation_error,"actionMaxAbsError":action_error,"inferenceMs":inference_ms,"policySha256":model.sha,"hardwareAccess":false}),
     )
 }
+fn verified_metadata_for(kind: &str) -> Result<Value> {
+    let p = path_for(kind)?;
+    let meta: Value = serde_json::from_slice(&std::fs::read(p.with_extension("metadata.json"))?)?;
+    if meta["jointOrder"] != json!(NAMES) || meta["controlHz"] != 50 || meta["actorObservationDim"] != 61 || meta["actionDim"] != 14 {
+        bail!("模型关节顺序或频率不匹配")
+    }
+    if kind == "walk" && meta["task"] != "Mjlab-Walk-Flat-MicroDuck-HD1910" { bail!("行走模型任务不匹配") }
+    if kind == "xgoduck" && meta["task"] != "Mjlab-Velocity-Flat-XgoDuck" { bail!("XgoDuck模型任务不匹配") }
+    let sha = format!("{:x}", Sha256::digest(std::fs::read(p)?));
+    if meta["policySha256"] != sha {
+        bail!("模型 SHA256 不匹配")
+    }
+    orientation::vector::<14>(&meta["homeRadians"])?;
+    Ok(meta)
+}
+/// The same HOME used by policy startup, without inference or IMU access.
+pub fn home_targets_for(kind: &str) -> Result<BTreeMap<u8, f64>> {
+    let meta = verified_metadata_for(kind)?;
+    Ok(ORDER.into_iter().zip(orientation::vector::<14>(&meta["homeRadians"])?
+        .map(|v| v as f32 as f64)).collect())
+}
+fn smooth_action(previous: &[f32; 14], raw: &[f32; 14]) -> [f32; 14] {
+    std::array::from_fn(|n| previous[n] * 0.45 + raw[n] * 0.55)
+}
 struct Model {
-    session: Session,
+    session: std::sync::Arc<std::sync::Mutex<Session>>,
+    command_twist: [f32;3],
     home: [f32; 14],
     sha: String,
     previous: Option<([f64; 14], [f64; 14])>,
     velocity: [f64; 14],
     last_action: [f32; 14],
+    filtered_action: [f32; 14],
+    filtered_gyro: Option<(Vector3<f64>, f64)>,
     raw: Vec<f64>,
     sent: Vec<f64>,
     saturated: Vec<u8>,
 }
+fn infer_session(session: &mut Session, obs: Vec<f32>) -> Result<([f32;14],f64)> {
+        let start = Instant::now();
+        let tensor = Tensor::from_array(([1usize, 61], obs.into_boxed_slice()))?;
+        let outputs = session.run(ort::inputs![tensor])?;
+        let (_, data) = outputs[0].try_extract_tensor::<f32>()?;
+        let action: [f32; 14] = data
+            .try_into()
+            .map_err(|_| anyhow::anyhow!("模型输出无效"))?;
+        if action.iter().any(|v| !v.is_finite()) {
+            bail!("模型输出无效")
+        };
+        Ok((action, start.elapsed().as_secs_f64() * 1000.))
+    }
+/// UART has one owner. Every 100Hz tick writes the latest target before reading.
+fn policy_bus_cycle<T:control::Transport>(bus:&mut T,goals:&BTreeMap<u8,i32>)->Result<(Feedback,Value,f64,f64)> {
+    let at=Instant::now();control::goals(bus,goals)?;
+    let write_ms=at.elapsed().as_secs_f64()*1000.;
+    let at=Instant::now();let (feedback,diagnostics)=control::poll_policy_tick(bus,&IDS);
+    Ok((feedback,diagnostics,write_ms,at.elapsed().as_secs_f64()*1000.))
+}
+type InferenceJob = (u64, Instant, Vec<f32>);
+type InferenceReply = (u64, Instant, Vec<f32>, Result<([f32;14],f64)>);
+/// One replaceable pending observation and one result; no command backlog.
+struct InferenceWorker {
+    input: std::sync::Arc<(std::sync::Mutex<Option<InferenceJob>>,std::sync::Condvar)>,
+    output: std::sync::Arc<std::sync::Mutex<Option<InferenceReply>>>,
+    stop: std::sync::Arc<AtomicBool>,
+    thread: Option<std::thread::JoinHandle<()>>,
+}
+impl InferenceWorker {
+    fn new(session: std::sync::Arc<std::sync::Mutex<Session>>) -> Self {
+        Self::with_infer(move |obs| infer_session(&mut session.lock().unwrap(),obs))
+    }
+    fn with_infer(mut infer: impl FnMut(Vec<f32>)->Result<([f32;14],f64)> + Send + 'static) -> Self {
+        let input=std::sync::Arc::new((std::sync::Mutex::new(None::<InferenceJob>),std::sync::Condvar::new()));
+        let output=std::sync::Arc::new(std::sync::Mutex::new(None));
+        let stop=std::sync::Arc::new(AtomicBool::new(false));
+        let (i,o,z)=(input.clone(),output.clone(),stop.clone());
+        let thread=std::thread::Builder::new().name("policy-inference".into()).spawn(move || {
+            loop {
+                let mut slot=i.0.lock().unwrap();
+                while slot.is_none() && !z.load(Ordering::Acquire) { slot=i.1.wait(slot).unwrap(); }
+                if z.load(Ordering::Acquire) { break; }
+                let (generation,at,obs)=slot.take().unwrap();drop(slot);
+                let result=infer(obs.clone());
+                *o.lock().unwrap()=Some((generation,at,obs,result));
+            }
+        }).expect("policy inference worker");
+        Self { input,output,stop,thread:Some(thread) }
+    }
+    fn submit(&self,generation:u64,obs:Vec<f32>) {
+        *self.input.0.lock().unwrap()=Some((generation,Instant::now(),obs));self.input.1.notify_one();
+    }
+    fn take(&self)->Option<InferenceReply> { self.output.lock().unwrap().take() }
+    fn clear(&self) { self.input.0.lock().unwrap().take();self.output.lock().unwrap().take(); }
+}
+impl Drop for InferenceWorker {
+    fn drop(&mut self) {
+        { let _slot=self.input.0.lock().unwrap();self.stop.store(true,Ordering::Release);self.input.1.notify_one(); }
+        if let Some(thread)=self.thread.take() { let _=thread.join(); }
+    }
+}
+#[derive(Default)]
+struct CycleCosts {
+    started: Option<Instant>, reads:u64, writes:u64, inference_results:u64,
+    missing_frames:u64, missing_responses:u64, checksum_errors:u64,
+    sums: [f64;4], maxima: [f64;4], latest: [f64;4], result_age_ms:f64,
+}
+impl CycleCosts {
+    fn read(&mut self,ms:f64) { self.started.get_or_insert_with(Instant::now);self.reads+=1;self.cost(0,ms); }
+    fn cost(&mut self,index:usize,ms:f64) { self.latest[index]=ms;self.sums[index]+=ms;self.maxima[index]=self.maxima[index].max(ms); }
+    fn value(&self)->Value {
+        let names=["read","observe","write","cycleBusy"];
+        let mut v=json!({"inferenceConcurrent":true,"feedbackReads":self.reads,"inferenceResults":self.inference_results,
+            "missingFrames":self.missing_frames,"missingResponses":self.missing_responses,"checksumErrors":self.checksum_errors,
+            "inferenceActualHz":self.started.map(|at| self.inference_results as f64/at.elapsed().as_secs_f64()),
+            "feedbackActualHz":self.started.map(|at| if self.reads>1 {(self.reads-1) as f64/at.elapsed().as_secs_f64()} else {0.}),
+            "inferenceResultAgeMs":control::rounded(self.result_age_ms,3)});
+        for (i,name) in names.into_iter().enumerate() {
+            let n=if i==2 {self.writes} else {self.reads};
+            v[name]=json!({"lastMs":control::rounded(self.latest[i],3),"maxMs":control::rounded(self.maxima[i],3),"meanMs":if n>0 {control::rounded(self.sums[i]/n as f64,3)} else {0.}});
+        }
+        v
+    }
+}
 impl Model {
-    fn open() -> Result<Self> {
-        let p = path();
-        let meta = metadata().ok_or_else(|| anyhow::anyhow!("模型文件或元数据缺失"))?;
-        if meta["jointOrder"] != json!(NAMES) || meta["controlHz"] != 50 {
-            bail!("模型关节顺序或频率不匹配")
-        }
-        let sha = format!("{:x}", Sha256::digest(std::fs::read(&p)?));
-        if meta["policySha256"] != sha {
-            bail!("模型 SHA256 不匹配")
-        }
+    fn open() -> Result<Self> { Self::open_for("stand", 0.0) }
+    fn open_for(kind: &str, speed: f32) -> Result<Self> {
+        let p = path_for(kind)?;
+        let meta = verified_metadata_for(kind)?;
+        let sha = meta["policySha256"].as_str().unwrap().to_owned();
         let home = orientation::vector::<14>(&meta["homeRadians"])?.map(|v| v as f32);
         // Explicit path: library absence is an API error, never a loader panic.
         let runtime = std::env::var("ORT_DYLIB_PATH")
@@ -155,7 +292,7 @@ impl Model {
             bail!("ONNX Runtime 原生库不存在")
         }
         ort::init_from(&runtime)?.commit();
-        let session = Session::builder()?
+        let mut session = Session::builder()?
             .with_intra_threads(1)?
             .with_inter_threads(1)?
             .commit_from_file(p)?;
@@ -174,13 +311,22 @@ impl Model {
         if input != [1, 61] || output != [1, 14] {
             bail!("模型输入输出维度不匹配")
         }
+        for _ in 0..12 {
+            let tensor = Tensor::from_array(([1usize,61], vec![0f32;61].into_boxed_slice()))?;
+            let outputs = session.run(ort::inputs![tensor])?;
+            let (_, values) = outputs[0].try_extract_tensor::<f32>()?;
+            if values.len()!=14 || values.iter().any(|value|!value.is_finite()) { bail!("模型预热输出无效") }
+        }
         Ok(Self {
-            session,
+            session: std::sync::Arc::new(std::sync::Mutex::new(session)),
+            command_twist: [speed,0.,0.],
             home,
             sha,
             previous: None,
             velocity: [0.; 14],
             last_action: [0.; 14],
+            filtered_action: [0.; 14],
+            filtered_gyro: None,
             raw: vec![],
             sent: vec![],
             saturated: vec![],
@@ -254,24 +400,37 @@ impl Model {
             };
             angles[n] = raw + k0 * std::f64::consts::TAU;
         }
-        let mut velocity = [0.; 14];
-        // A complete fresh sample after a long feedback gap starts a new
-        // observation history, even if feedback-hold began less than 200ms ago.
-        if self.previous.as_ref().map(|(_, times)| history_needs_reset(&stamps, times)).transpose()?.unwrap_or(false) {
+        let reset_history = self.previous.as_ref().map(|(_, times)| history_needs_reset(&stamps, times)).transpose()?.unwrap_or(false);
+        if reset_history {
             self.previous = None;
             self.velocity = [0.; 14];
             self.last_action = [0.; 14];
+            self.filtered_action = [0.; 14];
+            self.filtered_gyro = None;
         }
-        if let Some((old, times)) = self.previous {
-            for n in 0..14 {
+        let mut velocity = [0.; 14];
+        for (n, id) in ORDER.iter().enumerate() {
+            let direction = cal["joints"]["directions"].get(id.to_string())
+                .and_then(Value::as_f64).unwrap_or(-1.);
+            let raw = feedback[id]["velocityRaw"].as_f64()
+                .ok_or_else(|| anyhow::anyhow!("#{id} 速度反馈缺失"))?;
+            let measured = raw * 50. * std::f64::consts::TAU / 4096. * direction;
+            velocity[n] = if let Some((_, times)) = self.previous {
                 let dt = stamps[n] - times[n];
-                velocity[n] = if dt > 1e-6 {
-                    (angles[n] - old[n]) / dt
-                } else {
-                    self.velocity[n]
-                };
-            }
+                if dt > 1e-6 {
+                    let alpha = 0.4f64.powf(dt / 0.01);
+                    alpha * self.velocity[n] + (1. - alpha) * measured
+                } else { self.velocity[n] }
+            } else { measured };
         }
+        let gyro = if let Some((old, at)) = self.filtered_gyro {
+            let dt = now - at;
+            if dt > 0.1 { gyro } else {
+                let alpha = 0.5f64.powf(dt.clamp(0.001, 0.1) / 0.01);
+                old * alpha + gyro * (1. - alpha)
+            }
+        } else { gyro };
+        self.filtered_gyro = Some((gyro, now));
         let mut obs = Vec::with_capacity(61);
         obs.extend(gyro.iter().map(|v| *v as f32));
         obs.extend(gravity.iter().map(|v| *v as f32));
@@ -281,9 +440,11 @@ impl Model {
                 .zip(self.home)
                 .map(|(a, h)| (a - h as f64) as f32),
         );
-        obs.extend(self.velocity.map(|v| v as f32));
+        obs.extend(velocity.map(|v| v as f32));
         obs.extend(self.last_action);
-        obs.extend([0f32; 13]);
+        let mut commands = [0f32; 13];
+        commands[..3].copy_from_slice(&self.command_twist);
+        obs.extend(commands);
         self.previous = Some((angles, stamps));
         self.velocity = velocity;
         if obs.len() != 61 || obs.iter().any(|v| !v.is_finite()) {
@@ -291,19 +452,10 @@ impl Model {
         };
         Ok(obs)
     }
-    fn infer(&mut self, obs: Vec<f32>) -> Result<([f32; 14], f64)> {
-        let start = Instant::now();
-        let tensor = Tensor::from_array(([1usize, 61], obs.into_boxed_slice()))?;
-        let outputs = self.session.run(ort::inputs![tensor])?;
-        let (_, data) = outputs[0].try_extract_tensor::<f32>()?;
-        let action: [f32; 14] = data
-            .try_into()
-            .map_err(|_| anyhow::anyhow!("模型输出无效"))?;
-        if action.iter().any(|v| !v.is_finite()) {
-            bail!("模型输出无效")
-        };
-        Ok((action, start.elapsed().as_secs_f64() * 1000.))
+    fn infer(&mut self, obs: Vec<f32>) -> Result<([f32;14],f64)> {
+        infer_session(&mut self.session.lock().unwrap(),obs)
     }
+
     fn targets(
         &mut self,
         action: [f32; 14],
@@ -348,7 +500,8 @@ pub fn execute(
     halt: &AtomicBool,
     shared: &Shared,
 ) -> Result<Value> {
-    let mut model = Model::open()?;
+    let (kind, speed) = request_profile(command)?;
+    let mut model = Model::open_for(kind, speed)?;
     let cal = &command["calibration"];
     let mut attempted = false;
     let mut stage = "preflight";
@@ -358,9 +511,11 @@ pub fn execute(
     let mut feedback = Feedback::new();
     let mut previous = Feedback::new();
     let mut goals = BTreeMap::new();
+    let costs=std::sync::Arc::new(std::sync::Mutex::new(CycleCosts::default()));
     let stats = |model: &Model, timing: &control::Timing, infer_ms: f64| -> Value {
         let mut v = timing.stats();
-        for (key,value) in json!({"policy":"hd1910-head-v5","policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
+        v["commandTargetHz"]=json!(100);
+        for (key,value) in json!({"policy":model_id(kind),"kind":kind,"walkSpeedMps":speed,"policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"runtimeProfile":"xgoduck-schedule100-v1","homeCommandTargetHz":50,"feedbackReplyBudgetMs":6,"feedbackTargetHz":100,"inferenceTargetHz":50,"actionAlpha":0.45,"velocitySource":"servo-register","velocityAlphaAt100Hz":0.4,"kpRun":control::POLICY_GAINS.0,"kdRun":control::POLICY_GAINS.1,"kpHome":control::MANUAL_GAINS.0,"kdHome":control::MANUAL_GAINS.1,"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
         let s = shared.read().unwrap();
         let ages: BTreeMap<_, _> = ["imu.orientation", "imu.raw"]
             .into_iter()
@@ -374,6 +529,10 @@ pub fn execute(
             })
             .collect();
         v["imuAgeMs"] = json!(ages);
+        v["commandTwist"] = json!(model.command_twist);
+        v["walkSpeedMps"] = json!(model.command_twist[0]);
+        v["driveSession"] = json!(s.drive.as_ref().map(|d|d.session.as_str()));
+        v["cycleCosts"] = costs.lock().unwrap().value();
         v
     };
     let result = (|| -> Result<Value> {
@@ -382,7 +541,7 @@ pub fn execute(
         }
         control::status(
             shared,
-            json!({"state":"preflight","action":"policy","message":"v5 模型与实时传感器预检查"}),
+            json!({"state":"preflight","action":"policy","policy":model_id(kind),"kind":kind,"message":format!("{}模型与实时传感器预检查",if kind=="walk" {"行走"} else {"站立"})}),
         );
         feedback = bus.read_feedback(&IDS)?;
         model.observe(shared, &feedback, cal)?;
@@ -397,7 +556,7 @@ pub fn execute(
             let obs = model.observe(shared, &feedback, cal)?;
             let (action, ms) = model.infer(obs)?;
             infer_ms = ms;
-            let (compatible, reason) = match model.targets(action, &feedback, cal, &limits) {
+            let (compatible, reason) = match model.targets(smooth_action(&model.filtered_action, &action), &feedback, cal, &limits) {
                 Ok(g) => {
                     goals = g;
                     (true, String::new())
@@ -407,10 +566,10 @@ pub fn execute(
             let mut v = stats(&model, &timing, infer_ms);
             v["state"] = json!("shadow");
             v["action"] = json!("policy");
-            v["message"] = json!("v5 只读推理完成，未发运动指令");
+            v["message"] = json!("模型只读推理完成，未发运动指令");
             v["targets"] = json!(goals);
             v["targetDegrees"] = json!((0..14)
-                .map(|n| ((model.home[n] + action[n]) as f64).to_degrees())
+                .map(|n| ((model.home[n] + smooth_action(&model.filtered_action, &action)[n]) as f64).to_degrees())
                 .collect::<Vec<_>>());
             v["currentPoseTargetsCompatible"] = json!(compatible);
             v["reason"] = json!(reason);
@@ -428,32 +587,105 @@ pub fn execute(
             cancel,
             shared,
         )?;
+        // HOME completes with the manual gains. Switch only the model joints
+        // after arrival; retain enabled state and HOME goals throughout.
+        stage = "policy-profile";
+        feedback = bus.read_feedback(&IDS)?;
+        for id in ORDER { control::validate(id,feedback.get(&id),true)?; }
+        control::profiles_with_gains(bus,&ORDER,&feedback,control::POLICY_GAINS)?;
+        feedback = bus.read_feedback(&IDS)?;
+        for id in ORDER {
+            control::validate(id,feedback.get(&id),true)?;
+            let (kp,kd)=control::POLICY_GAINS;
+            if feedback[&id]["kpRaw"]!=kp || feedback[&id]["kdRaw"]!=kd {
+                bail!("#{id} 模型增益设置未确认");
+            }
+        }
         model.previous = None;
         model.velocity = [0.; 14];
         model.last_action = [0.; 14];
+        model.filtered_action = [0.; 14];
+        model.filtered_gyro = None;
+        goals=model.targets([0.;14],&feedback,cal,&limits)?;
+        let worker=InferenceWorker::new(model.session.clone());
+        let mut generation=0u64;
         stage = "policy-loop";
-        let mut clock = control::FrameClock::new(Instant::now());
+        let mut clock = control::FrameClock::with_period(Instant::now(), Duration::from_millis(10));
+        let mut next_inference = Instant::now();
         let mut coast = control::FeedbackCoast::default();
         let mut paused: Option<Instant> = None;
         let mut last_status = Instant::now() - Duration::from_secs(1);
         // Bounded timestamp ring keeps long running policies at constant memory.
         while !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
-            let (fresh, diagnostics) = control::poll_tick(bus, &IDS);
+            let cycle_start=Instant::now();
+            if kind=="xgoduck" {
+                let twist=shared.read().unwrap().drive.as_ref().map(|d|d.current()).unwrap_or([0.;3]);
+                if twist!=model.command_twist {
+                    model.command_twist=twist;
+                    generation+=1; worker.clear(); next_inference=Instant::now();
+                }
+            }
+            let mut accepted_action=None;
+            let now=crate::telemetry::monotonic();
+            let feedback_recent=ORDER.iter().all(|id|feedback.get(id).and_then(|r|r["_receivedMono"].as_f64()).is_some_and(|at|(0.0..0.150).contains(&(now-at))));
+            if paused.is_none() && feedback_recent {
+                if let Some((result_generation,submitted,result_obs,result))=worker.take() {
+                    if result_generation==generation && submitted.elapsed()<Duration::from_millis(150) {
+                        costs.lock().unwrap().result_age_ms=submitted.elapsed().as_secs_f64()*1000.;
+                        let (action,ms)=result?;infer_ms=ms;last_obs=Some(result_obs);
+                        let filtered=smooth_action(&model.filtered_action,&action);
+                        goals=model.targets(filtered,&feedback,cal,&limits)?;
+                        accepted_action=Some((action,filtered));
+                    }
+                }
+            }
+            if worker.thread.as_ref().is_some_and(|t|t.is_finished()) { bail!("模型推理线程意外退出"); }
+            if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) { break; }
+            let write_at=Instant::now();
+            let (mut fresh,mut diagnostics,write_ms,read_ms)=policy_bus_cycle(bus,&goals)?;
+            let confirmation_at = Instant::now();
+            let fault_unconfirmed = control::confirm_policy_faults(&mut fresh, &mut diagnostics, |ids| {
+                let rows = bus.read_fast(ids)?;
+                Ok((rows, bus.diagnostics.clone()))
+            })?;
+            // Preserve the original bad read and its confirmation in fault evidence.
+            bus.diagnostics = diagnostics.clone();
+            let read_ms = read_ms + confirmation_at.elapsed().as_secs_f64()*1000.;
+            timing.record(write_at);
+            if let Some((action,filtered))=accepted_action {
+                model.last_action=action;model.filtered_action=filtered;
+                previous=feedback.clone();costs.lock().unwrap().inference_results+=1;
+            }
+            {
+                let mut cost=costs.lock().unwrap();cost.writes+=1;cost.cost(2,write_ms);cost.read(read_ms);
+                let missing=IDS.iter().filter(|id|!fresh.contains_key(id)).count() as u64;
+                cost.missing_frames+=u64::from(missing>0);cost.missing_responses+=missing;
+                cost.checksum_errors+=diagnostics["checksumErrors"].as_u64().unwrap_or(0);
+            }
+            diagnostics["feedbackTargetHz"] = json!(100);
             // Real faults and bad supply are never hidden by the dropped-read grace.
             for (id, row) in &fresh { control::validate(*id, Some(row), ORDER.contains(id))?; }
-            let sampled = coast.sample(&fresh, &IDS, Instant::now());
+            let sampled = if fault_unconfirmed {
+                // Do not bridge a possible hardware fault with historical feedback.
+                coast.sample(&fresh, &IDS, Instant::now());
+                None
+            } else { coast.sample(&fresh, &IDS, Instant::now()) };
             bus.diagnostics = coast.diagnostics(diagnostics.clone(), sampled.is_none());
             if sampled.is_some() && paused.is_some_and(|since| since.elapsed() >= Duration::from_millis(200)) {
                 model.previous = None;
                 model.velocity = [0.; 14];
                 model.last_action = [0.; 14];
+        model.filtered_action = [0.; 14];
+        model.filtered_gyro = None;
             }
             // Check actual per-servo timestamps at observation time, including the
             // few milliseconds between the coast decision and observation.
+            let observe_start=Instant::now();
             let obs = match &sampled {
                 Some(rows) => observation_or_hold(model.observe(shared, rows, cal))?,
                 None => None,
             };
+            costs.lock().unwrap().cost(1,observe_start.elapsed().as_secs_f64()*1000.);
             bus.diagnostics = coast.diagnostics(diagnostics, obs.is_none());
             if sampled.is_some() && obs.is_none() {
                 bus.diagnostics["feedbackHoldReason"] = json!("feedback-expired");
@@ -461,12 +693,9 @@ pub fn execute(
             control::publish(shared, &fresh, &IDS, bus.diagnostics.clone());
             if obs.is_none() {
                 if paused.is_none() {
+                    generation+=1; worker.clear();
                     if let Some(last) = &coast.last {
                         goals = ORDER.iter().map(|id| (*id,last[id]["position"].as_i64().unwrap() as i32)).collect();
-                    }
-                    if !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
-                        control::goals(bus, &goals)?;
-                        timing.record(Instant::now());
                     }
                     paused = Some(Instant::now());
                 }
@@ -479,27 +708,19 @@ pub fn execute(
                 v["skippedControlTicks"] = json!(clock.skipped);
                 v["message"] = json!("反馈持续缺失，策略暂停，保持最后测得姿态；等待完整反馈恢复");
                 control::status(shared, v);
+                costs.lock().unwrap().cost(3,cycle_start.elapsed().as_secs_f64()*1000.);
                 clock.wait();
                 continue;
             }
             feedback = sampled.unwrap();
             paused.take();
             let obs = obs.unwrap();
-            for id in ORDER {
-                control::validate(id, feedback.get(&id), true)?;
+            let now = Instant::now();
+            if now >= next_inference {
+                while next_inference <= now { next_inference += Duration::from_millis(20); }
+                worker.submit(generation,obs);
             }
-            last_obs = Some(obs.clone());
-            let (action, ms) = model.infer(obs)?;
-            infer_ms = ms;
-            goals = model.targets(action, &feedback, cal, &limits)?;
-            if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) {
-                break;
-            }
-            control::goals(bus, &goals)?;
-            model.last_action = action;
-            previous = feedback.clone();
-            let tick = Instant::now();
-            timing.record(tick);
+            let tick=Instant::now();
             if last_status.elapsed() >= Duration::from_millis(200) {
                 let mut v = stats(&model, &timing, infer_ms);
                 v["state"] = json!("policy");
@@ -508,10 +729,11 @@ pub fn execute(
                 v["feedbackHolding"] = json!(false);
                 v["consecutiveFeedbackFailures"] = json!(coast.misses);
                 v["skippedControlTicks"] = json!(clock.skipped);
-                v["message"] = json!("v5 模型站立维持中");
+                v["message"] = json!(if kind=="xgoduck" { if model.command_twist==[0.;3] {"XgoDuck 原地平衡，按住方向键行走"} else {"XgoDuck 按住行走中"} } else if kind=="walk" { "v6 模型行走中" } else { "v5 模型站立维持中" });
                 control::status(shared, v);
                 last_status = tick;
             }
+            costs.lock().unwrap().cost(3,cycle_start.elapsed().as_secs_f64()*1000.);
             clock.wait();
         }
         let mut v = if cancel.load(Ordering::Acquire) {
@@ -572,6 +794,89 @@ pub fn execute(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn each_policy_tick_writes_latest_target_before_read_even_without_new_inference() {
+        struct Wire { events:Vec<&'static str>, goals:Vec<BTreeMap<u8,Vec<u8>>> }
+        impl control::Transport for Wire {
+            fn calibrate(&mut self,_:u8,_:u16)->Result<()> { bail!("unused") }
+            fn feedback(&mut self,_:&[u8])->Result<Feedback> { bail!("must use policy read") }
+            fn policy_tick_feedback(&mut self,ids:&[u8])->Result<Feedback> {
+                assert_eq!(ids,&IDS);self.events.push("read");Ok(Feedback::new())
+            }
+            fn read(&mut self,_:u8,_:u8,_:u8)->Result<Vec<u8>> { bail!("unused") }
+            fn write(&mut self,_:u8,_:u8,_:&[u8])->Result<()> { bail!("must use sync") }
+            fn sync(&mut self,address:u8,goals:&BTreeMap<u8,Vec<u8>>)->Result<()> {
+                assert_eq!(address,42);self.events.push("write");self.goals.push(goals.clone());Ok(())
+            }
+        }
+        let mut wire=Wire { events:vec![],goals:vec![] };
+        let mut goals=BTreeMap::from([(12,2000)]);
+        policy_bus_cycle(&mut wire,&goals).unwrap();
+        policy_bus_cycle(&mut wire,&goals).unwrap();
+        goals.insert(12,2002);policy_bus_cycle(&mut wire,&goals).unwrap();
+        assert_eq!(wire.events,vec!["write","read","write","read","write","read"]);
+        assert_eq!(wire.goals[0],wire.goals[1]);
+        assert_ne!(wire.goals[1],wire.goals[2]);
+        assert_eq!(wire.goals[2][&12],control::goal_payload(2002).unwrap());
+    }
+    #[test]
+    fn inference_worker_replaces_pending_input_and_preserves_result_identity() {
+        let (started_tx,started_rx)=std::sync::mpsc::channel();
+        let (resume_tx,resume_rx)=std::sync::mpsc::channel();
+        let mut first=true;
+        let worker=InferenceWorker::with_infer(move |obs| {
+            if first { first=false;started_tx.send(()).unwrap();resume_rx.recv_timeout(Duration::from_secs(2)).unwrap(); }
+            Ok(([obs[0];14],0.1))
+        });
+        worker.submit(1,vec![1.]);
+        started_rx.recv_timeout(Duration::from_secs(2)).unwrap();
+        worker.submit(2,vec![2.]);worker.submit(3,vec![3.]);
+        assert_eq!(worker.input.0.lock().unwrap().as_ref().unwrap().0,3);
+        resume_tx.send(()).unwrap();
+        let deadline=Instant::now()+Duration::from_secs(2);
+        loop {
+            if let Some((generation,_,obs,result))=worker.take() {
+                if generation==3 { assert_eq!(obs,vec![3.]);assert_eq!(result.unwrap().0,[3.;14]);break; }
+                assert_eq!(generation,1);
+            }
+            assert!(Instant::now()<deadline);std::thread::yield_now();
+        }
+        drop(worker);
+    }
+    #[test]
+    fn inference_error_is_delivered_and_idle_worker_shuts_down() {
+        let worker=InferenceWorker::with_infer(|_|bail!("inference failed"));
+        worker.submit(7,vec![0.]);
+        let deadline=Instant::now()+Duration::from_secs(2);
+        loop {
+            if let Some((generation,_,_,result))=worker.take() {
+                assert_eq!(generation,7);assert_eq!(result.unwrap_err().to_string(),"inference failed");break;
+            }
+            assert!(Instant::now()<deadline);std::thread::yield_now();
+        }
+        drop(worker);
+    }
+    #[test]
+    fn model_selection_and_speed_are_explicit_and_bounded() {
+        assert_eq!(request_profile(&json!({})).unwrap(), ("stand", 0.0));
+        assert_eq!(request_profile(&json!({"kind":"walk"})).unwrap(), ("walk", 0.2));
+        assert_eq!(request_profile(&json!({"kind":"walk","speed":0.1})).unwrap(), ("walk", 0.1));
+        for body in [json!({"kind":"../walk"}),json!({"kind":null}),json!({"kind":"walk","speed":-0.1}),json!({"kind":"walk","speed":0.21}),json!({"kind":"walk","speed":"0.1"}),json!({"speed":0.1})] {
+            assert!(request_profile(&body).is_err());
+        }
+        assert_eq!(path_for("walk").unwrap().file_name().unwrap(), "hd1910-walk-v6-symmetry500.onnx");
+        assert_ne!(path_for("walk").unwrap(), path_for("stand").unwrap());
+    }
+    #[test]
+    fn xgoduck_action_filter_keeps_raw_history_separate() {
+        let raw=[1.;14];
+        let first=smooth_action(&[0.;14],&raw);
+        assert!((first[0]-0.55).abs()<1e-6);
+        let second=smooth_action(&first,&raw);
+        assert!((second[13]-0.7975).abs()<1e-6);
+        assert_eq!(raw,[1.;14]);
+        assert_eq!(smooth_action(&[0.;14],&[0.;14]),[0.;14]);
+    }
     #[test]
     fn restored_fresh_feedback_resets_history_based_on_sample_gap() {
         let previous = [99.338777883; 14];

@@ -1,0 +1,37 @@
+{
+  "hardwareAccess": false,
+  "modelSha256": "003d1fa42cc5c5afe6b0fd6180b36c61ad2eb711fff2ee5ca5980efbedfd98b5",
+  "note": "Same current v5/replica simulation, only synthetic BAM gain and action EMA varied. No firmware D model or raw PID mapping asserted.",
+  "results": [
+    {
+      "bamGain": 6,
+      "actionAlpha": 0.0,
+      "seconds": 20,
+      "maxTiltDeg": 1.3818828470065507,
+      "tailMaxTiltDeg": 0.9074716262820094,
+      "endHeight": 0.11534310228840881,
+      "maxTailPositionSpanDeg": 0.2544267945555075,
+      "maxTailTargetSpanDeg": 0.200071608715306
+    },
+    {
+      "bamGain": 6,
+      "actionAlpha": 0.45,
+      "seconds": 20,
+      "maxTiltDeg": 1.8079707373253158,
+      "tailMaxTiltDeg": 0.8550065876534575,
+      "endHeight": 0.11528740722440142,
+      "maxTailPositionSpanDeg": 0.25692293353012413,
+      "maxTailTargetSpanDeg": 0.20431827883176143
+    },
+    {
+      "bamGain": 32,
+      "actionAlpha": 0.45,
+      "seconds": 20,
+      "maxTiltDeg": 0.9485183769526101,
+      "tailMaxTiltDeg": 0.7908722243597943,
+      "endHeight": 0.11713409335492228,
+      "maxTailPositionSpanDeg": 0.09406904232294697,
+      "maxTailTargetSpanDeg": 0.066423589678374
+    }
+  ]
+}

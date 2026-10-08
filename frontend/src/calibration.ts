@@ -1,5 +1,16 @@
-import { validQuaternion } from "./protocol";
+import { validQuaternion, euler } from "./protocol";
 import { Quaternion } from "three";
+
+/** Rebase pitch/roll to zero while keeping the current body yaw and installation. */
+export function levelReference(reference: number[], current: number[], mounting?: number[], target?: number[]) {
+  const body = bodyRelativeQuaternion(reference, current, mounting, target);
+  const yaw = euler(body)[2] * Math.PI / 180;
+  const desired = new Quaternion(0, 0, Math.sin(yaw / 2), Math.cos(yaw / 2));
+  const m = validQuaternion(mounting) ? new Quaternion().fromArray(mounting).normalize() : new Quaternion();
+  const t = validQuaternion(target) ? new Quaternion().fromArray(target).normalize() : new Quaternion();
+  const relative = m.clone().multiply(t.invert()).multiply(desired).multiply(m.clone().invert());
+  return new Quaternion().fromArray(current).normalize().multiply(relative.invert()).normalize().toArray();
+}
 
 /** Angle between the calibrated body's up axis and vertical, as used by policy gravity. */
 export function bodyTiltDegrees(q: number[]): number {

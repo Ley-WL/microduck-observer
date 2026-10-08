@@ -91,6 +91,14 @@ pub struct Bus {
     pub trace: std::collections::VecDeque<Value>,
     profiles: BTreeMap<u8, Value>,
     profile_scan: Option<Instant>,
+    configurations: BTreeMap<u8, (Instant, Vec<u8>)>,
+}
+fn reusable_profile(row: &Value, now: f64) -> bool {
+    row["torque"] == 1 && row["accelerationRaw"] == 0 && row["speedLimitRaw"] == 0 && row["kpRaw"] == 32 && row["kdRaw"] == 40
+        && row["_profileMono"].as_f64().is_some_and(|at| (0.0..1.0).contains(&(now-at)))
+}
+fn reusable_configuration(at: Instant, now: Instant) -> bool {
+    now.checked_duration_since(at).is_some_and(|age| age < Duration::from_secs(1))
 }
 impl Bus {
     // Consume leftover replies before starting another transaction, as rustypot does.
@@ -123,6 +131,10 @@ impl Bus {
         params: &[u8],
         expected: usize,
     ) -> Result<Vec<u8>> {
+        if instruction != 2 {
+            self.configurations.clear();
+            self.profile_scan = None;
+        }
         self.prepare_input()?;
         let tx = packet(id, instruction, params);
         self.serial.write_all(&tx)?;
@@ -152,6 +164,20 @@ impl Bus {
     pub fn read_register(&mut self, id: u8, address: u8, size: u8) -> Result<Vec<u8>> {
         self.exchange(id, 2, &[address, size], size as usize)
     }
+    pub fn read_configuration(&mut self, id: u8) -> Result<Vec<u8>> {
+        if let Some((at, data)) = self.configurations.get(&id) {
+            if reusable_configuration(*at, Instant::now()) {
+                self.diagnostics["configurationCacheHit"] = json!(true);
+                return Ok(data.clone());
+            }
+        }
+        let data = self.read_register(id, 0, 40)?;
+        self.diagnostics["configurationCacheHit"] = json!(false);
+        if data.len() == 40 && data[..2] == [3,46] && data[33] == 4 {
+            self.configurations.insert(id, (Instant::now(), data.clone()));
+        }
+        Ok(data)
+    }
     pub fn write_register(&mut self, id: u8, address: u8, data: &[u8]) -> Result<()> {
         let mut params = vec![address];
         params.extend(data);
@@ -160,6 +186,9 @@ impl Bus {
         Ok(())
     }
     pub fn sync_write(&mut self, address: u8, values: &BTreeMap<u8, Vec<u8>>) -> Result<()> {
+        if address < 40 { self.configurations.clear(); self.profile_scan = None; }
+        // Invalidate before a potentially partial/failed write as well.
+        if matches!(address, 40 | 41 | 46 | 48 | 50 | 51 | 52) { self.profile_scan = None; }
         let size = values
             .values()
             .next()
@@ -167,6 +196,10 @@ impl Bus {
             .len();
         if size == 0 || values.values().any(|v| v.len() != size) {
             bail!("Invalid sync write");
+        }
+        if address == 42 && size == 6 && values.keys().any(|id| self.profiles.get(id)
+            .is_none_or(|row| row["goalCurrentRaw"] != 0 || row["speedLimitRaw"] != 0)) {
+            self.profile_scan = None;
         }
         let mut params = vec![address, size as u8];
         for (id, v) in values {
@@ -192,14 +225,15 @@ impl Bus {
             trace: std::collections::VecDeque::new(),
             profiles: BTreeMap::new(),
             profile_scan: None,
+            configurations: BTreeMap::new(),
         })
     }
     pub fn read_feedback(&mut self, ids: &[u8]) -> Result<BTreeMap<u8, Value>> {
         let blocks = self.read_blocks(ids, 40, 31)?;
-        self.profile_scan = Some(Instant::now());
         let mut rows = BTreeMap::new();
         for (id, (data, received, read_ms)) in blocks {
             let mut row = decode(&data[1..], data[0])?;
+            row["id"] = json!(id);
             row["_receivedMono"] = json!(received);
             row["_profileMono"] = json!(received);
             row["readMs"] = json!(read_ms);
@@ -214,10 +248,38 @@ impl Bus {
     /// HD1910 position/velocity/load/voltage/fault/target/current occupy 56..70.
     /// Configuration and torque-enable at 40..55 are refreshed once a second.
     pub fn read_tick(&mut self, ids: &[u8]) -> Result<BTreeMap<u8, Value>> {
+        self.read_tick_budget(ids,Duration::from_millis(30))
+    }
+    pub fn read_policy_tick(&mut self, ids: &[u8]) -> Result<BTreeMap<u8, Value>> {
+        self.read_tick_budget(ids,Duration::from_millis(6))
+    }
+    fn read_tick_budget(&mut self, ids: &[u8], budget: Duration) -> Result<BTreeMap<u8, Value>> {
         if self.profile_scan.is_none_or(|at| at.elapsed() >= Duration::from_secs(1)) {
-            return self.read_feedback(ids);
+            let rows = self.read_feedback(ids)?;
+            // Only a scheduled whole-bus scan advances this timer. A selected
+            // joint's preflight must not postpone all other profile refreshes.
+            self.profile_scan = Some(Instant::now());
+            return Ok(rows);
         }
-        let blocks = self.read_blocks(ids, 56, 15)?;
+        self.read_fast_budget(ids,budget)
+    }
+    pub fn read_control_feedback(&mut self, ids: &[u8]) -> Result<BTreeMap<u8, Value>> {
+        let now = crate::telemetry::monotonic();
+        if self.profile_scan.is_some() && ids.iter().all(|id| self.profiles.get(id).is_some_and(|row| reusable_profile(row, now))) {
+            // Positions/fault/voltage always come from a new bus read.
+            let rows = self.read_fast(ids)?;
+            if ids.iter().any(|id| !rows.contains_key(id)) {
+                for id in ids { self.profiles.remove(id); self.configurations.remove(id); }
+                self.profile_scan = None;
+            }
+            Ok(rows)
+        } else { self.read_feedback(ids) }
+    }
+    pub fn read_fast(&mut self, ids: &[u8]) -> Result<BTreeMap<u8, Value>> {
+        self.read_fast_budget(ids,Duration::from_millis(30))
+    }
+    fn read_fast_budget(&mut self, ids: &[u8], budget: Duration) -> Result<BTreeMap<u8, Value>> {
+        let blocks = self.read_blocks_budget(ids,56,15,budget)?;
         let now = crate::telemetry::monotonic();
         let mut rows = BTreeMap::new();
         for (id, (data, received, read_ms)) in blocks {
@@ -238,17 +300,25 @@ impl Bus {
         Ok(rows)
     }
     fn read_blocks(&mut self, ids: &[u8], address: u8, length: u8) -> Result<BTreeMap<u8, (Vec<u8>, f64, f64)>> {
+        self.read_blocks_budget(ids,address,length,Duration::from_millis(30))
+    }
+    fn read_blocks_budget(&mut self, ids: &[u8], address: u8, length: u8, budget: Duration) -> Result<BTreeMap<u8, (Vec<u8>, f64, f64)>> {
         let discarded = self.prepare_input()?;
         let mut params = vec![address, length];
         params.extend(ids);
         let tx = packet(254, 0x82, &params);
         self.serial.write_all(&tx)?;
         self.record(&tx);
+        // Linux tcdrain on this UART adds about 12ms (readonly A/B verified).
+        // FIFO ordering already preserves goal -> read-request; do not block on
+        // tcdrain. This budget includes the request's actual transmit latency.
+        let tx_drain_ms=0.0;
         let start = Instant::now();
         let mut p = Parser::new();
         let mut rows = BTreeMap::new();
         let mut raw: Vec<u8> = vec![];
-        while start.elapsed() < Duration::from_millis(30) && rows.len() < ids.len() {
+        if budget<Duration::from_millis(30) { self.serial.set_timeout(Duration::from_millis(1))?; }
+        while start.elapsed() < budget && rows.len() < ids.len() {
             let mut buf = [0; 1024];
             match self.serial.read(&mut buf) {
                 Ok(n) => {
@@ -262,10 +332,11 @@ impl Bus {
                     }
                 }
                 Err(e) if e.kind() == std::io::ErrorKind::TimedOut => {}
-                Err(e) => return Err(e.into()),
+                Err(e) => { let _=self.serial.set_timeout(Duration::from_millis(2));return Err(e.into()); },
             }
         }
-        self.diagnostics = json!({"kind":"read","readAddress":address,"readLength":length,"mono":crate::telemetry::monotonic(),"requestedIds":ids,"receivedIds":rows.keys().collect::<Vec<_>>(),"missingIds":ids.iter().filter(|id|!rows.contains_key(id)).collect::<Vec<_>>(),"elapsedMs":start.elapsed().as_secs_f64()*1000.,"rxBytes":raw.len(),"rxHex":hex(&raw),"txHex":hex(&tx),"checksumErrors":p.bad,"discardedBytes":p.discarded,"discardedBeforeRead":discarded.len(),"discardedBeforeReadHex":hex(&discarded),"pendingHex":hex(&p.pending),"rejectedFrames":p.rejected.iter().map(|f|json!({"id":f[2],"reason":"checksum","hex":hex(f)})).collect::<Vec<_>>()});
+        self.serial.set_timeout(Duration::from_millis(2))?;
+        self.diagnostics = json!({"txDrainMs":tx_drain_ms,"replyBudgetMs":budget.as_secs_f64()*1000.,"kind":"read","readAddress":address,"readLength":length,"mono":crate::telemetry::monotonic(),"requestedIds":ids,"receivedIds":rows.keys().collect::<Vec<_>>(),"missingIds":ids.iter().filter(|id|!rows.contains_key(id)).collect::<Vec<_>>(),"elapsedMs":start.elapsed().as_secs_f64()*1000.,"rxBytes":raw.len(),"rxHex":hex(&raw),"txHex":hex(&tx),"checksumErrors":p.bad,"discardedBytes":p.discarded,"discardedBeforeRead":discarded.len(),"discardedBeforeReadHex":hex(&discarded),"pendingHex":hex(&p.pending),"rejectedFrames":p.rejected.iter().map(|f|json!({"id":f[2],"reason":"checksum","hex":hex(f)})).collect::<Vec<_>>()});
         self.trace.push_back(self.diagnostics.clone());
         if self.trace.len() > 8 {
             self.trace.pop_front();
@@ -283,6 +354,34 @@ fn hex(bytes: &[u8]) -> String {
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn restored_gain_profile_applies_to_mouth_and_other_joints() {
+        let mut row=json!({"id":34,"torque":1,"accelerationRaw":0,"speedLimitRaw":0,"kpRaw":32,"kdRaw":40,"_profileMono":1.});
+        assert!(reusable_profile(&row,1.1));
+        row["id"]=json!(14);
+        assert!(reusable_profile(&row,1.1));
+        row["kpRaw"]=json!(6);
+        assert!(!reusable_profile(&row,1.1));
+    }
+    #[test]
+    fn control_profile_reuse_requires_enabled_correct_profile_and_real_recent_timestamp() {
+        let row=json!({"torque":1,"accelerationRaw":0,"speedLimitRaw":0,"kpRaw":32,"kdRaw":40,"_profileMono":1.});
+        assert!(reusable_profile(&row,1.999));
+        assert!(!reusable_profile(&row,2.));
+        assert!(!reusable_profile(&row,0.9));
+        for (key,value) in [("torque",0),("torque",128),("accelerationRaw",5),("speedLimitRaw",300)] {
+            let mut invalid=row.clone();invalid[key]=json!(value);
+            assert!(!reusable_profile(&invalid,1.1));
+        }
+        assert!(!reusable_profile(&json!({"torque":1,"accelerationRaw":0,"speedLimitRaw":0,"kpRaw":32,"kdRaw":40}),1.));
+    }
+    #[test]
+    fn configuration_cache_expiry_cannot_be_extended_by_reads_or_a_future_timestamp() {
+        let at=Instant::now();
+        assert!(reusable_configuration(at,at+Duration::from_millis(999)));
+        assert!(!reusable_configuration(at,at+Duration::from_secs(1)));
+        assert!(!reusable_configuration(at,at-Duration::from_millis(1)));
+    }
     use super::*;
     use crate::telemetry::IDS;
     #[test]

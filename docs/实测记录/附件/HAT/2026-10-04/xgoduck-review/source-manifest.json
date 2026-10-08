@@ -1,0 +1,40 @@
+{
+  "reviewOnly": true,
+  "hardwareAccess": false,
+  "revisions": {
+    "xgoduck_rl": "326d77a1122870bdefa2c36403937502c958e69c",
+    "xgoduck_runtime_arduino": "8cdbbd84710d856581982c9eaf0d5e2970666232"
+  },
+  "sourceSha256": {
+    "xgoduck_rl\\README.md": "b16ac41adb1b55167e481803d6e2605be7dc5d23f5847c23817516d5413a7f25",
+    "xgoduck_runtime_arduino\\README.md": "ff92148f53ae47b1f9f78e88a6d00ae7cfb17243bfa29d91a00cd7a2c49e98c6",
+    "xgoduck_runtime_arduino\\python\\controller.py": "d982dd3b5025f29aa0503e85c30ab74aac552923793c94a6857d81c95e76aba5",
+    "xgoduck_runtime_arduino\\python\\main.py": "4e598cf22c1e7cbac38786b613860e3b1c1de135a667483a894580d627feb759",
+    "xgoduck_runtime_arduino\\python\\policy.py": "5132eb21cf97547e96ba0c0a7c4719dc38dc9b6f06e3bf726074b2f5c68d3f12",
+    "xgoduck_runtime_arduino\\python\\proc.py": "abcd5e295ad2b5cbb4ad3e90b278638927241fe7ac2b1b8e20f5816a35bea067",
+    "xgoduck_runtime_arduino\\python\\recovery.py": "3d98c48a61b4701b6afe2d83c9afb122470505a5d2dd0370605c66aeab738e02",
+    "xgoduck_runtime_arduino\\python\\rl_core.py": "9c15c15534bd39b41c7f77f08a499e9180e7c3de1f4428f84bb6cd9375fed02a",
+    "xgoduck_runtime_arduino\\python\\wire.py": "028eb29bb80264c068e8673c419881c3cebbfb6ddafcdf0afb9dd0d9b4747067",
+    "xgoduck_runtime_arduino\\sketch\\duck_config.h": "5c84dbd7127a45f589cd02c1a99c66385fa1f6fcef72608f5520b17c6d2a28a3",
+    "xgoduck_runtime_arduino\\sketch\\protocol.h": "74bd4b203271c263daf37f424a8ec24e397b75dcfbe92343daaa75312ac5af6d",
+    "xgoduck_runtime_arduino\\sketch\\qmi8658.h": "b1958c5a38792e0b24905aa4ccdbc7a4d1ea83565b533b3cb233ce4c10aaa23c",
+    "xgoduck_runtime_arduino\\sketch\\scs_bus.h": "e05e6b586ef8d1e283cd419351b51413cba53d20f4d7163d497b74e6ab42c8ae",
+    "xgoduck_runtime_arduino\\sketch\\sketch.ino": "82e4c6919f6f2c9955c2151ad0930e34f278cb35562793bf5da34268ce8ac291",
+    "xgoduck_runtime_arduino\\sketch\\uart_fifo.h": "90ed76314fe73c522bb0c1984f12168ef89349458cb0e2d861a05e6b4ecb5fd8",
+    "xgoduck_runtime_arduino\\tools\\check-app.py": "0a246bda2d57dc55879c0cd6a6e61874567aa54876607c160c413d23c40b46ea",
+    "xgoduck_runtime_arduino\\tools\\measure.py": "dc73d8147381a0f3ad80fc8ad599b3319ec106af5d36db2cf449108f16828e83",
+    "xgoduck_runtime_arduino\\tools\\prepare-bridge.py": "51548518a117ab7dc36761a2fddffcc5df820f0c95b33e171132ee0831fa3142",
+    "xgoduck_runtime_arduino\\tools\\reuse-toolchain.py": "cc0c38c2db23fe2e99e9df34ad32abdb63f55c679100d561a137b885f1e6ef58",
+    "xgoduck_runtime_arduino\\tools\\verify-elf.py": "33d2eb7bed96be532924fc28ce81bd14afd091e09ad84d2606eef843d5377b50",
+    "xgoduck_runtime_arduino\\tools\\patches\\duck_msgpack_frame.h": "68e70c7cd11c42e3509fda20afb7307a686c1543d1fb0e50dab9098ef9d4dceb",
+    "xgoduck_rl\\tests\\test_xgoduck_velocity_cfg.py": "39324b7e9c8542d4ec581e6d9deb3f663ff1a3fe8dac7b783b9e4b4c8c286431",
+    "xgoduck_rl\\vendor\\bam\\bam\\mjlab.py": "af3de252939ca868712423979c2ab52e198d382d7aca613b5b33c77d74baa440",
+    "xgoduck_rl\\vendor\\bam\\bam\\feetech\\actuator.py": "ae099a23194795baee76842995b39814c950f76a7dbd0cc1f56f0301eb773805",
+    "xgoduck_rl\\src\\mjlab_microduck\\robot\\xgoduck_constants.py": "0ded144cc28fb447d659dfbc94410bacf53c599880f71fece9f536290aeef5f5",
+    "xgoduck_rl\\src\\mjlab_microduck\\tasks\\mdp.py": "c0561d10cf3fa0fe8f4a4e876df48629fe8d65e3323e8a7f8be1b44136556746",
+    "xgoduck_rl\\src\\mjlab_microduck\\tasks\\microduck_velocity_env_cfg.py": "75a0430b814ac7495eb237ab806fbd4dd10309b9fd3027ac3eee3c2e3c5a944a",
+    "xgoduck_rl\\src\\mjlab_microduck\\tasks\\__init__.py": "2748dccee217e34343611c102f756919f40005b8c55a045ac29c2424c4b75cc0",
+    "xgoduck_rl\\src\\mjlab_microduck\\robot\\xgoduck\\robot_walk.xml": "da21739d9b19332ee5c010dcf015fae04a18f94eb90bab6a8bf2309d8c7ef15d",
+    "xgoduck_rl\\src\\mjlab_microduck\\robot\\xgoduck\\params\\1910_m6.json": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb"
+  }
+}

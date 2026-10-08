@@ -1,0 +1,135 @@
+{
+  "rows": [
+    {
+      "phase": 0,
+      "kp": 6,
+      "segment": 0,
+      "target": 1770,
+      "positionMin": 1755,
+      "positionMax": 1755,
+      "meanSignedErrorDeg": -1.318359375,
+      "maxAbsErrorDeg": 1.318359375,
+      "meanAbsCurrentRaw": 19.06,
+      "meanVoltage": 7.6
+    },
+    {
+      "phase": 0,
+      "kp": 6,
+      "segment": 1,
+      "target": 1702,
+      "positionMin": 1720,
+      "positionMax": 1720,
+      "meanSignedErrorDeg": 1.58203125,
+      "maxAbsErrorDeg": 1.58203125,
+      "meanAbsCurrentRaw": 59.68,
+      "meanVoltage": 7.6
+    },
+    {
+      "phase": 0,
+      "kp": 6,
+      "segment": 2,
+      "target": 1736,
+      "positionMin": 1735,
+      "positionMax": 1735,
+      "meanSignedErrorDeg": -0.087890625,
+      "maxAbsErrorDeg": 0.087890625,
+      "meanAbsCurrentRaw": 0.1,
+      "meanVoltage": 7.678
+    },
+    {
+      "phase": 1,
+      "kp": 12,
+      "segment": 0,
+      "target": 1770,
+      "positionMin": 1761,
+      "positionMax": 1761,
+      "meanSignedErrorDeg": -0.791015625,
+      "maxAbsErrorDeg": 0.791015625,
+      "meanAbsCurrentRaw": 23.2,
+      "meanVoltage": 7.6
+    },
+    {
+      "phase": 1,
+      "kp": 12,
+      "segment": 1,
+      "target": 1702,
+      "positionMin": 1712,
+      "positionMax": 1712,
+      "meanSignedErrorDeg": 0.87890625,
+      "maxAbsErrorDeg": 0.87890625,
+      "meanAbsCurrentRaw": 63.06,
+      "meanVoltage": 7.6
+    },
+    {
+      "phase": 1,
+      "kp": 12,
+      "segment": 2,
+      "target": 1736,
+      "positionMin": 1735,
+      "positionMax": 1735,
+      "meanSignedErrorDeg": -0.087890625,
+      "maxAbsErrorDeg": 0.087890625,
+      "meanAbsCurrentRaw": 0.32,
+      "meanVoltage": 7.666
+    },
+    {
+      "phase": 2,
+      "kp": 6,
+      "segment": 0,
+      "target": 1770,
+      "positionMin": 1754,
+      "positionMax": 1755,
+      "meanSignedErrorDeg": -1.3939453125,
+      "maxAbsErrorDeg": 1.40625,
+      "meanAbsCurrentRaw": 20.08,
+      "meanVoltage": 7.6
+    },
+    {
+      "phase": 2,
+      "kp": 6,
+      "segment": 1,
+      "target": 1702,
+      "positionMin": 1718,
+      "positionMax": 1718,
+      "meanSignedErrorDeg": 1.40625,
+      "maxAbsErrorDeg": 1.40625,
+      "meanAbsCurrentRaw": 54.36,
+      "meanVoltage": 7.6
+    },
+    {
+      "phase": 2,
+      "kp": 6,
+      "segment": 2,
+      "target": 1736,
+      "positionMin": 1735,
+      "positionMax": 1735,
+      "meanSignedErrorDeg": -0.087890625,
+      "maxAbsErrorDeg": 0.087890625,
+      "meanAbsCurrentRaw": 0.2,
+      "meanVoltage": 7.666
+    }
+  ],
+  "center": 1736,
+  "positionSpanDegrees": 4.39453125,
+  "actualHz": 49.991158906051226,
+  "maxGapMs": 24.304996000001466,
+  "missingFrames": 0,
+  "checksumErrors": 0,
+  "before": {
+    "accelerationRaw": 0,
+    "goalCurrentRaw": 500,
+    "speedLimitRaw": 0,
+    "kpRaw": 32,
+    "kdRaw": 40
+  },
+  "after": {
+    "accelerationRaw": 0,
+    "goalCurrentRaw": 500,
+    "speedLimitRaw": 0,
+    "kpRaw": 32,
+    "kdRaw": 40
+  },
+  "positionAfter": 1735,
+  "allDisabled": true,
+  "error": null
+}

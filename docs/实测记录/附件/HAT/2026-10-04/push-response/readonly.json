@@ -1,0 +1,576 @@
+{
+  "snapshot": {
+    "calibration": {
+      "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+      "deviceId": "a0821529-dc71-4961-aff0-8abc7183d78a",
+      "imu": {
+        "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+        "initialized": true,
+        "mountingQuaternion": [
+          -0.07775046684819915,
+          -0.7213640215888535,
+          0.037702265259619595,
+          0.687144346157586
+        ],
+        "quaternion": [
+          -0.005160113280417045,
+          -0.00395528000267931,
+          -0.005286633863923801,
+          0.9999648896303422
+        ],
+        "targetQuaternion": [
+          0,
+          -0.7071067811865476,
+          0,
+          0.7071067811865476
+        ],
+        "time": "2026-10-04 21:51:31",
+        "validForBoot": true
+      },
+      "joints": {
+        "directions": {},
+        "initialized": true,
+        "references": {
+          "10": 2079.0,
+          "11": 2039.0,
+          "12": 2080.0,
+          "13": 1956.75,
+          "14": 2001.0,
+          "20": 2060.0,
+          "21": 2063.0,
+          "22": 1981.0,
+          "23": 2109.0,
+          "24": 2060.0,
+          "30": 2071.3958333333335,
+          "31": 2041.3541666666667,
+          "32": 2005.0,
+          "33": 2111.0,
+          "34": 2020.0
+        }
+      },
+      "mounting": {
+        "positionMm": [
+          -22.82198102170202,
+          -0.8570884683296031,
+          -14.482406713490894
+        ],
+        "yaw": 0
+      },
+      "revision": 201,
+      "schema": 1,
+      "updatedAt": 1791122407314
+    },
+    "imu.orientation": {
+      "ageMs": 2.867666999999983,
+      "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+      "data": {
+        "accuracy": null,
+        "calibrationId": null,
+        "device": "MS901M",
+        "frame": "sensor",
+        "mountingCalibrated": false,
+        "quaternion": [
+          -0.01434326171875,
+          0.0291748046875,
+          0.27435302734375,
+          0.9610595703125
+        ],
+        "timestampBasis": "host_receive"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2973.781132,
+      "seq": 590,
+      "source": "hardware",
+      "topic": "imu.orientation",
+      "type": "sample",
+      "valid": true
+    },
+    "imu.raw": {
+      "ageMs": 0.42525000000023283,
+      "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+      "data": {
+        "accel": [
+          -0.6165069274902344,
+          -0.08858546142578125,
+          9.816226806640625
+        ],
+        "accelAccuracy": null,
+        "accelUnit": "m/s\u00b2",
+        "device": "MS901M",
+        "frame": "sensor",
+        "gyro": [
+          0.0010652644360316954,
+          0.004261057744126781,
+          -0.0010652644360316954
+        ],
+        "gyroAccuracy": null,
+        "gyroUnit": "rad/s",
+        "timestampBasis": "host_receive"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2976.2433819999997,
+      "seq": 590,
+      "source": "hardware",
+      "topic": "imu.raw",
+      "type": "sample",
+      "valid": true
+    },
+    "joints": {
+      "ageMs": 20.812169000000267,
+      "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "diagnostics": {
+          "checksumErrors": 0,
+          "discardedBeforeRead": 0,
+          "discardedBeforeReadHex": "",
+          "discardedBytes": 0,
+          "elapsedMs": 32.006337,
+          "feedbackTargetHz": 100,
+          "kind": "read",
+          "missingIds": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            20,
+            21,
+            22,
+            23,
+            24,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          "mono": 2.9512207139999997,
+          "observedScanHz": 25.007257731375088,
+          "pendingHex": "",
+          "profileMissingIds": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            20,
+            21,
+            22,
+            23,
+            24,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          "readAddress": 56,
+          "readLength": 15,
+          "receivedIds": [],
+          "rejectedFrames": [],
+          "requestedIds": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            20,
+            21,
+            22,
+            23,
+            24,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          "rxBytes": 0,
+          "rxHex": "",
+          "skippedScanTicks": 219,
+          "txHex": "fffffe1382380f0a0b0c0d0e14151617181e1f202122db"
+        },
+        "error": "",
+        "readMode": "sync-read",
+        "scanMs": 32.006337,
+        "servos": [
+          {
+            "ageMs": 0,
+            "id": 10,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 11,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 12,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 13,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 14,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 20,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 21,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 22,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 23,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 24,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 30,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 31,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 32,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 33,
+            "online": false
+          },
+          {
+            "ageMs": 0,
+            "id": 34,
+            "online": false
+          }
+        ],
+        "targetHz": 100
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2955.953588,
+      "seq": 74,
+      "source": "hardware",
+      "topic": "joints",
+      "type": "sample",
+      "valid": true
+    },
+    "logs": {
+      "ageMs": 2976.761382,
+      "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+      "data": {
+        "eventTimeMs": 1791122405479,
+        "level": "INFO",
+        "message": "Rust \u540e\u7aef\u542f\u52a8",
+        "module": "server"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 0.017499999999999998,
+      "seq": 1,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    "system": {
+      "ageMs": 949.5891780000004,
+      "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+      "data": {
+        "imu": {
+          "address": null,
+          "baud": 115200,
+          "checksumErrors": 0,
+          "counts": {
+            "accel": 399,
+            "gyro": 399,
+            "quaternion": 400
+          },
+          "device": "/dev/ttyS9",
+          "droppedEvents": 0,
+          "frames": {
+            "01": 400,
+            "02": 400,
+            "03": 399,
+            "06": 400
+          },
+          "ioErrors": 0,
+          "model": "MS901M",
+          "mountingCalibrated": false,
+          "observedHz": {
+            "accel": 198.02428235390866,
+            "gyro": 198.02428235390866,
+            "quaternion": 198.52058381344227
+          },
+          "productId": null,
+          "rangeState": "confirmed",
+          "ranges": {
+            "accelG": 4.0,
+            "gyroDps": 2000.0
+          },
+          "sampleAgeMs": 2.5795000000000528,
+          "state": "streaming",
+          "unparsedReports": 0
+        },
+        "scenario": null,
+        "servoControl": {
+          "message": "\u7b49\u5f85\u64cd\u4f5c",
+          "state": "idle"
+        },
+        "tof": {
+          "ageMs": null,
+          "error": "ToF stream timeout",
+          "hz": 0,
+          "state": "offline"
+        },
+        "uptimeSeconds": 2.027141287
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2027.2357869999998,
+      "seq": 3,
+      "source": "hardware",
+      "topic": "system",
+      "type": "sample",
+      "valid": true
+    }
+  },
+  "logs?limit=300": {
+    "gap": false,
+    "items": [
+      {
+        "ageMs": 3009.2451770000002,
+        "bootId": "c0d0cdfa-794f-4007-ac3c-be508ef3e242",
+        "data": {
+          "eventTimeMs": 1791122405479,
+          "level": "INFO",
+          "message": "Rust \u540e\u7aef\u542f\u52a8",
+          "module": "server"
+        },
+        "protocolVersion": 1,
+        "sampleMonoMs": 0.017499999999999998,
+        "seq": 1,
+        "source": "hardware",
+        "topic": "logs",
+        "type": "sample",
+        "valid": true
+      }
+    ],
+    "nextCursor": 1
+  },
+  "policy": {
+    "available": true,
+    "control": {
+      "message": "\u7b49\u5f85\u64cd\u4f5c",
+      "state": "idle"
+    },
+    "controlHz": 50,
+    "kind": "stand",
+    "metadata": {
+      "actionDim": 14,
+      "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
+      "actorObservationDim": 61,
+      "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+      "artifactType": "training-policy",
+      "bodyGroundContactMeshes": 68,
+      "controlHz": 50,
+      "gainBaseline": 5,
+      "geometry": "microduck-replica robot_walk.xml snapshot in robot/replica",
+      "hardwareValidated": false,
+      "homeRadians": [
+        0.0,
+        -0.0873,
+        -0.4579,
+        -0.0049,
+        0.453,
+        0.3491,
+        0.3491,
+        0.0,
+        0.0,
+        0.0,
+        0.0873,
+        0.4579,
+        0.0049,
+        -0.453
+      ],
+      "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
+      "jointOrder": [
+        "left_hip_yaw",
+        "left_hip_roll",
+        "left_hip_pitch",
+        "left_knee",
+        "left_ankle",
+        "neck_pitch",
+        "head_pitch",
+        "head_yaw",
+        "head_roll",
+        "right_hip_yaw",
+        "right_hip_roll",
+        "right_hip_pitch",
+        "right_knee",
+        "right_ankle"
+      ],
+      "nominalTrunkHeightM": 0.11718236219874864,
+      "observationNormalization": "baked into ONNX by upstream exporter",
+      "policySha256": "003d1fa42cc5c5afe6b0fd6180b36c61ad2eb711fff2ee5ca5980efbedfd98b5",
+      "simulationMassKg": 0.7372431799999999,
+      "task": "Mjlab-PushSettle-Flat-MicroDuck-HD1910",
+      "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions"
+    },
+    "models": [
+      {
+        "available": true,
+        "kind": "stand",
+        "metadata": {
+          "actionDim": 14,
+          "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
+          "actorObservationDim": 61,
+          "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+          "artifactType": "training-policy",
+          "bodyGroundContactMeshes": 68,
+          "controlHz": 50,
+          "gainBaseline": 5,
+          "geometry": "microduck-replica robot_walk.xml snapshot in robot/replica",
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "nominalTrunkHeightM": 0.11718236219874864,
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "003d1fa42cc5c5afe6b0fd6180b36c61ad2eb711fff2ee5ca5980efbedfd98b5",
+          "simulationMassKg": 0.7372431799999999,
+          "task": "Mjlab-PushSettle-Flat-MicroDuck-HD1910",
+          "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions"
+        },
+        "policy": "hd1910-head-v5"
+      },
+      {
+        "available": true,
+        "kind": "walk",
+        "metadata": {
+          "actionDim": 14,
+          "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
+          "actorObservationDim": 61,
+          "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+          "artifactType": "training-policy",
+          "bodyGroundContactMeshes": 68,
+          "controlHz": 50,
+          "gainBaseline": 5,
+          "geometry": "microduck-replica robot_walk.xml snapshot in robot/replica",
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "nominalTrunkHeightM": 0.11718236219874864,
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "7485f0f2a71bbc1455e48b0264607883e1e28d1db6740fa4768359b1df18e5a7",
+          "simulationMassKg": 0.7372431799999999,
+          "task": "Mjlab-Walk-Flat-MicroDuck-HD1910",
+          "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions"
+        },
+        "policy": "hd1910-walk-v6-symmetry500"
+      }
+    ],
+    "policy": "hd1910-head-v5"
+  }
+}

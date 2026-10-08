@@ -1,0 +1,26 @@
+{
+  "hardwareAccess": false,
+  "sourceHashes": {
+    "microduck-rl/scripts/preview_hd1910.py": "3a795ca26197a5806f553a561d60ec77d516a2a83dd11e471288aff1e16e3958",
+    "microduck-rl/scripts/preview_ground.py": "001b4de7781194d9997ab56e7061fb9cb49fbddb7d43524be96ae492e593571b",
+    "microduck-rl/scripts/diagnose_home_closed_loop.py": "90aa532e3b78043c37666d88d3371a70f974c3093277e88fcea41fc42dbc3efb",
+    "microduck-rl/scripts/diagnose_home_response_sweep.py": "4998ce11d7c436a9c389d73d38e77d7d2bd87c63f3b25734e0b14bc3e971bc6a",
+    "microduck-rl/scripts/diagnose_home_quantized_feedback.py": "c8ff0ff68cba55e1659d8f63b8037926655abc1914a0788b98ebfc1c58dbf2b5",
+    "microduck-rl/src/mjlab_microduck/robot/hd1910/1910_m6.json": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+    "microduck-observer/debug-server/models/hd1910-head-v5.onnx": "003d1fa42cc5c5afe6b0fd6180b36c61ad2eb711fff2ee5ca5980efbedfd98b5"
+  },
+  "mujocoVersion": "3.10.0",
+  "onnxruntimeVersion": "1.30.0",
+  "physicsHz": 500,
+  "controlHz": 50,
+  "delaySteps": 4,
+  "delayStepBasis": "physics",
+  "delayMs": 8,
+  "trainingEnvironmentBoundary": "CPU BAM preview reproduces nominal scene/actuator law but not full CUDA training with domain randomization",
+  "hardwarePidFromPriorReadonlyEvidence": {
+    "kpRaw": 32,
+    "kiRaw": 0,
+    "kdRaw": 40
+  },
+  "pidMappingVerified": false
+}

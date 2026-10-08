@@ -1,0 +1,40 @@
+{
+  "completedRounds": 6,
+  "completeRequests": 18000,
+  "completeMissing": 37,
+  "completeBadChecksum": 15,
+  "partialRequests": 1131,
+  "uartDeltaComplete": {
+    "oe": 16,
+    "fe": 0
+  },
+  "triggerRound": 7,
+  "triggerFrame": 1131,
+  "servo22PacketChecksumSum": 255,
+  "servo22DifferenceVsFinal": [
+    {
+      "packetOffset": 5,
+      "register": 40,
+      "bad": 128,
+      "after": 0
+    },
+    {
+      "packetOffset": 7,
+      "register": 42,
+      "bad": 128,
+      "after": 0
+    },
+    {
+      "packetOffset": 34,
+      "register": 69,
+      "bad": 3,
+      "after": 4
+    },
+    {
+      "packetOffset": 36,
+      "register": 71,
+      "bad": 35,
+      "after": 34
+    }
+  ]
+}

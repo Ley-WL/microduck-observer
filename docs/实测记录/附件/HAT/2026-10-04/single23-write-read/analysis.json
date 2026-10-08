@@ -1,0 +1,110 @@
+{
+  "single23-write-read-compare": {
+    "read-fast": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 0,
+      "incomplete": 0,
+      "bad": 0,
+      "hz": [
+        49.96729083564363,
+        49.945178175629735,
+        50.03560735365537
+      ]
+    },
+    "write-fast": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 0,
+      "incomplete": 0,
+      "bad": 0,
+      "hz": [
+        30.41508019914363,
+        29.373414088425534,
+        33.20527081823485
+      ]
+    },
+    "read-full": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 4,
+      "incomplete": 2,
+      "bad": 2,
+      "hz": [
+        49.9692055558002,
+        49.831375254762136,
+        49.6585740316741
+      ]
+    },
+    "write-full": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 0,
+      "incomplete": 0,
+      "bad": 0,
+      "hz": [
+        31.971384397717927,
+        30.081866696408746,
+        28.116089213343933
+      ]
+    },
+    "positionRange23": [
+      2120,
+      2120
+    ]
+  },
+  "single23-native-write-read-compare": {
+    "read-fast": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 0,
+      "incomplete": 0,
+      "bad": 0,
+      "hz": [
+        50.04340253771793,
+        50.061265041368635,
+        50.071481977430466
+      ]
+    },
+    "write-fast": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 0,
+      "incomplete": 0,
+      "bad": 0,
+      "hz": [
+        50.07313648196425,
+        50.049287796407484,
+        50.04545622771565
+      ]
+    },
+    "read-full": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 0,
+      "incomplete": 0,
+      "bad": 0,
+      "hz": [
+        49.99168943264341,
+        49.96426131984956,
+        50.05231556793287
+      ]
+    },
+    "write-full": {
+      "requests": 1500,
+      "expected": 22500,
+      "missing": 2,
+      "incomplete": 1,
+      "bad": 1,
+      "hz": [
+        50.00376804947295,
+        50.05826867241432,
+        49.878754957350154
+      ]
+    },
+    "positionRange23": [
+      2120,
+      2120
+    ]
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "sampleCount": 40,
+  "imu": {
+    "roll": {
+      "mean": 0.651698283351353,
+      "min": 0.6454139510714182,
+      "max": 0.6563330280882889
+    },
+    "pitch": {
+      "mean": -0.3275283103540555,
+      "min": -0.35732583983058686,
+      "max": -0.3096978027068889
+    }
+  },
+  "joints": {
+    "20": {
+      "angleMean": 0.0,
+      "homeErrorMean": 0.0,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.0
+    },
+    "21": {
+      "angleMean": -4.74609375,
+      "homeErrorMean": 0.25582780149208695,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.263671875
+    },
+    "22": {
+      "angleMean": -26.19140625,
+      "homeErrorMean": 0.04433118904039546,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.087890625
+    },
+    "23": {
+      "angleMean": 0.17578125,
+      "homeErrorMean": 0.4565305696141034,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.439453125
+    },
+    "24": {
+      "angleMean": 26.305633886954073,
+      "homeErrorMean": 0.3506457675277801,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.3515625
+    },
+    "30": {
+      "angleMean": 19.951171875,
+      "homeErrorMean": -0.050784753017040885,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.087890625
+    },
+    "31": {
+      "angleMean": 20.21484375,
+      "homeErrorMean": 0.21288712198295912,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.17578125
+    },
+    "32": {
+      "angleMean": 0.087890625,
+      "homeErrorMean": 0.087890625,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.087890625
+    },
+    "33": {
+      "angleMean": -0.087890625,
+      "homeErrorMean": -0.087890625,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.087890625
+    },
+    "10": {
+      "angleMean": 0.087890625,
+      "homeErrorMean": 0.087890625,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.087890625
+    },
+    "11": {
+      "angleMean": 4.921875,
+      "homeErrorMean": -0.08004655149208695,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.087890625
+    },
+    "12": {
+      "angleMean": 26.71875,
+      "homeErrorMean": 0.48301256095960454,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.439453125
+    },
+    "13": {
+      "angleMean": -0.966796875,
+      "homeErrorMean": -1.2475461946141033,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 1.23046875
+    },
+    "14": {
+      "angleMean": -26.129852636954073,
+      "homeErrorMean": -0.1748645175277801,
+      "positionSpan": 0,
+      "maxGoalErrorDeg": 0.17578125
+    }
+  },
+  "missingSampleCount": 0,
+  "badChecksumSampleCount": 0,
+  "registersUnchanged": true,
+  "calibrationUnchanged": true,
+  "revision": 187,
+  "beforeControl": {
+    "action": "stand",
+    "commandCount": 116,
+    "commandHz": 49.97,
+    "commandMaxGapMs": 26.37,
+    "commandTargetHz": 50,
+    "consecutiveFeedbackFailures": 0,
+    "feedbackHolding": false,
+    "message": "\u5df2\u5230\u5b98\u65b9\u7ad9\u59ff\u5e76\u4f7f\u80fd\u4fdd\u6301",
+    "progress": 1.0,
+    "remainingSeconds": 0.7,
+    "skippedControlTicks": 0,
+    "state": "holding"
+  },
+  "userObservation": "User clicked model HOME button and reports standing; support/free-standing duration unspecified; no policy-loop acceptance."
+}

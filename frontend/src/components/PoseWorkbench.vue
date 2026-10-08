@@ -119,6 +119,9 @@ const value = (values: number[] | undefined, i: number) =>
           >
             位置标定
           </button>
+          <button class="button compact" :disabled="!!board.levelDisabledReason"
+            :title="board.levelDisabledReason || '将当前姿态设为 Pitch/Roll 0°，保留航向；请先把躯干摆正。共享参考同时用于模型控制。'"
+            @click="board.levelOrientation()">{{ board.saving ? '保存中…' : 'Pitch / Roll 归零' }}</button>
           <button class="button compact" :disabled="!board.ready" @click="installationOpen=true">IMU 安装位置</button>
           <button
             class="text-button"
@@ -128,7 +131,7 @@ const value = (values: number[] | undefined, i: number) =>
             清除 IMU 参考
           </button>
           <span>{{
-            calibrationSaveError ? "主板同步失败" : calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择"
+            board.error || board.levelDisabledReason || (calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择")
           }}</span>
         </div>
         <ModelControlPanel />

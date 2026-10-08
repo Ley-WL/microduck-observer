@@ -49,6 +49,7 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub drive: Option<DriveCommand>,
     pub boot: String,
     pub source: String,
     pub started: Instant,
@@ -59,6 +60,40 @@ pub struct Telemetry {
     pub imu: Value,
     pub tof: Value,
     pub scenario: String,
+    pub resources: Value,
+}
+pub struct DriveCommand {
+    pub session: String,
+    pub sequence: u64,
+    pub twist: [f32; 3],
+    pub updated: Instant,
+}
+impl DriveCommand {
+    pub fn update(&mut self, session: &str, sequence: u64, twist: [f32;3]) -> bool {
+        if session!=self.session || sequence<=self.sequence {return false;}
+        self.sequence=sequence;self.twist=twist;self.updated=Instant::now();true
+    }
+    pub fn current(&self) -> [f32; 3] {
+        if self.updated.elapsed() < std::time::Duration::from_millis(250) { self.twist } else { [0.; 3] }
+    }
+}
+#[cfg(test)]
+mod drive_tests {
+    use super::*;
+    #[test]
+    fn released_commands_cannot_be_overwritten_by_late_packets_or_old_sessions() {
+        let mut d=DriveCommand{session:"new".into(),sequence:0,twist:[0.;3],updated:Instant::now()};
+        assert!(d.update("new",1,[0.2,0.,0.]));
+        assert!(d.update("new",3,[0.;3]));
+        assert!(!d.update("new",2,[0.2,0.,0.]));
+        assert!(!d.update("old",4,[0.2,0.,0.]));
+        assert_eq!(d.current(),[0.;3]);
+    }
+    #[test]
+    fn expired_held_command_returns_zero_without_a_browser_release() {
+        let d=DriveCommand{session:"s".into(),sequence:1,twist:[0.2,0.,0.],updated:Instant::now()-std::time::Duration::from_millis(251)};
+        assert_eq!(d.current(),[0.;3]);
+    }
 }
 impl Telemetry {
     pub fn imu_health(&self) -> Value {
@@ -98,6 +133,8 @@ impl Telemetry {
     }
     pub fn new(hardware: bool) -> Self {
         let mut s = Self {
+            drive: None,
+            resources: Value::Null,
             boot: Uuid::new_v4().to_string(),
             source: if hardware { "hardware" } else { "simulation" }.into(),
             started: Instant::now(),
