@@ -8,7 +8,7 @@ root=Path(__file__).resolve().parents[1]
 fixture=json.loads((root/'backend-rust/tests/fixtures/policy-walk-v6.json').read_text())
 fixture.update(kind='xgoduck',speed=0.)
 fixture['observation'][48:51]=[0.,0.,0.]
-model=root/'debug-server/models/xgoduck_walk.onnx'
+model=root/'models/xgoduck_walk.onnx'
 session=ort.InferenceSession(str(model),providers=['CPUExecutionProvider'])
 fixture['action']=session.run(None,{session.get_inputs()[0].name:np.asarray([fixture['observation']],dtype=np.float32)})[0][0].tolist()
 (root/'backend-rust/tests/fixtures/policy-xgoduck.json').write_text(json.dumps(fixture,indent=2),encoding='utf-8')

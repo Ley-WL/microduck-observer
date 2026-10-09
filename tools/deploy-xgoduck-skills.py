@@ -13,7 +13,7 @@ subprocess.run(['scp',*opts,str(frontend_archive),host+':/home/radxa/ducklink-sk
 for skill in ('getup','pick','roulade'):
     name='xgoduck_'+skill
     for suffix in ('onnx','metadata.json'):
-        subprocess.run(['scp',*opts,str(root/'debug-server/models'/(name+'.'+suffix)),host+':/home/radxa/ducklink-skills-stage/'+name+'.'+suffix],check=True)
+        subprocess.run(['scp',*opts,str(root/'models'/(name+'.'+suffix)),host+':/home/radxa/ducklink-skills-stage/'+name+'.'+suffix],check=True)
     fixture='policy-'+name+'.json'
     subprocess.run(['scp',*opts,str(root/'backend-rust/tests/fixtures'/fixture),host+':/home/radxa/ducklink-skills-stage/'+fixture],check=True)
 for source,target in [(root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer','observer-skills.new'),

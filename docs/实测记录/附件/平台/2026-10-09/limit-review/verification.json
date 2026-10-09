@@ -1,0 +1,207 @@
+{
+  "source": "https://raw.githubusercontent.com/LuwuDynamics/xgoduck_rl/main/src/mjlab_microduck/robot/xgoduck/robot_walk.xml",
+  "comparison": "software joint ranges only; EEPROM not read or written",
+  "rows": [
+    {
+      "id": 20,
+      "joint": "left_hip_yaw",
+      "upstreamDegrees": [
+        -12.60507149287811,
+        25.783100780887047
+      ],
+      "boardDegrees": [
+        -12.60507149287811,
+        25.783100780887047
+      ],
+      "maxDifferenceDegrees": 0.0,
+      "match": true
+    },
+    {
+      "id": 21,
+      "joint": "left_hip_roll",
+      "upstreamDegrees": [
+        -22.0,
+        22.0
+      ],
+      "boardDegrees": [
+        -22.0,
+        22.0
+      ],
+      "maxDifferenceDegrees": 0.0,
+      "match": true
+    },
+    {
+      "id": 22,
+      "joint": "left_hip_pitch",
+      "upstreamDegrees": [
+        -90.00000000000621,
+        89.99999999999379
+      ],
+      "boardDegrees": [
+        -90.0,
+        90.0
+      ],
+      "maxDifferenceDegrees": 6.210143510543276e-12,
+      "match": true
+    },
+    {
+      "id": 23,
+      "joint": "left_knee",
+      "upstreamDegrees": [
+        -90.00000000000662,
+        89.99999999999338
+      ],
+      "boardDegrees": [
+        -90.0,
+        90.0
+      ],
+      "maxDifferenceDegrees": 6.622258297284134e-12,
+      "match": true
+    },
+    {
+      "id": 24,
+      "joint": "left_ankle",
+      "upstreamDegrees": [
+        -90.0000000000003,
+        89.99999999999969
+      ],
+      "boardDegrees": [
+        -90.0,
+        90.0
+      ],
+      "maxDifferenceDegrees": 3.126388037344441e-13,
+      "match": true
+    },
+    {
+      "id": 30,
+      "joint": "neck_pitch",
+      "upstreamDegrees": [
+        -135.0,
+        59.99999999999999
+      ],
+      "boardDegrees": [
+        -135.0,
+        60.0
+      ],
+      "maxDifferenceDegrees": 7.105427357601002e-15,
+      "match": true
+    },
+    {
+      "id": 31,
+      "joint": "head_pitch",
+      "upstreamDegrees": [
+        -105.00000000000001,
+        105.00000000000001
+      ],
+      "boardDegrees": [
+        -105.0,
+        105.0
+      ],
+      "maxDifferenceDegrees": 1.4210854715202004e-14,
+      "match": true
+    },
+    {
+      "id": 32,
+      "joint": "head_yaw",
+      "upstreamDegrees": [
+        -170.0000000000007,
+        169.9999999999993
+      ],
+      "boardDegrees": [
+        -170.0,
+        170.0
+      ],
+      "maxDifferenceDegrees": 7.105427357601002e-13,
+      "match": true
+    },
+    {
+      "id": 33,
+      "joint": "head_roll",
+      "upstreamDegrees": [
+        -25.000000000000508,
+        24.999999999999492
+      ],
+      "boardDegrees": [
+        -25.0,
+        25.0
+      ],
+      "maxDifferenceDegrees": 5.080380560684716e-13,
+      "match": true
+    },
+    {
+      "id": 10,
+      "joint": "right_hip_yaw",
+      "upstreamDegrees": [
+        -25.783100780887047,
+        12.60507149287811
+      ],
+      "boardDegrees": [
+        -25.783100780887047,
+        12.60507149287811
+      ],
+      "maxDifferenceDegrees": 0.0,
+      "match": true
+    },
+    {
+      "id": 11,
+      "joint": "right_hip_roll",
+      "upstreamDegrees": [
+        -22.0,
+        22.0
+      ],
+      "boardDegrees": [
+        -22.0,
+        22.0
+      ],
+      "maxDifferenceDegrees": 0.0,
+      "match": true
+    },
+    {
+      "id": 12,
+      "joint": "right_hip_pitch",
+      "upstreamDegrees": [
+        -90.00000000000173,
+        89.99999999999827
+      ],
+      "boardDegrees": [
+        -90.0,
+        90.0
+      ],
+      "maxDifferenceDegrees": 1.7337242752546445e-12,
+      "match": true
+    },
+    {
+      "id": 13,
+      "joint": "right_knee",
+      "upstreamDegrees": [
+        -90.00000000000203,
+        89.99999999999797
+      ],
+      "boardDegrees": [
+        -90.0,
+        90.0
+      ],
+      "maxDifferenceDegrees": 2.0321522242738865e-12,
+      "match": true
+    },
+    {
+      "id": 14,
+      "joint": "right_ankle",
+      "upstreamDegrees": [
+        -90.00000000000051,
+        89.99999999999949
+      ],
+      "boardDegrees": [
+        -90.0,
+        90.0
+      ],
+      "maxDifferenceDegrees": 5.115907697472721e-13,
+      "match": true
+    }
+  ],
+  "mouth": [
+    0.0,
+    30.0
+  ],
+  "all14Match": true
+}

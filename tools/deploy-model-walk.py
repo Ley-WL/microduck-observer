@@ -10,8 +10,8 @@ with tarfile.open(archive,'w:gz') as tar:
 opts=['-o','BatchMode=yes','-o','HostKeyAlias=192.168.31.193'];host='radxa@192.168.31.186'
 for source,target in [(root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer','observer-model-walk.new'),
                       (root/'deploy/install-model-walk.py','install-model-walk.py'), (archive,'model-walk-frontend.tar.gz'),
-                      (root/'debug-server/models/hd1910-walk-v6-symmetry500.onnx','hd1910-walk-v6-symmetry500.onnx'),
-                      (root/'debug-server/models/hd1910-walk-v6-symmetry500.metadata.json','hd1910-walk-v6-symmetry500.metadata.json'),
+                      (root/'models/hd1910-walk-v6-symmetry500.onnx','hd1910-walk-v6-symmetry500.onnx'),
+                      (root/'models/hd1910-walk-v6-symmetry500.metadata.json','hd1910-walk-v6-symmetry500.metadata.json'),
                       (root/'backend-rust/tests/fixtures/policy-walk-v6.json','policy-walk-v6.json')]:
     subprocess.run(['scp',*opts,str(source),f'{host}:/home/radxa/{target}'],check=True)
 password=next(line.removeprefix('Password: ') for line in Path('D:/Users/wl/Downloads/MicroDuck-Flash/board-login-20260928.txt').read_text().splitlines() if line.startswith('Password: '))

@@ -1,0 +1,18 @@
+{
+  "release": "20261009-walk-fall-guard-v1",
+  "status": "prepared-not-deployed",
+  "rustTestsPassed": 86,
+  "rustTestsIgnored": 1,
+  "binarySha256": "5cbfb87196f2ffa0a9cc93a3ec3ea536fd78dd84d2bfa4fd056e2aac43d552e2",
+  "rule": {
+    "tiltDegrees": 60,
+    "confirmMs": 150,
+    "immediateTiltDegrees": 90
+  },
+  "appliesTo": [
+    "walk",
+    "xgoduck"
+  ],
+  "stop": "terminate inference, clear commands, unload 15 servos; manual restart required",
+  "packageSha256": "b5fbbc2314f1936e3428b034bc1131f96e2e9269d71778e9c86d583604df24d3"
+}

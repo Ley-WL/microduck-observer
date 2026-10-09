@@ -8,7 +8,7 @@ import tarfile
 archive=root/'deploy/sitstand-frontend.tar.gz'
 with tarfile.open(archive,'w:gz') as out:out.add(root/'frontend/dist',arcname='dist')
 for source,target in [(archive,'sitstand-frontend.tar.gz'),(root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer','observer-sitstand.new'),
- (root/'debug-server/models/alpha_sitstand.onnx','alpha_sitstand.onnx'),(root/'debug-server/models/alpha_sitstand.metadata.json','alpha_sitstand.metadata.json'),
+ (root/'models/alpha_sitstand.onnx','alpha_sitstand.onnx'),(root/'models/alpha_sitstand.metadata.json','alpha_sitstand.metadata.json'),
  (root/'backend-rust/tests/fixtures/policy-sitstand-stand.json','policy-sitstand-stand.json'),(root/'backend-rust/tests/fixtures/policy-sitstand-sit.json','policy-sitstand-sit.json'),
  (root/'deploy/install-official-sitstand.py','install-official-sitstand.py')]:
     subprocess.run(['scp',*opts,str(source),f'{host}:/home/radxa/{target}'],check=True)

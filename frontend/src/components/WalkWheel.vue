@@ -25,10 +25,10 @@ onUnmounted(()=>{stop();window.removeEventListener('blur',stop);document.removeE
 <template>
   <div class="wheel-control">
     <div class="wheel" :class="{disabled}" role="group" aria-label="方向轮盘：按住拖动，松开停止行走" @pointerdown.prevent="down" @pointermove="move" @pointerup="stop" @pointercancel="stop" @lostpointercapture="stop" @contextmenu.prevent>
-      <span class="front">前进</span><span class="back">后退</span><span class="left">左移</span><span class="right">右移</span>
+      <span class="front">前进</span><span class="back">后退</span><span class="left">左转</span><span class="right">右转</span>
       <i :style="{transform:`translate(${x*50}px,${y*50}px)`}" />
     </div>
-    <div class="wheel-help"><strong>按住拖动 · 松开平衡</strong><small>前后最高 {{ speed.toFixed(2) }} m/s<br>横移最高 {{ Math.min(speed,.1).toFixed(2) }} m/s</small>
+    <div class="wheel-help"><strong>按住拖动 · 松开平衡</strong><small>前后档位 {{ speed.toFixed(2) }}<br>左右拖动转弯 · 斜推边走边转</small>
       <div class="turns"><button :disabled="disabled" @pointerdown.prevent="turn($event,.5)" @pointerup="stop" @pointercancel="stop" @lostpointercapture="stop" @contextmenu.prevent>↶ 左转</button><button :disabled="disabled" @pointerdown.prevent="turn($event,-.5)" @pointerup="stop" @pointercancel="stop" @lostpointercapture="stop" @contextmenu.prevent>右转 ↷</button></div>
     </div>
   </div>

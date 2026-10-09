@@ -10,8 +10,8 @@ with tarfile.open(archive,'w:gz') as tar:
 opts=['-o','BatchMode=yes','-o','HostKeyAlias=192.168.31.193'];host='radxa@192.168.31.186'
 for source,target in [(root/'deploy/staging/observer-xgoduck.new','observer-xgoduck.new'),
                       (root/'deploy/install-xgoduck-hold.py','install-xgoduck-hold.py'),(archive,'xgoduck-frontend.tar.gz'),
-                      (root/'debug-server/models/xgoduck_walk.onnx','xgoduck_walk.onnx'),
-                      (root/'debug-server/models/xgoduck_walk.metadata.json','xgoduck_walk.metadata.json'),
+                      (root/'models/xgoduck_walk.onnx','xgoduck_walk.onnx'),
+                      (root/'models/xgoduck_walk.metadata.json','xgoduck_walk.metadata.json'),
                       (root/'backend-rust/tests/fixtures/policy-xgoduck.json','policy-xgoduck.json')]:
     subprocess.run(['scp',*opts,str(source),f'{host}:/home/radxa/{target}'],check=True)
 password=next(line.removeprefix('Password: ') for line in Path('D:/Users/wl/Downloads/MicroDuck-Flash/board-login-20260928.txt').read_text().splitlines() if line.startswith('Password: '))

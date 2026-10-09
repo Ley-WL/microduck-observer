@@ -1,7 +1,7 @@
-"""Differential HTTP/WS tests. Both servers use temporary state and NO hardware.
+"""Rust HTTP/WS contract checks against an isolated simulation service.
 
-Run with Python + FastAPI/Uvicorn/Numpy/Websockets, after cargo build:
-  python tests/contracts.py --reference ../debug-server
+Run after cargo build: python tests/contracts.py
+No hardware, Bluetooth or existing calibration state is accessed.
 """
 import argparse
 import asyncio
@@ -16,6 +16,9 @@ import urllib.error
 import urllib.request
 
 import websockets
+
+# Local contract checks must never be sent through the host's network proxy.
+urllib.request.install_opener(urllib.request.build_opener(urllib.request.ProxyHandler({})))
 
 
 def request(port, path, body=None, headers=None, raw=None):
@@ -48,7 +51,7 @@ def wait(port, process):
 
 
 async def websocket(port):
-    async with websockets.connect(f'ws://127.0.0.1:{port}/api/v1/stream') as ws:
+    async with websockets.connect(f'ws://127.0.0.1:{port}/api/v1/stream', proxy=None) as ws:
         await ws.send(json.dumps({'type': 'subscribe', 'requestId': 'parity', 'topics': {
             'pose': 999, 'imu.raw': 20, 'system': 1, 'logs': None,
             'unknown': 20, 'imu.orientation': 50}}))
@@ -72,7 +75,7 @@ async def websocket(port):
                 assert value['bootId'] == ack['bootId']
                 received.add('heartbeat')
         assert received == {'pose', 'imu.raw', 'system', 'logs', 'heartbeat'}, received
-    async with websockets.connect(f'ws://127.0.0.1:{port}/api/v1/stream') as ws:
+    async with websockets.connect(f'ws://127.0.0.1:{port}/api/v1/stream',proxy=None) as ws:
         await ws.send(json.dumps({'type': 'subscribe', 'topics': []}))
         try:
             await asyncio.wait_for(ws.recv(), 3)
@@ -83,34 +86,28 @@ async def websocket(port):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--reference', type=Path, required=True)
+    parser.add_argument('--binary', type=Path)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    reference = args.reference.resolve()
+    binary = args.binary.resolve() if args.binary else root / ('target/debug/microduck-observer.exe' if os.name=='nt' else 'target/debug/microduck-observer')
     with tempfile.TemporaryDirectory() as directory:
         processes = []
         logs = []
         try:
-            for port, command, cwd in [(18878, [str(root / 'target/debug/microduck-observer')], root),
-                                       (18879, [sys.executable, '-m', 'uvicorn', 'server:app',
-                                                '--host', '127.0.0.1', '--port', '18879'], reference)]:
-                env = dict(os.environ, MICRODUCK_SOURCE='simulation', MICRODUCK_SERVO_PORT='',
+            for port, command, cwd in [(18878, [str(binary)], root)]:
+                env = dict(os.environ, MICRODUCK_SOURCE='simulation', MICRODUCK_BLE_ENABLED='0', MICRODUCK_SERVO_PORT='',
                            MICRODUCK_TOF_SOCKET='', MICRODUCK_CALIBRATION_FILE=f'{directory}/{port}.json',
                            MICRODUCK_BIND=f'127.0.0.1:{port}', MICRODUCK_STATIC_DIR=f'{directory}/static',
-                           MICRODUCK_POLICY_PATH=str(reference / 'models/hd1910-head-v5.onnx'))
+                           MICRODUCK_POLICY_PATH=str(root.parent / 'models/hd1910-head-v5.onnx'))
                 log = open(f'{directory}/{port}.log', 'w+')
                 logs.append(log)
                 process = subprocess.Popen(command, cwd=cwd, env=env, stdout=log, stderr=log)
                 processes.append(process)
                 wait(port, process)
-            ports = (18878, 18879)
-            info = [request(p, '/api/v1/info')[1] for p in ports]
-            for value in info:
-                value.pop('bootId')
-            assert info[0] == info[1]
+            ports = (18878,)
+            assert request(18878, '/api/v1/info')[0] == 200
             for path in ('/api/v1/servos/limits', '/api/v1/calibration/poses', '/api/v1/policy'):
-                values = [request(p, path) for p in ports]
-                assert values[0] == values[1], (path, values)
+                assert request(18878,path)[0] == 200, path
             cases = [('/api/v1/logs?cursor=-1', None, {}, None, 422),
                      ('/api/v1/logs?limit=2001', None, {}, None, 422),
                      ('/api/v1/servos/angle', {}, {}, None, 409),
@@ -139,7 +136,7 @@ def main():
                 asyncio.run(websocket(p))
                 disk = json.loads(Path(f'{directory}/{p}.json').read_text())
                 assert disk['revision'] == 1 and disk['mounting'] == patch['mounting']
-            print('PASS: Python/Rust HTTP contracts, revision/conflict/persistence, log gap, WS envelopes/rates/1008')
+            print('PASS: Rust HTTP contracts, revision/conflict/persistence, log gap, WS envelopes/rates/1008')
         except BaseException:
             for log in logs:
                 log.flush(); log.seek(0); print(log.read()[-4000:])

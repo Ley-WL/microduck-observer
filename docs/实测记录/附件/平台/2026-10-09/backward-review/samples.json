@@ -1,0 +1,1352 @@
+[
+  {
+    "time": 1791536388.0888588,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 5.105595000030007,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536388.6030061,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.2325760000385344,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536389.1171303,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 5.060678999987431,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536389.631805,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.853304999996908,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536390.1455712,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.0618990000220947,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536390.6593344,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.7138230000273325,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536391.1807842,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 7.380289999942761,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536391.6949658,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.4909910000278614,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536392.2038436,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.582693000033032,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536392.7164805,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.9408580000163056,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536393.2302551,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.4307890000054613,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536393.7440104,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.89034600002924,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536394.2569544,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.3569450000068173,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536394.7707572,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 5.193094999995083,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536395.2846284,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.569806999992579,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536395.7974987,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.0439880000194535,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536396.3101413,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.873429999977816,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536396.8259249,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.6028179999557324,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536397.334553,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.614828999969177,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536397.8464942,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.15808199997991323,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536398.3603199,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.086570999934338,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536398.8744855,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.2801179999951273,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536399.3875237,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.110434000031091,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536399.9005077,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.0005299999611452,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536400.4148748,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.813055999984499,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536400.9294472,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.8610610000323504,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536401.442878,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.358987000072375,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536401.9566512,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.5847889999859035,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536402.4646623,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.7284070000750944,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536402.9829516,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.0568220000131987,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536403.4958248,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.6166450000018813,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536404.008607,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.9934110000031069,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536404.5216951,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.2378919999464415,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536405.0349772,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.833578999969177,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536405.5483367,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.711436999961734,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536406.062975,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.3844809999573044,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536406.5778313,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.213908999983687,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536407.0924754,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.7744890000321902,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536407.5998967,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.5544019999797456,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536408.1174607,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.0085240000043996,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536408.632186,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.6386389999534,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536409.144708,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.5479859999613836,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536409.6586885,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.2785410000360571,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536410.1738276,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.1954159999731928,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536410.6872714,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.84344200004125,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536411.2000155,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.446074999985285,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536411.712767,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.8246029999572784,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536412.2267869,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.7746620000107214,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536412.7395737,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.437389999977313,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536413.253983,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.121397999988403,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536413.7679427,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.6046210000058636,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536414.2812774,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.013892999966629,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536414.7951357,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.814738999994006,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536415.3094952,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.9773690000292845,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536415.8223355,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 5.170928000065032,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536416.3403099,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.220564999966882,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536416.8582203,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.0322020000312477,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536417.3717577,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.7967749999952503,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536417.8861055,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.43837300001177937,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536418.3997066,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.7977700000046752,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536418.9126139,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.795490000047721,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536419.429104,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.21087400004034862,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536419.9411507,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.2137910000164993,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536420.4539406,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.0819050000282004,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536420.966167,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 4.254225000040606,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536421.477821,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.10499900003196672,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536421.998352,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 5.245303000032436,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536422.5116875,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.1237309999996796,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536423.025509,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 5.296052999969106,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536423.5388925,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.1339399999706075,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536424.05368,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.0089889999944717,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536424.5660138,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.4176640000077896,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536425.078978,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.4634019999648444,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536425.5924475,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.8572029999922961,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536426.1052263,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.7810259999823757,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536426.6190283,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.39666399999987334,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536427.1337948,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 5.172678000002634,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536427.6477613,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.3418969999765977,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536428.1626747,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.6837280000327155,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536428.6777952,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.3559510000050068,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536429.1923933,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.3738619999494404,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536429.7056108,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.2546239999937825,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536430.2192862,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.3354799999506213,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536430.73396,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.5377770000486635,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536431.2545295,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.0442800000309944,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536431.7686732,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.963488999987021,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536432.2908857,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 3.2500220000511035,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536432.8046567,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 1.8237809999845922,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536433.3222084,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 0.9668689999380149,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  },
+  {
+    "time": 1791536433.8360896,
+    "control": {
+      "message": "等待操作",
+      "state": "idle"
+    },
+    "imuAgeMs": 2.4552359999506734,
+    "missing": [],
+    "log": {
+      "eventTimeMs": 1791536119285,
+      "level": "INFO",
+      "message": "Rust 后端启动",
+      "module": "server"
+    }
+  }
+]

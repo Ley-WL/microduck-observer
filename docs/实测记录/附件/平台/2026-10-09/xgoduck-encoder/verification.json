@@ -1,0 +1,16 @@
+{
+  "testsPassed": 80,
+  "testsIgnored": 1,
+  "armBuild": true,
+  "overangleFixture": {
+    "id": 10,
+    "position": 1933,
+    "reference": 2079,
+    "angleDeg": 12.83203125,
+    "observationMaxAbsError": 0,
+    "actionMaxAbsError": 0,
+    "hardwareAccess": false
+  },
+  "deployedBinarySha256": "09ff401777b4cc102f3689fe334c402ca58be39b9adc564f348de3a8adc0e233",
+  "physicalMotionTested": false
+}

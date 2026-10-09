@@ -118,7 +118,7 @@ const NAMES: [&str; 14] = [
 pub fn path() -> PathBuf {
     std::env::var("MICRODUCK_POLICY_PATH")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("../debug-server/models/hd1910-head-v5.onnx"))
+        .unwrap_or_else(|_| PathBuf::from("../models/hd1910-head-v5.onnx"))
 }
 pub fn path_for(kind: &str) -> Result<PathBuf> {
     match kind {
@@ -157,6 +157,35 @@ fn tilt(obs: &[f32]) -> f64 {
     let norm = obs[3..6].iter().map(|v| (*v as f64).powi(2)).sum::<f64>().sqrt();
     (-(obs[5] as f64) / norm).clamp(-1.,1.).acos().to_degrees()
 }
+const FALL_TILT_DEG: f64 = 60.;
+const FALL_IMMEDIATE_DEG: f64 = 90.;
+const FALL_CONFIRM: Duration = Duration::from_millis(150);
+fn walking_policy(kind: &str) -> bool { matches!(kind,"xgoduck"|"walk") }
+fn body_gravity(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<Vector3<f64>> {
+    let imu=&cal["imu"];
+    if imu["initialized"]!=true || imu["mountingQuaternion"].is_null() {
+        bail!("请先完成 IMU 位置和安装方向标定");
+    }
+    let mounting=orientation::rotation(&imu["mountingQuaternion"])?;
+    let identity = json!([0, 0, 0, 1]);
+    let target = orientation::rotation(imu.get("targetQuaternion").unwrap_or(&identity))?;
+    let relative = orientation::rotation(&imu["quaternion"])?.transpose()
+        * orientation::rotation(&sensors["imu.orientation"]["data"]["quaternion"])?;
+    let body = target * mounting.transpose() * relative * mounting;
+    let gravity = body.transpose() * Vector3::new(0., 0., -1.);
+    Ok(gravity)
+}
+#[derive(Default)]
+struct FallGuard { since:Option<Instant> }
+impl FallGuard {
+    fn check(&mut self,kind:&str,angle:Option<f64>,now:Instant)->bool {
+        let Some(angle)=angle.filter(|a|walking_policy(kind) && a.is_finite() && *a>=FALL_TILT_DEG) else {
+            self.since=None;return false;
+        };
+        let since=*self.since.get_or_insert(now);
+        angle>=FALL_IMMEDIATE_DEG || now.duration_since(since)>=FALL_CONFIRM
+    }
+}
 pub fn request_profile(body: &Value) -> Result<(&str, f32)> {
     let kind = match body.get("kind") {
         None => "stand",
@@ -177,7 +206,11 @@ pub fn drive_twist(body: &Value) -> Result<[f32; 3]> {
     for (v,max) in twist.iter().zip([0.2,0.1,0.5]) {
         if !v.is_finite() || v.abs()>max { bail!("行走指令超出范围"); }
     }
-    Ok(twist.map(|v|v as f32))
+    // Native closed-loop simulation: reverse -0.2 and left yaw +0.5 respond
+    // weakly, while reverse -0.4 and both yaw signs at 1.0 form motion.
+    // Apply once at the shared Web/BLE entry, preserving proportional zero.
+    Ok([(if twist[0]<0.0 {twist[0]*2.0} else {twist[0]}) as f32,
+        twist[1] as f32,(twist[2]*2.0) as f32])
 }
 pub fn metadata_for(kind: &str) -> Option<Value> {
     verified_metadata_for(kind).ok()
@@ -452,12 +485,7 @@ impl Model {
             bail!("请先完成 IMU 位置和安装方向标定")
         }
         let mounting = orientation::rotation(&imu["mountingQuaternion"])?;
-        let identity = json!([0, 0, 0, 1]);
-        let target = orientation::rotation(imu.get("targetQuaternion").unwrap_or(&identity))?;
-        let relative = orientation::rotation(&imu["quaternion"])?.transpose()
-            * orientation::rotation(&sensors["imu.orientation"]["data"]["quaternion"])?;
-        let body = target * mounting.transpose() * relative * mounting;
-        let gravity = body.transpose() * Vector3::new(0., 0., -1.);
+        let gravity = body_gravity(&sensors,cal)?;
         let gyro = mounting.transpose()
             * Vector3::from(orientation::vector::<3>(
                 &sensors["imu.raw"]["data"]["gyro"],
@@ -485,6 +513,12 @@ impl Model {
             };
             let raw =
                 (f["position"].as_f64().unwrap() - reference) * std::f64::consts::TAU / 4096. * d;
+            if is_xgoduck(&self.kind) {
+                // Upstream observes calibrated encoder angles directly; XML
+                // training ranges are not a feedback stop condition.
+                angles[n] = raw;
+                continue;
+            }
             let (low, high) = limit(*id).unwrap();
             let k0 = ((low.to_radians() - raw) / std::f64::consts::TAU).ceil();
             let k1 = ((high.to_radians() - raw) / std::f64::consts::TAU).floor();
@@ -562,6 +596,14 @@ impl Model {
         let mut goals = BTreeMap::new();
         for (n, id) in ORDER.iter().enumerate() {
             let raw = (self.home[n] + action[n]) as f64;
+            if is_xgoduck(&self.kind) {
+                let (goal, sent, saturated) = donor_target(*id, raw, cal, limits[id])?;
+                self.raw.push(raw.to_degrees());
+                self.sent.push(sent.to_degrees());
+                if saturated { self.saturated.push(*id); }
+                goals.insert(*id, goal);
+                continue;
+            }
             let (low, high) = limit(*id).unwrap();
             let angle = raw.clamp(low.to_radians(), high.to_radians());
             self.raw.push(raw.to_degrees());
@@ -585,6 +627,23 @@ impl Model {
         }
         Ok(goals)
     }
+}
+// Match upstream's direct zero/sign conversion followed by encoder saturation.
+// Keep this board's calibrated 4096-step conversion and stricter EEPROM bounds.
+fn donor_target(id: u8, angle: f64, cal: &Value, hardware: (i32, i32)) -> Result<(i32, f64, bool)> {
+    let key = id.to_string();
+    let reference = cal["joints"]["references"][&key].as_f64()
+        .filter(|v| v.is_finite()).ok_or_else(|| anyhow::anyhow!("#{id} 缺少位置标定"))?;
+    let direction = cal["joints"]["directions"].get(&key).and_then(Value::as_f64).unwrap_or(-1.);
+    if !angle.is_finite() || ![-1., 1.].contains(&direction) { bail!("#{id} 模型目标或标定无效"); }
+    let (mut low, mut high) = (0, 4095);
+    if hardware.1 > hardware.0 { low = low.max(hardware.0); high = high.min(hardware.1); }
+    if low > high { bail!("#{id} 舵机硬件限位与编码范围不相交"); }
+    let raw = (reference + angle * 4096. / std::f64::consts::TAU * direction).round_ties_even();
+    if !raw.is_finite() { bail!("#{id} 模型目标编码无效"); }
+    let bounded = raw.clamp(low as f64, high as f64);
+    let sent = (bounded - reference) * std::f64::consts::TAU / 4096. * direction;
+    Ok((bounded as i32, sent, bounded != raw))
 }
 pub fn execute(
     bus: &mut Bus,
@@ -614,6 +673,7 @@ pub fn execute(
     let costs=std::sync::Arc::new(std::sync::Mutex::new(CycleCosts::default()));
     let stats = |model: &Model, timing: &control::Timing, infer_ms: f64| -> Value {
         let mut v = timing.stats();
+        v["fallDetection"]=json!({"enabled":walking_policy(&model.kind),"tiltDegrees":FALL_TILT_DEG,"confirmMs":FALL_CONFIRM.as_millis(),"immediateTiltDegrees":FALL_IMMEDIATE_DEG});
         v["commandTargetHz"]=json!(100);
         for (key,value) in json!({"policy":model_id(&model.kind),"kind":if is_xgoduck(kind) {"xgoduck"} else {kind},"requestedKind":kind,"activeSkill":model.kind,"skillProgressSeconds":model.progress,"posture":if model.kind=="sitstand_sit" {if model.progress>=2. {"seated"} else {"sitting"}} else if model.kind=="sitstand_stand" {"rising"} else {"standing"},"walkSpeedMps":speed,"policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"runtimeProfile":"xgoduck-schedule100-v1","homeCommandTargetHz":50,"feedbackReplyBudgetMs":6,"feedbackTargetHz":100,"inferenceTargetHz":50,"actionAlpha":if model.kind=="xgoduck_roulade" {0.15} else {0.45},"velocitySource":"servo-register","velocityAlphaAt100Hz":0.4,"kpRun":control::POLICY_GAINS.0,"kdRun":control::POLICY_GAINS.1,"kpHome":control::MANUAL_GAINS.0,"kdHome":control::MANUAL_GAINS.1,"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
         let s = shared.read().unwrap();
@@ -645,6 +705,9 @@ pub fn execute(
         );
         feedback = bus.read_feedback(&IDS)?;
         let initial_obs = model.observe(shared, &feedback, cal)?;
+        if command["shadow"]!=true && walking_policy(kind) && tilt(&initial_obs)>=FALL_TILT_DEG {
+            bail!("机身倾角{:.1}°，拒绝启动行走模型；请扶正或主动选择倒地起身",tilt(&initial_obs));
+        }
         if matches!(kind,"xgoduck_pick"|"xgoduck_roulade"|"sitstand_sit"|"sitstand_stand") && tilt(&initial_obs)>55. {
             bail!("拾取/翻滚需要先处于直立平衡状态");
         }
@@ -723,11 +786,24 @@ pub fn execute(
         let mut coast = control::FeedbackCoast::default();
         let mut paused: Option<Instant> = None;
         let mut imu_pause=ImuPause::default();
+        let mut fall_guard=FallGuard::default();
         let mut last_status = Instant::now() - Duration::from_secs(1);
         // Bounded timestamp ring keeps long running policies at constant memory.
         while !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
             let cycle_start=Instant::now();
-            let imu_ready=imu_pause.assess(imu_samples(shared),cycle_start)?;
+            let imu_result=imu_samples(shared);
+            let fall_angle=match &imu_result {
+                Ok(sensors)=>Some((-body_gravity(sensors,cal)?.z).clamp(-1.,1.).acos().to_degrees()),
+                Err(_)=>None,
+            };
+            let imu_ready=imu_pause.assess(imu_result,cycle_start)?;
+            // Fresh calibrated IMU is checked before accepting results or writing targets.
+            if fall_guard.check(&model.kind,fall_angle,cycle_start) {
+                stage="policy-fall";
+                worker.clear();pause_drive(shared);model.command_twist=[0.;3];
+                bus.diagnostics["fallDetection"]=json!({"tiltDegrees":fall_angle,"thresholdDegrees":FALL_TILT_DEG,"confirmMs":FALL_CONFIRM.as_millis(),"immediateThresholdDegrees":FALL_IMMEDIATE_DEG});
+                bail!("检测到行走跌倒：机身倾角{:.1}°（≥60°持续150ms或≥90°），停止推理并卸力；扶正后需手动重新启动",fall_angle.unwrap());
+            }
             if !imu_ready {
                 pause_drive(shared);model.command_twist=[0.;3];
                 if paused.is_none() {
@@ -979,6 +1055,68 @@ pub fn execute(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn fall_guard_confirms_tilt_and_stops_severe_falls_immediately() {
+        let now=Instant::now();let mut guard=FallGuard::default();
+        assert!(!guard.check("xgoduck",Some(65.),now));
+        assert!(!guard.check("xgoduck",Some(65.),now+Duration::from_millis(149)));
+        assert!(guard.check("xgoduck",Some(65.),now+Duration::from_millis(150)));
+        let mut guard=FallGuard::default();
+        assert!(guard.check("walk",Some(90.),now));
+        assert!(guard.check("xgoduck",Some(180.),now));
+    }
+    #[test]
+    fn fall_guard_resets_after_recovery_missing_imu_and_skill_switches() {
+        let now=Instant::now();let mut guard=FallGuard::default();
+        for reset in [Some(59.),None,Some(f64::NAN)] {
+            assert!(!guard.check("xgoduck",Some(65.),now));
+            assert!(!guard.check("xgoduck",reset,now+Duration::from_millis(100)));
+            assert!(!guard.check("xgoduck",Some(65.),now+Duration::from_millis(200)));
+            guard=FallGuard::default();
+        }
+        for skill in ["xgoduck_getup","xgoduck_roulade","xgoduck_pick","sitstand_sit","sitstand_stand","stand"] {
+            assert!(!guard.check(skill,Some(180.),now));
+            assert!(!guard.check(skill,Some(180.),now+Duration::from_secs(1)));
+        }
+        assert!(!guard.check("xgoduck",Some(65.),now+Duration::from_secs(2)));
+    }
+    #[test]
+    fn fall_angle_uses_shared_reference_and_ignores_horizontal_yaw() {
+        let reference=nalgebra::UnitQuaternion::from_euler_angles(0.2,-0.3,0.4);
+        let q=|q:nalgebra::UnitQuaternion<f64>|json!([q.i,q.j,q.k,q.w]);
+        let cal=json!({"imu":{"initialized":true,"mountingQuaternion":[0,0,0,1],"quaternion":q(reference)}});
+        for (rotation,expected) in [(nalgebra::UnitQuaternion::from_euler_angles(0.,0.,2.),0.),
+            (nalgebra::UnitQuaternion::from_euler_angles(70f64.to_radians(),0.,0.),70.),
+            (nalgebra::UnitQuaternion::from_euler_angles(0.,-95f64.to_radians(),0.),95.)] {
+            let sensors=BTreeMap::from([("imu.orientation",json!({"data":{"quaternion":q(reference*rotation)}}))]);
+            let gravity=body_gravity(&sensors,&cal).unwrap();
+            let angle=(-gravity.z).clamp(-1.,1.).acos().to_degrees();
+            assert!((angle-expected).abs()<1e-5,"{angle} vs {expected}");
+        }
+    }
+    #[test]
+    fn drive_compensation_preserves_forward_zero_and_proportional_signs() {
+        for (input,expected) in [([0.,0.,0.],[0.,0.,0.]),([0.2,0.,0.],[0.2,0.,0.]),
+            ([-0.2,0.,0.],[-0.4,0.,0.]),([-0.1,0.1,0.25],[-0.2,0.1,0.5]),
+            ([0.,0.,0.5],[0.,0.,1.]),([0.,0.,-0.5],[0.,0.,-1.])] {
+            assert_eq!(drive_twist(&json!({"twist":input})).unwrap(),expected);
+        }
+        for input in [[-0.201,0.,0.],[0.201,0.,0.],[0.,0.101,0.],[0.,0.,0.501],[0.,0.,-0.501]] {
+            assert!(drive_twist(&json!({"twist":input})).is_err());
+        }
+    }
+    #[test]
+    fn donor_limits_encoder_not_training_joint_angle() {
+        let cal=json!({"joints":{"references":{"10":2079},"directions":{}}});
+        let (goal,sent,saturated)=donor_target(10,15.297f64.to_radians(),&cal,(0,4095)).unwrap();
+        assert_eq!(goal,1905);assert!(sent.to_degrees()>12.6051);assert!(!saturated);
+        let (goal,_,saturated)=donor_target(10,400f64.to_radians(),&cal,(0,4095)).unwrap();
+        assert_eq!(goal,0);assert!(saturated); // no nearest-turn wrapping
+        assert_eq!(donor_target(10,400f64.to_radians(),&cal,(1000,3000)).unwrap().0,1000);
+        assert!(donor_target(10,f64::NAN,&cal,(0,4095)).is_err());
+        assert!(donor_target(10,0.,&cal,(5000,6000)).is_err());
+        assert!(control::angle_request(&json!(10),&json!(15.297)).is_err());
+    }
     #[test]
     fn imu_pause_recovers_but_never_accepts_stale_for_inference() {
         let mut pause=ImuPause::default();let start=Instant::now();

@@ -10,7 +10,7 @@
 
 前后端分离的机器人观测平台。默认采集不发动作；角度拖动、使能、站姿和模型启动在用户操作后下发。支持位置标定、IMU安装方向和硬件中位校准。
 
-后端使用 Rust、Axum、Tokio 和原生 ONNX Runtime；MS901M独立采集线程、舵机串口单线程统一读写。开发见 [Rust后端](backend-rust/README.md)，部署与回滚见 [Rust部署](deploy/RUST.md)。旧Python后端保留用于协议对比与回滚，BNO085旧入口尚未迁移。
+后端使用 Rust、Axum、Tokio 和原生 ONNX Runtime；MS901M独立采集线程、舵机串口单线程统一读写。开发见 [Rust后端](backend-rust/README.md)，部署与回滚见 [Rust部署](deploy/RUST.md)。已删除废弃Python后端，HTTP、蓝牙与舵机控制统一使用Rust；ONNX模型位于models/。BNO085旧驱动不再提供。
 
 工作台按 IMU 30% / 3D 鸭子 40% / 15 个舵机 30% 单屏展示。部署见 [部署说明](deploy/README.md)。
 
@@ -62,17 +62,16 @@
 
 ## 启动（Rust为当前后端）
 
-Rust启动、环境变量和检查见 [backend-rust](backend-rust/README.md)。2026-10-02已部署主控；前端保持原样，HTTP/WS协议和标定兼容性已通过对比，[迁移实测](docs/validation/20261002-rust/README.md)。下方Python命令保留用于对比测试和旧BNO085入口。
-
-需要 Node.js 22.12+ 或 24、Python 3.11+。主控采集与推理实测环境为 Linux aarch64 / Python 3.13.5；下方为 Windows 本地开发示例。
+需要 Rust stable、Node.js 22.12+ 或24。模型文件位于 `models/`，服务运行无需Python。Rust启动、环境变量与检查见 [backend-rust](backend-rust/README.md)。
 
 在项目根目录打开两个终端：
 
 ```powershell
-cd debug-server
-python -m venv .venv
-.venv/Scripts/python -m pip install -r requirements.txt
-.venv/Scripts/python -m uvicorn server:app --host 127.0.0.1 --port 8877
+cd backend-rust
+$env:MICRODUCK_SOURCE='simulation'
+$env:MICRODUCK_BLE_ENABLED='0'
+$env:MICRODUCK_BIND='127.0.0.1:8877'
+cargo run --locked
 ```
 
 ```powershell
@@ -81,11 +80,7 @@ npm ci
 npm run dev
 ```
 
-浏览器打开 http://127.0.0.1:5173 。默认后端地址为 http://127.0.0.1:8877 。更换服务地址时先点“断开”，编辑地址后重新连接。Linux/macOS 的虚拟环境 Python 位于 `.venv/bin/python`。
-
-两端分别 Ctrl+C 停止。使用其他后端端口时更改 uvicorn 的 `--port` 和页面地址即可。前端端口固定 5173，已占用时启动失败；如改前端端口，需要同时更新后端的 HTTP CORS 与 WebSocket Origin 允许列表。
-
-上述命令默认启用模拟模式并监听本机；主控部署使用 `MICRODUCK_SOURCE=hardware`。生产构建自动连接页面所在主机，不会误连访问者电脑上的 127.0.0.1。主控服务面向可信局域网，未实现账户鉴权，不应转发到公网。网页资源和模型不依赖第三方 CDN。
+打开 http://127.0.0.1:5173 ，默认API地址 http://127.0.0.1:8877 。生产配置见 [Rust部署](deploy/RUST.md)。ONNX推理需要单独安装原生ONNX Runtime动态库；Python部署、采样分析及测试工具不属于运行后端。Rust当前使用Linux BlueZ，Windows开发可在WSL内运行后端。
 
 ## 页面与场景
 
@@ -126,19 +121,17 @@ npm test
 npm run build
 ```
 
-```powershell
-cd debug-server
-.venv/Scripts/python -m pip install -r requirements-dev.txt
-.venv/Scripts/python -m unittest -v
+```bash
+cd backend-rust
+cargo test --locked --bin microduck-observer
+cargo build --locked
+python tests/contracts.py
 ```
 
-已配置对应测试依赖的环境，也可在仓库根目录运行：
+独立影子推理测试需要NumPy/pytest，HTTP/WS检查工具需要websockets；它们不启动Python服务。
 
 ```bash
-python -m unittest discover -s debug-server -p 'test_*.py'
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/test_shadow_policy.py -q
-npm --prefix frontend test
-npm --prefix frontend run build
 ```
 
 2026-09-23 提交前验证：后端 26 项、影子推理 8 项、前端 23 项，共 57 项通过，前端构建通过。
@@ -150,9 +143,8 @@ npm --prefix frontend run build
 - `frontend/src/store.ts`：独立连接层、重连、主题缓存及新鲜度判断。
 - `frontend/src/protocol.ts`：消息和四元数校验、坐标转换。
 - `frontend/src/components/`：模型视图和曲线。
-- `debug-server/server.py`：模拟源、最新快照、有界日志和网络接口。
-- `debug-server/servos.py`：独立进程同步只读采集、回包校验、离线重试。
-- `debug-server/calibrations.py`：共享标定持久化与并发版本检查。
+- `backend-rust/src/`：HTTP/WS、共享标定、IMU与舵机采集、模型推理及DuckLink蓝牙控制。
+- `models/`：ONNX模型与SHA256/观测顺序元数据。
 - `scripts/`：采集延迟测量和 ONNX 只读推理。
 - `docs/validation/20260923/`：分阶段现场测量结果与复测说明。
 - `protocol/README.md`：v1 实际接口约定。

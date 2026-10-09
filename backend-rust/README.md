@@ -1,8 +1,14 @@
 # Rust 后端
 
+2026-10-09 新增walk/XgoDuck walk跌倒停止：共享机身倾角≥60°持续150ms或≥90°立即，在接受异步结果/写目标前终止模型、清命令并卸力，不自动恢复。零速平衡也检测；起身/拾取/翻滚/坐站豁免，正常行走启动倾角≥60°拒绝。详见03最新记录，当前待主板开机部署。
+
+2026-10-09 XgoDuck公共twist仍限vx±0.2/vy±0.1/wz±0.5；共享入口在验证后把负vx和yaw各乘2，正vx/vy不变。接口返回twist及遥测commandTwist为补偿后模型输入（不是实测速度），Web/BLE客户端不要重复补偿；松手/250ms过期仍零速。依据原版闭环仿真，实机待验收，见03最新记录。
+
+2026-10-09 模型限位处理最新覆盖：XgoDuck模型族（含坐站）观测直接使用共享标定角度，不因训练XML角度范围拒绝；目标直接编码转换后饱和0～4095及有效EEPROM范围交集，不按XML裁剪或选相邻整圈。本机4096步共享标定换算保留。手动/HOME角度约束、嘴0～30°、故障/电压/反馈和IMU超时处理不变。详见实测记录03最新段落；此条覆盖下方旧“输出按既有关节范围饱和”对该模型族的描述。
+
 原生 Rust + Axum/Tokio，前端保持原样。运行时不启动 Python，不代理旧后端；HTTP `/api/v1/*`、WebSocket `/api/v1/stream`、protocolVersion=1 和共享标定文件格式沿用原版。
 
-当前硬件入口为 MS901M UART、HD1910 TTL 同步读取和 tofd Unix Socket。BNO085 旧采集入口保留在 `debug-server/`，未迁移到 Rust；配置不支持的驱动会直接报错，不会静默使用模拟数据。
+当前硬件入口为 MS901M UART、HD1910 TTL 同步读取和 tofd Unix Socket。废弃Python/BNO085驱动已删除；配置不支持的驱动会直接报错，不会静默使用模拟数据。
 
 ## 编译与启动
 
@@ -43,14 +49,13 @@ IMU独立读取线程；舵机只有一个串口拥有者，采集、角度、�
 
 ```bash
 cargo test --locked
-python tests/contracts.py --reference ../debug-server
-python tests/policy_fixture.py ../debug-server policy-fixture.json
-MICRODUCK_POLICY_PARITY_FIXTURE=policy-fixture.json \
-MICRODUCK_POLICY_PATH=../debug-server/models/hd1910-head-v5.onnx \
+python tests/contracts.py
+MICRODUCK_POLICY_PARITY_FIXTURE=tests/fixtures/policy-v5.json \
+MICRODUCK_POLICY_PATH=../models/hd1910-head-v5.onnx \
 ORT_DYLIB_PATH=/path/libonnxruntime.so \
 cargo test policy::tests::python_parity -- --ignored
 ```
 
-HTTP/WS对比测试需要测试环境的FastAPI、Uvicorn、NumPy、Websockets；数值参考生成另需Python ONNX Runtime。这些只用于兼容性测试，不属于Rust服务运行依赖。测试启动两个隔离的模拟服务，使用临时标定文件，不访问硬件。
+HTTP/WS检查工具只需Python和websockets，启动一个隔离Rust模拟服务，BLE禁用、使用临时标定，不访问硬件。已移除依赖旧Python后端的对比与数值生成器；数值验证使用tests/fixtures/内已保存的参考。
 
 软件验证不代表实机运动验收。部署与只读性能结果维护在[平台实测](../docs/实测记录/04-网络与观测平台.md)及[HAT实测](../docs/实测记录/07-HAT实测.md)。

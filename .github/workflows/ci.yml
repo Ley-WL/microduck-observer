@@ -22,11 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: debug-server
+        working-directory: backend-rust
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install -r requirements-dev.txt
-      - run: python -m unittest -v
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --locked --bin microduck-observer

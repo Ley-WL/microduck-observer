@@ -14,7 +14,7 @@ while time.monotonic()<end:
 request=urllib.request.Request(base+'policy/shadow',data=json.dumps({'revision':before['calibration']['revision']}).encode(),headers={'Content-Type':'application/json'},method='POST')
 result=json.load(urllib.request.urlopen(request,timeout=15));after=get()
 ids=[20,21,22,23,24,30,31,32,33,10,11,12,13,14]
-meta=json.loads((root/'debug-server/models/hd1910-head-v5.metadata.json').read_text(encoding='utf-8'))
+meta=json.loads((root/'models/hd1910-head-v5.metadata.json').read_text(encoding='utf-8'))
 home=[struct.unpack('f',struct.pack('f',x))[0]*180/math.pi for x in meta['homeRadians']]
 cal=after['calibration']['joints'];joints={row['id']:row for row in after['joints']['data']['servos']}
 angles={id:(row['position']-cal['references'][str(id)])*360/4096*cal['directions'].get(str(id),-1) for id,row in joints.items()}

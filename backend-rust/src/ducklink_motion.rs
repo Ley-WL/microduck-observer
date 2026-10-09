@@ -443,6 +443,33 @@ pub(crate) mod tests {
         json!({"seq":seq,"action":"drive","forward":1,"turn":0,"speed":0.5})
     }
     #[tokio::test]
+    async fn backward_drive_reaches_policy_with_negative_velocity_and_release_zeroes_it() {
+        let (mut m, calls, _tmp) = fixture();
+        m.open().unwrap();
+        m.drive = Some("ble-session".into());
+        m.phase = "active".into();
+        m.app.telemetry.write().unwrap().control = json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","feedbackHolding":false});
+        m.command(json!({"seq":1,"action":"drive","forward":-1,"turn":0,"speed":0.5})).await.unwrap();
+        m.tick().await;
+        let request=calls.lock().unwrap().last().unwrap().clone();
+        assert_eq!(request.0,"/api/v1/policy/command");
+        assert_eq!(crate::policy::drive_twist(&request.1).unwrap(),[-0.4,0.,0.]);
+        m.command(json!({"seq":2,"action":"drive","forward":0,"turn":0,"speed":0.5})).await.unwrap();
+        m.tick().await;
+        assert_eq!(calls.lock().unwrap().last().unwrap().1["twist"],json!([0.,0.,0.]));
+    }
+    #[tokio::test]
+    async fn pure_yaw_preserves_both_signs_without_forward_motion() {
+        let (mut m,calls,_tmp)=fixture();
+        m.open().unwrap();m.drive=Some("ble-session".into());m.phase="active".into();
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","feedbackHolding":false});
+        for (seq,turn) in [(1,1.),(2,-1.)] {
+            m.command(json!({"seq":seq,"action":"drive","forward":0,"turn":turn,"speed":0.5})).await.unwrap();
+            m.tick().await;
+            assert_eq!(crate::policy::drive_twist(&calls.lock().unwrap().last().unwrap().1).unwrap(),[0.,0.,turn as f32]);
+        }
+    }
+    #[tokio::test]
     async fn reconnect_defaults_ready_without_motor_calls() {
         let (mut m, calls, _tmp) = fixture();
         assert_eq!(m.open().unwrap()["stopped"], false);

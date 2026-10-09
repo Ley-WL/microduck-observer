@@ -1,0 +1,163 @@
+{
+  "date": "2026-10-09",
+  "scope": "local repository only; board powered off",
+  "removedFileCount": 75,
+  "removedFiles": [
+    "microduck-observer\\backend-rust\\tests\\policy_fixture.py",
+    "microduck-observer\\debug-server\\bno085.py",
+    "microduck-observer\\debug-server\\calibrations.py",
+    "microduck-observer\\debug-server\\hardware.py",
+    "microduck-observer\\debug-server\\imu_mailbox.py",
+    "microduck-observer\\debug-server\\ms901m.py",
+    "microduck-observer\\debug-server\\policy_control.py",
+    "microduck-observer\\debug-server\\pose_calibration.py",
+    "microduck-observer\\debug-server\\requirements-dev.txt",
+    "microduck-observer\\debug-server\\requirements.txt",
+    "microduck-observer\\debug-server\\server.py",
+    "microduck-observer\\debug-server\\servo_control.py",
+    "microduck-observer\\debug-server\\servos.py",
+    "microduck-observer\\debug-server\\test_calibrations.py",
+    "microduck-observer\\debug-server\\test_hardware.py",
+    "microduck-observer\\debug-server\\test_imu_mailbox.py",
+    "microduck-observer\\debug-server\\test_ms901m.py",
+    "microduck-observer\\debug-server\\test_policy_control.py",
+    "microduck-observer\\debug-server\\test_pose_calibration.py",
+    "microduck-observer\\debug-server\\test_server.py",
+    "microduck-observer\\debug-server\\test_servo_control.py",
+    "microduck-observer\\debug-server\\test_servos.py",
+    "microduck-observer\\debug-server\\test_tof.py",
+    "microduck-observer\\debug-server\\tof.py",
+    "microduck-observer\\deploy\\hold-v5-home-20261003.py",
+    "microduck-observer\\deploy\\install-service.sh",
+    "microduck-observer\\deploy\\microduck-observer.service",
+    "microduck-observer\\deploy\\package.py",
+    "microduck-observer\\tools\\hold-v5-home-once.py",
+    "microduck-observer\\tools\\prepare-group-probes.py",
+    "microduck-observer\\tools\\probe-servo23-write-order.py",
+    "microduck-observer\\tools\\run-group-probes.py",
+    "microduck-observer\\tools\\run-late-replies.py",
+    "microduck-observer\\tools\\run-small-oscillation-ten.py",
+    "microduck-observer\\tools\\run-small-oscillation-three.py",
+    "microduck-observer\\tools\\run-small-oscillation.py",
+    "microduck-observer\\tools\\servo-read-diagnostic.py",
+    "microduck-observer\\tools\\stand-torque-off.py",
+    "microduck-observer\\tools\\supported-stand-trial.py",
+    "microduck-observer\\tools\\test-group-all14-board.py",
+    "microduck-observer\\tools\\test-group-four-head-board.py",
+    "microduck-observer\\tools\\test-group-four-legs-board.py",
+    "microduck-observer\\tools\\test-group-one-head-board.py",
+    "microduck-observer\\tools\\test-group-one-leg-board.py",
+    "microduck-observer\\tools\\test-group-readonly1-12-board.py",
+    "microduck-observer\\tools\\test-group-readonly1-23-board.py",
+    "microduck-observer\\tools\\test-group-readonly1-board.py",
+    "microduck-observer\\tools\\test-group-readonly14-no32-board.py",
+    "microduck-observer\\tools\\test-group-readonly15-board.py",
+    "microduck-observer\\tools\\test-group-readonly4-board.py",
+    "microduck-observer\\tools\\test-late-replies-board.py",
+    "microduck-observer\\tools\\test-small-oscillation-board.py",
+    "microduck-observer\\tools\\test-small-oscillation-ten-board.py",
+    "microduck-observer\\tools\\test-small-oscillation-three-board.py",
+    "mobile\\gateway\\ble_protocol.py",
+    "mobile\\gateway\\ble_server.py",
+    "mobile\\gateway\\bluetooth_server.py",
+    "mobile\\gateway\\control.py",
+    "mobile\\gateway\\deploy\\ducklink-ble.service",
+    "mobile\\gateway\\deploy\\ducklink-dbus.conf",
+    "mobile\\gateway\\deploy\\install-ble.sh",
+    "mobile\\gateway\\motion_control.py",
+    "mobile\\gateway\\observer_bridge.py",
+    "mobile\\gateway\\server.py",
+    "mobile\\gateway\\test_ble_protocol.py",
+    "mobile\\gateway\\test_control.py",
+    "mobile\\gateway\\test_motion_control.py",
+    "mobile\\gateway\\test_observer_bridge.py",
+    "mobile\\gateway\\wifi_client.py",
+    "mobile\\tools\\deploy-motion-board.py",
+    "mobile\\tools\\deploy-sitstand-board.py",
+    "mobile\\tools\\deploy-skills-board.py",
+    "mobile\\tools\\install-motion-board.py",
+    "mobile\\tools\\install-sitstand-board.py",
+    "mobile\\tools\\install-skills-board.py"
+  ],
+  "models": {
+    "alpha_sitstand.metadata.json": {
+      "sha256": "5e1b4355c8b1bc209f35afb19d6b02818594e8cfc443a0111cd41d4966cb5fc1",
+      "unchanged": true,
+      "comparison": "JSON content (Git/worktree line endings differ)"
+    },
+    "alpha_sitstand.onnx": {
+      "sha256": "a6f102d9fd655782ba85bfffe18175c34621da719cffcdd673be7982a06fc254",
+      "unchanged": true,
+      "comparison": "exact binary"
+    },
+    "hd1910-head-v5.metadata.json": {
+      "sha256": "5bebaac00be8bdda5c04462c8dcd1c28cead2407f19e250d9129bbf5c84a92e4",
+      "unchanged": true,
+      "comparison": "JSON content (Git/worktree line endings differ)"
+    },
+    "hd1910-head-v5.onnx": {
+      "sha256": "003d1fa42cc5c5afe6b0fd6180b36c61ad2eb711fff2ee5ca5980efbedfd98b5",
+      "unchanged": true,
+      "comparison": "exact binary"
+    },
+    "hd1910-walk-v6-symmetry500.metadata.json": {
+      "sha256": "b0aa3e5a7881616a634605f5902bd7873f5a32914fa5178ec5eb0254ec73c883",
+      "unchanged": true,
+      "comparison": "JSON content (Git/worktree line endings differ)"
+    },
+    "hd1910-walk-v6-symmetry500.onnx": {
+      "sha256": "7485f0f2a71bbc1455e48b0264607883e1e28d1db6740fa4768359b1df18e5a7",
+      "unchanged": true,
+      "comparison": "exact binary"
+    },
+    "xgoduck_getup.metadata.json": {
+      "sha256": "ab2689df8e56d67de2efb149bf15c995d0e8a354e27ef79eaec0c8d246f4cbab",
+      "unchanged": true,
+      "comparison": "JSON content (Git/worktree line endings differ)"
+    },
+    "xgoduck_getup.onnx": {
+      "sha256": "c414f2bd84b0a79b89f0ba6997135eb45e4ecd9df9271ea989c237864027b2a3",
+      "unchanged": true,
+      "comparison": "exact binary"
+    },
+    "xgoduck_pick.metadata.json": {
+      "sha256": "e3b8e92b06154257d965badb0304788f619e5a641c19cdc58af98aeac7588718",
+      "unchanged": true,
+      "comparison": "JSON content (Git/worktree line endings differ)"
+    },
+    "xgoduck_pick.onnx": {
+      "sha256": "f34e990dda785e9a8c53890bdcd0f7f1d457592691fd3703f3776b48fb2d14b8",
+      "unchanged": true,
+      "comparison": "exact binary"
+    },
+    "xgoduck_roulade.metadata.json": {
+      "sha256": "23646e6f9769f071b8294e7e797186599afa187971483cd9ae32ccdd804c18df",
+      "unchanged": true,
+      "comparison": "JSON content (Git/worktree line endings differ)"
+    },
+    "xgoduck_roulade.onnx": {
+      "sha256": "8adb1e6bc3f5eef751ce4edbf940f6d5a25fdec3ec4a798e1d9ca135c8248e97",
+      "unchanged": true,
+      "comparison": "exact binary"
+    },
+    "xgoduck_walk.metadata.json": {
+      "sha256": "197af3eec5157046259a86ef9a98da7ace79ddb6115bbfbf901e95d0b2d6d0fc",
+      "unchanged": true,
+      "comparison": "JSON content (Git/worktree line endings differ)"
+    },
+    "xgoduck_walk.onnx": {
+      "sha256": "5727b909d5ea1a0f9ff63bf4cea9707339dea6a522374c7a120da633605b923f",
+      "unchanged": true,
+      "comparison": "exact binary"
+    }
+  },
+  "rustTestsPassed": 86,
+  "rustTestsIgnored": 1,
+  "shadowTestsPassed": 10,
+  "wifiTestsPassed": 6,
+  "httpWsContracts": "passed isolated Rust simulation with BLE disabled and temporary calibration",
+  "bleTestVectorSha256": "09a2b216fca6a7b59c58aed18f39da988a8c42b12137d35e18d1d49c22243571",
+  "armBuild": "passed",
+  "nativePackage": "generated and model hashes validated",
+  "appOta": "unchanged 0.9.18; no Android runtime changes"
+}

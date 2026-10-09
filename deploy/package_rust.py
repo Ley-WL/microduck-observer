@@ -19,7 +19,7 @@ if not (args.frontend / 'index.html').is_file():
 models=[]
 for name in ('hd1910-head-v5','hd1910-walk-v6-symmetry500','xgoduck_walk',
              'xgoduck_getup','xgoduck_pick','xgoduck_roulade','alpha_sitstand'):
-    model=root / 'debug-server/models' / (name+'.onnx')
+    model=root / 'models' / (name+'.onnx')
     metadata=model.with_suffix('.metadata.json')
     if hashlib.sha256(model.read_bytes()).hexdigest() != json.loads(metadata.read_text())['policySha256']:
         raise SystemExit('Model SHA256 mismatch: '+name)
