@@ -1,0 +1,1 @@
+{"pidBefore": "3914", "pidAfter": "4522", "ble": {"backend": "rust", "protocol": 1, "state": "ready"}, "servoTorqueAndGoalRegistersUnchanged": true, "calibrationUnchanged": true, "motionStarted": false}
