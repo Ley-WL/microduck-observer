@@ -70,6 +70,7 @@ impl ImuPause {
 }
 fn pause_drive(shared:&Shared) {
     let mut state=shared.write().unwrap();
+    if let Some(kind)=state.pending_skill.clone() {state.log("WARN","policy-request",&format!("已排队动作因反馈暂停或阶段切换取消：{kind}"));}
     if let Some(drive)=state.drive.as_mut(){drive.twist=[0.;3];drive.updated=Instant::now();}
     state.pending_skill=None;state.pending_mouth=None;state.pending_quack=false;state.quack_running=false;
     state.control["feedbackHolding"]=json!(true);
@@ -1016,6 +1017,7 @@ fn native_policy_loop(
                     if feedback[&id]["kpRaw"]!=selected.gains.p || feedback[&id]["kdRaw"]!=selected.gains.d {bail!("技能切换增益回读不一致");}}
             }
             trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),"from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain,"recoveryFallen":recovery_fallen,"recoveryReturnHome":return_home,"recoveryResumeSkill":recovery_resume}));
+            shared.write().unwrap().log("INFO","policy-switch",&format!("模型已切换：{} → {}",model.kind,selected.kind));
             if model.kind=="xgoduck_pick" || next=="xgoduck_pick" {
                 let mut state=shared.write().unwrap();state.pending_mouth=None;
                 state.mouth_degrees=if next=="xgoduck_pick" {pick_mouth_target(0.)} else {-5.};

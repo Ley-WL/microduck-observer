@@ -265,6 +265,9 @@ impl Motion {
             .ok_or_else(|| anyhow::anyhow!("缺少指令序号"))?;
         ensure!(self.sequence.is_none_or(|last| seq > last), "指令序号过期");
         let action = body["action"].as_str().unwrap_or("");
+        if !matches!(action,"drive"|"strafe_left"|"strafe_right") {
+            self.app.telemetry.write().unwrap().log("INFO","ble-command",&format!("App动作已收到：{action}，seq={seq}"));
+        }
         ensure!(
             [
                 "drive",
@@ -342,6 +345,7 @@ impl Motion {
         }
         Ok(()) }.await;
         if let Err(e) = execution {
+            self.app.telemetry.write().unwrap().log("WARN","ble-command",&format!("App动作失败：{action}，{e}"));
             self.zero();
             self.error = e.to_string();
             if self.drive.is_none() && matches!(action, "prepare" | "stand" | "getup" | "standup") {

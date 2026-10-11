@@ -1,0 +1,15 @@
+{
+  "release": "runtime-20261011-210935",
+  "bootId": "5f5ac636-a536-4b0d-b3dd-4d5a22849af4",
+  "state": "policy",
+  "activeSkill": "sitstand_sit",
+  "standAllowed": true,
+  "feedbackHolding": false,
+  "skillProgressSeconds": 69.80000000000325,
+  "driveSession": "2c4814e6-4aa0-46b0-ac04-df25976b93e1",
+  "torqueEnabledCount": 15,
+  "missingIds": [],
+  "physicalCommandIssued": false,
+  "rootCauseConfirmed": false,
+  "boundary": "HTTP policy state is ready; no per-request BLE skill log exists to prove click delivery. Earlier upright-precheck warnings predate current running sit policy."
+}

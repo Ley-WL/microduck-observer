@@ -416,8 +416,10 @@ async fn policy_action(
         let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少动作序号");};
         let mut shared=a.telemetry.write().unwrap();
         if !shared.queue_skill(body["session"].as_str().unwrap_or(""),sequence,kind) {
+            shared.log("WARN","policy-request",&format!("动作请求拒绝：{kind}，sequence={sequence}，会话/序号或动作/反馈未就绪"));
             return error(StatusCode::CONFLICT,"动作会话/序号无效，或当前动作/反馈尚未就绪");
         }
+        shared.log("INFO","policy-request",&format!("动作请求已排队：{kind}，sequence={sequence}"));
         return Json(json!({"state":"queued","skill":body["skill"],"sequence":sequence})).into_response();
     }
     if action=="quack" {

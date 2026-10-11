@@ -1,0 +1,185 @@
+Oct 02 00:00:08 microduck python[83077]: INFO:     127.0.0.1:49298 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+-- Boot 7a46a2e124b242289a9ee4ee15c72abf --
+Oct 02 10:56:38 microduck python[2054]: INFO:     127.0.0.1:58874 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 10:56:38 microduck python[2054]: INFO:     127.0.0.1:58884 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 10:56:38 microduck python[2054]: INFO:     127.0.0.1:58892 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 10:56:38 microduck python[2054]: INFO:     127.0.0.1:58894 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 10:56:38 microduck python[2054]: INFO:     127.0.0.1:58906 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+-- Boot 675c5761fa384b49ba5309f2746d8744 --
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46790 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46796 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46812 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46828 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46836 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46844 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46846 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46850 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46856 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46858 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46862 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46866 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46874 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46886 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46896 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46898 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46914 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46926 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46934 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46944 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46952 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46958 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46960 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46966 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46972 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46974 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46982 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:46996 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:47012 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+Oct 02 15:15:16 microduck python[10777]: INFO:     127.0.0.1:47026 - "GET /api/v1/snapshot HTTP/1.1" 200 OK
+-- Boot 875c7f703aa647e9a5e98ab267d83d4b --
+Oct 11 17:00:08 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:00:09 microduck microduck-observer[989]: DuckLink BLE unavailable; retrying in 5 seconds
+Oct 11 17:00:14 microduck microduck-observer[989]: DuckLink BLE unavailable; retrying in 5 seconds
+Oct 11 17:53:35 microduck microduck-observer[989]: DuckLink BLE ready in Rust backend
+Oct 11 17:54:27 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 17:54:27 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 17:54:27 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:54:27 microduck systemd[1]: microduck-observer.service: Consumed 35.932s CPU time, 15.4M memory peak.
+Oct 11 17:54:53 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:54:53 microduck microduck-observer[1575]: DuckLink BLE ready in Rust backend
+Oct 11 17:54:53 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 17:54:53 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 17:54:53 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:54:54 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:54:54 microduck microduck-observer[1633]: DuckLink BLE ready in Rust backend
+Oct 11 17:57:53 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 17:57:53 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 17:57:53 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:57:53 microduck systemd[1]: microduck-observer.service: Consumed 1min 52.651s CPU time, 4.5M memory peak.
+Oct 11 17:57:53 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:57:53 microduck microduck-observer[1902]: DuckLink BLE ready in Rust backend
+Oct 11 17:59:25 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 17:59:25 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 17:59:25 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:59:25 microduck systemd[1]: microduck-observer.service: Consumed 56.558s CPU time, 4.1M memory peak.
+Oct 11 17:59:25 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 17:59:25 microduck microduck-observer[1976]: DuckLink BLE ready in Rust backend
+Oct 11 18:03:52 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 18:03:52 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 18:03:52 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 18:03:52 microduck systemd[1]: microduck-observer.service: Consumed 3min 2.718s CPU time, 7.4M memory peak.
+-- Boot a3ba4d96bb9948a38034dcbce6c9841d --
+Oct 11 18:03:55 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 18:03:55 microduck microduck-observer[982]: DuckLink BLE unavailable; retrying in 5 seconds
+Oct 11 18:04:00 microduck microduck-observer[982]: DuckLink BLE unavailable; retrying in 5 seconds
+Oct 11 18:24:29 microduck microduck-observer[982]: DuckLink BLE ready in Rust backend
+Oct 11 18:26:33 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:26:33 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:26:52 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:26:52 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:27:22 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:27:22 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:29:41 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:29:41 microduck microduck-observer[982]: DuckLink BLE request rejected
+Oct 11 18:32:48 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 18:32:48 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 18:32:48 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 18:32:48 microduck systemd[1]: microduck-observer.service: Consumed 5min 53.729s CPU time, 175.7M memory peak.
+Oct 11 18:33:12 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 18:33:12 microduck microduck-observer[1884]: DuckLink BLE ready in Rust backend
+Oct 11 18:33:12 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 18:33:12 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 18:33:12 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 18:33:13 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 18:33:13 microduck microduck-observer[1942]: DuckLink BLE ready in Rust backend
+Oct 11 19:32:29 microduck microduck-observer[1942]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 19:32:56 microduck microduck-observer[1942]: DuckLink BLE request rejected: fragment-sequence-size-timeout
+Oct 11 19:32:56 microduck microduck-observer[1942]: DuckLink BLE request rejected: request-sequence-gap
+Oct 11 19:32:57 microduck microduck-observer[1942]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 19:39:01 microduck microduck-observer[1942]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 19:39:40 microduck microduck-observer[1942]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 20:09:28 microduck microduck-observer[1942]: DuckLink BLE peer ended: connected=true idle_ms=5070 revoked=false
+Oct 11 20:09:28 microduck microduck-observer[1942]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 20:19:25 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 20:19:25 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 20:19:25 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:19:25 microduck systemd[1]: microduck-observer.service: Consumed 1h 8min 55.952s CPU time, 187.4M memory peak.
+Oct 11 20:19:48 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:19:48 microduck microduck-observer[2848]: DuckLink BLE ready in Rust backend
+Oct 11 20:19:49 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 20:19:49 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 20:19:49 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:19:50 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:19:50 microduck microduck-observer[2906]: DuckLink BLE ready in Rust backend
+Oct 11 20:23:58 microduck microduck-observer[2906]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 20:31:58 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 20:31:58 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 20:31:58 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:31:58 microduck systemd[1]: microduck-observer.service: Consumed 8min 41.087s CPU time, 351M memory peak.
+Oct 11 20:32:22 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:32:22 microduck microduck-observer[3410]: DuckLink BLE ready in Rust backend
+Oct 11 20:32:22 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 20:32:23 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 20:32:23 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:32:24 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:32:24 microduck microduck-observer[3470]: DuckLink BLE ready in Rust backend
+Oct 11 20:46:13 microduck microduck-observer[3470]: DuckLink BLE peer ended: connected=true idle_ms=5008 revoked=false
+Oct 11 20:46:13 microduck microduck-observer[3470]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 20:48:00 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 20:48:00 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 20:48:00 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:48:00 microduck systemd[1]: microduck-observer.service: Consumed 11min 39.357s CPU time, 7.6M memory peak.
+Oct 11 20:48:23 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:48:23 microduck microduck-observer[3720]: DuckLink BLE ready in Rust backend
+Oct 11 20:48:24 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 20:48:24 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 20:48:24 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:48:25 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 20:48:25 microduck microduck-observer[3780]: DuckLink BLE ready in Rust backend
+Oct 11 20:53:14 microduck microduck-observer[3780]: DuckLink BLE peer ended: connected=true idle_ms=5044 revoked=false
+Oct 11 20:53:14 microduck microduck-observer[3780]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 20:57:43 microduck microduck-observer[3780]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 21:00:45 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 21:00:55 microduck systemd[1]: microduck-observer.service: State 'stop-sigterm' timed out. Killing.
+Oct 11 21:00:55 microduck systemd[1]: microduck-observer.service: Killing process 3780 (microduck-obser) with signal SIGKILL.
+Oct 11 21:00:55 microduck systemd[1]: microduck-observer.service: Killing process 3822 (servo-owner) with signal SIGKILL.
+Oct 11 21:00:55 microduck systemd[1]: microduck-observer.service: Main process exited, code=killed, status=9/KILL
+Oct 11 21:00:55 microduck systemd[1]: microduck-observer.service: Failed with result 'timeout'.
+Oct 11 21:00:55 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:00:55 microduck systemd[1]: microduck-observer.service: Consumed 8min 57.015s CPU time, 166.7M memory peak.
+Oct 11 21:01:19 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:01:19 microduck microduck-observer[3948]: DuckLink BLE ready in Rust backend
+Oct 11 21:01:19 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 21:01:19 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 21:01:19 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:01:20 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:01:21 microduck microduck-observer[4009]: DuckLink BLE ready in Rust backend
+Oct 11 21:03:57 microduck microduck-observer[4009]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 21:03:58 microduck microduck-observer[4009]: DuckLink BLE peer ended: connected=false idle_ms=2 revoked=false
+Oct 11 21:03:58 microduck microduck-observer[4009]: DuckLink BLE request rejected: request-sequence-gap
+Oct 11 21:05:01 microduck microduck-observer[4009]: DuckLink BLE notifications stopped by BlueZ
+Oct 11 21:05:01 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 21:05:11 microduck systemd[1]: microduck-observer.service: State 'stop-sigterm' timed out. Killing.
+Oct 11 21:05:11 microduck systemd[1]: microduck-observer.service: Killing process 4009 (microduck-obser) with signal SIGKILL.
+Oct 11 21:05:11 microduck systemd[1]: microduck-observer.service: Killing process 4025 (servo-owner) with signal SIGKILL.
+Oct 11 21:05:11 microduck systemd[1]: microduck-observer.service: Main process exited, code=killed, status=9/KILL
+Oct 11 21:05:11 microduck systemd[1]: microduck-observer.service: Failed with result 'timeout'.
+Oct 11 21:05:11 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:05:11 microduck systemd[1]: microduck-observer.service: Consumed 2min 43.554s CPU time, 356.4M memory peak.
+-- Boot a6a3437ed5e944f4b17ee0aa4a18544e --
+Oct 11 21:05:05 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:05:05 microduck microduck-observer[996]: DuckLink BLE unavailable; retrying in 5 seconds
+Oct 11 21:05:10 microduck microduck-observer[996]: DuckLink BLE unavailable; retrying in 5 seconds
+Oct 11 21:05:15 microduck microduck-observer[996]: DuckLink BLE ready in Rust backend
+Oct 11 21:09:53 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 21:09:53 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 21:09:53 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:09:53 microduck systemd[1]: microduck-observer.service: Consumed 2min 10.510s CPU time, 18.9M memory peak.
+Oct 11 21:10:16 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:10:16 microduck microduck-observer[1555]: DuckLink BLE ready in Rust backend
+Oct 11 21:10:16 microduck systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 11 21:10:16 microduck systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 11 21:10:16 microduck systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:10:18 microduck systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 11 21:10:18 microduck microduck-observer[1613]: DuckLink BLE ready in Rust backend
+Oct 11 21:14:17 microduck microduck-observer[1613]: DuckLink BLE notifications stopped by BlueZ
