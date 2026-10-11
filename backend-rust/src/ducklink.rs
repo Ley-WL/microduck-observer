@@ -149,6 +149,7 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                     uuid: RX.parse()?,
                     write: Some(CharacteristicWrite {
                         write: true,
+                        write_without_response: true,
                         method: CharacteristicWriteMethod::Fun(Box::new(move |data, req| {
                             let state = write_state.clone();
                             async move {

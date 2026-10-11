@@ -27,3 +27,11 @@ columns-size-audit.json用同份15舵机真实反馈证明：原字段对象1629
 App0.9.29/code48设备页增加writeMs/replyWaitMs/decodeMs/MTU。writeMs是从开始GATT发送到写回调完成，包含可能的主板处理与调度，不能称纯无线发送时间；replyWaitMs是写回调后到全部分片入队，收片可以与写入重叠；decodeMs含认证解密/JSON与本地还原，不含UI主线程显示或请求seal前开销。不得将任一项直接等同空中往返。
 
 120Rust检查/1忽略、ARM构建；33BLE及全模拟器回归/Android build lint通过，APK签名保持，OTA清单验签/公网长度SHA/下载页核对通过。首次新增测试局部变量重名导致编译失败已修，不涉及主板运行错误。板已disabled且15卸力，runtime165315部署，候选999反馈全完整、在线20只读快照，模型/增益/物理标定/BLE身份/网页保持，tofd与rsyslog masked，旧release164007可回退；无动作/训练。用户新版连接后的压缩无线延迟仍待验收。
+
+## 写确认对照及快速刷新
+
+用户实测写入约60ms、等回复20～60ms、解码7～8ms。request-fragment-audit.json确认每条请求仅一包，不存在请求多分片贡献。write-ack-analysis.json的67完整请求：ACK中位19.99ms/p9527.435/max32.179；首通知21.168ms；末通知30.605ms/p9544.308/max54.855；10片回复。均为主板HCI时间，不是手机RTT，ACK20ms不是已证实的纯Rust执行。
+
+0.9.31/code50快速写只限drive/strafe且RX特征支持；其余动作与配置仍带ATT写确认，旧板回退。同一认证/序号/有界接收，仍等待完整加密应用回复，不盲成功或重试。Android写回调包含本地调度，阶段重叠/转移可能使写入变小但总RTT不变，必须用总RTT衡量。
+
+runtime171053部署：候选1000完整反馈/在线20快照、15卸力，模型/标定/增益/BLE身份/网页保持，上一165315可回滚；没有运动/训练。120Rust/1忽略、ARM构建、Android build/lint、BLE53与全回归通过，OTA公网验签/APK长度SHA及逐字节/下载页核验通过。手机实际快速写/总RTT未验证；温85°C/频1416～1608MHz只作观测，无热配置调整。
