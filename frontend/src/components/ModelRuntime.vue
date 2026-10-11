@@ -37,14 +37,15 @@ async function extra(action:string,angleDeg?:number){
   release();pending.value=true;failed.value=false;
   try{
     const start=['getup','standup'].includes(action) && !running.value;
-    const path=start?'start':action==='mouth'?'mouth':'skill';
+    const path=start?'start':action==='quack'?'quack':action==='mouth'?'mouth':'skill';
     const body=start?{kind:action==='standup'?'sitstand_stand':'xgoduck_getup',speed:0,revision:board.data?.revision}:angleDeg!=null && !running.value?{id:34,angleDeg,revision:board.data?.revision}:{session:session.value,sequence:hold.nextSequence(),skill:action,angleDeg};
-    const url=angleDeg!=null && !running.value?'/api/v1/servos/angle':'/api/v1/policy/'+path;
+    const url=action==='quack' && !running.value?'/api/v1/servos/quack':angleDeg!=null && !running.value?'/api/v1/servos/angle':'/api/v1/policy/'+path;
+    if(action==='quack' && !running.value)Object.assign(body,{revision:board.data?.revision});
     const response=await fetch(state.endpoint.replace(/\/$/,'')+url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
     const result=await response.json();if(!response.ok)throw new Error(result.detail || '操作未接受');
     if(start){session.value=result.driveSession || '';lease.remember(session.value);}
-    if(angleDeg==null)skillQueued.value=control.value?.state==='policy' && control.value?.activeSkill==='xgoduck';
-    message.value=angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
+    if(angleDeg==null && action!=='quack')skillQueued.value=control.value?.state==='policy' && control.value?.activeSkill==='xgoduck';
+    message.value=action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
   }catch(e){failed.value=true;message.value=String(e);}finally{pending.value=false;}
 }
 const driveReason=computed(()=>{
@@ -110,8 +111,7 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <WalkWheel :speed="wheelSpeed" :disabled="!canDrive" @drive="wheel" @release="release" />
     <div class="hold-directions">
       <button v-for="skill in skills" :key="skill.key" :disabled="!skillAvailable[skill.key] || !(canDrive || (skill.key==='getup' && canRecover) || (skill.key==='standup' && canStand) || (['getup','standup'].includes(skill.key) && live && board.ready && !busy))" @click="extra(skill.key)">{{ skill.name }}</button>
-      <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('mouth',30)">张嘴</button>
-      <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('mouth',-5)">闭嘴</button>
+      <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('quack')" title="张闭嘴一次，同时叫一声">嘎一下</button>
       <span>{{ control?.activeSkill==='xgoduck_getup'?'起身中':control?.activeSkill==='xgoduck_pick'?'拾取中':control?.activeSkill==='xgoduck_roulade'?'翻滚中':'' }}</span>
     </div>
     </div>

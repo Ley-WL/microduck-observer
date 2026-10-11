@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=radxa
 Group=radxa
-SupplementaryGroups=i2c dialout robot
+SupplementaryGroups=i2c dialout robot audio
 WorkingDirectory=/home/radxa/microduck-observer/current
 Environment=MICRODUCK_SOURCE=hardware
 Environment=MICRODUCK_BIND=0.0.0.0:8877
@@ -31,6 +31,8 @@ ProtectHome=read-only
 DevicePolicy=closed
 DeviceAllow=/dev/ttyS9 rw
 DeviceAllow=/dev/ttyS2 rw
+DeviceAllow=/dev/snd/controlC1 rw
+DeviceAllow=/dev/snd/pcmC1D0p rw
 
 [Install]
 WantedBy=multi-user.target

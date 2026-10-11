@@ -281,7 +281,8 @@ impl Motion {
                 "sit",
                 "standup",
                 "mouth_open",
-                "mouth_close"
+                "mouth_close",
+                "quack"
             ]
             .contains(&action),
             "不支持的指令"
@@ -326,6 +327,12 @@ impl Motion {
             },
             "stand"=>{},
             "prepare"=>anyhow::bail!("请先停止模型，再进入预备姿势"),
+            "quack"=>{
+                self.zero();
+                if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/quack",Some(json!({"session":session,"sequence":self.drive_seq}))).await?;}
+                else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"]}))).await?;}
+                self.error.clear();
+            },
             "getup"|"pick"|"roulade"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;

@@ -71,7 +71,7 @@ impl ImuPause {
 fn pause_drive(shared:&Shared) {
     let mut state=shared.write().unwrap();
     if let Some(drive)=state.drive.as_mut(){drive.twist=[0.;3];drive.updated=Instant::now();}
-    state.pending_skill=None;state.pending_mouth=None;
+    state.pending_skill=None;state.pending_mouth=None;state.pending_quack=false;state.quack_running=false;
     state.control["feedbackHolding"]=json!(true);
 }
 fn check_feedback_age(id: u8, received: f64, now: f64) -> Result<()> {
@@ -858,6 +858,7 @@ fn native_policy_loop(
     // never a scripted side effect of the ground-pick model.
     arm_current_profile(bus,&[34],feedback,(10,20),cancel,halt,true)?;
     let mouth_owned=true;
+    let mut quack_cycle:Option<(Instant,crate::quack::Playback)>=None;
     shared.write().unwrap().mouth_degrees=-5.;
     let mouth_limits=control::configuration(bus,34)?;
     trace.transition(json!({"type":"start","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha,"execution":"kissqy-sync50-v1","returnHome":return_home}));
@@ -890,6 +891,7 @@ fn native_policy_loop(
         bus.diagnostics["feedbackTargetHz"]=json!(50);
         control::publish(shared,&fresh,&IDS,bus.diagnostics.clone());
         let Some(mut obs)=observed else {
+            quack_cycle=None;shared.write().unwrap().mouth_degrees=-5.;
             pause_drive(shared);model.command_twist=[0.;3];model.upright=0.;
             if paused.is_none() {
                 paused=Some(Instant::now());
@@ -963,6 +965,18 @@ fn native_policy_loop(
         let adjusted=action.map(|v|v*scale);
         let filtered=model.filter_action(&adjusted);
         *goals=model.targets(filtered,feedback,cal,limits)?;
+        let requested={let mut state=shared.write().unwrap();let v=state.pending_quack;state.pending_quack=false;if v {state.quack_running=true;}v};
+        if requested {
+            match crate::quack::Playback::start() {
+                Ok(audio)=>{quack_cycle=Some((Instant::now(),audio));shared.write().unwrap().quack_running=true;}
+                Err(e)=>{let mut state=shared.write().unwrap();state.quack_running=false;state.log("ERROR","quack",&e.to_string());},
+            }
+        }
+        if let Some((started,audio))=quack_cycle.as_mut() {
+            if let Err(e)=audio.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());}
+            shared.write().unwrap().mouth_degrees=crate::quack::degrees(started.elapsed());
+            if started.elapsed()>=crate::quack::DURATION {quack_cycle=None;shared.write().unwrap().quack_running=false;}
+        }
         let mouth_request=shared.write().unwrap().pending_mouth.take();
         if let Some(degrees)=mouth_request {shared.write().unwrap().mouth_degrees=degrees;}
         if mouth_owned {

@@ -1,0 +1,31 @@
+{
+  "sourceHashes": {
+    "backend-rust/src/quack.rs": "d9d2636f96b8400e4b46457c92c8c01cb6518204f0e2751fae5e6b579ea0a07e",
+    "backend-rust/src/control.rs": "5fffef4ccb5b61c6d40cc56326ba94efdc2a6401906a104b425bbd309a59b568",
+    "backend-rust/src/main.rs": "27c207113b43fecd894bfd1ed965fb349d122959e9b33f37e122dd6c31935a0b",
+    "backend-rust/src/policy.rs": "8acb6e95d6fc14e4e7af990a2e9c515ef1a08aa8a37fc58625d5c0928bfa47ff",
+    "backend-rust/src/telemetry.rs": "813af828c19cfb78c19f2edf167ee52d266c1f91d28f8c36df7e0963485f78e7",
+    "backend-rust/src/ducklink_motion.rs": "26a1d32ff9b6227d64b886fc738caec149f9b6629d4e778879ab1659aa930c56",
+    "backend-rust/assets/quack.wav": "8b573378f6ea36715476c2b210d5ac08472bfbeab337c0bd8009528190d46333",
+    "frontend/src/components/ModelRuntime.vue": "8618fccc578814c242f45f6141d10d5e7ac24247d2dbf690f36e000162445601"
+  },
+  "rustTests": "118 passed, 1 ignored",
+  "frontendTests": 59,
+  "armBuild": "passed",
+  "audioPlayback": {
+    "device": "plughw:CARD=aic3104,DEV=0",
+    "exitCode": 0,
+    "durationMs": 722,
+    "permissions": "radxa + audio, DevicePolicy closed, only controlC1/pcmC1D0p allowed",
+    "mixerChanged": false,
+    "hearingConfirmed": false
+  },
+  "physicalMotionTest": false,
+  "soundSource": "locally synthesized duck-like single call",
+  "initialDeploymentRepairs": [
+    "missing measurement script in staging; fixed explicit copy",
+    "stdlib WebSocket fallback added for missing optional websockets package",
+    "restart changes boot identity: compare calibration physical sections and unchanged file hashes instead of full snapshot equality",
+    "policy route allow-list included quack; added route regression test"
+  ]
+}

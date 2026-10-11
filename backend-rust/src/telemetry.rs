@@ -54,6 +54,8 @@ pub struct Telemetry {
     pub(crate) native_voltage:crate::policy::NativeVoltage,
     pub pending_skill: Option<String>,
     pub pending_mouth: Option<f64>,
+    pub pending_quack: bool,
+    pub quack_running: bool,
     pub mouth_degrees: f64,
     pub drive: Option<DriveCommand>,
     pub boot: String,
@@ -76,14 +78,20 @@ pub struct DriveCommand {
     pub updated: Instant,
 }
 impl Telemetry {
+    pub fn queue_quack(&mut self,session:&str,sequence:u64)->bool {
+        if self.pending_quack || self.quack_running || self.pending_skill.is_some() || self.control["activeSkill"]!="xgoduck" || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["feedbackHolding"]==true {return false;}
+        let Some(drive)=self.drive.as_mut() else {return false;};
+        if !drive.update(session,sequence,[0.;3]) {return false;}
+        self.pending_mouth=None;self.pending_quack=true;true
+    }
     pub fn queue_mouth(&mut self,session:&str,sequence:u64,degrees:f64)->bool {
-        if !degrees.is_finite() || !(-5. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
+        if self.pending_quack || self.quack_running || !degrees.is_finite() || !(-5. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
         self.pending_mouth=Some(degrees);true
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
-        if self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
+        if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
             || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || (kind=="xgoduck_getup" && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"sitstand_sit"|"sitstand_stand"))) || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.)))
             || self.pending_skill.is_some() { return false; }
         let Some(drive)=self.drive.as_mut() else {return false;};
@@ -112,6 +120,18 @@ mod drive_tests {
         assert_eq!(state.drive.as_ref().unwrap().sequence,1);
         state.control["skillProgressSeconds"]=json!(4.);
         assert!(state.queue_skill("s",2,"sitstand_stand"));
+    }
+    #[test]
+    fn quack_rejects_replays_overlap_and_stale_feedback() {
+        let mut state=Telemetry::new(true);
+        state.drive=Some(DriveCommand{session:"live".into(),sequence:0,twist:[0.2,0.,0.],updated:Instant::now()});
+        state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck"});
+        assert!(!state.queue_quack("foreign",1));assert!(state.queue_quack("live",1));
+        assert_eq!(state.drive.as_ref().unwrap().twist,[0.;3]);
+        assert!(!state.queue_quack("live",2));assert!(!state.queue_skill("live",2,"xgoduck_pick"));
+        state.pending_quack=false;state.quack_running=true;assert!(!state.queue_quack("live",2));
+        state.quack_running=false;assert!(!state.queue_quack("live",1));
+        state.control["feedbackHolding"]=json!(true);assert!(!state.queue_quack("live",2));
     }
     #[test]
     fn seated_only_accepts_rise_after_settle_with_fresh_session() {
@@ -225,7 +245,7 @@ impl Telemetry {
             native_voltage:crate::policy::NativeVoltage::default(),
             drive: None,
             pending_skill: None,
-            pending_mouth: None, mouth_degrees: 0.,
+            pending_quack:false, quack_running:false, pending_mouth: None, mouth_degrees: 0.,
             resources: Value::Null,
             boot: Uuid::new_v4().to_string(),
             source: if hardware { "hardware" } else { "simulation" }.into(),

@@ -113,4 +113,4 @@ finally:
     log.close()
     subprocess.run(['systemctl', 'start', 'microduck-observer'], check=True)
     wait(8877)
-    print('Production Python service restored')
+    print('Production observer service restored')

@@ -50,3 +50,8 @@ python deploy/package_rust.py \
 回滚：停止native服务，恢复此前current链接和备份的主service，保留原drop-in，`daemon-reload`并重启；读取共享标定，不覆盖新标定。必要时管理员从`.previous.json`或部署备份恢复，但不能把备份当作始终可覆盖的当前数据。
 
 生产切换只代表服务部署；软件轨迹测试、只读采集及ONNX数值一致不能代替实际站立、运动或硬件中位验收。实测记录以[实测索引](../docs/实测记录/README.md)的最新日期为准。
+
+
+## 嘎一下与音频
+
+单次POST `/api/v1/policy/quack`（模型中带session/sequence）或 `/api/v1/servos/quack`（闲置带revision），由唯一Rust owner完成张闭嘴，播放内嵌合成单声；BLE action为quack。停止/卸力优先于自动闭嘴，反馈缺失中止不重播。固定声卡aic3104，最小音频组/设备权限见service；无定时Python服务。`python tools/deploy-runtime.py`在当前release基础上更新二进制/网页、只读候选检查与回滚，保留模型/标定/独立增益/BLE配置。

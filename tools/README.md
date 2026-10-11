@@ -8,3 +8,5 @@
 主Observer通用发布工具在 `deploy/`：`package_rust.py`、`verify_rust_hardware.py`、`switch_rust.py`。在线只读核查为 `check_live.py`、`verify-ducklink-rust.py` 和 `measure_runtime.py`。延迟/影子推理工具在 `scripts/`，测试在 `tests/` 和 `backend-rust/tests/`。
 
 发布前仍须完成候选验证并确认主板没有动作、15舵机已卸力；本次清理不修改主板服务、模型或标定。
+
+- `deploy-runtime.py`：在当前主板release基础上覆盖Rust主程序/网页，保留模型/标定/增益/BLE身份；先隔离只读候选验证，再原子切换并配置AIC3104音频权限，失败恢复旧版本。可指定host/port/package-only。

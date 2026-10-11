@@ -9,7 +9,10 @@ import statistics
 import time
 from urllib.request import urlopen
 
-import websockets
+try:
+    import websockets
+except ImportError:
+    import ws_reader as websockets
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--url', default='http://127.0.0.1:8877')

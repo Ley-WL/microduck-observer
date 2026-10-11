@@ -360,6 +360,23 @@ pub fn execute<T: Transport>(
     if action == "disable" {
         return unload(bus);
     }
+    if action=="quack" {
+        crate::quack::ready()?;
+        let cal=command["calibration"].clone();
+        let initial=bus.control_feedback(&[34])?;validate(34,initial.get(&34),false)?;
+        let (low,high,_)=configuration(bus,34)?;
+        for angle in [30f64,-5.] {target(34,position(&initial[&34])?,&cal,low,high,angle.to_radians(),false)?;}
+        execute(bus,&json!({"action":"angle","id":34,"angleDeg":30,"calibration":cal}),cancel,shared)?;
+        let audio=crate::quack::Playback::start();
+        let began=Instant::now();let mut clock=FrameClock::new(began);
+        while began.elapsed()<Duration::from_millis(550) {
+            if cancel.load(Ordering::Acquire) {return unload(bus);}
+            status(shared,json!({"state":"moving","action":"quack","message":"嘎一下"}));clock.wait();
+        }
+        let result=execute(bus,&json!({"action":"angle","id":34,"angleDeg":-5,"calibration":cal}),cancel,shared)?;
+        match audio {Ok(mut playback)=>{if let Err(e)=playback.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());}},Err(e)=>shared.write().unwrap().log("ERROR","quack",&e.to_string())}
+        return Ok(json!({"state":"holding","action":"quack","message":"张闭嘴一次完成","mouthResult":result}));
+    }
     let pose = matches!(action, "stand" | "zero");
     let began = Instant::now();
     let native_pose=pose && command["nativePolicyGains"].is_array();

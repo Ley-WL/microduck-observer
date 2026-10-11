@@ -10,6 +10,7 @@ mod orientation;
 mod policy;
 mod walk_profile;
 mod power;
+mod quack;
 mod resources;
 mod servos;
 mod telemetry;
@@ -217,7 +218,7 @@ async fn servo_action(
     h: HeaderMap,
     b: Bytes,
 ) -> Response {
-    if !["enable", "disable", "stand", "zero", "angle", "profile"].contains(&action.as_str()) {
+    if !["enable", "disable", "stand", "zero", "angle", "profile", "quack"].contains(&action.as_str()) {
         return error(StatusCode::NOT_FOUND, "Not Found");
     }
     let v = match check_action(&h, &b, 1024) {
@@ -237,7 +238,7 @@ async fn servo_action(
     };
     let boot = a.telemetry.read().unwrap().boot.clone();
     let cal = a.cal.lock().unwrap().read(&boot);
-    if ["stand", "zero", "angle"].contains(&action.as_str()) && v["revision"] != cal["revision"] {
+    if ["stand", "zero", "angle", "quack"].contains(&action.as_str()) && v["revision"] != cal["revision"] {
         return error(StatusCode::CONFLICT, "标定已更新，请刷新后重试");
     }
     if matches!(action.as_str(), "stand" | "zero")
@@ -348,6 +349,15 @@ async fn model_gains_info() -> Json<Value> {
 mod gain_route_tests {
     use super::*;
     #[tokio::test]
+    async fn quack_route_is_registered_and_requires_real_hardware() {
+        let tmp=tempfile::tempdir().unwrap();
+        let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
+        let app=App {telemetry:shared,cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
+        let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
+        let response=policy_action(State(app),Path("quack".into()),headers,Bytes::from_static(b"{}" )).await;
+        assert_eq!(response.status(),StatusCode::CONFLICT);
+    }
+    #[tokio::test]
     async fn active_control_cannot_save_new_gains() {
         let tmp=tempfile::tempdir().unwrap();
         let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
@@ -384,7 +394,7 @@ async fn policy_action(
     h: HeaderMap,
     b: Bytes,
 ) -> Response {
-    if !["start", "stop", "shadow", "home", "command", "skill", "mouth"].contains(&action.as_str()) {
+    if !["start", "stop", "shadow", "home", "command", "skill", "mouth", "quack"].contains(&action.as_str()) {
         return error(StatusCode::NOT_FOUND, "Not Found");
     }
     let body = match check_action(&h, &b, 1024) {
@@ -409,6 +419,12 @@ async fn policy_action(
             return error(StatusCode::CONFLICT,"动作会话/序号无效，或当前动作/反馈尚未就绪");
         }
         return Json(json!({"state":"queued","skill":body["skill"],"sequence":sequence})).into_response();
+    }
+    if action=="quack" {
+        if let Err(e)=quack::ready() {return error(StatusCode::CONFLICT,&e.to_string());}
+        let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少指令序号");};
+        if !a.telemetry.write().unwrap().queue_quack(body["session"].as_str().unwrap_or(""),sequence) {return error(StatusCode::CONFLICT,"嘴部动作正在执行，或会话/反馈尚未就绪");}
+        return Json(json!({"state":"queued","message":"嘎一下已请求"})).into_response();
     }
     if action=="mouth" {
         let Some(degrees)=body["angleDeg"].as_f64().filter(|v|v.is_finite() && (-5. ..=30.).contains(v)) else {return error(StatusCode::BAD_REQUEST,"嘴部角度须为−5–30°");};
