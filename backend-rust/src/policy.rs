@@ -197,7 +197,9 @@ impl SkillProfile {
             kissqy: meta["runtimeKind"]=="kissqy_sitstand", bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
     }
     fn donor(self)->bool {self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll}
-    fn sit_settle(self) -> f64 { if self.retrained || self.kissqy {4.} else {2.} }
+    fn sit_settle(self) -> f64 { if self.retrained {4.} else {2.} }
+    // Donor sit_toggle allows Sitting -> Rising without a dwell timer.
+    fn stand_request_delay(self)->f64 {if self.kissqy {0.} else {self.sit_settle()}}
     fn complete(self, kind: &str, progress: f64, upright: f64) -> bool {
         if self.donor_pick {return kind=="xgoduck_pick" && progress>=2.8;}
         if self.donor_roll {return kind=="xgoduck_roulade" && progress>=1.-1e-9;}
@@ -1112,7 +1114,7 @@ pub fn execute(
         v["commandTargetHz"]=json!(100);
         v["angleLimitsRevision"]=json!("kissqy-hd1910-saved-mechanical-v1");
         v["targetEncoding"]=json!("mechanical-clamp-single-turn-reject-v1");
-        for (key,value) in json!({"policy":model_id(&model.kind),"kind":if is_xgoduck(kind) {"xgoduck"} else {kind},"requestedKind":kind,"activeSkill":model.kind,"skillProgressSeconds":model.progress,"sitSettleSeconds":model.skill_profile.sit_settle(),"modelSource":if model.skill_profile.retrained {"replica-hd1910"} else {"donor"},"posture":if model.kind=="sitstand_sit" {if model.progress>=model.skill_profile.sit_settle() {"seated"} else {"sitting"}} else if model.kind=="sitstand_stand" {"rising"} else {"standing"},"walkSpeedMps":speed,"policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"runtimeProfile":"xgoduck-schedule100-v1","homeCommandTargetHz":50,"feedbackReplyBudgetMs":6,"feedbackTargetHz":100,"inferenceTargetHz":50,"actionAlpha":if model.kind=="xgoduck_roulade" {0.15} else {0.45},"velocitySource":"servo-register","velocityAlphaAt100Hz":0.4,"kpRun":model.gains.p,"kdRun":model.gains.d,"kpHome":control::MANUAL_GAINS.0,"kdHome":control::MANUAL_GAINS.1,"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
+        for (key,value) in json!({"policy":model_id(&model.kind),"kind":if is_xgoduck(kind) {"xgoduck"} else {kind},"requestedKind":kind,"activeSkill":model.kind,"skillProgressSeconds":model.progress,"sitSettleSeconds":model.skill_profile.sit_settle(),"standAllowed":model.kind=="sitstand_sit" && model.progress>=model.skill_profile.stand_request_delay(),"modelSource":if model.skill_profile.retrained {"replica-hd1910"} else {"donor"},"posture":if model.kind=="sitstand_sit" {if model.progress>=model.skill_profile.sit_settle() {"seated"} else {"sitting"}} else if model.kind=="sitstand_stand" {"rising"} else {"standing"},"walkSpeedMps":speed,"policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"runtimeProfile":"xgoduck-schedule100-v1","homeCommandTargetHz":50,"feedbackReplyBudgetMs":6,"feedbackTargetHz":100,"inferenceTargetHz":50,"actionAlpha":if model.kind=="xgoduck_roulade" {0.15} else {0.45},"velocitySource":"servo-register","velocityAlphaAt100Hz":0.4,"kpRun":model.gains.p,"kdRun":model.gains.d,"kpHome":control::MANUAL_GAINS.0,"kdHome":control::MANUAL_GAINS.1,"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
         if model.skill_profile.donor() {
             v["runtimeProfile"]=json!(if model.skill_profile.kissqy {"kissqy-sitstand-v1"} else {"kissqy-skills-v1"});v["modelSource"]=json!("kissqy/Microduck-kissqy");
             v["actionAlpha"]=json!(0);v["actionScale"]=json!(1);v["velocitySource"]=json!("servo-register-one-sample-delay");v["velocityAlphaAt100Hz"]=Value::Null;
@@ -1799,7 +1801,7 @@ mod tests {
         for kind in ["sitstand_sit","sitstand_stand"] {validate_skill_metadata(kind,&meta).unwrap();}
         let p=SkillProfile::from_metadata(&meta);
         assert!(p.kissqy && !p.retrained && !p.bounded_targets);
-        assert_eq!(p.sit_settle(),4.);
+        assert_eq!(p.sit_settle(),2.);assert_eq!(p.stand_request_delay(),0.);
         assert!(!p.complete("sitstand_stand",0.98,10.));
         assert!(p.complete("sitstand_stand",1.,0.));
         assert!(!p.complete("sitstand_sit",100.,10.));

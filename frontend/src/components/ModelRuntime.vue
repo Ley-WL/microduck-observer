@@ -12,7 +12,7 @@ const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), comman
 const skills=[{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'}];
 const skillAvailable=ref<Record<string,boolean>>({});
 
-const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??4) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
+const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && (control.value?.standAllowed??(control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??4))) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 const available=computed(()=>modelAvailable.value);
 const poseName='坐下预备';
 const pending=ref(false),message=ref(''),failed=ref(false);

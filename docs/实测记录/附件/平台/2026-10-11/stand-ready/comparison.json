@@ -1,0 +1,21 @@
+{
+  "donorCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "donorControllerSitToggle": "Sitting -> Rising without dwell; Rising rejects duplicate",
+  "donorRampSeconds": 2,
+  "donorShutdownSitSeconds": 4,
+  "previousPlatformMandatoryDwellSeconds": 4,
+  "newDonorStandRequestDelaySeconds": 0,
+  "runtimeSitSettleLabelSeconds": 2,
+  "legacyMetadataSitSettleSeconds": 4,
+  "legacyMetadataPreservedAndNotUsedForStandGate": true,
+  "newReadinessField": "standAllowed",
+  "retrainedAndLegacyOtherPoliciesDwellUnchanged": true,
+  "feedbackPauseAndPendingAndSessionChecksPreserved": true,
+  "rustPassed": 132,
+  "rustIgnored": 1,
+  "frontendPassed": 59,
+  "appVersion": "0.9.36",
+  "appCode": 55,
+  "physicalMotion": false,
+  "training": false
+}

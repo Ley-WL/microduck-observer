@@ -199,7 +199,7 @@ impl Motion {
         } else {
             "idle"
         };
-        json!({"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"sitSettleSeconds":ctrl["sitSettleSeconds"].as_f64().unwrap_or(4.),"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
+        json!({"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"sitSettleSeconds":ctrl["sitSettleSeconds"].as_f64().unwrap_or(2.),"standAllowed":ctrl["standAllowed"]==true,"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
     }
     pub fn open(&mut self) -> Result<Value> {
         ensure!(!self.leased, "已有控制设备连接");

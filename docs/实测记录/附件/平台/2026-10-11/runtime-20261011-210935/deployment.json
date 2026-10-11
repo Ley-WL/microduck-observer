@@ -1,0 +1,11 @@
+{
+  "installed": true,
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261011-210935",
+  "previousRelease": "/home/radxa/microduck-observer/releases/runtime-20261011-210030",
+  "calibrationModelsGainsIdentityUnchanged": true,
+  "assetsHttpVerified": true,
+  "readonlySnapshots": 20,
+  "hardwareMotion": false,
+  "audioPermissionsConfigured": true,
+  "binarySha256": "aefded5917c438a6d9a0a3bbf090f8fe868bba180ad7734e138f9dc602102b20"
+}
