@@ -1,0 +1,14 @@
+{
+  "userReportsNoPowerOff": true,
+  "userReportsPhoneNowDiscoversAndConnects": true,
+  "release": "runtime-20261011-175410",
+  "servoStateAtRead": "idle",
+  "boardUptimeSeconds": 526.42,
+  "observerUptimeSeconds": 153.402973921,
+  "noMotionCommandsSent": true,
+  "appUpdateRequired": false,
+  "boardSystemRestartCause": "not established",
+  "priorMeasuredBoardUptimeSeconds": 10950.73,
+  "radioReregisterAloneReceivedReports": 0,
+  "radioPowerCycleAndReregisterReceivedReports": 4
+}
