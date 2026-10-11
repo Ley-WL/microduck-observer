@@ -495,7 +495,7 @@ async fn policy_action(
             let _ = rx.await;
         });
         return Json(
-            json!({"state":"preflight","policy":policy::model_id(kind),"kind":kind,"driveSession":drive_session,"message":if kind=="xgoduck_getup" {"起身模型启动，从当前姿态使能后推理"} else {"模型启动，先过渡到所选模型姿势，再持续推理"}}),
+            json!({"state":"preflight","policy":policy::model_id(kind),"kind":kind,"driveSession":drive_session,"message":if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") {"动作模型启动，从当前姿态对齐使能后推理"} else {"模型启动，先过渡到所选模型姿势，再持续推理"}}),
         )
         .into_response();
     }

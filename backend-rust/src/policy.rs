@@ -330,11 +330,11 @@ pub fn request_profile(body: &Value) -> Result<(&str, f32)> {
 }
 pub fn drive_twist(body: &Value) -> Result<[f32; 3]> {
     let twist=orientation::vector::<3>(&body["twist"])?;
-    for (v,max) in twist.iter().zip([0.4,0.1,0.5]) {
+    for (v,max) in twist.iter().zip([0.4,0.3,1.0]) {
         if !v.is_finite() || v.abs()>max { bail!("行走指令超出范围"); }
     }
-    // Physical commands go to the donor observation unchanged. No local
-    // reverse/yaw compensation hidden between the UI and the policy.
+    // Signed commands use the donor training ranges. Native inference applies
+    // donor cmd_alpha=0.2; there is no reverse/yaw sign compensation.
     Ok(twist.map(|v|v as f32))
 }
 pub fn metadata_for(kind: &str) -> Option<Value> {
@@ -894,6 +894,7 @@ fn native_policy_loop(
     stats:&impl Fn(&Model,&control::Timing,f64)->Value,
 ) -> Result<Value> {
     let return_home=model.skill_profile.donor_getup;
+    let mut walk_twist=[0.;3];
     let mut recovery_resume="xgoduck";
     let mut recovery_resume_progress=0.;
     let mut recovery_posture=NativeRecoveryPosture::default();
@@ -958,7 +959,7 @@ fn native_policy_loop(
         *previous=feedback.clone();*feedback=sample.unwrap();
         if paused.take().is_some_and(|at|at.elapsed()>=Duration::from_millis(200)) {
             model.previous=None;model.velocity=[0.;14];model.last_action=[0.;14];
-            model.filtered_action=[0.;14];model.target_initialized=false;model.filtered_gyro=None;
+            model.filtered_action=[0.;14];model.target_initialized=false;model.filtered_gyro=None;walk_twist=[0.;3];
             obs=model.observe(shared,feedback,cal)?;
         }
         if fall_guard.check(&model.kind,Some(tilt(&obs)),Instant::now()) {
@@ -1017,7 +1018,12 @@ fn native_policy_loop(
             // change. Never advance the native one-sample delay a second time.
             for n in 0..14 {obs[6+n]+=old_home[n]-model.home[n];obs[34+n]=model.last_action[n];}
         }
-        model.command_twist=if model.kind=="xgoduck" {shared.read().unwrap().drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])} else {skill_twist(&model.kind,model.progress)};
+        model.command_twist=if model.kind=="xgoduck" {
+            let state=shared.read().unwrap();
+            let fresh=state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
+            let target=state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3]);
+            crate::walk_profile::smooth_twist(&mut walk_twist,target,fresh)
+        } else {walk_twist=[0.;3];skill_twist(&model.kind,model.progress)};
         obs[48..51].copy_from_slice(&model.command_twist);
         if walking_policy(&model.kind) && tilt(&obs)>=FALL_TILT_DEG {bail!("起身结束时仍倒地，拒绝进入行走，停止并卸力");}
         let (scale,filtered_voltage)={let mut state=shared.write().unwrap();
@@ -1105,7 +1111,7 @@ pub fn execute(
         if let Some(profile)=model.walk_profile {
             v["runtimeProfile"]=json!("kissqy-r17-v1");v["modelSource"]=json!("kissqy/Microduck-kissqy");
             v["actionAlpha"]=Value::Null;v["actionScale"]=json!(profile.scale);
-            v["headNewWeight"]=json!(profile.head);v["legsNewWeight"]=json!(profile.legs);
+            v["commandAlpha"]=json!(0.2);v["headNewWeight"]=json!(profile.head);v["legsNewWeight"]=json!(profile.legs);
             v["velocityAlphaAt100Hz"]=Value::Null;v["velocitySource"]=json!("servo-register-one-sample-delay");
         }
         if model.donor_sensors() {
@@ -1167,7 +1173,7 @@ pub fn execute(
             bail!("机身倾角{:.1}°，拒绝启动行走模型；请扶正或主动选择倒地起身",tilt(&initial_obs));
         }
         if matches!(kind,"xgoduck_pick"|"xgoduck_roulade"|"sitstand_sit"|"sitstand_stand") && tilt(&initial_obs)>55. {
-            bail!("拾取/翻滚需要先处于直立平衡状态");
+            bail!("坐站/拾取/翻滚需要先扶正机身");
         }
         let mut limits = BTreeMap::new();
         for id in ORDER {
@@ -1203,9 +1209,9 @@ pub fn execute(
             .into_iter()
             .zip(model.home.map(|v| v as f64))
             .collect();
-        stage = if matches!(kind,"xgoduck_getup"|"sitstand_stand") {"current-pose-enable"} else {"home-transition"};
+        stage = if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") {"current-pose-enable"} else {"home-transition"};
         attempted = true;
-        if matches!(kind,"xgoduck_getup"|"sitstand_stand") {
+        if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") {
             // Fallen starts must not use the upright HOME transition.
             arm_current_profile(bus,&ORDER,&feedback,if model.donor_sensors() {(model.gains.p,model.gains.d)} else {control::MANUAL_GAINS},cancel,halt,model.donor_sensors())?;
         } else {
@@ -1235,7 +1241,7 @@ pub fn execute(
         model.filtered_action = [0.; 14];
         model.target_initialized=false;
         model.filtered_gyro = None;
-        goals=if matches!(kind,"xgoduck_getup"|"sitstand_stand") { ORDER.iter().map(|id|(*id,feedback[id]["position"].as_i64().unwrap() as i32)).collect() }
+        goals=if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") { ORDER.iter().map(|id|(*id,feedback[id]["position"].as_i64().unwrap() as i32)).collect() }
             else {model.targets([0.;14],&feedback,cal,&limits)?};
         if model.donor_sensors() {
             stage="policy-loop";
@@ -1626,10 +1632,10 @@ mod tests {
     fn physical_drive_commands_reach_donor_without_reverse_or_yaw_multiplier() {
         for (input,expected) in [([0.,0.,0.],[0.,0.,0.]),([0.2,0.,0.],[0.2,0.,0.]),
             ([0.4,0.,0.],[0.4,0.,0.]),([-0.4,0.,0.],[-0.4,0.,0.]),([-0.2,0.,0.],[-0.2,0.,0.]),([-0.1,0.1,0.25],[-0.1,0.1,0.25]),
-            ([0.,0.,0.5],[0.,0.,0.5]),([0.,0.,-0.5],[0.,0.,-0.5])] {
+            ([0.,0.,0.5],[0.,0.,0.5]),([0.,0.,-0.5],[0.,0.,-0.5]),([0.,0.3,1.],[0.,0.3,1.]),([0.,-0.3,-1.],[0.,-0.3,-1.])] {
             assert_eq!(drive_twist(&json!({"twist":input})).unwrap(),expected);
         }
-        for input in [[-0.401,0.,0.],[0.401,0.,0.],[0.,0.101,0.],[0.,0.,0.501],[0.,0.,-0.501]] {
+        for input in [[-0.401,0.,0.],[0.401,0.,0.],[0.,0.301,0.],[0.,0.,1.001],[0.,0.,-1.001]] {
             assert!(drive_twist(&json!({"twist":input})).is_err());
         }
     }

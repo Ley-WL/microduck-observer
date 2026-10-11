@@ -12,9 +12,9 @@ const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), comman
 const skills=[{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'}];
 const skillAvailable=ref<Record<string,boolean>>({});
 
-const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??2) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
+const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??4) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 const available=computed(()=>modelAvailable.value);
-const poseName='预备姿势';
+const poseName='坐下预备';
 const pending=ref(false),message=ref(''),failed=ref(false);
 const control=computed(()=>state.system?.data.servoControl);
 const running=computed(()=>control.value?.action==='policy' && ['preflight','moving','policy'].includes(control.value?.state));
@@ -36,9 +36,9 @@ watch(()=>[control.value?.activeSkill,control.value?.state],()=>{if(control.valu
 async function extra(action:string,angleDeg?:number){
   release();pending.value=true;failed.value=false;
   try{
-    const start=['getup','standup'].includes(action) && !running.value;
+    const start=['getup','standup','sit'].includes(action) && !running.value;
     const path=start?'start':action==='quack'?'quack':action==='mouth'?'mouth':'skill';
-    const body=start?{kind:action==='standup'?'sitstand_stand':'xgoduck_getup',speed:0,revision:board.data?.revision}:angleDeg!=null && !running.value?{id:34,angleDeg,revision:board.data?.revision}:{session:session.value,sequence:hold.nextSequence(),skill:action,angleDeg};
+    const body=start?{kind:action==='sit'?'sitstand_sit':action==='standup'?'sitstand_stand':'xgoduck_getup',speed:0,revision:board.data?.revision}:angleDeg!=null && !running.value?{id:34,angleDeg,revision:board.data?.revision}:{session:session.value,sequence:hold.nextSequence(),skill:action,angleDeg};
     const url=action==='quack' && !running.value?'/api/v1/servos/quack':angleDeg!=null && !running.value?'/api/v1/servos/angle':'/api/v1/policy/'+path;
     if(action==='quack' && !running.value)Object.assign(body,{revision:board.data?.revision});
     const response=await fetch(state.endpoint.replace(/\/$/,'')+url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
@@ -52,8 +52,8 @@ const driveReason=computed(()=>{
   if(!live.value)return '实机连接或关节反馈未就绪';
   if(pending.value)return '等待操作完成';
   if(control.value?.state==='failed')return control.value.message || '模型故障，轮盘锁定';
-  if(control.value?.state==='holding')return '模型已停止：请启动原地平衡后行走';
-  if(control.value?.state!=='policy')return '先预备姿势，再启动原地平衡';
+  if(control.value?.state==='holding')return '模型已停止：请站起后行走';
+  if(control.value?.state!=='policy')return '先坐下预备，再站起';
   if(control.value?.kind!=='xgoduck')return '当前运行其他模型，请切换平衡行走';
   if(control.value?.feedbackHolding)return '反馈暂缺，等待恢复后重新按住';
   if(skillQueued.value || (control.value?.activeSkill && control.value.activeSkill!=='xgoduck'))return control.value?.activeSkill==='sitstand_sit'?'坐姿维持中：点站起后恢复行走':'动作执行中，完成后再行走';
@@ -78,12 +78,14 @@ onMounted(async()=>{
   catch { modelAvailable.value=false; }
 });
 async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
+  if(action==='home'){await extra('sit');return;}
+  if(action==='start'){await extra('standup');return;}
   release();
   pending.value=true;message.value='';failed.value=false;
   try {
     const response=await fetch(state.endpoint.replace(/\/$/,'')+(action==='disable'?'/api/v1/servos/disable':'/api/v1/policy/'+action),{
       method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:board.data?.revision,kind:'xgoduck',speed:0}),signal:AbortSignal.timeout(15000)});
-    const result=await response.json();failed.value=!response.ok || result.state==='failed';if(action==='start' && !failed.value){session.value=result.driveSession || '';lease.remember(session.value);}message.value=result.detail || (action==='home' && !failed.value ? '已到'+poseName+'并保持，未开始模型推理' : result.message);
+    const result=await response.json();failed.value=!response.ok || result.state==='failed';message.value=result.detail || result.message;
   } catch(e) { failed.value=true;message.value='未收到操作结果，请核对实时状态：'+String(e); }
   finally { pending.value=false; }
 }
@@ -93,9 +95,9 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <div class="runtime-overview">
     <div class="runtime-title"><span>平衡行走</span><strong>按住行走 · 松开平衡</strong><small>实机模型</small></div>
     </div>
-    <p>预备 → 原地平衡 → 按住行走；松开平衡，坐下后点站起恢复。</p>
+    <p>坐下预备 → 站起 → 按住行走；松开平衡，坐下后点站起恢复。</p>
     <div class="runtime-buttons">
-      <button :disabled="!available || !live || !board.ready || busy" @click="run('start')">▷ 启动原地平衡</button>
+      <button :disabled="!skillAvailable.standup || !(canStand || (live && board.ready && !busy))" @click="run('start')">▷ 站起</button>
       <button :disabled="!available || !live || !board.ready || busy" @click="run('home')">{{ poseName }}</button>
       <button :disabled="!running || pending" @click="run('stop')">□ 停止并保持</button>
       <button :disabled="!live || pending" @click="run('disable')">全部失能</button>

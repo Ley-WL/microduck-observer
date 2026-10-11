@@ -17,6 +17,12 @@ impl WalkProfile {
         std::array::from_fn(|n| {let target=self.scale*raw[n];let alpha=if (5..9).contains(&n){self.head}else{self.legs};if initialized {(1.-alpha)*previous[n]+alpha*target}else{target}})
     }
 }
+/// Donor robotd cmd_alpha=0.2 at 50 Hz; stale intent stops immediately.
+pub fn smooth_twist(previous: &mut [f32;3], target:[f32;3], fresh:bool)->[f32;3] {
+    if !fresh {*previous=[0.;3];return *previous;}
+    for (value,next) in previous.iter_mut().zip(target) {*value+=0.2*(next-*value);}
+    *previous
+}
 #[cfg(test)] mod tests {
     use super::*;
     #[test] fn donor_target_sequence_preserves_raw_history_and_home_offset() {
@@ -24,6 +30,14 @@ impl WalkProfile {
         let first=p.filter(&[0.;14],&[1.;14],false);assert_eq!(first,[0.9;14]);
         let next=p.filter(&first,&[-1.;14],true);
         for i in 0..14 {assert!((next[i]-if (5..9).contains(&i){0.}else{-0.36}).abs()<1e-6);}
+    }
+    #[test] fn reverse_and_turn_slew_match_donor_and_stale_intent_stops() {
+        let mut command=[0.;3];
+        let first=smooth_twist(&mut command,[-0.4,0.,0.5],true);
+        assert!((first[0]+0.08).abs()<1e-7 && (first[2]-0.1).abs()<1e-7);
+        for _ in 0..60 {smooth_twist(&mut command,[-0.4,0.,0.5],true);}
+        assert!((command[0]+0.4).abs()<1e-6 && (command[2]-0.5).abs()<1e-6);
+        assert_eq!(smooth_twist(&mut command,[-0.4,0.,0.5],false),[0.;3]);
     }
     #[test] fn contract_cannot_leak_to_other_skills_or_other_weights() {
         let mut m=serde_json::json!({"policySha256":"a","walkExecution":{"schema":"kissqy-r17-v1","policySha256":"a","actionScale":0.9,"headNewWeight":0.5,"legsNewWeight":0.7,"gains":{"p":3,"d":0}}});

@@ -25,7 +25,7 @@ fn compact_status(mut status: Value, request: &Value) -> Value {
         }
     }
     if let Some(control) = observer["control"].as_object_mut() {
-        control.retain(|key, _| ["state", "message", "feedbackHolding", "posture", "kpRun", "kdRun", "activeSkill", "ageMs"].contains(&key.as_str()));
+        control.retain(|key, _| ["state", "message", "feedbackHolding", "posture", "kpRun", "kdRun", "activeSkill", "commandTwist", "commandAlpha", "ageMs"].contains(&key.as_str()));
     }
     let revision = observer["calibration"]["revision"].clone();
     observer["calibrationRevision"] = revision.clone();
@@ -51,7 +51,6 @@ pub struct Motion {
     phase: String,
     error: String,
     pending: bool,
-    home_reply: Option<tokio::sync::oneshot::Receiver<Result<Value>>>,
 }
 impl Motion {
     pub fn new(app: App, router: Router) -> Self {
@@ -70,7 +69,6 @@ impl Motion {
             phase: "idle".into(),
             error: String::new(),
             pending: false,
-            home_reply: None,
         }
     }
     pub async fn request(&self, path: &str, body: Option<Value>) -> Result<Value> {
@@ -102,28 +100,6 @@ impl Motion {
         self.app.telemetry.read().unwrap().control.clone()
     }
     fn sync(&mut self) {
-        if let Some(reply) = self.home_reply.as_mut() {
-            match reply.try_recv() {
-                Ok(result) => {
-                    self.home_reply = None;
-                    self.pending = false;
-                    match result {
-                        Ok(_) => self.phase = "prepared".into(),
-                        Err(e) => {
-                            self.phase = "failed".into();
-                            self.error = e.to_string();
-                        }
-                    }
-                }
-                Err(tokio::sync::oneshot::error::TryRecvError::Empty) => {}
-                Err(_) => {
-                    self.home_reply = None;
-                    self.pending = false;
-                    self.phase = "failed".into();
-                    self.error = "舵机服务已退出".into();
-                }
-            }
-        }
         let ctrl = self.control();
         if let Some(session) = &self.drive {
             if ctrl["state"] == "failed" {
@@ -223,7 +199,7 @@ impl Motion {
         } else {
             "idle"
         };
-        json!({"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
+        json!({"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"sitSettleSeconds":ctrl["sitSettleSeconds"].as_f64().unwrap_or(4.),"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
     }
     pub fn open(&mut self) -> Result<Value> {
         ensure!(!self.leased, "已有控制设备连接");
@@ -251,7 +227,6 @@ impl Motion {
     pub async fn halt(&mut self, unload: bool) -> Result<()> {
         self.sync();
         self.zero();
-        let preparing = self.home_reply.take().is_some();
         self.pending = false;
         // Only cancel this BLE controller's policy; explicit emergency stop unloads globally.
         let ctrl = self.control();
@@ -272,7 +247,7 @@ impl Motion {
         self.phase = "idle".into();
         if unload {
             self.request("servos/disable", Some(json!({}))).await?;
-        } else if owned || starting || preparing {
+        } else if owned || starting {
             self.request("policy/stop", Some(json!({}))).await?;
         }
         Ok(())
@@ -337,22 +312,14 @@ impl Motion {
             _ if self.stopped=>{},
             "idle"=>self.halt(false).await?,
             "prepare"|"stand"|"getup"|"standup" if self.drive.is_none()=>{
-                ensure!(self.home_reply.is_none(),"预备动作处理中，请稍候");self.zero();let cal=self.request("calibration",None).await?;
-                let kind=match action {"getup"=>"xgoduck_getup","standup"=>"sitstand_stand",_=>"xgoduck"};
-                if action=="prepare" {
-                    let owner=self.app.owner.as_ref().filter(|_|self.app.hardware).ok_or_else(||anyhow::anyhow!("需要实机舵机服务"))?;
-                    let permit=self.app.gate.clone().try_acquire_owned().map_err(|_|anyhow::anyhow!("已有标定或运动任务正在执行"))?;
-                    let boot=self.app.telemetry.read().unwrap().boot.clone();let current_cal=self.app.cal.lock().unwrap().read(&boot);
-                    self.home_reply=Some(owner.submit(crate::policy_home_command(kind,current_cal)?,Some(permit))?);
-                    self.phase="preparing".into();self.pending=true;
-                } else {
-                    let result=self.request("policy/start",Some(json!({"kind":kind,"speed":0,"revision":cal["revision"]}))).await?;
-                    self.drive=Some(result["driveSession"].as_str().ok_or_else(||anyhow::anyhow!("missing drive session"))?.into());self.drive_seq=0;self.phase="starting".into();
-                }
+                self.zero();let cal=self.request("calibration",None).await?;
+                let kind=match action {"prepare"=>"sitstand_sit","getup"=>"xgoduck_getup",_=>"sitstand_stand"};
+                let result=self.request("policy/start",Some(json!({"kind":kind,"speed":0,"revision":cal["revision"]}))).await?;
+                self.drive=Some(result["driveSession"].as_str().ok_or_else(||anyhow::anyhow!("missing drive session"))?.into());self.drive_seq=0;self.phase="starting".into();
                 self.error.clear();
             },
-            "stand"=>{},
-            "prepare"=>anyhow::bail!("请先停止模型，再进入预备姿势"),
+            "stand"=>{self.zero();if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"standup"}))).await?;self.pending=true;}},
+            "prepare"=>anyhow::bail!("请先停止模型，再进入坐下预备"),
             "quack"=>{
                 self.zero();
                 if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/quack",Some(json!({"session":session,"sequence":self.drive_seq}))).await?;}
@@ -364,12 +331,12 @@ impl Motion {
                 if let Some(session)=&self.drive {self.drive_seq+=1;
                     self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;
                 } else if mouth {let cal=self.request("calibration",None).await?;self.request("servos/angle",Some(json!({"id":34,"angleDeg":if action=="mouth_open"{30}else{-5},"revision":cal["revision"]}))).await?;}
-                else {anyhow::bail!("请先启动平衡");}self.error.clear();
+                else {anyhow::bail!("请先站起或坐下预备");}self.error.clear();
             },
             "drive"|"strafe_left"|"strafe_right"=>{
                 let ctrl=self.control();
                 if self.phase=="active" && ctrl["feedbackHolding"]!=true && ctrl["activeSkill"]=="xgoduck" && !self.pending {
-                    self.error.clear();self.forward=f*speed;self.turn=(t*speed).clamp(-0.5,0.5);self.lateral=if action=="strafe_left"{0.2*speed.min(0.5)}else if action=="strafe_right"{-0.2*speed.min(0.5)}else{0.};
+                    self.error.clear();self.forward=f*speed;self.turn=(t*speed).clamp(-1.0,1.0);self.lateral=if action=="strafe_left"{0.3*speed}else if action=="strafe_right"{-0.3*speed}else{0.};
                 }else{self.zero();}
             },_=>{}
         }
@@ -571,6 +538,20 @@ pub(crate) mod tests {
         assert_eq!(calls.lock().unwrap().last().unwrap().1["twist"],json!([0.,0.,0.]));
     }
     #[tokio::test]
+    async fn seated_prepare_starts_policy_and_rise_keeps_same_session() {
+        let (mut m,calls,_tmp)=fixture();m.open().unwrap();
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        m.command(json!({"seq":1,"action":"prepare"})).await.unwrap();
+        let request=calls.lock().unwrap().last().unwrap().clone();
+        assert_eq!(request.0,"/api/v1/policy/start");assert_eq!(request.1["kind"],"sitstand_sit");
+        assert_eq!(m.drive.as_deref(),Some("ble-session"));m.phase="active".into();
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"sitstand_sit","sitSettleSeconds":4,"skillProgressSeconds":4.1});
+        assert_eq!(m.status()["sitSettleSeconds"],4.);
+        m.command(json!({"seq":2,"action":"standup"})).await.unwrap();
+        let request=calls.lock().unwrap().last().unwrap().clone();
+        assert_eq!(request.0,"/api/v1/policy/skill");assert_eq!(request.1["session"],"ble-session");assert_eq!(request.1["skill"],"standup");
+    }
+    #[tokio::test]
     async fn pure_yaw_preserves_both_signs_without_forward_motion() {
         let (mut m,calls,_tmp)=fixture();
         m.open().unwrap();m.drive=Some("ble-session".into());m.phase="active".into();
@@ -588,10 +569,10 @@ pub(crate) mod tests {
         m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","feedbackHolding":false});
         for (seq,speed,forward,action,expected) in [
             (1,0.5,1.,"drive",[0.2,0.,0.5]),
-            (2,1.,1.,"drive",[0.4,0.,0.5]),
-            (3,1.,-1.,"drive",[-0.4,0.,0.5]),
-            (4,1.,0.,"strafe_left",[0.,0.1,0.5]),
-            (5,1.,0.,"strafe_right",[0.,-0.1,0.5]),
+            (2,1.,1.,"drive",[0.4,0.,1.]),
+            (3,1.,-1.,"drive",[-0.4,0.,1.]),
+            (4,1.,0.,"strafe_left",[0.,0.3,1.]),
+            (5,1.,0.,"strafe_right",[0.,-0.3,1.]),
             (6,0.,1.,"drive",[0.,0.,0.]),
         ] {
             m.command(json!({"seq":seq,"action":action,"forward":forward,"turn":1.,"speed":speed})).await.unwrap();
@@ -645,25 +626,6 @@ pub(crate) mod tests {
         m.app.telemetry.write().unwrap().control["driveSession"] = json!("web-session");
         m.close().await;
         assert!(calls.lock().unwrap().is_empty());
-    }
-    #[tokio::test]
-    async fn prepare_reply_does_not_block_stop_and_late_reply_cannot_restore() {
-        let (mut m, calls, _tmp) = fixture();
-        m.open().unwrap();
-        let (tx, rx) = tokio::sync::oneshot::channel();
-        m.home_reply = Some(rx);
-        m.phase = "preparing".into();
-        m.pending = true;
-        let status = m.command(drive(1)).await.unwrap();
-        assert_eq!(status["policyPhase"], "preparing");
-        assert!(calls.lock().unwrap().is_empty());
-        m.command(json!({"seq":2,"action":"idle"})).await.unwrap();
-        assert!(tx.send(Ok(json!({}))).is_err());
-        assert_eq!(m.status()["policyPhase"], "idle");
-        assert_eq!(
-            calls.lock().unwrap().last().unwrap().0,
-            "/api/v1/policy/stop"
-        );
     }
     #[tokio::test]
     async fn stale_sequence_and_bad_values_do_not_renew_timeout() {

@@ -1,0 +1,62 @@
+{
+  "donorCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "weightsUnchanged": {
+    "alpha_sitstand.onnx": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+    "hd1910-head-v5.onnx": "003d1fa42cc5c5afe6b0fd6180b36c61ad2eb711fff2ee5ca5980efbedfd98b5",
+    "hd1910-walk-v6-symmetry500.onnx": "7485f0f2a71bbc1455e48b0264607883e1e28d1db6740fa4768359b1df18e5a7",
+    "xgoduck_getup.onnx": "a481d9f211f31d9476ab1a319fe362a21ef0879d9fa59442a122845af598268c",
+    "xgoduck_pick.onnx": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
+    "xgoduck_roulade.onnx": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
+    "xgoduck_walk.onnx": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f"
+  },
+  "walkPolicyMatchesDonor": true,
+  "signedDriveRanges": [
+    [
+      -0.4,
+      0.4
+    ],
+    [
+      -0.3,
+      0.3
+    ],
+    [
+      -1,
+      1
+    ]
+  ],
+  "walkCommandAlpha": 0.2,
+  "actionScale": 0.9,
+  "targetNewWeights": {
+    "head": 0.5,
+    "legs": 0.7
+  },
+  "previousAction": "raw",
+  "gyro": "raw in calibrated body axes",
+  "velocity": "servo-register-one-sample-delay",
+  "voltageAdapt": {
+    "nominal": 7.4,
+    "unchanged": true
+  },
+  "sitPrepare": "sitstand_sit from current pose, persistent seat; no HOME",
+  "stand": "sitstand_stand 1 effective second then xgoduck, same session; no torque toggle",
+  "sitSettle": 4,
+  "latestSessionContainsCorrespondingReverseRun": false,
+  "physicalMotion": false,
+  "training": false,
+  "rustTests": 130,
+  "rustIgnored": 1,
+  "frontendTests": 59,
+  "mobileVersion": "0.9.35",
+  "mobileCode": 54,
+  "deployment": {
+    "installed": true,
+    "release": "/home/radxa/microduck-observer/releases/runtime-20261011-204748",
+    "previousRelease": "/home/radxa/microduck-observer/releases/runtime-20261011-203144",
+    "calibrationModelsGainsIdentityUnchanged": true,
+    "assetsHttpVerified": true,
+    "readonlySnapshots": 20,
+    "hardwareMotion": false,
+    "audioPermissionsConfigured": true,
+    "binarySha256": "ba1bde77a87caa753ce5309e9a310b53d23958791b2aba39700d7fe1238aca28"
+  }
+}
