@@ -30,7 +30,7 @@ const hold=holdToWalk(async(twist,sequence)=>{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:requestSession,sequence,twist}),keepalive:true,signal:AbortSignal.timeout(1000)});
   if(!response.ok){const result=await response.json();throw new Error(result.detail || '行走指令未接受');}
   if(requestSession!==session.value || sequence<acknowledgedSequence)return;acknowledgedSequence=sequence;
-  commandState.value=twist.some(v=>v!==0)?'已接受：前后 '+twist[0].toFixed(2)+' · 转向 '+twist[2].toFixed(2)+' rad/s（补偿前）':'零速度指令已接受';
+  commandState.value=twist.some(v=>v!==0)?'已接受：前后 '+twist[0].toFixed(2)+' · 转向 '+twist[2].toFixed(2)+' rad/s':'零速度指令已接受';
 },{nextSequence:()=>lease.nextSequence(),onError:error=>{pressed.value='';failed.value=true;message.value='行走指令失败：'+String(error);commandState.value='指令被拒绝 / 未收到响应';}});
 watch(()=>[control.value?.activeSkill,control.value?.state],()=>{if(control.value?.activeSkill!=='xgoduck' || control.value?.state!=='policy')skillQueued.value=false;});
 async function extra(action:string,angleDeg?:number){
@@ -53,7 +53,7 @@ const driveReason=computed(()=>{
   if(control.value?.state==='failed')return control.value.message || '模型故障，轮盘锁定';
   if(control.value?.state==='holding')return '模型已停止：请启动原地平衡后行走';
   if(control.value?.state!=='policy')return '先预备姿势，再启动原地平衡';
-  if(control.value?.kind!=='xgoduck')return '当前运行其他模型，请切换XgoDuck';
+  if(control.value?.kind!=='xgoduck')return '当前运行其他模型，请切换平衡行走';
   if(control.value?.feedbackHolding)return '反馈暂缺，等待恢复后重新按住';
   if(skillQueued.value || (control.value?.activeSkill && control.value.activeSkill!=='xgoduck'))return control.value?.activeSkill==='sitstand_sit'?'坐姿维持中：点站起后恢复行走':'动作执行中，完成后再行走';
   if(!session.value || control.value?.driveSession!==session.value)return '当前平衡由其他页面或App启动：停止保持后，在本页重新启动';
@@ -91,8 +91,8 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
 <template>
   <div class="runtime-panel">
     <div class="runtime-overview">
-    <div class="runtime-title"><span>{{ kind==='xgoduck'?'XgoDuck':kind==='walk'?'HD1910 · v6':'HD1910 · v5' }}</span><strong>{{ kind==='xgoduck'?'按住行走 · 松开平衡':kind==='walk'?'模型行走':'模型站立维持' }}</strong><small>50 Hz 推理 · 100 Hz 反馈目标</small></div>
-    <div class="model-selector"><button :class="{active:kind==='xgoduck'}" :disabled="busy" @click="kind='xgoduck'">XgoDuck</button><button :class="{active:kind==='stand'}" :disabled="busy" @click="kind='stand'">站立模型</button><button :class="{active:kind==='walk'}" :disabled="busy" @click="kind='walk'">行走模型</button><label v-if="kind==='walk'">前进 <select v-model.number="speed" :disabled="busy"><option :value="0.05">0.05 m/s</option><option :value="0.1">0.10 m/s</option><option :value="0.2">0.20 m/s</option><option :value="0.3">0.30 m/s</option><option :value="0.4">0.40 m/s</option></select></label></div>
+    <div class="runtime-title"><span>{{ kind==='xgoduck'?'平衡行走':kind==='walk'?'定速行走':'站立保持' }}</span><strong>{{ kind==='xgoduck'?'按住行走 · 松开平衡':kind==='walk'?'模型行走':'模型站立维持' }}</strong><small>实机模型</small></div>
+    <div class="model-selector"><button :class="{active:kind==='xgoduck'}" :disabled="busy" @click="kind='xgoduck'">平衡行走</button><button :class="{active:kind==='stand'}" :disabled="busy" @click="kind='stand'">站立保持</button><button :class="{active:kind==='walk'}" :disabled="busy" @click="kind='walk'">定速行走</button><label v-if="kind==='walk'">前进 <select v-model.number="speed" :disabled="busy"><option :value="0.05">0.05 m/s</option><option :value="0.1">0.10 m/s</option><option :value="0.2">0.20 m/s</option><option :value="0.3">0.30 m/s</option><option :value="0.4">0.40 m/s</option></select></label></div>
     </div>
     <p v-if="kind==='xgoduck'">预备 → 原地平衡 → 按住行走；松开平衡，坐下后点站起恢复。</p>
     <p v-else>开始时先匀速分段到所选模型姿势，再持续{{ kind==='walk'?'按前进速度行走':'调整站姿' }}。“{{ poseName }}”以50Hz匀速分段到初始姿势并保持。停止结束推理并保持；全部失能立即卸力。</p>
@@ -106,7 +106,7 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <div v-if="kind==='xgoduck'" class="walk-speed-row">
       <label>前后档位 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="轮盘前后速度" /><output>{{ wheelSpeed.toFixed(2) }}</output></label>
       <button v-for="value in [0.05,0.1,0.2,0.3,0.4]" :key="value" :class="{selected:wheelSpeed===value}" @click="wheelSpeed=value">{{ value.toFixed(2) }}</button>
-      <small>后退×2 / 转向×2 · 档位不是实测速度</small>
+      <small>模型指令速度 · 非实测速度</small>
     </div>
     <div v-if="kind==='xgoduck'" class="runtime-interaction">
     <p v-if="kind==='xgoduck'" class="drive-result" role="status">{{ driveReason || commandState || '轮盘已就绪 · 按住拖动行走' }}</p>
@@ -119,8 +119,7 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     </div>
     </div>
     <div class="runtime-metrics"><span v-if="kind==='xgoduck'">模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
-    <div class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?(kind==='xgoduck'?'XgoDuck':kind==='walk'?'v6':'v5')+' 模型就绪 · 等待开始':'模型未就绪') }}</div>
-    <small>{{ kind==='xgoduck'?'XgoDuck 原版模型 · 指令速度不等于实际速度，实机效果待验证。':kind==='walk'?'v6仿真可迈步；低头/走偏待优化，实机未验收。':'XgoDuck运行配置：P6/D20 · 动作平滑0.45。' }}</small>
+    <div class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?(kind==='xgoduck'?'平衡行走':kind==='walk'?'定速行走':'站立保持')+' 模型就绪 · 等待开始':'模型未就绪') }}</div>
   </div>
 </template>
 <style scoped>

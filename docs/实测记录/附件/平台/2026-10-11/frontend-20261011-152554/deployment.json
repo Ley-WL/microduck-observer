@@ -1,0 +1,19 @@
+{
+  "installed": true,
+  "release": "/home/radxa/microduck-observer/releases/frontend-20261011-152554",
+  "previousRelease": "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2",
+  "assets": {
+    "index.html": "56d7fad2d1fdb72cb1f5e7105a25f468f1e51c5c0b38c4659fb8cd23845bd084",
+    "assets/index-1WFpbD62.js": "8d477a2d1740a7b03df24783b492e1fa6010c06164c9dbb8842e971d4a88988a",
+    "assets/index-BtAVbRfo.css": "cb5a376c2432809958c8575f4281d10ca35fe18bd47d5d5e7a6ccaefbac03da9",
+    "model/LICENSE": "48a029ca4cffafe32428e9f7d3f6a54ce637fac5327a9ccf88c93cb3c40e5a8a",
+    "model/meshes.bin": "d2252354ee5a04367aaf82242e08e52491b02ebbf27d48dc2c20350e6714d1a8",
+    "model/model.json": "afb68b1b75ed9c8e1e9a96de401cc2346bb913e7c4f8c6a82fd8bbc10ca69c9c",
+    "model/NOTICE.md": "40025b104ed58fdae7d4e3eec6703746a925cc2c626c84dd476aa50619e2f15a"
+  },
+  "mainPidUnchanged": 1020,
+  "calibrationUnchanged": true,
+  "modelsAndGainsUnchanged": true,
+  "hardwareMotion": false,
+  "serviceRestart": false
+}

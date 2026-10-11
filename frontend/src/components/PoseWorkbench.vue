@@ -7,7 +7,6 @@ import CalibrationStudio from "./CalibrationStudio.vue";
 import RobotView from "./RobotView.vue";
 import SignalChart from "./SignalChart.vue";
 import ServoPanel from "./ServoPanel.vue";
-import ServoActions from "./ServoActions.vue";
 import ModelControlPanel from "./ModelControlPanel.vue";
 import { useJointPose } from "../jointPose";
 import { useBoardCalibration } from "../boardCalibration";
@@ -159,7 +158,6 @@ const value = (values: number[] | undefined, i: number) =>
           }}</span>
         </div>
         <ModelControlPanel />
-        <ServoActions />
         <label v-if="state.sensorOnly && !board.data?.imu.mountingQuaternion" class="bench-mounting">
           安装方向
           <select :value="mountingYaw" :disabled="state.paused || !canCalibrate"
