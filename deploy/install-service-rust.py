@@ -1,10 +1,12 @@
 """One-shot installer only. Both installed runtime helpers are Rust executables."""
 from pathlib import Path
-import hashlib, json, os, shutil, socket, subprocess, time, urllib.request
+import hashlib, json, os, shutil, socket, subprocess, time, urllib.request, re
 
 stage=Path('/home/radxa/service-rust-stage')
-release=Path('/usr/local/lib/microduck-services/20261011-service-rust-v1')
-backup=Path('/var/lib/microduck-observer/service-rust-backup-20261011')
+name=json.loads((stage/'release.json').read_text())['name']
+assert isinstance(name,str) and re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}',name)
+release=Path('/usr/local/lib/microduck-services')/name
+backup=Path('/var/lib/microduck-observer')/('service-rust-backup-'+name)
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 def run(*args):return subprocess.run(args,check=True,capture_output=True,text=True,timeout=15).stdout.strip()
 def snapshot():return json.load(urllib.request.urlopen('http://127.0.0.1:8877/api/v1/snapshot',timeout=4))

@@ -10,6 +10,7 @@ from pathlib import Path
 import pwd
 import shutil
 import signal
+import sys
 import subprocess
 import time
 from urllib.request import urlopen
@@ -24,7 +25,7 @@ release = args.release.resolve()
 workspace = args.workspace.resolve()
 binary = release/'bin/microduck-observer'
 calibration = Path('/var/lib/microduck-observer/calibration.json')
-python = '/home/radxa/microduck-observer/venv/bin/python'
+python = sys.executable
 
 
 def get(port, path):

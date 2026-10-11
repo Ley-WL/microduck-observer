@@ -8,7 +8,7 @@
 
 启用配置 `MICRODUCK_BLE_ENABLED=1`，身份路径 `MICRODUCK_BLE_IDENTITY`。`GET /api/v1/health` 的 bluetooth 字段报告 disabled/ready/unavailable。BlueZ 注册失败只重试蓝牙，不退出观测和串口服务。模拟验证必须设 BLE_ENABLED=0，以免碰真实蓝牙。
 
-迁移现有主板使用 `tools/deploy-ducklink-rust.py`，先检测并拒绝运行中的模型/动作，候选模拟检查通过后备份服务配置、沿用身份、更换二进制、停用 ducklink-ble，验证 BLE 注册、标定与舵机寄存器保持，异常回滚原服务。旧 Python 源保留作历史/回滚，不同时启用两个蓝牙服务。
+BLE与运动已并入Rust。当前主后端打包、只读候选验证和切换入口见 `deploy/RUST.md`；辅助服务使用 `tools/deploy-service-rust.py`。旧版本专用迁移脚本已删除，不同时启用两个蓝牙服务。
 
 Wi-Fi 配网使用 Rust root 权限辅助服务 ducklink-wifi（无蓝牙/运动），主后端经本地 Unix socket 调用；通过 SO_PEERCRED 校验 radxa/legacy ducklink/root，非公网控制接口。受限电源辅助也为 Rust；二者源码在 src/bin，20261011-service-rust-v1 安装于 /usr/local/lib/microduck-services。保留独立权限进程，整个控制后端仍以 radxa 运行。
 

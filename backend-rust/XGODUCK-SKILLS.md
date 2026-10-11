@@ -1,3 +1,5 @@
+> 当前工具入口见 deploy/RUST.md 和 tools/README.md。下述历史版本专用导入/部署脚本已删除，历史动作合同不能作为当前发布命令。
+
 # XgoDuck 多模型后端
 
 > **2026-10-11 最新执行覆盖：** 已部署kissqy-mechanical-v1，全部15关节机械范围采用kissqy保存标定。模型先裁机械角度、再按本机零位/方向转4096编码，无跨圈/编码饱和；单圈编码或EEPROM有效边界不满足则拒绝。模型权重、raw历史、增益及其它设置保持。旧训练XML/v3限位合同属于训练历史，和当前机械发令 guard 分开核验；旧段落的“仅v3裁角度/原供体编码饱和”已被本条覆盖。103检查、ARM五技能及152帧目标公式核对通过，只读部署非起身实机成功，详见实测03/04及2026-10-11/kissqy-mechanical证据。
@@ -16,7 +18,7 @@
 
 保留61→14、烘焙归一化、HOME增量、EMA0.45/0.55、raw prev_action与sit=1/stand=0标志。新站起至少4有效秒，新起身至少3有效秒，均要求倾角<15°、gyro范数<2rad/s、腿关节平均HOME偏差<0.25rad累计1有效秒后回零速行走，避免旧站起1秒提前截断。坐姿持续模型维持，4有效秒后开放站起；状态返回sitSettleSeconds，网页按该值禁用早期站起。这里是平台完成判据，非高度测量或实物到位证明。共享标定、临时增益、编码/EEPROM饱和与既有故障/IMU保护保持；原供体元数据兼容回滚。
 
-导入`tools/import-hd1910-skills.py`校验完整训练验收和哈希，旧本地权重备份到忽略的staging。部署使用`tools/deploy-hd1910-skills.py --host <IP> --port <SSH端口>`；installer保留旧release，仅替换两模型、服务与网页，先隔离模拟/三动作数值核对，拒绝活动模型下切换，核对标定/寄存器/蓝牙身份，不发动作，异常回滚。当前主板5722连接关闭、186超时，未安装或实物验证。下方原版/官方说明属于历史接入。
+导入`tools/import-hd1910-skills.py（已删除的历史脚本）`校验完整训练验收和哈希，旧本地权重备份到忽略的staging。部署使用`tools/deploy-hd1910-skills.py（已删除的历史脚本） --host <IP> --port <SSH端口>`；installer保留旧release，仅替换两模型、服务与网页，先隔离模拟/三动作数值核对，拒绝活动模型下切换，核对标定/寄存器/蓝牙身份，不发动作，异常回滚。当前主板5722连接关闭、186超时，未安装或实物验证。下方原版/官方说明属于历史接入。
 
 后端沿用本机共享 ID、方向、编码零点、IMU 安装/参考和 HOME；不导入供体标定。所有模型为原版 ONNX，移植效果尚未实物验收。
 
@@ -57,7 +59,7 @@
 
 推理目标 50Hz、总线写读目标 100Hz 仍沿用现有部署；重复发旧目标也计入发令频率，不宣称实际频率达标。
 
-部署入口：`python tools/deploy-xgoduck-skills.py`。脚本先确认无运行任务，保存标定/寄存器证据，在模拟候选与 ARM 数值核对通过后切换独立 release，失败回滚；前端和已有模型保持。部署失败或主板不可达时不得宣称实机移植验收。
+部署入口：`python tools/deploy-xgoduck-skills.py（已删除的历史脚本）`。脚本先确认无运行任务，保存标定/寄存器证据，在模拟候选与 ARM 数值核对通过后切换独立 release，失败回滚；前端和已有模型保持。部署失败或主板不可达时不得宣称实机移植验收。
 
 
 网页及DuckLink0.9.0已接入动作按钮（仅本地构建，未部署）。POST `/api/v1/policy/mouth` 接受 `{session,sequence,angleDeg}`，角度0–30°。只在walk平衡及有效反馈状态接受，与行走/动作共用递增序号；先归零行走，通过唯一owner对齐当前嘴部位置、临时P32/I0/D40使能，再写目标。拾取等动作优先，切换清待发嘴部目标并闭嘴。停机手动张闭嘴用既有servo angle接口。
@@ -70,7 +72,7 @@
 
 ## 官方坐下/站起（2026-10-08已部署）
 
-XgoDuck公开仓库无sitstand导出，但MicroDuck官方Hugging Face提供alpha_sitstand.onnx新版2250轮。已单独接入sitstand_sit/sitstand_stand（同一ONNX），使用现有会话POST /policy/skill的sit/standup。坐姿持续维持且不能走，坐下2有效秒后允许站起，站起1有效秒回零速度XgoDuck；这沿官方窗口，不是实际姿态到位证明。倒地起身仍getup。独立standup启动从当前姿态使能，禁止HOME。源版本/哈希/定义见models/alpha_sitstand.metadata.json。保留本机范围/标定/增益/保护，只读部署与数值核对通过，运动待用户验收。部署tools/deploy-official-sitstand.py，网页刷新，App0.9.6更多操作。
+XgoDuck公开仓库无sitstand导出，但MicroDuck官方Hugging Face提供alpha_sitstand.onnx新版2250轮。已单独接入sitstand_sit/sitstand_stand（同一ONNX），使用现有会话POST /policy/skill的sit/standup。坐姿持续维持且不能走，坐下2有效秒后允许站起，站起1有效秒回零速度XgoDuck；这沿官方窗口，不是实际姿态到位证明。倒地起身仍getup。独立standup启动从当前姿态使能，禁止HOME。源版本/哈希/定义见models/alpha_sitstand.metadata.json。保留本机范围/标定/增益/保护，只读部署与数值核对通过，运动待用户验收。部署tools/deploy-official-sitstand.py（已删除的历史脚本），网页刷新，App0.9.6更多操作。
 
 
 2026-10-10 当前坐站权重为用户选择的监督初始化单actor（SHA256 `2a3edcb880e88435a7ac248568859bb4f1eb487b9204db06a4aa3fb59c5ebe29`），不是原版模型或后续失败PPO。沿用hd1910_sitstand/v3合同：EMA+HOME后裁14关节目标、raw prev_action保持；坐姿持续推理，站起≥4有效秒且直立累计≥1秒后回零速walk。CPU重复循环31/32仅小样本初筛，hardwareValidated=false。release20261010-bidirectional-seed-v1已部署，实物动作待验收。
@@ -85,7 +87,7 @@ release20261010-sit-trace-v1保留同权重SHA及同HOME的sitstand_sit↔sitsta
 
 当前alpha_sitstand是短程监督修正的单actor，SHA85d7e1a48f97d29af2482ad92ecf0685837e520d01960f34642feed0c82fc167；release20261010-sit-smooth-v1。只修改MLP权重，原图归一化/运行端EMA/HOME/目标裁剪/动作历史保持。以同指令新鲜相邻实机输入的输出差做平滑成本，完整仿真轨迹及全部实机输出做行为保留锚；300步，非PPO续训。新旧144例配对均134成功，无新增失败，但未正式验收。真实观测重放是拟合内结果，不能代表实物新闭环改善。
 
-部署保留Rust trace二进制、所有其他模型、网页、标定、关键舵机寄存器、BLE身份和持久增益。旧sit-trace-v1完整保留回退。部署脚本tools/deploy-sit-smooth.py先检查三组配对无新增失败，再复用活动任务拒绝、ARM数值核对、寄存器/标定核对及失败回退流程；不自动运动。硬件验收仍待用户新一次App坐站。
+部署保留Rust trace二进制、所有其他模型、网页、标定、关键舵机寄存器、BLE身份和持久增益。旧sit-trace-v1完整保留回退。部署脚本tools/deploy-sit-smooth.py（已删除的历史脚本）先检查三组配对无新增失败，再复用活动任务拒绝、ARM数值核对、寄存器/标定核对及失败回退流程；不自动运动。硬件验收仍待用户新一次App坐站。
 
 ## 2026-10-11 kissqy同步控制核查
 

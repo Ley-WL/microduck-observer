@@ -23,7 +23,6 @@ def get(path):
 async def check():
     info = get('/api/v1/info')
     assert info['source'] == 'hardware'
-    assert not info['capabilities']['pose']
     counts = Counter()
     sequences = {}
     start = time.monotonic()

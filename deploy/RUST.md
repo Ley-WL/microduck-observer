@@ -1,12 +1,14 @@
 # 原生 Rust 部署
 
+当前辅助部署：`python tools/deploy-service-rust.py --host radxa@8.133.210.70 --port 5722 --release <唯一版本名>`。省略release自动生成时间戳；`--package-only`仅本机构包。已安装的20261011-service-rust-v1保持，不覆盖。
+
 ## 2026-10-11 板上服务迁移
 
 Wi-Fi 管理与受限电源辅助源码分别为 `backend-rust/src/bin/ducklink-wifi.rs` 和 `backend-rust/src/bin/microduck-power-helper.rs`。构建使用 `cargo build --release --locked --target aarch64-unknown-linux-gnu --bins`；打包入口包含两个 ARM64 helper。`tools/deploy-service-rust.py` 安装独立 `/usr/local/lib/microduck-services/20261011-service-rust-v1/`，替换 systemd ExecStart，保持原 Unix socket 协议和权限隔离，主控制服务不升权、不重启。
 
 Wi-Fi 保留 wpa_supplicant 控制 socket、异步连接、成功关联及 IPv4 后保存 netplan、连接失败恢复原选择、原配置原子写/生成失败回滚。密码不进入命令行、日志或错误回包。主板系统提供的 netplan 命令属于系统网络工具，机器人服务本身不再以 Python 运行。电源 helper 仍只允许 poweroff/reboot，经 systemd 延迟五秒执行；自动验收仅发非法动作，不真正关机/重启。
 
-部署要求空闲且15舵机卸力；检查当前关联、netplan字节、模型/二进制/标定/持久增益/BLE身份不变及20快照。旧单位和 Python helper 归档在 `/var/lib/microduck-observer/service-rust-backup-20261011/` 用于失败回滚，活动位置的 Python helper 删除。构建、部署、诊断、实测附件中的一次性 Python 脚本保留；历史专用部署入口不能视为当前平台整套安装入口。
+部署要求空闲且15舵机卸力；检查当前关联、netplan字节、模型/二进制/标定/持久增益/BLE身份不变及20快照。旧单位和 Python helper 归档在 `/var/lib/microduck-observer/service-rust-backup-20261011/` 用于失败回滚，活动位置的 Python helper 删除。旧版本专用脚本与附件旧Python源码已直接删除，不另建归档。当前必需工具清单见 [tools/README.md](../tools/README.md)；原始实测数据和当前kissqy对照源码保留。
 
 > **2026-10-11 最新执行覆盖：** 已部署kissqy-mechanical-v1，全部15关节机械范围采用kissqy保存标定。模型先裁机械角度、再按本机零位/方向转4096编码，无跨圈/编码饱和；单圈编码或EEPROM有效边界不满足则拒绝。模型权重、raw历史、增益及其它设置保持。旧训练XML/v3限位合同属于训练历史，和当前机械发令 guard 分开核验；旧段落的“仅v3裁角度/原供体编码饱和”已被本条覆盖。103检查、ARM五技能及152帧目标公式核对通过，只读部署非起身实机成功，详见实测03/04及2026-10-11/kissqy-mechanical证据。
 
@@ -25,7 +27,7 @@ Wi-Fi 保留 wpa_supplicant 控制 socket、异步连接、成功关联及 IPv4 
 ```bash
 rustup target add aarch64-unknown-linux-gnu
 CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
-cargo build --release --locked --target aarch64-unknown-linux-gnu -j 2
+cargo build --release --locked --target aarch64-unknown-linux-gnu --bins -j 2
 ```
 
 ## 打包
