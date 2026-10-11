@@ -13,6 +13,17 @@ use tower::ServiceExt;
 // Opt-in wire reduction only; the control loop and its full diagnostics stay unchanged.
 fn compact_status(mut status: Value, request: &Value) -> Value {
     let observer = &mut status["observer"];
+    if request["telemetryEncoding"] == "columns-v1" {
+        let columns = ["id", "online", "position", "ageMs", "fault", "voltage", "temperature"];
+        let joints = &mut observer["joints"];
+        if let Some(rows) = joints["servos"].as_array() {
+            let values: Vec<Value> = rows.iter().map(|r| Value::Array(columns.iter().map(|key| r[*key].clone()).collect())).collect();
+            joints["rowEncoding"] = json!("columns-v1");
+            joints["columns"] = json!(columns);
+            joints["values"] = json!(values);
+            joints.as_object_mut().unwrap().remove("servos");
+        }
+    }
     if let Some(control) = observer["control"].as_object_mut() {
         control.retain(|key, _| ["state", "message", "feedbackHolding", "posture", "kpRun", "kdRun", "activeSkill", "ageMs"].contains(&key.as_str()));
     }
@@ -445,6 +456,21 @@ pub async fn wifi(body: Value) -> Result<Value> {
 #[cfg(test)]
 pub(crate) mod tests {
     use super::*;
+    #[test]
+    fn column_wire_preserves_all_servo_values_and_headers() {
+        let servos: Vec<Value> = (10..25).map(|id|json!({"id":id,"online":false,"position":2048,"ageMs":123.456789,"fault":143,"voltage":3.8,"temperature":55})).collect();
+        let full = json!({"observer":{"control":{},"joints":{"sequence":7,"bootId":"b","ageMs":42.5,"servos":servos},"calibration":{"revision":1},"system":{"bootId":"b"}}});
+        let packed = compact_status(full.clone(), &json!({"telemetryEncoding":"columns-v1"}));
+        let joints=&packed["observer"]["joints"];
+        let columns=joints["columns"].as_array().unwrap();
+        let rows:Vec<Value>=joints["values"].as_array().unwrap().iter().map(|row| {
+            let mut v=json!({});for (i,key) in columns.iter().enumerate() {if !row[i].is_null(){v[key.as_str().unwrap()]=row[i].clone();}}v
+        }).collect();
+        assert_eq!(json!(rows),full["observer"]["joints"]["servos"]);
+        for key in ["sequence","bootId","ageMs"] {assert_eq!(joints[key],full["observer"]["joints"][key]);}
+        assert!(serde_json::to_vec(joints).unwrap().len()<serde_json::to_vec(&full["observer"]["joints"]).unwrap().len()*2/3);
+        assert_eq!(compact_status(full.clone(), &json!({}))["observer"]["joints"],full["observer"]["joints"]);
+    }
     #[test]
     fn compact_wire_keeps_safety_and_refreshes_calibration() {
         let full = json!({"motionError":"fault", "observer":{"control":{"state":"failed","message":"fault","feedbackHolding":true,"posture":"seated","kpRun":5,"kdRun":20,"cycleCosts":{"large":vec![1;1000]}},"calibration":{"revision":9},"system":{"bootId":"boot"},"joints":{"servos":[{"id":10,"fault":143}]}}});
