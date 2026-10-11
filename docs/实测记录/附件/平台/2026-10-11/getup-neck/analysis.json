@@ -1,0 +1,457 @@
+{
+  "sessionSha256": "08aaf1b3ece551db3053e556a0b5b68cd20abb5d16d5fe0530689cd01e136ce1",
+  "failureSha256": "b73da15b16d1215ee8f118250947e998b59820a99b0f8b07c3c912febdfe05a0",
+  "sessionResult": {
+    "error": "起身结束时仍倒地，拒绝进入行走，停止并卸力"
+  },
+  "motionIssued": false,
+  "groups": {
+    "xgoduck": {
+      "frames": 686,
+      "head": {
+        "neck_pitch": {
+          "id": 30,
+          "gains": [
+            [
+              5,
+              0
+            ]
+          ],
+          "targetRangeDeg": [
+            -90.0,
+            20.126953125
+          ],
+          "measuredRangeDeg": [
+            -85.78125,
+            19.86328125
+          ],
+          "lastTargetDeg": 7.55859375,
+          "lastMeasuredDeg": 2.8125,
+          "lastHardwareGoalDeg": 9.580078125,
+          "instantErrorP95Deg": 24.2138671875,
+          "last10ErrorMedianDeg": 2.6806640625,
+          "clippedFrames": 12,
+          "voltageRange": [
+            6.6,
+            7.6
+          ],
+          "maxAbsLoad": 865,
+          "maxAbsCurrentRaw": 564,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_pitch": {
+          "id": 31,
+          "gains": [
+            [
+              5,
+              0
+            ]
+          ],
+          "targetRangeDeg": [
+            9.84375,
+            62.314453125
+          ],
+          "measuredRangeDeg": [
+            7.119140625,
+            54.31640625
+          ],
+          "lastTargetDeg": 18.896484375,
+          "lastMeasuredDeg": 19.951171875,
+          "lastHardwareGoalDeg": 16.69921875,
+          "instantErrorP95Deg": 13.11767578125,
+          "last10ErrorMedianDeg": 4.6142578125,
+          "clippedFrames": 0,
+          "voltageRange": [
+            6.5,
+            7.4
+          ],
+          "maxAbsLoad": 509,
+          "maxAbsCurrentRaw": 459,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_yaw": {
+          "id": 32,
+          "gains": [
+            [
+              5,
+              0
+            ]
+          ],
+          "targetRangeDeg": [
+            -18.6328125,
+            103.271484375
+          ],
+          "measuredRangeDeg": [
+            -10.37109375,
+            57.392578125
+          ],
+          "lastTargetDeg": 10.107421875,
+          "lastMeasuredDeg": 3.427734375,
+          "lastHardwareGoalDeg": 7.03125,
+          "instantErrorP95Deg": 18.9404296875,
+          "last10ErrorMedianDeg": 7.6025390625,
+          "clippedFrames": 0,
+          "voltageRange": [
+            6.3,
+            7.5
+          ],
+          "maxAbsLoad": 889,
+          "maxAbsCurrentRaw": 497,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_roll": {
+          "id": 33,
+          "gains": [
+            [
+              5,
+              0
+            ]
+          ],
+          "targetRangeDeg": [
+            -20.0390625,
+            20.0390625
+          ],
+          "measuredRangeDeg": [
+            -13.7109375,
+            12.744140625
+          ],
+          "lastTargetDeg": 2.724609375,
+          "lastMeasuredDeg": -0.087890625,
+          "lastHardwareGoalDeg": 5.80078125,
+          "instantErrorP95Deg": 11.9091796875,
+          "last10ErrorMedianDeg": 2.373046875,
+          "clippedFrames": 16,
+          "voltageRange": [
+            6.4,
+            7.5
+          ],
+          "maxAbsLoad": 467,
+          "maxAbsCurrentRaw": 380,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        }
+      },
+      "tiltDeg": {
+        "first": 89.93899519340623,
+        "last": 79.0420147304414
+      }
+    },
+    "sitstand_sit": {
+      "frames": 210,
+      "head": {
+        "neck_pitch": {
+          "id": 30,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            2.373046875,
+            27.158203125
+          ],
+          "measuredRangeDeg": [
+            5.625,
+            18.984375
+          ],
+          "lastTargetDeg": 18.544921875,
+          "lastMeasuredDeg": 17.841796875,
+          "lastHardwareGoalDeg": 18.544921875,
+          "instantErrorP95Deg": 8.397949218749998,
+          "last10ErrorMedianDeg": 0.703125,
+          "clippedFrames": 0,
+          "voltageRange": [
+            7.0,
+            7.6
+          ],
+          "maxAbsLoad": 510,
+          "maxAbsCurrentRaw": 804,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_pitch": {
+          "id": 31,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            0.87890625,
+            28.037109375
+          ],
+          "measuredRangeDeg": [
+            5.537109375,
+            23.642578125
+          ],
+          "lastTargetDeg": 17.314453125,
+          "lastMeasuredDeg": 18.45703125,
+          "lastHardwareGoalDeg": 17.2265625,
+          "instantErrorP95Deg": 10.810546875,
+          "last10ErrorMedianDeg": 1.23046875,
+          "clippedFrames": 0,
+          "voltageRange": [
+            6.8,
+            7.4
+          ],
+          "maxAbsLoad": 525,
+          "maxAbsCurrentRaw": 661,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_yaw": {
+          "id": 32,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            -11.865234375,
+            14.150390625
+          ],
+          "measuredRangeDeg": [
+            -3.955078125,
+            7.91015625
+          ],
+          "lastTargetDeg": 2.28515625,
+          "lastMeasuredDeg": 2.28515625,
+          "lastHardwareGoalDeg": 2.28515625,
+          "instantErrorP95Deg": 8.463867187499991,
+          "last10ErrorMedianDeg": 0.0,
+          "clippedFrames": 0,
+          "voltageRange": [
+            6.8,
+            7.4
+          ],
+          "maxAbsLoad": 400,
+          "maxAbsCurrentRaw": 421,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_roll": {
+          "id": 33,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            -10.1953125,
+            5.2734375
+          ],
+          "measuredRangeDeg": [
+            -5.537109375,
+            1.58203125
+          ],
+          "lastTargetDeg": -1.40625,
+          "lastMeasuredDeg": -1.23046875,
+          "lastHardwareGoalDeg": -1.40625,
+          "instantErrorP95Deg": 3.524414062499997,
+          "last10ErrorMedianDeg": 0.17578125,
+          "clippedFrames": 0,
+          "voltageRange": [
+            6.9,
+            7.5
+          ],
+          "maxAbsLoad": 227,
+          "maxAbsCurrentRaw": 229,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        }
+      },
+      "tiltDeg": {
+        "first": 89.95394271545541,
+        "last": 89.98407196029726
+      }
+    },
+    "sitstand_stand": {
+      "frames": 50,
+      "head": {
+        "neck_pitch": {
+          "id": 30,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            -90.0,
+            29.619140624999996
+          ],
+          "measuredRangeDeg": [
+            -86.220703125,
+            17.841796875
+          ],
+          "lastTargetDeg": -90.0,
+          "lastMeasuredDeg": -85.78125,
+          "lastHardwareGoalDeg": -74.794921875,
+          "instantErrorP95Deg": 53.26611328124998,
+          "last10ErrorMedianDeg": 4.2626953125,
+          "clippedFrames": 20,
+          "voltageRange": [
+            6.3,
+            7.6
+          ],
+          "maxAbsLoad": 1000,
+          "maxAbsCurrentRaw": 1500,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_pitch": {
+          "id": 31,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            -25.048828125,
+            33.046875
+          ],
+          "measuredRangeDeg": [
+            -2.63671875,
+            22.587890625
+          ],
+          "lastTargetDeg": 9.580078125,
+          "lastMeasuredDeg": 6.416015625,
+          "lastHardwareGoalDeg": -1.93359375,
+          "instantErrorP95Deg": 24.912597656249996,
+          "last10ErrorMedianDeg": 3.2958984375,
+          "clippedFrames": 0,
+          "voltageRange": [
+            6.1,
+            7.4
+          ],
+          "maxAbsLoad": 1000,
+          "maxAbsCurrentRaw": 1032,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_yaw": {
+          "id": 32,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            -28.4765625,
+            18.720703125
+          ],
+          "measuredRangeDeg": [
+            -12.216796875,
+            12.83203125
+          ],
+          "lastTargetDeg": 10.01953125,
+          "lastMeasuredDeg": 7.20703125,
+          "lastHardwareGoalDeg": 4.130859375,
+          "instantErrorP95Deg": 26.692382812499996,
+          "last10ErrorMedianDeg": 3.4716796875,
+          "clippedFrames": 0,
+          "voltageRange": [
+            5.9,
+            7.4
+          ],
+          "maxAbsLoad": 1000,
+          "maxAbsCurrentRaw": 841,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        },
+        "head_roll": {
+          "id": 33,
+          "gains": [
+            [
+              5,
+              20
+            ]
+          ],
+          "targetRangeDeg": [
+            -20.0390625,
+            17.314453125
+          ],
+          "measuredRangeDeg": [
+            -12.744140625,
+            11.865234375
+          ],
+          "lastTargetDeg": 15.8203125,
+          "lastMeasuredDeg": 11.865234375,
+          "lastHardwareGoalDeg": 9.404296875,
+          "instantErrorP95Deg": 12.726562499999996,
+          "last10ErrorMedianDeg": 4.042968749999999,
+          "clippedFrames": 1,
+          "voltageRange": [
+            6.0,
+            7.5
+          ],
+          "maxAbsLoad": 740,
+          "maxAbsCurrentRaw": 356,
+          "faults": [
+            0
+          ],
+          "torqueStates": [
+            1
+          ]
+        }
+      },
+      "tiltDeg": {
+        "first": 89.98434175611479,
+        "last": 77.36736201820956
+      }
+    }
+  }
+}
