@@ -290,6 +290,18 @@ fn body_gravity(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<Vector
     let gravity = body.transpose() * Vector3::new(0., 0., -1.);
     Ok(gravity)
 }
+fn home_posture_allowed(angle:f64) -> Result<()> {
+    if !angle.is_finite() || angle>=FALL_TILT_DEG {
+        bail!("机身倾角{angle:.1}°，仍处于倒地姿态，拒绝预备/HOME目标；请使用倒地起身");
+    }
+    Ok(())
+}
+pub fn check_home_posture(shared:&Shared,cal:&Value) -> Result<f64> {
+    let sensors=imu_samples(shared)?;
+    let gravity=body_gravity(&sensors,cal)?;
+    let angle=(-gravity.z/gravity.norm()).clamp(-1.,1.).acos().to_degrees();
+    home_posture_allowed(angle)?;Ok(angle)
+}
 #[derive(Default)]
 struct FallGuard { since:Option<Instant> }
 impl FallGuard {
@@ -955,12 +967,18 @@ fn native_policy_loop(
         let recovery_fallen=recovery_posture.observe(tilt(&obs),Instant::now());
         let requested=shared.write().unwrap().pending_skill.take();
         let finished=model.skill_profile.complete(&model.kind,model.progress,model.upright);
+        if finished && model.skill_profile.donor_getup && home_posture_allowed(tilt(&obs)).is_err() {
+            trace.transition(json!({"type":"recovery-failed","mono":crate::telemetry::monotonic(),
+                "tiltDegrees":tilt(&obs),"progressSeconds":model.progress,"destination":"disabled"}));
+            pause_drive(shared);
+            bail!("倒地起身6秒窗口结束但机身仍倒地（{:.1}°），停止推理并卸力；未发HOME目标",tilt(&obs));
+        }
         let handoff=native_handoff(&model.kind,finished,model.skill_profile.donor_getup,return_home,recovery_resume,requested);
         if handoff==NativeHandoff::Home {
             trace.transition(json!({"type":"recovery-complete","mono":crate::telemetry::monotonic(),"destination":"HOME","tiltDegrees":tilt(&obs),"progressSeconds":model.progress}));
             pause_drive(shared);
             let home:BTreeMap<_,_>=ORDER.into_iter().zip(model.home.map(|v|v as f64)).collect();
-            let mut v=control::execute(bus,&json!({"action":"stand","calibration":cal,"standTargets":home,"nativePolicyGains":[model.gains.p,model.gains.d]}),cancel,shared)?;
+            let mut v=control::execute(bus,&json!({"action":"stand","calibration":cal,"standTargets":home,"nativePolicyGains":[model.gains.p,model.gains.d],"requireUpright":true}),cancel,shared)?;
             v["state"]=json!("holding");v["action"]=json!("policy");v["policyPhase"]=json!("home");
             v["message"]=json!("起身窗口结束，已返回HOME保持；行走需主动启动");
             v["recoveryWindowComplete"]=json!(true);v["recoveryUprightAtEnd"]=json!(tilt(&obs)<15.);
@@ -1191,7 +1209,7 @@ pub fn execute(
             // Fallen starts must not use the upright HOME transition.
             arm_current_profile(bus,&ORDER,&feedback,if model.donor_sensors() {(model.gains.p,model.gains.d)} else {control::MANUAL_GAINS},cancel,halt,model.donor_sensors())?;
         } else {
-            let mut home_command=json!({"action":"stand","calibration":cal,"standTargets":home});
+            let mut home_command=json!({"action":"stand","calibration":cal,"standTargets":home,"requireUpright":true});
             if model.donor_sensors() {home_command["nativePolicyGains"]=json!([model.gains.p,model.gains.d]);}
             control::execute(bus,&home_command,cancel,shared)?;
         }
@@ -1632,6 +1650,16 @@ mod tests {
         let mut time=0.;for _ in 0..299 {time+=0.02;}
         assert!(!profile.complete("xgoduck_getup",time,0.));time+=0.02;
         assert!(profile.complete("xgoduck_getup",time,0.));
+    }
+    #[test]
+    fn expired_recovery_does_not_authorize_home_while_still_fallen() {
+        let profile=SkillProfile{donor_getup:true,..Default::default()};
+        assert!(profile.complete("xgoduck_getup",6.,0.));
+        for angle in [60.,94.70054285503988,180.,f64::NAN] {
+            assert!(home_posture_allowed(angle).is_err());
+        }
+        assert!(home_posture_allowed(11.246106389039467).is_ok());
+        assert!(home_posture_allowed(59.99).is_ok());
     }
     #[test]
     fn donor_recovery_arbitrates_origin_posture_and_underlying_seat() {

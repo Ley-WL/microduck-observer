@@ -386,7 +386,7 @@ async fn model_gains(State(a): State<App>, headers: HeaderMap, body: Bytes) -> R
 }
 fn policy_home_command(kind:&str,cal:Value)->anyhow::Result<Value> {
     let targets=policy::home_targets_for(kind)?;
-    Ok(json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind}))
+    Ok(json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind,"requireUpright":true}))
 }
 async fn policy_action(
     State(a): State<App>,

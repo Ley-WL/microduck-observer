@@ -1,0 +1,22 @@
+{
+  "deployment": {
+    "installed": true,
+    "release": "/home/radxa/microduck-observer/releases/runtime-20261011-203144",
+    "previousRelease": "/home/radxa/microduck-observer/releases/runtime-20261011-201917",
+    "calibrationModelsGainsIdentityUnchanged": true,
+    "assetsHttpVerified": true,
+    "readonlySnapshots": 20,
+    "hardwareMotion": false,
+    "audioPermissionsConfigured": true,
+    "binarySha256": "a7e69bd4d2c8d6661ee636882227c3ff06bce079215f1aaacedfa4b903f759d4"
+  },
+  "testsPassed": 129,
+  "testsIgnored": 1,
+  "sourceHashes": {
+    "backend-rust/src/policy.rs": "188e4fd5c29aa8da7421ed0d4e9542f2053e899943c3dce6111b17ac33cd54d0",
+    "backend-rust/src/control.rs": "d22a3165fdd8991bd15057d1c2679d3e9b91798d2e4501462ed4bdad17d3b5e0",
+    "backend-rust/src/main.rs": "bcea219e34807cc7a7766fef6a94bab17e97ea97aac741769d1b9b8895aceb6e"
+  },
+  "agentMotionIssued": false,
+  "physicalRecoveryAcceptance": false
+}

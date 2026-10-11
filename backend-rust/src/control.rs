@@ -405,6 +405,9 @@ pub fn execute<T: Transport>(
             shared,
             json!({"state":"preflight","action":action,"message":"检查实时反馈、目标及硬件限位","progress":0}),
         );
+        if pose && command["requireUpright"]==true {
+            crate::policy::check_home_posture(shared,&command["calibration"])?;
+        }
         if action == "angle" || action == "profile" {
             let degree_value = if action == "angle" {
                 command["angleDeg"].clone()
@@ -595,6 +598,9 @@ pub fn execute<T: Transport>(
 
         loop {
             guard()?;
+            if command["requireUpright"]==true {
+                crate::policy::check_home_posture(shared,&command["calibration"])?;
+            }
             let (fresh, diagnostics) = poll_tick(bus, &IDS);
             for (id,row) in &fresh { validate(*id, Some(row), ids.contains(id))?; }
             let sampled = coast.sample(&fresh, ids, Instant::now());
@@ -1051,6 +1057,18 @@ mod tests {
     }
     fn command() -> Value {
         json!({"action":"angle","id":34,"angleDeg":20,"calibration":{"joints":{"references":{"34":2048},"directions":{}}}})
+    }
+    #[test]
+    fn fallen_prepare_is_rejected_before_torque_or_goal_writes() {
+        let mut bus=Mock::new();let state=shared();
+        let rotation=nalgebra::UnitQuaternion::from_euler_angles(94.7f64.to_radians(),0.,0.);
+        state.write().unwrap().sample("imu.orientation",json!({"quaternion":[rotation.i,rotation.j,rotation.k,rotation.w]}),true,Instant::now());
+        state.write().unwrap().sample("imu.raw",json!({}),true,Instant::now());
+        let error=execute(&mut bus,&json!({"action":"stand","requireUpright":true,
+            "calibration":{"imu":{"initialized":true,"mountingQuaternion":[0,0,0,1],"quaternion":[0,0,0,1]}}}),
+            &AtomicBool::new(false),&state).unwrap_err();
+        assert!(error.to_string().contains("仍处于倒地姿态"));
+        assert!(bus.writes.is_empty(),"fallen prepare must not enable or write a HOME target");
     }
     #[test]
     fn native_home_completion_latches_ready_and_release_clears_it() {
