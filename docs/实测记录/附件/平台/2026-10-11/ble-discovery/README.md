@@ -13,3 +13,7 @@
 最终只读控制器检查：powered=yes，ActiveInstances=1；btd disabled/inactive，microduck-observer active。控制器Alias仍duck-ded7属于系统适配器别名，不等于空中local_name；未改身份或配对。
 
 没有实机运动、训练、模型更换或App更新。手机重新搜索/连接待用户确认；电脑恢复发现不代表手机连接验收。
+
+## 后台长连接后搜索失败
+
+**2026-10-11 0.9.33再搜不到设备（残留LE已解除，代码修复待部署）：** 用户能收到几十台广播，App0.9.33无连接通知（Android13通知权限下不能仅凭无通知断言无前台服务）。主板统一Rust/BlueZ active、旧btd inactive、广告登记1实例，但一加Ace2 LE物理连接仍在；电脑10秒扫37台/无DuckLink，被动10秒ATT写/通知均0。新鲜只读确认disabled/15torque0后仅bluetoothctl断开该一加连接，未重启/动作/更改标定模型增益绑定；随后电脑36台中见DuckLink-f417aa及正确5d6b1000服务/RSSI−61，手机发现待反馈。源码发现通知结束仅drop_peer丢控制会话地址，没有Device.Disconnect，能留下物理连接；修正退出时断开对应peer，通知generation拒绝旧回调清理新订阅。未捕获原订阅结束事件，耦合恢复与源码遗漏不冒称唯一原因或一加已修复。122Rust/1忽略和ARM构建通过（新增2退出/旧回调回归）；初cargo默认examples既有缺module引用，采用生产bins检查，测试临时identity文件遗漏修正后全过。部署runtime174949在远端mkdir前因186 SSH超时终止，5722也关闭，未切服务，最后已核对仍runtime171053；已询问主板及手机搜索结果。无需新App OTA。证据附件/平台/2026-10-11/ble-discovery/long-connection-*.json、orphan-cleanup-audit.json及build/tests日志。

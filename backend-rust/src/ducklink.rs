@@ -34,8 +34,17 @@ struct State {
     peer: Option<Peer>,
     motion: Motion,
     notify: Option<mpsc::Sender<Vec<Vec<u8>>>>,
+    notify_generation: u64,
 }
 impl State {
+    async fn end_notifications(&mut self, generation: u64) -> Option<bluer::Address> {
+        // A late callback from the previous subscription must not tear down its replacement.
+        if generation != self.notify_generation { return None; }
+        self.notify = None;
+        let address = self.peer.as_ref().map(|peer| peer.address);
+        self.drop_peer().await;
+        address
+    }
     async fn drop_peer(&mut self) {
         self.peer = None;
         self.motion.close().await;
@@ -134,12 +143,14 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
         peer: None,
         motion: Motion::new(app.clone(), router),
         notify: None,
+        notify_generation: 0,
     }));
     let session = bluer::Session::new().await?;
     let adapter = session.default_adapter().await?;
     adapter.set_powered(true).await?;
     let write_state = state.clone();
     let notify_state = state.clone();
+    let notify_adapter = adapter.clone();
     let application = Application {
         services: vec![Service {
             uuid: SERVICE.parse()?,
@@ -211,9 +222,10 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                         notify: true,
                         method: CharacteristicNotifyMethod::Fun(Box::new(move |mut notifier| {
                             let state = notify_state.clone();
+                            let adapter = notify_adapter.clone();
                             async move{
                 let (tx,mut rx)=mpsc::channel::<Vec<Vec<u8>>>(1);
-                {let mut s=state.lock().await;s.drop_peer().await;s.notify=Some(tx);}
+                let generation={let mut s=state.lock().await;s.drop_peer().await;s.notify_generation=s.notify_generation.wrapping_add(1);s.notify=Some(tx);s.notify_generation};
                 tokio::spawn(async move{
                     loop {
                         tokio::select! {
@@ -224,7 +236,11 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                             }
                         }
                     }
-                    let mut s=state.lock().await;s.notify=None;s.drop_peer().await;
+                    let mut s=state.lock().await;
+                    let address=s.end_notifications(generation).await;
+                    // Dropping only the application peer leaves the LE connection alive and
+                    // may keep single-connection controllers from advertising again.
+                    if let Some(address)=address {if let Ok(device)=adapter.device(address){let _=device.disconnect().await;}}
                 });
             }.boxed()
                         })),
@@ -283,6 +299,34 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
     .await;
     state.lock().await.drop_peer().await;
     result
+}
+#[cfg(test)]
+mod notification_tests {
+    use super::*;
+    fn fixture() -> (State, tempfile::TempDir) {
+        let (mut motion, _, dir)=crate::ducklink_motion::tests::fixture();
+        motion.open().unwrap();
+        let (tx, _rx)=mpsc::channel(1);
+        let path=dir.path().join("ble.json");
+        std::fs::write(&path,json!({"robotId":"1234567890abcdef","setupCode":"000102030405060708090a0b0c0d0e0f","owner":null}).to_string()).unwrap();
+        let identity=Identity::load(path).unwrap();
+        let peer=Peer{address:"01:02:03:04:05:06".parse().unwrap(),session:Session::default(),framer:Framer::default(),last:Instant::now()};
+        (State{identity,peer:Some(peer),motion,notify:Some(tx),notify_generation:2},dir)
+    }
+    #[tokio::test]
+    async fn notification_end_returns_physical_peer_before_releasing_it() {
+        let (mut state,_dir)=fixture();
+        assert_eq!(state.end_notifications(2).await,Some("01:02:03:04:05:06".parse().unwrap()));
+        assert!(state.peer.is_none()&&state.notify.is_none()&&!state.motion.leased);
+        assert_eq!(state.end_notifications(2).await,None);
+    }
+    #[tokio::test]
+    async fn stale_notification_end_preserves_replacement_and_lease() {
+        let (mut state,_dir)=fixture();
+        assert_eq!(state.end_notifications(1).await,None);
+        assert!(state.peer.is_some()&&state.notify.is_some()&&state.motion.leased);
+        assert!(state.end_notifications(2).await.is_some());
+    }
 }
 pub fn spawn(app: App, router: Router, stop: Arc<AtomicBool>) {
     tokio::spawn(async move {
@@ -365,6 +409,7 @@ mod tests {
             peer: None,
             motion,
             notify: Some(tx),
+            notify_generation: 0,
         };
         let address = bluer::Address::new([1, 2, 3, 4, 5, 6]);
         let client = "a".repeat(32);

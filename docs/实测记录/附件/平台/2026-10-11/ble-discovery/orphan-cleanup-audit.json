@@ -1,0 +1,14 @@
+{
+  "rustTests": "115 main + 6 wifi + 1 power passed, 1 ignored",
+  "armBuildPassed": true,
+  "sourceSha256": "8afe81dce1ab11777e93d7083ad4f51e64341d0a54515c4f0bfb6ddfca1cd7b2",
+  "armSha256": "0a72b594fc47f659a43d5b9ff40e76769b18863b8d9c3d952538f9b75afccf70",
+  "deployed": false,
+  "deploymentAttempt": "runtime-20261011-174949",
+  "deploymentBlocked": "LAN SSH timed out before remote mkdir; mapping 5722 closed",
+  "appChanged": false,
+  "boardRestarted": false,
+  "passiveEvidenceLimit": "No original notification-stop event captured; no ATT requests/notifications in 10s; no claim of unique cause",
+  "physicalMotion": false,
+  "broadcastRestoredAfterPhysicalDisconnect": true
+}
