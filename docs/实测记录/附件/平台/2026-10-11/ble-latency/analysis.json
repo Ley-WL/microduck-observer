@@ -1,0 +1,236 @@
+{
+  "readOnlyPassiveCaptureSeconds": 12,
+  "completeRequests": 29,
+  "statistics": {
+    "notifications": {
+      "min": 27,
+      "median": 27,
+      "max": 27
+    },
+    "attPayloadBytes": {
+      "min": 6428,
+      "median": 6445,
+      "max": 6458
+    },
+    "replyFirstMs": {
+      "min": 20.936000000000732,
+      "median": 31.143000000000143,
+      "max": 53.929
+    },
+    "replyLastMs": {
+      "min": 268.83199999999977,
+      "median": 285.9870000000004,
+      "max": 310.96299999999997
+    },
+    "sendSpanMs": {
+      "min": 246.45599999999934,
+      "median": 254.0260000000001,
+      "max": 261.64599999999984
+    }
+  },
+  "requests": [
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6442,
+      "replyFirstMs": 34.94799999999998,
+      "replyLastMs": 290.96999999999997,
+      "sendSpanMs": 256.022
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6434,
+      "replyFirstMs": 53.929,
+      "replyLastMs": 310.96299999999997,
+      "sendSpanMs": 257.034
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6448,
+      "replyFirstMs": 42.10000000000002,
+      "replyLastMs": 296.1260000000001,
+      "sendSpanMs": 254.0260000000001
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6441,
+      "replyFirstMs": 46.99299999999984,
+      "replyLastMs": 306.697,
+      "sendSpanMs": 259.7040000000002
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6435,
+      "replyFirstMs": 42.300000000000004,
+      "replyLastMs": 292.5970000000002,
+      "sendSpanMs": 250.29700000000022
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6453,
+      "replyFirstMs": 51.87499999999989,
+      "replyLastMs": 308.36799999999977,
+      "sendSpanMs": 256.4929999999999
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6428,
+      "replyFirstMs": 39.95000000000015,
+      "replyLastMs": 301.596,
+      "sendSpanMs": 261.64599999999984
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6451,
+      "replyFirstMs": 35.63599999999978,
+      "replyLastMs": 292.869,
+      "sendSpanMs": 257.2330000000003
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6439,
+      "replyFirstMs": 38.85100000000019,
+      "replyLastMs": 296.85400000000016,
+      "sendSpanMs": 258.003
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6445,
+      "replyFirstMs": 38.51099999999974,
+      "replyLastMs": 295.871,
+      "sendSpanMs": 257.36000000000024
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6442,
+      "replyFirstMs": 31.143000000000143,
+      "replyLastMs": 286.1739999999999,
+      "sendSpanMs": 255.03099999999978
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6444,
+      "replyFirstMs": 44.0359999999993,
+      "replyLastMs": 299.25399999999945,
+      "sendSpanMs": 255.21800000000016
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6441,
+      "replyFirstMs": 42.88999999999987,
+      "replyLastMs": 297.9320000000003,
+      "sendSpanMs": 255.04200000000043
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6452,
+      "replyFirstMs": 36.19099999999964,
+      "replyLastMs": 289.64499999999924,
+      "sendSpanMs": 253.4539999999996
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6456,
+      "replyFirstMs": 28.052999999999884,
+      "replyLastMs": 275.6999999999996,
+      "sendSpanMs": 247.64699999999974
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6451,
+      "replyFirstMs": 24.30999999999983,
+      "replyLastMs": 273.1750000000002,
+      "sendSpanMs": 248.86500000000035
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6447,
+      "replyFirstMs": 23.21699999999982,
+      "replyLastMs": 278.6749999999998,
+      "sendSpanMs": 255.45799999999997
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6458,
+      "replyFirstMs": 22.663999999999795,
+      "replyLastMs": 271.8499999999997,
+      "sendSpanMs": 249.18599999999992
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6451,
+      "replyFirstMs": 22.376000000000396,
+      "replyLastMs": 268.83199999999977,
+      "sendSpanMs": 246.45599999999934
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6450,
+      "replyFirstMs": 28.735000000000177,
+      "replyLastMs": 277.83000000000067,
+      "sendSpanMs": 249.0950000000005
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6446,
+      "replyFirstMs": 31.632000000000104,
+      "replyLastMs": 281.69299999999885,
+      "sendSpanMs": 250.06099999999876
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6438,
+      "replyFirstMs": 20.936000000000732,
+      "replyLastMs": 272.4770000000003,
+      "sendSpanMs": 251.54099999999957
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6447,
+      "replyFirstMs": 29.968000000000217,
+      "replyLastMs": 283.0479999999991,
+      "sendSpanMs": 253.07999999999885
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6441,
+      "replyFirstMs": 23.763999999999896,
+      "replyLastMs": 277.85300000000035,
+      "sendSpanMs": 254.08900000000045
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6451,
+      "replyFirstMs": 24.572000000000926,
+      "replyLastMs": 276.67700000000116,
+      "sendSpanMs": 252.10500000000025
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6445,
+      "replyFirstMs": 30.573999999999657,
+      "replyLastMs": 285.9870000000004,
+      "sendSpanMs": 255.41300000000078
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6443,
+      "replyFirstMs": 29.125999999999763,
+      "replyLastMs": 279.43799999999896,
+      "sendSpanMs": 250.31199999999922
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6447,
+      "replyFirstMs": 30.78700000000012,
+      "replyLastMs": 280.86599999999964,
+      "sendSpanMs": 250.0789999999995
+    },
+    {
+      "notifications": 27,
+      "attPayloadBytes": 6430,
+      "replyFirstMs": 24.44000000000024,
+      "replyLastMs": 277.54600000000096,
+      "sendSpanMs": 253.10600000000073
+    }
+  ]
+}
