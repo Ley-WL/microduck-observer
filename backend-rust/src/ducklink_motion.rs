@@ -10,6 +10,21 @@ use serde_json::{json, Value};
 use std::time::{Duration, Instant};
 use tower::ServiceExt;
 
+// Opt-in wire reduction only; the control loop and its full diagnostics stay unchanged.
+fn compact_status(mut status: Value, request: &Value) -> Value {
+    let observer = &mut status["observer"];
+    if let Some(control) = observer["control"].as_object_mut() {
+        control.retain(|key, _| ["state", "message", "feedbackHolding", "posture", "kpRun", "kdRun", "activeSkill", "ageMs"].contains(&key.as_str()));
+    }
+    let revision = observer["calibration"]["revision"].clone();
+    observer["calibrationRevision"] = revision.clone();
+    if !revision.is_null() && request["calibrationRevision"] == revision
+        && request["calibrationBoot"] == observer["system"]["bootId"] {
+        observer.as_object_mut().unwrap().remove("calibration");
+    }
+    status
+}
+
 pub struct Motion {
     app: App,
     router: Router,
@@ -355,7 +370,10 @@ impl Motion {
                 self.phase = "failed".into();
             }
         }
-        Ok(self.status())
+        let status = self.status();
+        Ok(if body["compact"] == true {
+            compact_status(status, &body)
+        } else { status })
     }
     pub async fn tick(&mut self) {
         if !self.leased {
@@ -427,6 +445,22 @@ pub async fn wifi(body: Value) -> Result<Value> {
 #[cfg(test)]
 pub(crate) mod tests {
     use super::*;
+    #[test]
+    fn compact_wire_keeps_safety_and_refreshes_calibration() {
+        let full = json!({"motionError":"fault", "observer":{"control":{"state":"failed","message":"fault","feedbackHolding":true,"posture":"seated","kpRun":5,"kdRun":20,"cycleCosts":{"large":vec![1;1000]}},"calibration":{"revision":9},"system":{"bootId":"boot"},"joints":{"servos":[{"id":10,"fault":143}]}}});
+        let same = compact_status(full.clone(), &json!({"calibrationRevision":9,"calibrationBoot":"boot"}));
+        assert_eq!(same["motionError"],full["motionError"]);
+        for key in ["state","message","feedbackHolding","posture","kpRun","kdRun"] {assert_eq!(same["observer"]["control"][key],full["observer"]["control"][key]);}
+        assert_eq!(same["observer"]["joints"],full["observer"]["joints"]);
+        assert_eq!(same["observer"]["system"],full["observer"]["system"]);
+        assert!(same["observer"]["control"]["cycleCosts"].is_null());
+        assert!(same["observer"]["calibration"].is_null());
+        assert_eq!(same["observer"]["calibrationRevision"],9);
+        for request in [json!({}),json!({"calibrationRevision":8,"calibrationBoot":"boot"}),json!({"calibrationRevision":9,"calibrationBoot":"other"})] {
+            assert_eq!(compact_status(full.clone(), &request)["observer"]["calibration"],full["observer"]["calibration"]);
+        }
+        assert!(serde_json::to_vec(&same).unwrap().len()<serde_json::to_vec(&full).unwrap().len()/2);
+    }
     use std::{
         collections::BTreeMap,
         sync::{atomic::AtomicBool, Arc, Mutex, RwLock},

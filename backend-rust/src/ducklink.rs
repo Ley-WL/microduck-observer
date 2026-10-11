@@ -218,7 +218,8 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                         tokio::select! {
                             _=notifier.stopped()=>break,
                             chunks=rx.recv()=>{let Some(chunks)=chunks else{break;};let mut failed=false;
-                                for chunk in chunks {if notifier.notify(chunk).await.is_err(){failed=true;break;}tokio::time::sleep(Duration::from_millis(8)).await;}if failed{break;}
+                                // BlueZ queues notifications; bounded frames stay ordered, without timed pacing.
+                                for chunk in chunks {if notifier.notify(chunk).await.is_err(){failed=true;break;}tokio::task::yield_now().await;}if failed{break;}
                             }
                         }
                     }
