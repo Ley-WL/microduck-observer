@@ -1,0 +1,719 @@
+{
+  "summary": {
+    "samples": 60,
+    "referenceChanged": false,
+    "bootChanged": false,
+    "motionIssued": false,
+    "limitation": "Current passive posture only; no upright-before/lift/return paired trial",
+    "quasiStaticSamples": 44,
+    "calibratedTiltDeg": {
+      "min": 2.0604511101894802,
+      "median": 61.24899770680659,
+      "max": 64.47927784114664
+    },
+    "mountingAccelTiltDeg": {
+      "min": 10.749184180281958,
+      "median": 66.1288276925325,
+      "max": 97.95667253884027
+    },
+    "quaternionAccelWorldTiltDeg": {
+      "min": 0.007079432492726805,
+      "median": 0.12261996223787087,
+      "max": 61.376749580790374
+    },
+    "savedVirtualUpTiltDeg": {
+      "min": 5.093301100344118,
+      "median": 5.093301100344118,
+      "max": 5.093301100344118
+    },
+    "accelNorm": {
+      "min": 3.521318841987566,
+      "median": 9.83656939817072,
+      "max": 25.648147918899525
+    },
+    "gyroNorm": {
+      "min": 0.0010652644360316954,
+      "median": 0.00398585454594557,
+      "max": 5.931973387304391
+    },
+    "quasiStaticStats": {
+      "quaternionAccelWorldTiltDeg": {
+        "min": 0.007079432492726805,
+        "median": 0.09759691432182735,
+        "max": 1.1496240475137847
+      },
+      "calibratedTiltDeg": {
+        "min": 60.05159232263276,
+        "median": 61.272749186972106,
+        "max": 61.28173507337311
+      },
+      "mountingAccelTiltDeg": {
+        "min": 66.03544958674385,
+        "median": 66.13955331074453,
+        "max": 66.27934338969008
+      }
+    }
+  },
+  "rows": [
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 45.643141867411146,
+      "mountingAccelTiltDeg": 18.674871467024055,
+      "quaternionAccelWorldTiltDeg": 40.92979490110639,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 14.65592163812027,
+      "gyroNorm": 2.3755052979136204
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 32.980556225749496,
+      "mountingAccelTiltDeg": 53.01911923327771,
+      "quaternionAccelWorldTiltDeg": 16.505809485332744,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 8.318339012000543,
+      "gyroNorm": 2.988950724827387
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 4.315521893251167,
+      "mountingAccelTiltDeg": 25.30493256538252,
+      "quaternionAccelWorldTiltDeg": 22.965253426398327,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 8.27826358422095,
+      "gyroNorm": 4.359191713932926
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 6.310217943760245,
+      "mountingAccelTiltDeg": 11.145483189853335,
+      "quaternionAccelWorldTiltDeg": 11.093056293835678,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 8.646715313758946,
+      "gyroNorm": 0.9643967845767442
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 2.379395507492445,
+      "mountingAccelTiltDeg": 15.068149312643106,
+      "quaternionAccelWorldTiltDeg": 11.948790862323937,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.621049101014925,
+      "gyroNorm": 0.4117229819087462
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 2.0604511101894802,
+      "mountingAccelTiltDeg": 10.790593919226568,
+      "quaternionAccelWorldTiltDeg": 4.189565421937489,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 10.238814596666742,
+      "gyroNorm": 0.33948692349067183
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 4.191339778927794,
+      "mountingAccelTiltDeg": 13.152699248612786,
+      "quaternionAccelWorldTiltDeg": 4.1831078143490386,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.956816188117017,
+      "gyroNorm": 0.3096274967411819
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 6.797003722386091,
+      "mountingAccelTiltDeg": 10.749184180281958,
+      "quaternionAccelWorldTiltDeg": 4.8130690452182305,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.849255749142655,
+      "gyroNorm": 1.1835178973179805
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 8.929757119090043,
+      "mountingAccelTiltDeg": 40.04088937085594,
+      "quaternionAccelWorldTiltDeg": 26.787666118134606,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 25.648147918899525,
+      "gyroNorm": 2.357598909918139
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 10.386874754593977,
+      "mountingAccelTiltDeg": 40.26091363072729,
+      "quaternionAccelWorldTiltDeg": 55.539901786505474,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 3.521318841987566,
+      "gyroNorm": 1.9011189162877398
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 34.35383018293014,
+      "mountingAccelTiltDeg": 21.807866188669188,
+      "quaternionAccelWorldTiltDeg": 20.01973760672133,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 4.773786256266856,
+      "gyroNorm": 5.931973387304391
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 63.06329617584397,
+      "mountingAccelTiltDeg": 72.93168042343649,
+      "quaternionAccelWorldTiltDeg": 12.619528612331496,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 15.746072446294386,
+      "gyroNorm": 1.7745579001354799
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 64.21336534831832,
+      "mountingAccelTiltDeg": 97.95667253884027,
+      "quaternionAccelWorldTiltDeg": 61.376749580790374,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 5.581058804779659,
+      "gyroNorm": 4.321769939740705
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 64.47927784114664,
+      "mountingAccelTiltDeg": 87.89288411314242,
+      "quaternionAccelWorldTiltDeg": 25.70084216358098,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 10.444109742360887,
+      "gyroNorm": 0.26801722959611796
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 60.056448684026726,
+      "mountingAccelTiltDeg": 71.35026299706463,
+      "quaternionAccelWorldTiltDeg": 7.765941244707469,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 10.484758056990465,
+      "gyroNorm": 1.5824204698089852
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 59.26007569454549,
+      "mountingAccelTiltDeg": 67.59612340399697,
+      "quaternionAccelWorldTiltDeg": 5.601562781098967,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.740126949084585,
+      "gyroNorm": 0.21622768906336767
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 60.05159232263276,
+      "mountingAccelTiltDeg": 66.07461827492529,
+      "quaternionAccelWorldTiltDeg": 1.1496240475137847,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.839978042550014,
+      "gyroNorm": 0.0023820036929798473
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 60.28859459469593,
+      "mountingAccelTiltDeg": 66.14167403838809,
+      "quaternionAccelWorldTiltDeg": 0.9796295325636352,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.825921018302083,
+      "gyroNorm": 0.0047640073859596946
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "policy",
+      "calibratedTiltDeg": 60.48240933874008,
+      "mountingAccelTiltDeg": 66.16776256723672,
+      "quaternionAccelWorldTiltDeg": 0.8115287897520639,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.842046505001154,
+      "gyroNorm": 0.0010652644360316954
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 60.70625657731762,
+      "mountingAccelTiltDeg": 66.11036356153761,
+      "quaternionAccelWorldTiltDeg": 0.5316394033302138,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.839342978337065,
+      "gyroNorm": 0.0033686619282348976
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 60.816905599946814,
+      "mountingAccelTiltDeg": 66.15873199139857,
+      "quaternionAccelWorldTiltDeg": 0.46782856465493905,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.823445371262151,
+      "gyroNorm": 0.00150651141294975
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 60.89923436514304,
+      "mountingAccelTiltDeg": 66.10308737697349,
+      "quaternionAccelWorldTiltDeg": 0.34491423676592625,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.846483251731438,
+      "gyroNorm": 0.003195793308095086
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.007810588040236,
+      "mountingAccelTiltDeg": 66.09129550116758,
+      "quaternionAccelWorldTiltDeg": 0.21229651449668321,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.816010523175011,
+      "gyroNorm": 0.004392197788972708
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.0583922585768,
+      "mountingAccelTiltDeg": 66.06273398774916,
+      "quaternionAccelWorldTiltDeg": 0.16877365195969835,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.855599034750721,
+      "gyroNorm": 0.0010652644360316954
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.09850539936435,
+      "mountingAccelTiltDeg": 66.06393772444547,
+      "quaternionAccelWorldTiltDeg": 0.09940026192323788,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.838383641252577,
+      "gyroNorm": 0.00398585454594557
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.14594170268461,
+      "mountingAccelTiltDeg": 66.18461234564785,
+      "quaternionAccelWorldTiltDeg": 0.16457239340723187,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.835902025001458,
+      "gyroNorm": 0.00150651141294975
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.17342440926383,
+      "mountingAccelTiltDeg": 66.14619236382681,
+      "quaternionAccelWorldTiltDeg": 0.11046358596325509,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.842327882487517,
+      "gyroNorm": 0.005535276380109307
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.193970736365365,
+      "mountingAccelTiltDeg": 66.18903862798736,
+      "quaternionAccelWorldTiltDeg": 0.1224712172823107,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.834458582855724,
+      "gyroNorm": 0.0033686619282348976
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.208798354239455,
+      "mountingAccelTiltDeg": 66.06112337344157,
+      "quaternionAccelWorldTiltDeg": 0.07044713083117168,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.840622313033986,
+      "gyroNorm": 0.003195793308095086
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.221189418035216,
+      "mountingAccelTiltDeg": 66.10747677313165,
+      "quaternionAccelWorldTiltDeg": 0.030854174908590774,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.83440364729377,
+      "gyroNorm": 0.00398585454594557
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.23141783839517,
+      "mountingAccelTiltDeg": 66.09257610841188,
+      "quaternionAccelWorldTiltDeg": 0.014246619205571362,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.82371677842457,
+      "gyroNorm": 0.0035330824368266845
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.24345649428669,
+      "mountingAccelTiltDeg": 66.19370702902381,
+      "quaternionAccelWorldTiltDeg": 0.08299286176202351,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.840299891803237,
+      "gyroNorm": 0.0035330824368266845
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.246270708835326,
+      "mountingAccelTiltDeg": 66.03544958674385,
+      "quaternionAccelWorldTiltDeg": 0.12491499986809937,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.835357398725122,
+      "gyroNorm": 0.0021305288720633907
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.25172470477786,
+      "mountingAccelTiltDeg": 66.20134074411696,
+      "quaternionAccelWorldTiltDeg": 0.07629366408642976,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.84754977881818,
+      "gyroNorm": 0.003195793308095086
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.25172470477786,
+      "mountingAccelTiltDeg": 66.10019404404247,
+      "quaternionAccelWorldTiltDeg": 0.052529676291214515,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.845117779997443,
+      "gyroNorm": 0.003195793308095086
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.259139109143184,
+      "mountingAccelTiltDeg": 66.2492325275742,
+      "quaternionAccelWorldTiltDeg": 0.12276870719343105,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.83850504738798,
+      "gyroNorm": 0.0030130228258995
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.26400248917579,
+      "mountingAccelTiltDeg": 66.21493966080136,
+      "quaternionAccelWorldTiltDeg": 0.07971875945781967,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.83268416937246,
+      "gyroNorm": 0.0023820036929798473
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27117820422238,
+      "mountingAccelTiltDeg": 66.22378433853942,
+      "quaternionAccelWorldTiltDeg": 0.08453373562572461,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.833383203510873,
+      "gyroNorm": 0.006211505681790325
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.2763042446419,
+      "mountingAccelTiltDeg": 66.22261766509473,
+      "quaternionAccelWorldTiltDeg": 0.08922687349659261,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.843551944741446,
+      "gyroNorm": 0.0033686619282348976
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.278855368954346,
+      "mountingAccelTiltDeg": 66.11588696269136,
+      "quaternionAccelWorldTiltDeg": 0.05190183629424249,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.852692838787634,
+      "gyroNorm": 0.0018450921267031027
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.2760417557353,
+      "mountingAccelTiltDeg": 66.12879241658042,
+      "quaternionAccelWorldTiltDeg": 0.05146043234809695,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.826842125043541,
+      "gyroNorm": 0.0036901842534062053
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27894447383634,
+      "mountingAccelTiltDeg": 66.08592255941326,
+      "quaternionAccelWorldTiltDeg": 0.09629130501135014,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.82765640716891,
+      "gyroNorm": 0.006211505681790324
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27894447383634,
+      "mountingAccelTiltDeg": 66.26233611183419,
+      "quaternionAccelWorldTiltDeg": 0.11463124906475237,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.823385560021858,
+      "gyroNorm": 0.004643380024810008
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.279183661415445,
+      "mountingAccelTiltDeg": 66.06725547580338,
+      "quaternionAccelWorldTiltDeg": 0.1039244910471904,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.83646162695613,
+      "gyroNorm": 0.0061194782879130764
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27663230110359,
+      "mountingAccelTiltDeg": 66.0830374132539,
+      "quaternionAccelWorldTiltDeg": 0.10637967124014812,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.840484404252148,
+      "gyroNorm": 0.0033686619282348976
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27663230110359,
+      "mountingAccelTiltDeg": 66.17141067474908,
+      "quaternionAccelWorldTiltDeg": 0.021248248891173077,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.836677169385311,
+      "gyroNorm": 0.0023820036929798473
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27663230110359,
+      "mountingAccelTiltDeg": 66.12886296848457,
+      "quaternionAccelWorldTiltDeg": 0.024065045880838524,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.830452509341052,
+      "gyroNorm": 0.0030130228258995
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27663230110359,
+      "mountingAccelTiltDeg": 66.11264296430895,
+      "quaternionAccelWorldTiltDeg": 0.04822983461106473,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.840440934187985,
+      "gyroNorm": 0.007066164873653369
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27663230110359,
+      "mountingAccelTiltDeg": 66.13678446447429,
+      "quaternionAccelWorldTiltDeg": 0.19215570501788057,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.827054961922224,
+      "gyroNorm": 0.0054318041464620275
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27663230110359,
+      "mountingAccelTiltDeg": 66.17316010733985,
+      "quaternionAccelWorldTiltDeg": 0.08309066394601115,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.819712233069142,
+      "gyroNorm": 0.00451953423884925
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.28173507337311,
+      "mountingAccelTiltDeg": 66.18252970240894,
+      "quaternionAccelWorldTiltDeg": 0.1286226176191003,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.827709193187179,
+      "gyroNorm": 0.0010652644360316954
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27687154122448,
+      "mountingAccelTiltDeg": 66.15118657176788,
+      "quaternionAccelWorldTiltDeg": 0.007079432492726805,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.834071404463819,
+      "gyroNorm": 0.0021305288720633907
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27687154122448,
+      "mountingAccelTiltDeg": 66.04915869261205,
+      "quaternionAccelWorldTiltDeg": 0.1196435941438682,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.841936354262518,
+      "gyroNorm": 0.005218708618822689
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27455946239488,
+      "mountingAccelTiltDeg": 66.1989052943713,
+      "quaternionAccelWorldTiltDeg": 0.08969956844144643,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.83211414978587,
+      "gyroNorm": 0.003195793308095086
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27432016972184,
+      "mountingAccelTiltDeg": 66.13743258310096,
+      "quaternionAccelWorldTiltDeg": 0.027551261582777323,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.848828120227497,
+      "gyroNorm": 0.004261057744126781
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27432016972184,
+      "mountingAccelTiltDeg": 66.27934338969008,
+      "quaternionAccelWorldTiltDeg": 0.13861792635678194,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.838794682729644,
+      "gyroNorm": 0.0023820036929798473
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.279183661415445,
+      "mountingAccelTiltDeg": 66.17301022512743,
+      "quaternionAccelWorldTiltDeg": 0.08919304372204441,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.837477599746949,
+      "gyroNorm": 0.0035330824368266845
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.2763931763721,
+      "mountingAccelTiltDeg": 66.16686960654967,
+      "quaternionAccelWorldTiltDeg": 0.055690616807671796,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.83089799267791,
+      "gyroNorm": 0.003195793308095086
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27870540163721,
+      "mountingAccelTiltDeg": 66.19858995898717,
+      "quaternionAccelWorldTiltDeg": 0.05152925317464936,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.821206140142564,
+      "gyroNorm": 0.0048816549132596875
+    },
+    {
+      "revision": 347,
+      "boot": "922b7096-a540-4362-8b61-2069abdfc978",
+      "controlState": "failed",
+      "calibratedTiltDeg": 61.27894447383634,
+      "mountingAccelTiltDeg": 66.09818818456746,
+      "quaternionAccelWorldTiltDeg": 0.09890252363230456,
+      "savedVirtualUpTiltDeg": 5.093301100344118,
+      "accelNorm": 9.844139134854743,
+      "gyroNorm": 0.0023820036929798473
+    }
+  ]
+}
