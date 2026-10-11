@@ -6,21 +6,21 @@ import { holdToWalk, type Twist } from '../holdToWalk';
 import { useTelemetry } from '../store';
 import { useBoardCalibration } from '../boardCalibration';
 const state=useTelemetry(),board=useBoardCalibration();
-const modelAvailable=ref({stand:false,walk:false,xgoduck:false}),kind=ref<'stand'|'walk'|'xgoduck'>('xgoduck'),speed=ref(0.2),wheelSpeed=ref(0.1);
+const modelAvailable=ref(false),wheelSpeed=ref(0.1);
 const lease=driveLease(sessionStorage,state.endpoint);
 const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), commandState=ref('');
 const skills=[{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'}];
 const skillAvailable=ref<Record<string,boolean>>({});
 
 const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??2) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
-const available=computed(()=>modelAvailable.value[kind.value]);
-const poseName=computed(()=>kind.value==='xgoduck'?'预备姿势':kind.value==='walk'?'模型行走姿势':'模型站立姿势');
+const available=computed(()=>modelAvailable.value);
+const poseName='预备姿势';
 const pending=ref(false),message=ref(''),failed=ref(false);
 const control=computed(()=>state.system?.data.servoControl);
 const running=computed(()=>control.value?.action==='policy' && ['preflight','moving','policy'].includes(control.value?.state));
 const busy=computed(()=>pending.value || ['preflight','moving','policy','disabling'].includes(control.value?.state));
 const live=computed(()=>state.connection==='在线' && state.joints?.source==='hardware' && state.jointsAge<500);
-const canDrive=computed(()=>kind.value==='xgoduck' && live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && !control.value?.feedbackHolding && !skillQueued.value && (!control.value?.activeSkill || control.value.activeSkill==='xgoduck') && !!session.value && control.value?.driveSession===session.value && !pending.value);
+const canDrive=computed(()=>live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && !control.value?.feedbackHolding && !skillQueued.value && (!control.value?.activeSkill || control.value.activeSkill==='xgoduck') && !!session.value && control.value?.driveSession===session.value && !pending.value);
 const canRecover=computed(()=>live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && ['xgoduck','xgoduck_pick','xgoduck_roulade','sitstand_sit','sitstand_stand'].includes(control.value?.activeSkill) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 let acknowledgedSequence=0;
 watch(session,()=>{acknowledgedSequence=0;commandState.value='';});
@@ -69,21 +69,20 @@ function hidden(){if(document.hidden)release();}
 watch(canDrive,value=>{if(!value)release();});
 onMounted(()=>{window.addEventListener('blur',release);window.addEventListener('pagehide',release);document.addEventListener('visibilitychange',hidden);});
 onUnmounted(()=>{release();window.removeEventListener('blur',release);window.removeEventListener('pagehide',release);document.removeEventListener('visibilitychange',hidden);});
-watch(kind,()=>{message.value='';failed.value=false;});
 onMounted(async()=>{
   try { const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy');
-    const result=await response.json();modelAvailable.value.stand=response.ok && result.available;
+    const result=await response.json();modelAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='xgoduck')?.available;
     for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':'xgoduck_'+skill.key))?.available;
-    for(const key of ['walk','xgoduck'] as const)modelAvailable.value[key]=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind===key)?.available; }
-  catch { modelAvailable.value={stand:false,walk:false,xgoduck:false}; }
+    }
+  catch { modelAvailable.value=false; }
 });
 async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
   release();
   pending.value=true;message.value='';failed.value=false;
   try {
     const response=await fetch(state.endpoint.replace(/\/$/,'')+(action==='disable'?'/api/v1/servos/disable':'/api/v1/policy/'+action),{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:board.data?.revision,kind:kind.value,speed:kind.value==='walk'?speed.value:0}),signal:AbortSignal.timeout(15000)});
-    const result=await response.json();failed.value=!response.ok || result.state==='failed';if(action==='start' && !failed.value){session.value=result.driveSession || '';lease.remember(session.value);}message.value=result.detail || (action==='home' && !failed.value ? '已到'+poseName.value+'并保持，未开始模型推理' : result.message);
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:board.data?.revision,kind:'xgoduck',speed:0}),signal:AbortSignal.timeout(15000)});
+    const result=await response.json();failed.value=!response.ok || result.state==='failed';if(action==='start' && !failed.value){session.value=result.driveSession || '';lease.remember(session.value);}message.value=result.detail || (action==='home' && !failed.value ? '已到'+poseName+'并保持，未开始模型推理' : result.message);
   } catch(e) { failed.value=true;message.value='未收到操作结果，请核对实时状态：'+String(e); }
   finally { pending.value=false; }
 }
@@ -91,35 +90,33 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
 <template>
   <div class="runtime-panel">
     <div class="runtime-overview">
-    <div class="runtime-title"><span>{{ kind==='xgoduck'?'平衡行走':kind==='walk'?'定速行走':'站立保持' }}</span><strong>{{ kind==='xgoduck'?'按住行走 · 松开平衡':kind==='walk'?'模型行走':'模型站立维持' }}</strong><small>实机模型</small></div>
-    <div class="model-selector"><button :class="{active:kind==='xgoduck'}" :disabled="busy" @click="kind='xgoduck'">平衡行走</button><button :class="{active:kind==='stand'}" :disabled="busy" @click="kind='stand'">站立保持</button><button :class="{active:kind==='walk'}" :disabled="busy" @click="kind='walk'">定速行走</button><label v-if="kind==='walk'">前进 <select v-model.number="speed" :disabled="busy"><option :value="0.05">0.05 m/s</option><option :value="0.1">0.10 m/s</option><option :value="0.2">0.20 m/s</option><option :value="0.3">0.30 m/s</option><option :value="0.4">0.40 m/s</option></select></label></div>
+    <div class="runtime-title"><span>平衡行走</span><strong>按住行走 · 松开平衡</strong><small>实机模型</small></div>
     </div>
-    <p v-if="kind==='xgoduck'">预备 → 原地平衡 → 按住行走；松开平衡，坐下后点站起恢复。</p>
-    <p v-else>开始时先匀速分段到所选模型姿势，再持续{{ kind==='walk'?'按前进速度行走':'调整站姿' }}。“{{ poseName }}”以50Hz匀速分段到初始姿势并保持。停止结束推理并保持；全部失能立即卸力。</p>
+    <p>预备 → 原地平衡 → 按住行走；松开平衡，坐下后点站起恢复。</p>
     <div class="runtime-buttons">
-      <button :disabled="!available || !live || !board.ready || busy" @click="run('start')">▷ {{ kind==='xgoduck'?'启动原地平衡':kind==='walk'?'开始模型行走':'开始模型站立' }}</button>
+      <button :disabled="!available || !live || !board.ready || busy" @click="run('start')">▷ 启动原地平衡</button>
       <button :disabled="!available || !live || !board.ready || busy" @click="run('home')">{{ poseName }}</button>
       <button :disabled="!running || pending" @click="run('stop')">□ 停止并保持</button>
       <button :disabled="!live || pending" @click="run('disable')">全部失能</button>
       <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>
     </div>
-    <div v-if="kind==='xgoduck'" class="walk-speed-row">
+    <div class="walk-speed-row">
       <label>前后档位 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="轮盘前后速度" /><output>{{ wheelSpeed.toFixed(2) }}</output></label>
       <button v-for="value in [0.05,0.1,0.2,0.3,0.4]" :key="value" :class="{selected:wheelSpeed===value}" @click="wheelSpeed=value">{{ value.toFixed(2) }}</button>
       <small>模型指令速度 · 非实测速度</small>
     </div>
-    <div v-if="kind==='xgoduck'" class="runtime-interaction">
-    <p v-if="kind==='xgoduck'" class="drive-result" role="status">{{ driveReason || commandState || '轮盘已就绪 · 按住拖动行走' }}</p>
-    <WalkWheel v-if="kind==='xgoduck'" :speed="wheelSpeed" :disabled="!canDrive" @drive="wheel" @release="release" />
-    <div v-if="kind==='xgoduck'" class="hold-directions">
+    <div class="runtime-interaction">
+    <p class="drive-result" role="status">{{ driveReason || commandState || '轮盘已就绪 · 按住拖动行走' }}</p>
+    <WalkWheel :speed="wheelSpeed" :disabled="!canDrive" @drive="wheel" @release="release" />
+    <div class="hold-directions">
       <button v-for="skill in skills" :key="skill.key" :disabled="!skillAvailable[skill.key] || !(canDrive || (skill.key==='getup' && canRecover) || (skill.key==='standup' && canStand) || (['getup','standup'].includes(skill.key) && live && board.ready && !busy))" @click="extra(skill.key)">{{ skill.name }}</button>
       <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('mouth',30)">张嘴</button>
       <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('mouth',-5)">闭嘴</button>
       <span>{{ control?.activeSkill==='xgoduck_getup'?'起身中':control?.activeSkill==='xgoduck_pick'?'拾取中':control?.activeSkill==='xgoduck_roulade'?'翻滚中':'' }}</span>
     </div>
     </div>
-    <div class="runtime-metrics"><span v-if="kind==='xgoduck'">模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
-    <div class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?(kind==='xgoduck'?'平衡行走':kind==='walk'?'定速行走':'站立保持')+' 模型就绪 · 等待开始':'模型未就绪') }}</div>
+    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
+    <div class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?'平衡行走模型就绪 · 等待开始':'模型未就绪') }}</div>
   </div>
 </template>
 <style scoped>
@@ -127,7 +124,6 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
 .runtime-overview{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .runtime-title{display:flex;align-items:center;gap:8px}.runtime-title>span{font-size:10px;border-radius:6px;background:#dcebe1;padding:4px 6px}.runtime-title strong{font-size:14px}.runtime-title small{font-size:10px;color:#7b9185}
 .runtime-panel p{font-size:11px;margin:0;line-height:1.5}
-.model-selector{display:flex;align-items:center;gap:5px;font-size:11px}.model-selector button,.model-selector select{border:1px solid #bdd0c3;border-radius:6px;background:#f5faf6;color:#365843;padding:5px 7px;font-size:11px}.model-selector button.active{background:#dcebe1;font-weight:600}.model-selector label{margin-left:auto}.model-selector button:disabled{opacity:.45}
 .runtime-buttons{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.runtime-buttons button{min-height:36px;border:1px solid #bdd0c3;border-radius:7px;background:#f5faf6;color:#365843;padding:6px 4px;font-size:11px;cursor:pointer}.runtime-buttons button:first-child{background:#4a765b;color:white}.runtime-buttons button:disabled{opacity:.45;cursor:default}
 .walk-speed-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px}.walk-speed-row label{display:flex;align-items:center;gap:7px}.walk-speed-row input{width:130px;accent-color:#4a765b}.walk-speed-row output{min-width:65px;font-variant-numeric:tabular-nums}.walk-speed-row button{padding:4px 6px;border:1px solid #bdd0c3;border-radius:5px;background:#f5faf6;color:#365843}.walk-speed-row button.selected{background:#dcebe1;font-weight:600}.walk-speed-row small{margin-left:auto;font-size:9px;color:#7b9185}
 .runtime-interaction{display:grid;grid-template-columns:minmax(290px,1fr) minmax(0,1fr);grid-template-rows:auto 1fr;gap:6px 14px;align-items:center;border-top:1px solid #dae4de;padding-top:6px}
