@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-11",
+  "userReport": "设备已断开，尤其控制时",
+  "rootCauseEstablished": false,
+  "fixClaimed": false,
+  "change": "Diagnostic categories only; transport and safety behavior unchanged",
+  "testsPassed": 123,
+  "testsIgnored": 1,
+  "armBuildPassed": true,
+  "installedRelease": "runtime-20261011-183231",
+  "rollbackRelease": "runtime-20261011-175410",
+  "firstCapture": "25s tool output truncated; not a complete disconnect-event audit",
+  "secondCapture": "40s event-filter capture contained no matching disconnect/status lines; pipeline exit 1 from grep, not proof of stable phone connection",
+  "awaiting": "Phone reconnect in stopped state, new fault event",
+  "motionIssued": false,
+  "trainingStarted": false
+}

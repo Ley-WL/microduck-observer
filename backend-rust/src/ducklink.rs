@@ -205,7 +205,8 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                                             }
                                             s.drop_peer().await;
                                         }
-                                        eprintln!("DuckLink BLE request rejected");
+                                        // Log protocol categories only, never request bodies or keys.
+                                        eprintln!("DuckLink BLE request rejected: {}", rejection_reason(&e));
                                         Err(ReqError::NotAuthorized)
                                     }
                                 }
@@ -229,10 +230,10 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                 tokio::spawn(async move{
                     loop {
                         tokio::select! {
-                            _=notifier.stopped()=>break,
+                            _=notifier.stopped()=>{eprintln!("DuckLink BLE notifications stopped by BlueZ");break;},
                             chunks=rx.recv()=>{let Some(chunks)=chunks else{break;};let mut failed=false;
                                 // BlueZ queues notifications; bounded frames stay ordered, without timed pacing.
-                                for chunk in chunks {if notifier.notify(chunk).await.is_err(){failed=true;break;}tokio::task::yield_now().await;}if failed{break;}
+                                for chunk in chunks {if notifier.notify(chunk).await.is_err(){failed=true;break;}tokio::task::yield_now().await;}if failed{eprintln!("DuckLink BLE notification send failed");break;}
                             }
                         }
                     }
@@ -285,6 +286,7 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                     || peer.last.elapsed() > Duration::from_secs(limit)
                     || peer.session.revoked
                 {
+                    eprintln!("DuckLink BLE peer ended: connected={connected} idle_ms={} revoked={}", peer.last.elapsed().as_millis(), peer.session.revoked);
                     let address = peer.address;
                     s.drop_peer().await;
                     if connected {
@@ -300,9 +302,31 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
     state.lock().await.drop_peer().await;
     result
 }
+fn rejection_reason(error: &anyhow::Error) -> &'static str {
+    match error.to_string().as_str() {
+        "Subscribe with MTU >=185 before writing" => "subscription-or-mtu",
+        "Robot connected to another phone" => "different-peer",
+        "Invalid BLE fragment" => "invalid-fragment",
+        "BLE fragment sequence/size/timeout" => "fragment-sequence-size-timeout",
+        "REPLAY_OR_SEQUENCE_GAP" => "request-sequence-gap",
+        "AUTH_REQUIRED" => "auth-required",
+        "AUTH_TIMEOUT" => "auth-timeout",
+        "AUTH_OR_PROTOCOL_FAILED" => "authentication-failed",
+        "OWNED_BY_ANOTHER_PHONE" => "different-owner",
+        "response too large" => "response-too-large",
+        "BLE frame size" => "response-fragment-size",
+        _ => "other-protocol-error",
+    }
+}
 #[cfg(test)]
 mod notification_tests {
     use super::*;
+    #[test]
+    fn rejection_logs_categories_without_payloads() {
+        assert_eq!(rejection_reason(&anyhow::anyhow!("REPLAY_OR_SEQUENCE_GAP")), "request-sequence-gap");
+        assert_eq!(rejection_reason(&anyhow::anyhow!("response too large")), "response-too-large");
+        assert_eq!(rejection_reason(&anyhow::anyhow!("private request body")), "other-protocol-error");
+    }
     fn fixture() -> (State, tempfile::TempDir) {
         let (mut motion, _, dir)=crate::ducklink_motion::tests::fixture();
         motion.open().unwrap();
