@@ -149,6 +149,9 @@ fn skill_twist(kind: &str, progress: f64) -> [f32;3] {
         [phase.cos() as f32, phase.sin() as f32, 0.]
     } else { [0.;3] }
 }
+// Local one-button pickup choreography, outside the donor's 14-joint actor.
+// Use effective policy time so a feedback pause cannot advance the jaw phase.
+fn pick_mouth_target(progress:f64)->f64 {if progress<1.6 {30.} else {-5.}}
 fn skill_complete(kind: &str, progress: f64, upright: f64) -> bool {
     match kind { "sitstand_stand" => progress >= 1., "xgoduck_pick" => progress >= 4., "xgoduck_roulade" => progress >= 1.9,
         "xgoduck_getup" => upright >= 1., _ => false }
@@ -903,8 +906,8 @@ fn native_policy_loop(
     let mut imu_pause=ImuPause::default();
     let mut fall_guard=FallGuard::default();
     let mut paused:Option<Instant>=None;
-    // Native kissqy owns all fifteen servos; the mouth is a separate intent,
-    // never a scripted side effect of the ground-pick model.
+    // The actor controls fourteen joints. Local pickup adds a jaw intent;
+    // ordinary mouth/quack intents remain separate from the actor outputs.
     arm_current_profile(bus,&[34],feedback,(10,20),cancel,halt,true)?;
     let mouth_owned=true;
     let mut quack_cycle:Option<(Instant,crate::quack::Playback)>=None;
@@ -1011,6 +1014,10 @@ fn native_policy_loop(
                     if feedback[&id]["kpRaw"]!=selected.gains.p || feedback[&id]["kdRaw"]!=selected.gains.d {bail!("技能切换增益回读不一致");}}
             }
             trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),"from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain,"recoveryFallen":recovery_fallen,"recoveryReturnHome":return_home,"recoveryResumeSkill":recovery_resume}));
+            if model.kind=="xgoduck_pick" || next=="xgoduck_pick" {
+                let mut state=shared.write().unwrap();state.pending_mouth=None;
+                state.mouth_degrees=if next=="xgoduck_pick" {pick_mouth_target(0.)} else {-5.};
+            }
             let old_home=model.home;
             let old=std::mem::replace(model,selected);bank.insert(old.kind.clone(),old);
             pause_drive(shared);
@@ -1046,6 +1053,7 @@ fn native_policy_loop(
         }
         let mouth_request=shared.write().unwrap().pending_mouth.take();
         if let Some(degrees)=mouth_request {shared.write().unwrap().mouth_degrees=degrees;}
+        if model.kind=="xgoduck_pick" {shared.write().unwrap().mouth_degrees=pick_mouth_target(model.progress);}
         if mouth_owned {
             let degrees=shared.read().unwrap().mouth_degrees;
             goals.insert(34,control::target(34,feedback[&34]["position"].as_i64().unwrap() as i32,cal,mouth_limits.0,mouth_limits.1,degrees.to_radians(),true)?);
@@ -1055,12 +1063,13 @@ fn native_policy_loop(
         trace.frame(json!({"type":"inference","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha,"commandTwist":model.command_twist,
             "observation":obs,"rawActionRadians":action,"emaPreviousRadians":model.filtered_action,"filteredActionRadians":filtered,"homeRadians":model.home,
             "preClipTargetDegrees":model.raw,"sentTargetDegrees":model.sent,"goals":goals,"feedbackBeforeWrite":feedback,"readDiagnostics":bus.diagnostics,
-            "inferenceMs":ms,"resultAgeMs":0.,"voltageScale":scale,"filteredVoltage":filtered_voltage,"execution":"kissqy-sync50-v1"}));
+            "mouthTargetDegrees":shared.read().unwrap().mouth_degrees,"mouthControlSource":if model.kind=="xgoduck_pick" {"pickup-choreography"} else {"independent-intent"},"skillProgressSeconds":model.progress,"inferenceMs":ms,"resultAgeMs":0.,"voltageScale":scale,"filteredVoltage":filtered_voltage,"execution":"kissqy-sync50-v1"}));
         model.last_action=action;model.filtered_action=filtered;model.target_initialized=true;
         if model.kind!="xgoduck" {model.progress+=0.02;}
         {let mut c=costs.lock().unwrap();c.writes+=1;c.inference_results+=1;c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
         let mut v=stats(model,timing,ms);v["state"]=json!("policy");v["action"]=json!("policy");v["policyPhase"]=json!("running");v["feedbackHolding"]=json!(false);
         v["voltageAdapt"]=json!(true);v["filteredVoltage"]=json!(filtered_voltage);v["voltageScale"]=json!(scale);v["skippedControlTicks"]=json!(clock.skipped);
+        v["mouthTargetDegrees"]=json!(shared.read().unwrap().mouth_degrees);v["mouthControlSource"]=json!(if model.kind=="xgoduck_pick" {"pickup-choreography"} else {"independent-intent"});
         v["recoveryFallen"]=json!(recovery_fallen);v["recoveryReturnHome"]=json!(return_home);v["recoveryResumeSkill"]=json!(recovery_resume);
         v["message"]=json!(if model.kind=="xgoduck_getup" {"kissqy倒地起身，同步50Hz，6秒窗口"} else {"kissqy同步50Hz控制"});control::status(shared,v);
         clock.wait();
@@ -1627,6 +1636,11 @@ mod tests {
             let angle=(-gravity.z).clamp(-1.,1.).acos().to_degrees();
             assert!((angle-expected).abs()<1e-5,"{angle} vs {expected}");
         }
+    }
+    #[test]
+    fn pickup_jaw_opens_then_closes_using_effective_model_progress() {
+        for progress in [0.,0.5,1.0,1.599] {assert_eq!(pick_mouth_target(progress),30.);}
+        for progress in [1.6,2.0,2.8,4.] {assert_eq!(pick_mouth_target(progress),-5.);}
     }
     #[test]
     fn physical_drive_commands_reach_donor_without_reverse_or_yaw_multiplier() {
