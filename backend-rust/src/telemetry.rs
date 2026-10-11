@@ -51,6 +51,7 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub(crate) native_homed: bool,
     pub(crate) native_voltage:crate::policy::NativeVoltage,
     pub pending_skill: Option<String>,
     pub pending_mouth: Option<f64>,
@@ -91,8 +92,10 @@ impl Telemetry {
         self.pending_mouth=Some(degrees);true
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
+        let recovery_allowed=kind=="xgoduck_getup" && (matches!(self.control["activeSkill"].as_str(),Some("sitstand_sit"|"sitstand_stand"|"xgoduck_getup"))
+            || (self.control["recoveryFallen"]==true && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"))));
         if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
-            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || (kind=="xgoduck_getup" && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"sitstand_sit"|"sitstand_stand"))) || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.)))
+            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || recovery_allowed || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.)))
             || self.pending_skill.is_some() { return false; }
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
@@ -177,17 +180,24 @@ mod drive_tests {
         assert!(!state.queue_skill("live",7,"xgoduck_getup"));
     }
     #[test]
-    fn recovery_preempts_seat_pick_and_one_shot_but_not_an_existing_recovery() {
+    fn recovery_preempts_fallen_moves_and_duplicate_press_does_not_restart() {
         for active in ["sitstand_sit","sitstand_stand","xgoduck_pick","xgoduck_roulade"] {
             let mut state=Telemetry::new(true);
-            state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":active});
+            state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":active,"recoveryFallen":true});
             state.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.2,0.,0.],updated:Instant::now()});
             assert!(!state.queue_skill("foreign",1,"xgoduck_getup"));
             assert!(state.queue_skill("s",1,"xgoduck_getup"));assert_eq!(state.drive.unwrap().twist,[0.;3]);
         }
         let mut state=Telemetry::new(true);state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck_getup"});
         state.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
-        assert!(!state.queue_skill("s",1,"xgoduck_getup"));
+        assert!(state.queue_skill("s",1,"xgoduck_getup"));
+        for active in ["xgoduck_pick","xgoduck_roulade"] {
+            let mut state=Telemetry::new(true);
+            state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":active,"recoveryFallen":false});
+            state.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+            assert!(!state.queue_skill("s",1,"xgoduck_getup"));
+            assert_eq!(state.drive.as_ref().unwrap().sequence,0);
+        }
     }
     #[test]
     fn released_commands_cannot_be_overwritten_by_late_packets_or_old_sessions() {
@@ -242,6 +252,7 @@ impl Telemetry {
     }
     pub fn new(hardware: bool) -> Self {
         let mut s = Self {
+            native_homed:false,
             native_voltage:crate::policy::NativeVoltage::default(),
             drive: None,
             pending_skill: None,

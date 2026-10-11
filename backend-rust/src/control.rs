@@ -302,7 +302,9 @@ pub fn publish(shared: &Shared, f: &Feedback, ids: &[u8], diagnostics: Value) {
     }
 }
 pub fn status(shared: &Shared, v: Value) {
-    shared.write().unwrap().control = v;
+    let mut state=shared.write().unwrap();
+    if v["state"]=="disabled" {state.native_homed=false;}
+    state.control = v;
 }
 pub fn poll_tick<T: Transport>(bus: &mut T, ids: &[u8]) -> (Feedback, Value) {
     match bus.tick_feedback(ids) {
@@ -655,6 +657,7 @@ pub fn execute<T: Transport>(
                 if since.elapsed() >= Duration::from_millis(100) {
                     guard()?;
                     state["state"] = json!("holding");
+                    if native_pose {shared.write().unwrap().native_homed=true;}
                     state["message"] = json!(if action == "zero" { "所有关节已到0°并使能保持" } else { "已到官方站姿并使能保持" });
                     return Ok(state);
                 }
@@ -1048,6 +1051,17 @@ mod tests {
     }
     fn command() -> Value {
         json!({"action":"angle","id":34,"angleDeg":20,"calibration":{"joints":{"references":{"34":2048},"directions":{}}}})
+    }
+    #[test]
+    fn native_home_completion_latches_ready_and_release_clears_it() {
+        let mut bus=Mock::new();let state=shared();
+        assert!(!state.read().unwrap().native_homed);
+        let references:BTreeMap<_,_>=IDS.into_iter().map(|id|(id.to_string(),2048)).collect();
+        let result=execute(&mut bus,&json!({"action":"stand","nativePolicyGains":[5,20],
+            "calibration":{"joints":{"references":references,"directions":{}}}}),&AtomicBool::new(false),&state).unwrap();
+        assert_eq!(result["state"],"holding");assert!(state.read().unwrap().native_homed);
+        status(&state,json!({"state":"policy"}));assert!(state.read().unwrap().native_homed);
+        status(&state,json!({"state":"disabled"}));assert!(!state.read().unwrap().native_homed);
     }
     struct Dropping {
         bus: Mock,

@@ -8,6 +8,7 @@ parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--host',default='radxa@192.168.31.186')
 parser.add_argument('--port',type=int,default=22)
 parser.add_argument('--package-only',action='store_true')
+parser.add_argument('--binary-only',action='store_true',help='Retain the current board frontend without overlaying local assets')
 args=parser.parse_args()
 name='runtime-'+datetime.now(timezone(timedelta(hours=8))).strftime('%Y%m%d-%H%M%S')
 stage=root/'deploy/staging'/name;stage.mkdir(parents=True)
@@ -17,7 +18,8 @@ binary=root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-obs
 assert binary.read_bytes()[:4]==b'\x7fELF' and int.from_bytes(binary.read_bytes()[18:20],'little')==183
 with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
     archive.add(binary,arcname='bin/microduck-observer')
-    archive.add(root/'frontend/dist',arcname='frontend/dist')
+    if not args.binary_only:
+        archive.add(root/'frontend/dist',arcname='frontend/dist')
     for tool in ['verify_rust_hardware.py','measure_runtime.py','ws_reader.py']:
         archive.add(root/'deploy'/tool,arcname=tool)
 installer=r'''

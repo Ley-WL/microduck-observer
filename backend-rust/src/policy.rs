@@ -153,6 +153,39 @@ fn skill_complete(kind: &str, progress: f64, upright: f64) -> bool {
     match kind { "sitstand_stand" => progress >= 1., "xgoduck_pick" => progress >= 4., "xgoduck_roulade" => progress >= 1.9,
         "xgoduck_getup" => upright >= 1., _ => false }
 }
+// kissqy robotd's LB edge: HOME-origin or confirmed-fallen recovery resets
+// the controller; upright policy-origin recovery preserves its seated state.
+fn native_recovery_transition(active: &str, return_home: bool, fallen: bool) -> Result<(bool, &'static str)> {
+    if !return_home && !fallen && matches!(active,"xgoduck_pick"|"xgoduck_roulade") {
+        bail!("当前动作执行中，直立状态不能切入倒地起身");
+    }
+    let reset=return_home || fallen;
+    Ok((reset,if !reset && active=="sitstand_sit" {"sitstand_sit"} else {"xgoduck"}))
+}
+#[derive(Debug,PartialEq)]
+enum NativeHandoff { Home, Skill(String), Continue }
+fn native_handoff(active: &str, finished: bool, donor_getup: bool, return_home: bool,
+    recovery_resume: &str, requested: Option<String>) -> NativeHandoff {
+    // HOME-origin recovery expires before new one-shot requests in robotd.
+    // Repeated LB presses acknowledge the active recovery without restarting it.
+    if finished && donor_getup && return_home {return NativeHandoff::Home;}
+    let next=requested.filter(|next|next!=active).or_else(||finished.then(||
+        if donor_getup {recovery_resume.to_owned()} else {"xgoduck".to_owned()}));
+    match next {Some(next) if next!=active=>NativeHandoff::Skill(next),_=>NativeHandoff::Continue}
+}
+#[derive(Default)]
+struct NativeRecoveryPosture { since: Option<Instant>, fallen: bool }
+impl NativeRecoveryPosture {
+    fn observe(&mut self, angle: f64, now: Instant) -> bool {
+        // Donor Safety defaults: gravity z > -0.5 for 200ms. This is
+        // request arbitration only; it does not change the fall-stop guard.
+        if angle>60. {
+            let since=*self.since.get_or_insert(now);
+            self.fallen=now.duration_since(since)>=Duration::from_millis(200);
+        } else {self.since=None;self.fallen=false;}
+        self.fallen
+    }
+}
 #[derive(Clone, Copy, Default)]
 struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool }
 impl SkillProfile {
@@ -849,6 +882,9 @@ fn native_policy_loop(
     stats:&impl Fn(&Model,&control::Timing,f64)->Value,
 ) -> Result<Value> {
     let return_home=model.skill_profile.donor_getup;
+    let mut recovery_resume="xgoduck";
+    let mut recovery_resume_progress=0.;
+    let mut recovery_posture=NativeRecoveryPosture::default();
     let mut clock=control::FrameClock::new(Instant::now());
     let mut coast=control::FeedbackCoast::default();
     let mut imu_pause=ImuPause::default();
@@ -916,9 +952,11 @@ fn native_policy_loop(
         if fall_guard.check(&model.kind,Some(tilt(&obs)),Instant::now()) {
             pause_drive(shared);bail!("检测到行走跌倒，停止推理并卸力");
         }
+        let recovery_fallen=recovery_posture.observe(tilt(&obs),Instant::now());
         let requested=shared.write().unwrap().pending_skill.take();
         let finished=model.skill_profile.complete(&model.kind,model.progress,model.upright);
-        if requested.is_none() && finished && model.skill_profile.donor_getup && return_home {
+        let handoff=native_handoff(&model.kind,finished,model.skill_profile.donor_getup,return_home,recovery_resume,requested);
+        if handoff==NativeHandoff::Home {
             trace.transition(json!({"type":"recovery-complete","mono":crate::telemetry::monotonic(),"destination":"HOME","tiltDegrees":tilt(&obs),"progressSeconds":model.progress}));
             pause_drive(shared);
             let home:BTreeMap<_,_>=ORDER.into_iter().zip(model.home.map(|v|v as f64)).collect();
@@ -928,19 +966,24 @@ fn native_policy_loop(
             v["recoveryWindowComplete"]=json!(true);v["recoveryUprightAtEnd"]=json!(tilt(&obs)<15.);
             return Ok(v);
         }
-        let next=requested.or_else(||finished.then(||"xgoduck".to_owned()));
-        if let Some(next)=next.filter(|next|next!=&model.kind) {
-            // A manual recovery preempts seat/pick/other one-shots as donor LB does.
+        if let NativeHandoff::Skill(next)=handoff {
+            let reset=if next=="xgoduck_getup" {
+                match native_recovery_transition(&model.kind,return_home,recovery_fallen) {
+                    Ok((reset,resume))=>{recovery_resume=resume;recovery_resume_progress=model.progress;reset},
+                    Err(e)=>{shared.write().unwrap().log("WARN","policy-switch",&e.to_string());clock.wait();continue;},
+                }
+            } else {false};
             let mut selected=bank.remove(&next).ok_or_else(||anyhow::anyhow!("动作模型未预加载"))?;
-            let reset=next=="xgoduck_getup";
             let retain=!reset && ((model.donor_sensors() && selected.donor_sensors() && model.home==selected.home)
                 || same_sit_actor(&model.kind,&selected.kind,&model.sha,&selected.sha,&model.home,&selected.home));
             // Sensor delay belongs to the hardware sample, not the actor.
             // reset_for_home clears actor history without sampling velocity twice.
             selected.previous=model.previous.take();selected.velocity=model.velocity;
+            selected.filtered_gyro=model.filtered_gyro;
             selected.last_action=if retain {model.last_action}else{[0.;14]};
             selected.filtered_action=if retain {model.filtered_action}else{[0.;14]};selected.target_initialized=retain && model.target_initialized;
-            selected.progress=0.;selected.upright=0.;selected.command_twist=skill_twist(&next,0.);
+            selected.progress=if model.skill_profile.donor_getup && next=="sitstand_sit" {recovery_resume_progress} else {0.};
+            selected.upright=0.;selected.command_twist=skill_twist(&next,selected.progress);
             control::native_profiles(bus,&ORDER,feedback,(selected.gains.p,selected.gains.d))?;
             // Gain changes only: no torque toggle and no stale pre-enable observation.
             if selected.gains!=model.gains {
@@ -948,7 +991,7 @@ fn native_policy_loop(
                 for id in ORDER {control::validate(id,feedback.get(&id),true)?;
                     if feedback[&id]["kpRaw"]!=selected.gains.p || feedback[&id]["kdRaw"]!=selected.gains.d {bail!("技能切换增益回读不一致");}}
             }
-            trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),"from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain}));
+            trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),"from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain,"recoveryFallen":recovery_fallen,"recoveryReturnHome":return_home,"recoveryResumeSkill":recovery_resume}));
             let old_home=model.home;
             let old=std::mem::replace(model,selected);bank.insert(old.kind.clone(),old);
             pause_drive(shared);
@@ -994,6 +1037,7 @@ fn native_policy_loop(
         {let mut c=costs.lock().unwrap();c.writes+=1;c.inference_results+=1;c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
         let mut v=stats(model,timing,ms);v["state"]=json!("policy");v["action"]=json!("policy");v["policyPhase"]=json!("running");v["feedbackHolding"]=json!(false);
         v["voltageAdapt"]=json!(true);v["filteredVoltage"]=json!(filtered_voltage);v["voltageScale"]=json!(scale);v["skippedControlTicks"]=json!(clock.skipped);
+        v["recoveryFallen"]=json!(recovery_fallen);v["recoveryReturnHome"]=json!(return_home);v["recoveryResumeSkill"]=json!(recovery_resume);
         v["message"]=json!(if model.kind=="xgoduck_getup" {"kissqy倒地起身，同步50Hz，6秒窗口"} else {"kissqy同步50Hz控制"});control::status(shared,v);
         clock.wait();
     }
@@ -1082,6 +1126,25 @@ pub fn execute(
         );
         feedback = bus.read_feedback(&IDS)?;
         let initial_obs = model.observe(shared, &feedback, cal)?;
+        let native_ready=shared.read().unwrap().native_homed && ORDER.iter().all(|id|feedback[id]["torque"]==1);
+        if command["shadow"]!=true && model.skill_profile.donor_getup && !native_ready {
+            // kissqy only permits a limp -> LB edge after a confirmed fall.
+            // Confirm with reads before arm_current_profile can write torque.
+            stage="recovery-entry-posture";
+            let mut posture=NativeRecoveryPosture::default();
+            let mut entry_obs=initial_obs.clone();
+            let mut entry_clock=control::FrameClock::new(Instant::now());
+            loop {
+                if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) {
+                    return Ok(json!({"state":"holding","action":"policy","message":"起身预检查已取消，未发运动指令"}));
+                }
+                let angle=tilt(&entry_obs);
+                if angle<=60. {bail!("未完成HOME或卸力状态仅确认倒地后可启动起身；当前倾角{angle:.1}°，未发运动指令");}
+                if posture.observe(angle,Instant::now()) {break;}
+                entry_clock.wait();feedback=bus.read_feedback(&IDS)?;
+                entry_obs=model.observe(shared,&feedback,cal)?;
+            }
+        }
         if command["shadow"]!=true && walking_policy(kind) && tilt(&initial_obs)>=FALL_TILT_DEG {
             bail!("机身倾角{:.1}°，拒绝启动行走模型；请扶正或主动选择倒地起身",tilt(&initial_obs));
         }
@@ -1569,6 +1632,40 @@ mod tests {
         let mut time=0.;for _ in 0..299 {time+=0.02;}
         assert!(!profile.complete("xgoduck_getup",time,0.));time+=0.02;
         assert!(profile.complete("xgoduck_getup",time,0.));
+    }
+    #[test]
+    fn donor_recovery_arbitrates_origin_posture_and_underlying_seat() {
+        assert_eq!(native_recovery_transition("xgoduck_getup",true,false).unwrap(),(true,"xgoduck"));
+        assert_eq!(native_recovery_transition("xgoduck",false,false).unwrap(),(false,"xgoduck"));
+        assert_eq!(native_recovery_transition("sitstand_sit",false,false).unwrap(),(false,"sitstand_sit"));
+        assert_eq!(native_recovery_transition("sitstand_stand",false,false).unwrap(),(false,"xgoduck"));
+        for active in ["xgoduck_pick","xgoduck_roulade"] {
+            assert!(native_recovery_transition(active,false,false).is_err());
+            assert_eq!(native_recovery_transition(active,false,true).unwrap(),(true,"xgoduck"));
+        }
+        assert_eq!(native_recovery_transition("sitstand_sit",false,true).unwrap(),(true,"xgoduck"));
+    }
+    #[test]
+    fn donor_fallen_arbitration_requires_200ms_and_clears_on_upright_sample() {
+        let now=Instant::now();let mut posture=NativeRecoveryPosture::default();
+        assert!(!posture.observe(61.,now));
+        assert!(!posture.observe(61.,now+Duration::from_millis(199)));
+        assert!(posture.observe(61.,now+Duration::from_millis(200)));
+        assert!(!posture.observe(60.,now+Duration::from_millis(201)));
+        assert!(!posture.observe(61.,now+Duration::from_millis(202)));
+    }
+    #[test]
+    fn donor_recovery_expiry_preserves_origin_and_duplicate_press_cannot_extend_window() {
+        let profile=SkillProfile{donor_getup:true,..Default::default()};
+        for origin_home in [true,false] {
+            assert_eq!(native_handoff("xgoduck_getup",profile.complete("xgoduck_getup",5.98,0.),true,
+                origin_home,"xgoduck",Some("xgoduck_getup".into())),NativeHandoff::Continue);
+            assert_eq!(native_handoff("xgoduck_getup",profile.complete("xgoduck_getup",6.,0.),true,
+                origin_home,"xgoduck",Some("xgoduck_getup".into())),
+                if origin_home {NativeHandoff::Home} else {NativeHandoff::Skill("xgoduck".into())});
+        }
+        assert_eq!(native_handoff("xgoduck_getup",true,true,true,"xgoduck",Some("sitstand_sit".into())),NativeHandoff::Home);
+        assert_eq!(native_handoff("xgoduck_getup",true,true,false,"sitstand_sit",None),NativeHandoff::Skill("sitstand_sit".into()));
     }
     #[test]
     fn kissqy_clamps_mechanical_angle_then_rejects_invalid_encoding() {
