@@ -46,6 +46,7 @@ fn temperature(root: &Path) -> Option<Value> {
 }
 pub fn spawn(shared: Shared, stop: Arc<AtomicBool>) {
     std::thread::Builder::new().name("board-resources".into()).spawn(move || {
+        let board = board_info();
         let mut previous = None;
         while !stop.load(Ordering::Acquire) {
             // File reads happen outside the telemetry lock and outside the UART loop.
@@ -54,11 +55,25 @@ pub fn spawn(shared: Shared, stop: Arc<AtomicBool>) {
             previous = ticks;
             let mem = fs::read_to_string("/proc/meminfo").ok().and_then(|s|memory(&s));
             let temp = temperature(Path::new("/sys/class/thermal"));
+            let uptime = fs::read_to_string("/proc/uptime").ok().and_then(|v|v.split_whitespace().next()?.parse::<f64>().ok());
             shared.write().unwrap().resources = json!({"cpuUsagePercent":usage,"memory":mem,
-                "temperature":temp,"sampleMonoMs":monotonic()*1000.,"intervalMs":2000});
+                "temperature":temp,"sampleMonoMs":monotonic()*1000.,"intervalMs":2000,
+                "board":board,"boardUptimeSeconds":uptime});
             std::thread::sleep(Duration::from_secs(2));
         }
     }).expect("board resource monitor");
+}
+fn board_info() -> Value {
+    let read = |path: &str| fs::read_to_string(path).ok().map(|s|s.trim_matches(['\0','\n','\r',' ']).to_owned());
+    let os = fs::read_to_string("/etc/os-release").ok().and_then(|s|s.lines().find_map(|line|line.strip_prefix("PRETTY_NAME=").map(|s|s.trim_matches('"').to_owned())));
+    let release = std::env::current_exe().ok().and_then(|p| {
+        let parent = p.parent()?;
+        if parent.file_name()? != "bin" { return None; }
+        Some(parent.parent()?.file_name()?.to_string_lossy().into_owned())
+    });
+    json!({"model":read("/proc/device-tree/model"),"hostname":read("/etc/hostname"),
+        "os":os,"kernel":read("/proc/sys/kernel/osrelease"),"architecture":std::env::consts::ARCH,
+        "serviceVersion":env!("CARGO_PKG_VERSION"),"release":release})
 }
 #[cfg(test)]
 mod tests {

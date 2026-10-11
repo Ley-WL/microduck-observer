@@ -1,0 +1,124 @@
+{
+  "installed": true,
+  "helperRelease": "/usr/local/lib/microduck-services/20261011-service-rust-v1",
+  "observerRelease": "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2",
+  "binaryHashes": {
+    "ducklink-wifi": "400bc956fd6b8699179d05e78e03944e2b31d0ff57175ebc002597e0275b3b45",
+    "microduck-power-helper": "da2192a360e6e48332564c2263b9a0797521fcd01486e0ae6e9063f248a0d249"
+  },
+  "netplanUnchanged": true,
+  "currentWifi": {
+    "connected": true,
+    "state": "COMPLETED"
+  },
+  "preservedFiles": {
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_roulade.metadata.json": "e5422132f5112c8b1ad18e1c8bbc670ff9fb9331f5613123be18c5214c7adc71",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/hd1910-walk-v6-symmetry500.onnx": "7485f0f2a71bbc1455e48b0264607883e1e28d1db6740fa4768359b1df18e5a7",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_walk.metadata.json": "90221ea2ea05ba6913e6e6dca2a994d1b111a521f4f36a39e091090cd3b687cc",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/alpha_sitstand.onnx": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/hd1910-head-v5.onnx": "003d1fa42cc5c5afe6b0fd6180b36c61ad2eb711fff2ee5ca5980efbedfd98b5",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/alpha_sitstand.metadata.json": "590a15e1805330378ed753f0b18299141c96175b533f60f45a96f134267fd8c4",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_getup.onnx": "a481d9f211f31d9476ab1a319fe362a21ef0879d9fa59442a122845af598268c",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_pick.metadata.json": "b3041cc24bd3554b39613876d40e603bff272bd6e86899e4ef426265b0c505fd",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_getup.metadata.json": "2c907ce623519f98f6763439d703f717cdbc9c500e8eae89226e2b67244afc80",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_walk.onnx": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/hd1910-head-v5.metadata.json": "5bebaac00be8bdda5c04462c8dcd1c28cead2407f19e250d9129bbf5c84a92e4",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_roulade.onnx": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/hd1910-walk-v6-symmetry500.metadata.json": "b0aa3e5a7881616a634605f5902bd7873f5a32914fa5178ec5eb0254ec73c883",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/models/xgoduck_pick.onnx": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
+    "/home/radxa/microduck-observer/releases/20261011-kissqy-native-v2/bin/microduck-observer": "ba05aff5901d2205cd119bb8ae42d5e33f8dc10e186c6bf814ecfa4853734a95",
+    "/var/lib/ducklink/identity.json": "f195df4ac8f8a370ac44745c9ed67dddfe94ce82866bc2169d929b859bf4ca7a",
+    "/var/lib/microduck-observer/model-gains.json": "9d18b0f2cf61b01e3ca25b847d7a1bfeffb60fafd71b941dfcb6f328c12801c3"
+  },
+  "calibrationUnchanged": true,
+  "allDisabledSnapshots": [
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    },
+    {
+      "state": "disabled",
+      "missing": []
+    }
+  ],
+  "hardwareMotion": false,
+  "networkSwitch": false,
+  "powerAction": false,
+  "rollbackDirectory": "/var/lib/microduck-observer/service-rust-backup-20261011",
+  "runtimeProcesses": [
+    "   1020 microduck-obser /home/radxa/microduck-observer/current/bin/microduck-observer",
+    "   2192 ducklink-wifi   /usr/local/lib/microduck-services/20261011-service-rust-v1/ducklink-wifi"
+  ]
+}

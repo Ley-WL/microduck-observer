@@ -204,12 +204,12 @@ pub fn angle_request(id: &Value, degree: &Value) -> Result<(u8, f64)> {
 }
 pub fn target(
     id: u8,
-    start: i32,
+    _start: i32,
     cal: &Value,
     low: i32,
     high: i32,
     angle: f64,
-    nearest: bool,
+    _nearest: bool,
 ) -> Result<i32> {
     let key = id.to_string();
     let reference = cal["joints"]["references"][&key]
@@ -227,23 +227,9 @@ pub fn target(
     {
         bail!("#{id} 目标超出关节角度范围 {a}°–{b}°")
     }
-    let mut goal =
-        (reference + angle * 4096. / std::f64::consts::TAU * direction).round_ties_even();
-    if nearest {
-        // Choose the nearest equivalent only among encodable, hardware-valid
-        // turns. Unbounded rounding can turn a valid 3656 into invalid -440.
-        let (minimum, maximum) = if high > low {
-            ((low as f64).max(-32767.), (high as f64).min(32767.))
-        } else { (-32767., 32767.) };
-        let first = ((minimum - goal) / 4096.).ceil();
-        let last = ((maximum - goal) / 4096.).floor();
-        if first > last {
-            bail!("#{id} 目标超出编码范围或舵机硬件限位")
-        }
-        let turn = ((start as f64 - goal) / 4096.).round_ties_even().clamp(first, last);
-        goal += turn * 4096.;
-    }
-    if goal.abs() > 32767. || (high > low && (goal < low as f64 || goal > high as f64)) {
+    // Single-turn HD1910: no nearest-turn wrapping or encoder saturation.
+    let goal = (reference + angle * 4096. / std::f64::consts::TAU * direction).round();
+    if !(0. ..=4095.).contains(&goal) || (high > low && (goal < low as f64 || goal > high as f64)) {
         bail!("#{id} 目标超出编码范围或舵机硬件限位")
     }
     Ok(goal as i32)
@@ -308,6 +294,8 @@ pub fn publish(shared: &Shared, f: &Feedback, ids: &[u8], diagnostics: Value) {
         })
         .collect();
     let mut s = shared.write().unwrap();
+    // Battery EMA persists through idle, HOME and actor switches, like robotd.
+    s.native_voltage.scale(f,Instant::now());
     s.sample("joints",json!({"configuredIds":ids,"servos":rows,"error":"","scanMs":diagnostics["elapsedMs"],"targetHz":diagnostics["feedbackTargetHz"].as_u64().unwrap_or(50),"readMode":"sync-read","diagnostics":diagnostics}),true,Instant::now());
     if let Some(v) = s.latest.get_mut("joints") {
         v["source"] = json!("hardware");
@@ -353,6 +341,15 @@ pub fn profiles_with_gains<T: Transport>(bus: &mut T, ids: &[u8], feedback: &Fee
     if !gains.is_empty() { bus.sync(50,&gains)?; }
     Ok(())
 }
+/// Native kissqy mode changes only temporary P/D. Register 41 is owned by
+/// the installed hardware configuration, and target packets carry speed zero.
+pub fn native_profiles<T: Transport>(bus: &mut T, ids: &[u8], feedback: &Feedback, gains: (u8,u8)) -> Result<()> {
+    let rows: BTreeMap<_,_> = ids.iter().filter_map(|id|
+        (feedback[id]["kpRaw"] != gains.0 || feedback[id]["kdRaw"] != gains.1)
+            .then_some((*id,vec![gains.0,gains.1]))).collect();
+    if !rows.is_empty() {bus.sync(50,&rows)?;}
+    Ok(())
+}
 pub fn execute<T: Transport>(
     bus: &mut T,
     command: &Value,
@@ -363,8 +360,11 @@ pub fn execute<T: Transport>(
     if action == "disable" {
         return unload(bus);
     }
+    let pose = matches!(action, "stand" | "zero");
     let began = Instant::now();
-    let budget = if action == "stand" { 3. } else { 5. };
+    let native_pose=pose && command["nativePolicyGains"].is_array();
+    let ramp_seconds=if native_pose {2.} else {1.5};
+    let budget = if pose && !native_pose { 3. } else { 5. };
     let guard = || -> Result<()> {
         if cancel.load(Ordering::Acquire) {
             bail!("已取消动作，执行全部失能")
@@ -469,7 +469,7 @@ pub fn execute<T: Transport>(
                 json!({"state":"configured","action":action,"id":id,"accelerationRaw":0,"speedLimitRaw":0,"message":format!("#{id} XgoDuck加速度0、速度0及运行增益已配置，未写目标角度或使能")}),
             );
         }
-        if !["enable", "stand"].contains(&action) {
+        if !["enable", "stand", "zero"].contains(&action) {
             bail!("未知舵机操作")
         }
         let ids = if action == "stand" {
@@ -516,13 +516,13 @@ pub fn execute<T: Transport>(
                 bail!("#{id} 当前位置超出舵机硬件限位")
             };
             starts.insert(*id, start);
-            let a = command["standTargets"]
+            let a = if action == "zero" { 0. } else { command["standTargets"]
                 .get(id.to_string())
                 .and_then(Value::as_f64)
-                .unwrap_or(STAND[n.min(13)]);
+                .unwrap_or(STAND[n.min(13)]) };
             targets.insert(
                 *id,
-                if action == "stand" {
+                if pose {
                     target(*id, start, &command["calibration"], low, high, a, true)?
                 } else {
                     start
@@ -530,12 +530,16 @@ pub fn execute<T: Transport>(
             );
         }
         guard()?;
-        if action == "stand" && budget - began.elapsed().as_secs_f64() < 1.65 {
+        if pose && budget - began.elapsed().as_secs_f64() < 1.65 {
             bail!("总线预检查过慢，未执行运动")
         }
         attempted = true;
         goals(bus, &starts)?;
-        profiles(bus, ids, &fresh)?;
+        if command["nativePolicyGains"].is_array() {
+            let gains=crate::orientation::vector::<2>(&command["nativePolicyGains"])?;
+            if gains.iter().any(|v| !v.is_finite() || *v<0. || *v>255. || v.fract()!=0.) {bail!("模型增益无效");}
+            native_profiles(bus,ids,&fresh,(gains[0] as u8,gains[1] as u8))?;
+        } else { profiles(bus, ids, &fresh)?; }
         for id in ids {
             guard()?;
             let cap = cfg[id].2.to_le_bytes();
@@ -581,7 +585,7 @@ pub fn execute<T: Transport>(
             publish(shared, &fresh, &IDS, diagnostics.clone());
             // Manual poses and model HOME use a linear 1.5s trajectory at 50Hz.
             // Only policy inference applies the action EMA.
-            let ratio = (trajectory.elapsed().as_secs_f64() / 1.5).min(1.0);
+            let ratio = (trajectory.elapsed().as_secs_f64() / ramp_seconds).min(1.0);
             let errors: BTreeMap<_,_> = ids.iter().map(|id| {
                 let delta = (position(&f[id]).unwrap_or(i32::MIN) as f64 - targets[id] as f64) * 360. / 4096.;
                 (*id, rounded(delta, 2))
@@ -634,7 +638,7 @@ pub fn execute<T: Transport>(
                 if since.elapsed() >= Duration::from_millis(100) {
                     guard()?;
                     state["state"] = json!("holding");
-                    state["message"] = json!("已到官方站姿并使能保持");
+                    state["message"] = json!(if action == "zero" { "所有关节已到0°并使能保持" } else { "已到官方站姿并使能保持" });
                     return Ok(state);
                 }
             } else {
@@ -656,13 +660,13 @@ pub fn execute<T: Transport>(
                 let off = unload(bus)
                     .map(|v| v["message"].as_str().unwrap_or("").to_owned())
                     .unwrap_or_else(|e| format!("全部失能未确认：{e}"));
-                if action == "stand" {
+                if pose {
                     evidence["unloadMessage"] = json!(off);
                     if let Err(save_error) = bus.save_control_failure(&evidence) {
                         shared.write().unwrap().log("WARN","servo-control",&format!("到位故障记录保存失败：{save_error}"));
                     }
                 }
-                if action == "stand" && timing.count > 0 {
+                if pose && timing.count > 0 {
                     let stats = timing.stats();
                     bail!(
                         "{e}；{last_pose_diagnostics}；本次发令 {}Hz（目标50Hz），最大间隔 {}ms；{off}",
@@ -895,15 +899,16 @@ mod tests {
         assert_eq!(v["commandMaxGapMs"], 20.);
     }
     #[test]
-    fn nearest_turn_must_be_inside_hardware_and_encoding_limits() {
+    fn single_turn_targets_never_wrap_across_stop() {
         let cal = json!({"joints":{"references":{"32":1996},"directions":{}}});
         let angle = (-145.9114870879065f64).to_radians();
         assert_eq!(target(32,1368,&cal,0,4095,angle,true).unwrap(),3656);
-        assert_eq!(target(32,-430,&cal,-4096,4095,angle,true).unwrap(),-440);
+        assert_eq!(target(32,-430,&cal,-4096,4095,angle,true).unwrap(),3656);
         assert!(target(32,1368,&cal,1000,2000,angle,true).is_err());
         let unlimited = target(32,32767,&cal,0,0,angle,true).unwrap();
-        assert!(unlimited.abs()<=32767);
-        assert_eq!((unlimited-3656)%4096,0);
+        assert_eq!(unlimited,3656);
+        let edge=json!({"joints":{"references":{"32":100},"directions":{}}});
+        assert!(target(32,4000,&edge,0,4095,170f64.to_radians(),true).is_err());
     }
     #[test]
     fn goals_and_ranges() {
@@ -939,6 +944,14 @@ mod tests {
         fn new() -> Self {
             Self{writes:vec![],rows:IDS.into_iter().map(|id|(id,json!({"position":2048,"fault":0,"voltage":5.9,"torque":0,"accelerationRaw":5,"speedLimitRaw":300,"kpRaw":32,"kiRaw":0,"kdRaw":40}))).collect(),firmware:true,fail_after_goal:false,fast_missing:0,fast_reads:0,stuck_id:None,saved_failure:None}
         }
+    }
+    #[test]
+    fn kissqy_native_gain_update_preserves_acceleration_and_torque() {
+        let mut bus=Mock::new();let rows=bus.rows.clone();
+        native_profiles(&mut bus,&[10,34],&rows,(5,20)).unwrap();
+        assert_eq!(bus.writes.iter().map(|(a,_)|*a).collect::<Vec<_>>(),[50]);
+        for id in [10,34] {assert_eq!(bus.rows[&id]["accelerationRaw"],5);assert_eq!(bus.rows[&id]["torque"],0);}
+        let rows=bus.rows.clone();native_profiles(&mut bus,&[10,34],&rows,(5,20)).unwrap();assert_eq!(bus.writes.len(),1);
     }
     impl Transport for Mock {
         fn save_control_failure(&mut self, evidence: &Value) -> Result<()> {
@@ -1234,5 +1247,19 @@ mod tests {
         let midpoint=&moves[moves.len()/2].1[&12];
         assert_ne!(midpoint,final_goal);
         assert_ne!(midpoint,&moves[0].1[&12]);
+    }
+    #[test]
+    fn zero_pose_uses_calibrated_zero_for_all_fifteen_joints() {
+        let mut bus = Mock::new();
+        let references: BTreeMap<_, _> = IDS.into_iter().map(|id| (id.to_string(), 2100)).collect();
+        let result = execute(&mut bus, &json!({"action":"zero","calibration":{"joints":{"references":references,"directions":{}}}}), &AtomicBool::new(false), &shared()).unwrap();
+        assert_eq!(result["state"], "holding");
+        assert_eq!(result["action"], "zero");
+        let (_, targets) = bus.writes.iter().rev().find(|(a,_)| *a == 42).unwrap();
+        assert_eq!(targets.len(), 15);
+        for id in IDS {
+            assert_eq!(u16::from_le_bytes([targets[&id][0],targets[&id][1]]), 2100);
+            assert_eq!(bus.rows[&id]["torque"], 1);
+        }
     }
 }

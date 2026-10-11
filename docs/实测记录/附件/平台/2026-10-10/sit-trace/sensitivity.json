@@ -1,0 +1,87 @@
+{
+  "frames": 97,
+  "hardwareMotionAdded": false,
+  "limitations": "Fixed real position/other observation sequence; replacing one block tests sensitivity, not whether that block is incorrect or whether intervention fixes physical closed loop.",
+  "results": {
+    "baseline": {
+      "kneeTotalVariationDeg": [
+        596.5115949081328,
+        492.522113351303
+      ],
+      "kneeRangeDeg": [
+        [
+          -12.910055966242538,
+          89.9954592013805
+        ],
+        [
+          -81.4083541315437,
+          10.036209476730068
+        ]
+      ]
+    },
+    "gyro-zero": {
+      "kneeTotalVariationDeg": [
+        683.54863573745,
+        621.6422224025152
+      ],
+      "kneeRangeDeg": [
+        [
+          -15.436464393054798,
+          95.50162986116462
+        ],
+        [
+          -85.50454152020541,
+          16.326701004190507
+        ]
+      ]
+    },
+    "velocity-zero": {
+      "kneeTotalVariationDeg": [
+        846.2258808224742,
+        655.4411232272837
+      ],
+      "kneeRangeDeg": [
+        [
+          -37.42895976572759,
+          94.1231474224943
+        ],
+        [
+          -84.53194990315227,
+          25.8823508039972
+        ]
+      ]
+    },
+    "raw-history-zero": {
+      "kneeTotalVariationDeg": [
+        745.344968621079,
+        653.9164440045237
+      ],
+      "kneeRangeDeg": [
+        [
+          -11.406876471442594,
+          119.15502574940399
+        ],
+        [
+          -123.38489360050119,
+          12.934767590659645
+        ]
+      ]
+    },
+    "gravity-upright": {
+      "kneeTotalVariationDeg": [
+        577.022990536126,
+        507.2049727176268
+      ],
+      "kneeRangeDeg": [
+        [
+          -4.20957317127812,
+          91.71549207968646
+        ],
+        [
+          -85.05887167686208,
+          5.428282117336202
+        ]
+      ]
+    }
+  }
+}

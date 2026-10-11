@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-11",
+  "userFeedback": "mechanical alignment still cannot recover; user intends retry",
+  "hardwareMotionAdded": false,
+  "newGetupSessionCaptured": false,
+  "snapshotSummaries": [
+    {
+      "file": "snapshots-first.json",
+      "samples": 378,
+      "counts": {
+        "('failed', None)": 378
+      }
+    },
+    {
+      "file": "snapshots-second.json",
+      "samples": 381,
+      "counts": {
+        "('failed', None)": 381
+      }
+    },
+    {
+      "file": "snapshots.json",
+      "samples": 380,
+      "counts": {
+        "('failed', None)": 380
+      }
+    }
+  ],
+  "traceSummary": {
+    "eventTimeMs": 1791685114776,
+    "result": {
+      "error": "检测到行走跌倒：机身倾角102.1°（≥60°持续150ms或≥90°），停止推理并卸力；扶正后需手动重新启动"
+    },
+    "kinds": [
+      "",
+      "sitstand_sit",
+      "sitstand_stand",
+      "xgoduck"
+    ]
+  },
+  "matrix": [
+    {
+      "item": "模型/推理映射",
+      "donor": "a481d9…; HOME+raw, contract scale1, no EMA",
+      "ours": "same ONNX/contract; ARM fixture passed",
+      "verdict": "一致（倍率仅指模型基础合同，外围电压补偿另列）"
+    },
+    {
+      "item": "机械目标限位",
+      "donor": "saved mechanical clamp then single-turn encoding",
+      "ours": "mechanical-v1 deployed; 152 saved target cases ARM verified",
+      "verdict": "已修复"
+    },
+    {
+      "item": "控制执行时序",
+      "donor": "synchronous 50Hz tick; read -> model -> write",
+      "ours": "100Hz target write/read, asynchronous inference target50Hz; captured45.24Hz inference/59.43Hz feedback, result age7.30ms",
+      "verdict": "确定不一致；数据来自坐站/行走混合会话，不冒称新起身实测"
+    },
+    {
+      "item": "上力时增益",
+      "donor": "hd1910.arm applies native temporary model P/D before enable",
+      "ours": "getup arm_current(MANUAL_GAINS32/40), then model P5/D20",
+      "verdict": "确定不一致"
+    },
+    {
+      "item": "电压动作补偿",
+      "donor": "default voltage_adapt=true, nominal7.4; runtime_scale*=7.4/clamp(filtered battery,6,9.5)",
+      "ours": "fixed action scale1, no voltage correction",
+      "verdict": "与供体默认实现不同；供体本机当前开关未知，非唯一原因证明"
+    },
+    {
+      "item": "加速度寄存器",
+      "donor": "native arm preserves register41",
+      "ours": "profiles_with_gains writes register41=0",
+      "verdict": "执行不同；供体当前寄存器值未知，若原值0效果相同"
+    },
+    {
+      "item": "P/D/扭矩保存覆盖",
+      "donor": "saved servo-test can override; management defaults3/0/681",
+      "ours": "observed model joints5/20/I0/torque1000",
+      "verdict": "本机确定；供体实机保存覆盖未知，不能称确定应换3/0"
+    },
+    {
+      "item": "其它动作中的起身请求",
+      "donor": "LB recovery can take over ground-pick/seat/named skills when fallen",
+      "ours": "queue_skill accepts only walking or seated->stand; App actionBusy disables getup in other skill",
+      "verdict": "确定不一致，可能导致点击未启动，而不是actor撑不起"
+    },
+    {
+      "item": "卸力来源的起身结束",
+      "donor": "home_recovery end disables policy and returns HOME via bringup",
+      "ours": "after6 effective seconds always transitions to xgoduck walking; fall guard can then unload",
+      "verdict": "确定不一致，适用从卸力启动的路径；未捕获新起身不能认定本次发生"
+    },
+    {
+      "item": "零位/方向和IMU",
+      "donor": "per-board saved calibration; yaw/neck/headpitch/headroll directions include+1",
+      "ours": "board directions empty => all-1; zeros local; MS901M calibrated mounting",
+      "verdict": "数值不同是事实，装配与轴向实物对应尚未核实；不能直接导入另一机zero/direction"
+    }
+  ],
+  "observedRates": {
+    "checksumErrors": 0,
+    "cycleBusy": {
+      "lastMs": 12.822,
+      "maxMs": 34.46,
+      "meanMs": 10.782
+    },
+    "feedbackActualHz": 59.42765393454865,
+    "feedbackReads": 2032,
+    "inferenceActualHz": 45.236413647150634,
+    "inferenceConcurrent": true,
+    "inferenceResultAgeMs": 7.299,
+    "inferenceResults": 1546,
+    "missingFrames": 0,
+    "missingResponses": 0,
+    "observe": {
+      "lastMs": 0.201,
+      "maxMs": 17.2,
+      "meanMs": 0.428
+    },
+    "read": {
+      "lastMs": 6.981,
+      "maxMs": 9.874,
+      "meanMs": 6.425
+    },
+    "write": {
+      "lastMs": 0.213,
+      "maxMs": 0.952,
+      "meanMs": 0.216
+    }
+  },
+  "sourceHashes": {
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\backend-rust\\src\\policy.rs": "55ae81855a864b7be5d99ee2bd0480a216113e18f2859901bece8bee0e5a2b5b",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\backend-rust\\src\\control.rs": "ce078428dbb84bc342216d02bced52411aa903c796b26554dd2c254d43823601",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\backend-rust\\src\\telemetry.rs": "0d107ba2589af7b2778163f70582371f1402eb708f861124e485573ff5d9b093",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\backend-rust\\src\\ducklink_motion.rs": "1a5cc74da46649fc1d9ee7e8a38b236c4f04b865d7ee3bf1e4ab68e4c499e2d3",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\mobile\\android\\app\\src\\main\\java\\io\\microduck\\control\\MainActivity.java": "dc455a180bd46caa82440a3327d507678b7c2b33a5ef96542827a36b95ad35c2",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\donor-robotd.rs": "0e976bd30c0576a6c3795fc6d435427456bb94ede46a279f18fc5ccc44df35b3",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\donor-control.rs": "616231dacb6f7df2c5f4166d3cd7c1c28e76f7cb30eae2ba1c3014148b47a62f",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\donor-feetech.rs": "6387579ddac4ce5f51edb6e9a328f6c62888515deb21ef72e1c8abd724903314",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\donor-hd1910.rs": "e2133300893b67ea1d500076e223ab3a9123ad7053e64b637dfd1614fc338e27",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\donor-params.rs": "6e10db4b31411b142b5f04d920a3ae7f4b74f026c1f3ef23b85970923d88fd90",
+    "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\donor-robotd.toml": "1b9ddb2010405812df195d825c5765f3d2ace7360e7c7846af43ffe507fac742"
+  }
+}

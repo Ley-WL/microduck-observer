@@ -1,0 +1,15 @@
+{
+  "frames": 109,
+  "replayMaxActionErrorRadians": 2.384185791015625e-07,
+  "filterMaxErrorRadians": 1.9073486345888568e-07,
+  "durationSeconds": 3.9545099460000017,
+  "kpRun": 3,
+  "kdRun": 0,
+  "inferenceActualHz": 26.717067435575107,
+  "neckTargetRangeDegrees": [
+    -116.630859375,
+    13.0078125
+  ],
+  "allCommandsZero": true,
+  "saturatedFrames": 0
+}

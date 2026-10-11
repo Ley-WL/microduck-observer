@@ -5,6 +5,7 @@
 #[path="../src/imu.rs"] mod imu;
 #[path="../src/orientation.rs"] mod orientation;
 #[path="../src/policy.rs"] mod policy;
+#[path="../src/gains.rs"] mod gains;
 #[path="../src/servos.rs"] mod servos;
 #[path="../src/telemetry.rs"] mod telemetry;
 use anyhow::{bail,Result};

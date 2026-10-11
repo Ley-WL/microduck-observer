@@ -1,0 +1,379 @@
+{
+  "date": "2026-10-11",
+  "scope": "kissqy fallen recovery; archived donor calibration, current local code and saved real-board session",
+  "runtimeKind": "kissqy_stand",
+  "modelAngleClippingEnabled": false,
+  "runtimeClipping": "encoder 0..4095 intersect valid EEPROM bounds; NOT declared per-joint angular bounds",
+  "donorClipping": "saved mechanical min_rad/max_rad before encoder conversion; invalid single-turn target rejected",
+  "boardEepromBounds": "not captured in this evidence; do not infer default bounds for all joints",
+  "donorCalibrationSource": "radxa@192.168.6.151:/etc/robot/feetech-ft5/hd1910-calibration.toml",
+  "donorCalibrationSourceSha256": "b56de58938860fa066737caa987cc0aec68a6b903ce3c74887d039c1308385aa",
+  "frames": 152,
+  "outsideToleranceDegrees": 0.05,
+  "hardwareMotionAdded": false,
+  "rows": [
+    {
+      "id": 10,
+      "joint": "right_hip_yaw",
+      "name": "右髋转向",
+      "platformDeclaredDegrees": [
+        -25.783100780887047,
+        12.60507149287811
+      ],
+      "donorTrainingXmlDegrees": [
+        -29.999999999999897,
+        25.000000000000103
+      ],
+      "donorSavedMechanicalDegrees": [
+        -29.999999999999996,
+        25.0
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": [
+        -5.2734375,
+        46.318359375
+      ],
+      "framesOutsidePlatformDeclared": 122,
+      "framesOutsideDonorSavedMechanical": 58
+    },
+    {
+      "id": 11,
+      "joint": "right_hip_roll",
+      "name": "右髋侧摆",
+      "platformDeclaredDegrees": [
+        -22,
+        22
+      ],
+      "donorTrainingXmlDegrees": [
+        -21.999999999999897,
+        22.0000000000001
+      ],
+      "donorSavedMechanicalDegrees": [
+        -22.0,
+        22.0
+      ],
+      "declaredEqualsDonorMechanical": true,
+      "sentTargetRangeDegrees": [
+        -35.68359375,
+        16.5234375
+      ],
+      "framesOutsidePlatformDeclared": 12,
+      "framesOutsideDonorSavedMechanical": 12
+    },
+    {
+      "id": 12,
+      "joint": "right_hip_pitch",
+      "name": "右髋俯仰",
+      "platformDeclaredDegrees": [
+        -90,
+        90
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.00000000000249,
+        89.99999999999751
+      ],
+      "donorSavedMechanicalDegrees": [
+        -90.0,
+        90.0
+      ],
+      "declaredEqualsDonorMechanical": true,
+      "sentTargetRangeDegrees": [
+        -61.61132812500001,
+        20.390625
+      ],
+      "framesOutsidePlatformDeclared": 0,
+      "framesOutsideDonorSavedMechanical": 0
+    },
+    {
+      "id": 13,
+      "joint": "right_knee",
+      "name": "右膝",
+      "platformDeclaredDegrees": [
+        -90,
+        90
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.00000000000213,
+        89.99999999999787
+      ],
+      "donorSavedMechanicalDegrees": [
+        -90.0,
+        90.0
+      ],
+      "declaredEqualsDonorMechanical": true,
+      "sentTargetRangeDegrees": [
+        -13.88671875,
+        93.427734375
+      ],
+      "framesOutsidePlatformDeclared": 2,
+      "framesOutsideDonorSavedMechanical": 2
+    },
+    {
+      "id": 14,
+      "joint": "right_ankle",
+      "name": "右踝",
+      "platformDeclaredDegrees": [
+        -90,
+        90
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.00000000000036,
+        89.99999999999964
+      ],
+      "donorSavedMechanicalDegrees": [
+        -70.0,
+        70.0
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": [
+        -54.052734375,
+        -18.6328125
+      ],
+      "framesOutsidePlatformDeclared": 0,
+      "framesOutsideDonorSavedMechanical": 0
+    },
+    {
+      "id": 20,
+      "joint": "left_hip_yaw",
+      "name": "左髋转向",
+      "platformDeclaredDegrees": [
+        -12.60507149287811,
+        25.783100780887047
+      ],
+      "donorTrainingXmlDegrees": [
+        -25.0,
+        29.999999999999996
+      ],
+      "donorSavedMechanicalDegrees": [
+        -25.0,
+        29.999999999999996
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": [
+        -29.443359375,
+        21.796875
+      ],
+      "framesOutsidePlatformDeclared": 76,
+      "framesOutsideDonorSavedMechanical": 3
+    },
+    {
+      "id": 21,
+      "joint": "left_hip_roll",
+      "name": "左髋侧摆",
+      "platformDeclaredDegrees": [
+        -22,
+        22
+      ],
+      "donorTrainingXmlDegrees": [
+        -21.999999999996945,
+        22.000000000003052
+      ],
+      "donorSavedMechanicalDegrees": [
+        -22.0,
+        22.0
+      ],
+      "declaredEqualsDonorMechanical": true,
+      "sentTargetRangeDegrees": [
+        -82.6171875,
+        -26.71875
+      ],
+      "framesOutsidePlatformDeclared": 152,
+      "framesOutsideDonorSavedMechanical": 152
+    },
+    {
+      "id": 22,
+      "joint": "left_hip_pitch",
+      "name": "左髋俯仰",
+      "platformDeclaredDegrees": [
+        -90,
+        90
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.000000000003,
+        89.999999999997
+      ],
+      "donorSavedMechanicalDegrees": [
+        -90.0,
+        90.0
+      ],
+      "declaredEqualsDonorMechanical": true,
+      "sentTargetRangeDegrees": [
+        -118.037109375,
+        57.12890625
+      ],
+      "framesOutsidePlatformDeclared": 4,
+      "framesOutsideDonorSavedMechanical": 4
+    },
+    {
+      "id": 23,
+      "joint": "left_knee",
+      "name": "左膝",
+      "platformDeclaredDegrees": [
+        -90,
+        90
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.0000000000001,
+        89.9999999999999
+      ],
+      "donorSavedMechanicalDegrees": [
+        -90.0,
+        90.0
+      ],
+      "declaredEqualsDonorMechanical": true,
+      "sentTargetRangeDegrees": [
+        -68.02734375,
+        23.994140625
+      ],
+      "framesOutsidePlatformDeclared": 0,
+      "framesOutsideDonorSavedMechanical": 0
+    },
+    {
+      "id": 24,
+      "joint": "left_ankle",
+      "name": "左踝",
+      "platformDeclaredDegrees": [
+        -90,
+        90
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.00000000000055,
+        89.99999999999945
+      ],
+      "donorSavedMechanicalDegrees": [
+        -70.0,
+        70.0
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": [
+        3.076171875,
+        43.06640625
+      ],
+      "framesOutsidePlatformDeclared": 0,
+      "framesOutsideDonorSavedMechanical": 0
+    },
+    {
+      "id": 30,
+      "joint": "neck_pitch",
+      "name": "颈俯仰",
+      "platformDeclaredDegrees": [
+        -135,
+        60
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.00000000000006,
+        59.99999999999994
+      ],
+      "donorSavedMechanicalDegrees": [
+        -90.0,
+        70.0
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": [
+        1.142578125,
+        115.400390625
+      ],
+      "framesOutsidePlatformDeclared": 80,
+      "framesOutsideDonorSavedMechanical": 41
+    },
+    {
+      "id": 31,
+      "joint": "head_pitch",
+      "name": "头俯仰",
+      "platformDeclaredDegrees": [
+        -105,
+        105
+      ],
+      "donorTrainingXmlDegrees": [
+        -90.0,
+        90.0
+      ],
+      "donorSavedMechanicalDegrees": [
+        -90.0,
+        90.0
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": [
+        -53.26171875,
+        62.49023437499999
+      ],
+      "framesOutsidePlatformDeclared": 0,
+      "framesOutsideDonorSavedMechanical": 0
+    },
+    {
+      "id": 32,
+      "joint": "head_yaw",
+      "name": "头旋转",
+      "platformDeclaredDegrees": [
+        -170,
+        170
+      ],
+      "donorTrainingXmlDegrees": [
+        -170.00000000000006,
+        169.99999999999997
+      ],
+      "donorSavedMechanicalDegrees": [
+        -170.0,
+        170.0
+      ],
+      "declaredEqualsDonorMechanical": true,
+      "sentTargetRangeDegrees": [
+        -179.47265625,
+        19.248046875
+      ],
+      "framesOutsidePlatformDeclared": 9,
+      "framesOutsideDonorSavedMechanical": 9
+    },
+    {
+      "id": 33,
+      "joint": "head_roll",
+      "name": "头侧摆",
+      "platformDeclaredDegrees": [
+        -25,
+        25
+      ],
+      "donorTrainingXmlDegrees": [
+        -25.00000000000005,
+        24.99999999999995
+      ],
+      "donorSavedMechanicalDegrees": [
+        -20.0,
+        20.0
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": [
+        7.207031249999999,
+        28.740234375
+      ],
+      "framesOutsidePlatformDeclared": 5,
+      "framesOutsideDonorSavedMechanical": 23
+    },
+    {
+      "id": 34,
+      "joint": "mouth",
+      "name": "嘴",
+      "platformDeclaredDegrees": [
+        0,
+        30
+      ],
+      "donorTrainingXmlDegrees": null,
+      "donorSavedMechanicalDegrees": [
+        -5.0,
+        29.999999999999996
+      ],
+      "declaredEqualsDonorMechanical": false,
+      "sentTargetRangeDegrees": null,
+      "framesOutsidePlatformDeclared": null,
+      "framesOutsideDonorSavedMechanical": null
+    }
+  ],
+  "sourceHashes": {
+    "deploy\\staging\\kissqy-pick-getup-20261010\\stand-contract.json": "5db434f4255858b88f26312e0286ed8801df94fda735e13f9f290eecbd2d17a1",
+    "backend-rust\\src\\policy.rs": "45f67d81264a5de2f06150e02ddff65368b7c5b0e26dbc5099e265e20316d186",
+    "backend-rust\\src\\telemetry.rs": "3a2702a6747393dfd54d374ce4ee3a669e9e201607158be028b78331050baeb8",
+    "models\\xgoduck_getup.metadata.json": "2c907ce623519f98f6763439d703f717cdbc9c500e8eae89226e2b67244afc80",
+    "docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\donor-feetech.rs": "6387579ddac4ce5f51edb6e9a328f6c62888515deb21ef72e1c8abd724903314",
+    "docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\policy-session-latest.json": "df1382b8ecae1f56f97a0f5692ff022a2ec0ead0e084ec07045a044d8fd3976c",
+    "docs\\实测记录\\附件\\平台\\2026-10-11\\getup-compare\\audit-limits.py": "3742378500785061e7403c99b311b55da9c4ea0ce3ba6a3249d63274bbfd6350"
+  }
+}

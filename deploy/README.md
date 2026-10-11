@@ -2,6 +2,6 @@
 
 生产服务、蓝牙和舵机控制统一使用Rust。废弃Python后端、systemd配置与安装脚本已删除，模型源文件改为仓库models/；已部署release的models/位置不变。
 
-完整构建、打包、安装、只读验证与回滚流程见 [RUST.md](RUST.md)。打包入口是deploy/package_rust.py。部署/验证Python脚本及受限电源辅助进程仍保留，它们不是旧控制后端。
+完整构建、打包、安装、只读验证与回滚流程见 [RUST.md](RUST.md)。打包入口是deploy/package_rust.py。一次性部署/验证Python脚本保留；板上Wi-Fi管理和受限电源辅助均已提供Rust实现，迁移入口是tools/deploy-service-rust.py。
 
 主板更新前须确认没有运行中的模型/动作，保留共享标定、身份与舵机寄存器；不得从发布包覆盖现有标定。旧主板release仍可作为历史回滚来源，本次只清理本地源码，不删除板上文件。

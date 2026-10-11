@@ -1,0 +1,9 @@
+{
+  "snapshots": 378,
+  "getupFiles": [],
+  "lastControl": {
+    "action": "policy",
+    "message": "检测到行走跌倒：机身倾角91.7°（≥60°持续150ms或≥90°），停止推理并卸力；扶正后需手动重新启动；stage=policy-fall；本帧缺失[]，读取5.571916ms，校验错误0，收到315字节；诊断已保存；15 个舵机已失能（卸力）",
+    "state": "failed"
+  }
+}

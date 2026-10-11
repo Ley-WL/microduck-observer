@@ -1,14 +1,14 @@
 {
   "artifactType": "training-policy",
-  "task": "Mjlab-Velocity-Flat-XgoDuck",
-  "policySha256": "5727b909d5ea1a0f9ff63bf4cea9707339dea6a522374c7a120da633605b923f",
+  "task": "Mjlab-VelStand-Rough-Backlash-MicroDuck",
+  "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
   "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
-  "geometry": "XgoDuck donor policy transferred to local MicroDuck HOME and calibration",
+  "geometry": "Donor HD1910 VelStand rough backlash policy, transferred to local MicroDuck calibration",
   "controlHz": 50,
   "actorObservationDim": 61,
   "actionDim": 14,
   "observationNormalization": "baked into ONNX by upstream exporter",
-  "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
+  "actionSemantics": "HOME + 0.9 * raw policy action; head/leg target filter new weights 0.5/0.7; first target passthrough",
   "jointOrder": [
     "left_hip_yaw",
     "left_hip_roll",
@@ -48,7 +48,28 @@
   "gainBaseline": 5,
   "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions",
   "bodyGroundContactMeshes": 68,
-  "source": "https://github.com/LuwuDynamics/xgoduck_runtime_arduino/blob/master/python/xgoduck_walk.onnx",
-  "runtimeActionAlpha": 0.45,
-  "transferBoundary": "Local joint HOME/order retained; model calibration not imported. Simulation transfer can fall; hardware behavior unvalidated."
+  "source": "https://github.com/kissqy/Microduck-kissqy/tree/94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "runtimeActionAlpha": null,
+  "transferBoundary": "Local IDs/calibration and protections retained; donor P3/D0 for walk only; donor torque limit681 not imported; not validated in hardware.",
+  "runtimeKind": "xgoduck",
+  "walkExecution": {
+    "schema": "kissqy-r17-v1",
+    "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+    "actionScale": 0.9,
+    "headNewWeight": 0.5,
+    "legsNewWeight": 0.7,
+    "gains": {
+      "p": 3,
+      "d": 0
+    },
+    "gainSource": "R17 management defaults; upstream may be overridden by saved servo-test-parameters.json"
+  },
+  "deploymentProvenance": {
+    "commit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+    "sourceIteration": 9599,
+    "userRequested": true,
+    "formalAcceptancePassed": false,
+    "upstreamTorqueLimitDefault": 681,
+    "torqueLimitTransferred": false
+  }
 }

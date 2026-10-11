@@ -1,0 +1,21 @@
+{
+  "hardwareMotion": false,
+  "codeChanged": false,
+  "training": false,
+  "cause": "native pick has 14 actor outputs excluding mouth; session initializes independent mouth intent to -5 degrees; no pick auto-open script",
+  "remainingMismatch": "local queue_mouth and UI reject mouth while pick runs; donor robotd independent mouth intent is not limited to walking",
+  "control": {
+    "message": "等待操作",
+    "state": "idle"
+  },
+  "release": "20261011-kissqy-native-v2",
+  "latestPickFrames": 280,
+  "pickMouthGoalsRaw": [
+    2077
+  ],
+  "sourceHashes": {
+    "backend-rust/src/policy.rs": "142fb5e3aae857d2c577fdab84cadab0a8dff4e646c41d417f957fdcee6c4a0e",
+    "backend-rust/src/telemetry.rs": "5a5a354e50b7c7f402b93dfb9e7a4fb176caee7b558f190bf99ecbb6fa9a3b1a",
+    "frontend/src/components/ModelRuntime.vue": "e1ab0887d17bc15efb7cc2af63cad040865c9a009a6e9bdd0f2a53d2f6818977"
+  }
+}

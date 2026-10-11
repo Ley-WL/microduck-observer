@@ -4,9 +4,11 @@ mod ducklink;
 mod ducklink_motion;
 mod ducklink_protocol;
 mod guided;
+mod gains;
 mod imu;
 mod orientation;
 mod policy;
+mod walk_profile;
 mod power;
 mod resources;
 mod servos;
@@ -163,7 +165,7 @@ async fn limits() -> Json<Value> {
         .iter()
         .map(|id| (id.to_string(), json!(telemetry::limit(*id).unwrap())))
         .collect();
-    Json(json!({"limits":map,"unit":"deg"}))
+    Json(json!({"limits":map,"unit":"deg","source":"kissqy-hd1910-saved-mechanical-v1","targetEncoding":"mechanical-clamp-single-turn-reject-v1"}))
 }
 async fn poses() -> Json<Value> {
     Json(serde_json::from_str(include_str!("poses.json")).expect("bundled poses"))
@@ -215,7 +217,7 @@ async fn servo_action(
     h: HeaderMap,
     b: Bytes,
 ) -> Response {
-    if !["enable", "disable", "stand", "angle", "profile"].contains(&action.as_str()) {
+    if !["enable", "disable", "stand", "zero", "angle", "profile"].contains(&action.as_str()) {
         return error(StatusCode::NOT_FOUND, "Not Found");
     }
     let v = match check_action(&h, &b, 1024) {
@@ -235,18 +237,18 @@ async fn servo_action(
     };
     let boot = a.telemetry.read().unwrap().boot.clone();
     let cal = a.cal.lock().unwrap().read(&boot);
-    if ["stand", "angle"].contains(&action.as_str()) && v["revision"] != cal["revision"] {
+    if ["stand", "zero", "angle"].contains(&action.as_str()) && v["revision"] != cal["revision"] {
         return error(StatusCode::CONFLICT, "标定已更新，请刷新后重试");
     }
-    if action == "stand"
+    if matches!(action.as_str(), "stand" | "zero")
         && (v["confirmCalibration"] != true
-            || IDS[..14]
+            || IDS[..if action == "zero" { 15 } else { 14 }]
                 .iter()
                 .any(|id| cal["joints"]["references"].get(id.to_string()).is_none()))
     {
         return error(
             StatusCode::CONFLICT,
-            "请确认位置标定正确并完成双腿及头颈14个关节标定",
+            "请确认位置标定正确并完成所有目标关节标定",
         );
     }
     if ["angle", "profile"].contains(&action.as_str()) {
@@ -338,6 +340,40 @@ async fn policy_info(State(a): State<App>) -> Json<Value> {
         json!({"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
+async fn model_gains_info() -> Json<Value> {
+    let value=gains::ui_current();
+    Json(json!({"supported":true,"p":value.p,"d":value.d,"appliesOn":"next-model-start"}))
+}
+#[cfg(test)]
+mod gain_route_tests {
+    use super::*;
+    #[tokio::test]
+    async fn active_control_cannot_save_new_gains() {
+        let tmp=tempfile::tempdir().unwrap();
+        let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
+        let app=App {telemetry:shared.clone(),cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
+        let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
+        for state in ["policy","moving","preflight","disabling"] {
+            shared.write().unwrap().control=json!({"state":state});
+            let response=model_gains(State(app.clone()),headers.clone(),Bytes::from_static(b"{\"p\":8,\"d\":24}")).await;
+            assert_eq!(response.status(),StatusCode::CONFLICT);
+        }
+        shared.write().unwrap().control=json!({"state":"disabled"});
+        let _permit=app.gate.clone().acquire_owned().await.unwrap();
+        assert_eq!(model_gains(State(app.clone()),headers,Bytes::from_static(b"{\"p\":8,\"d\":24}")).await.status(),StatusCode::CONFLICT);
+    }
+}
+async fn model_gains(State(a): State<App>, headers: HeaderMap, body: Bytes) -> Response {
+    let v = match check_write(&headers, &body, 1024) { Ok(v) => v, Err(r) => return r };
+    let value = match gains::parse(&v) { Ok(v) => v, Err(e) => return error(StatusCode::BAD_REQUEST, &e.to_string()) };
+    let _permit = match a.gate.clone().try_acquire_owned() { Ok(p) => p, Err(_) => return error(StatusCode::CONFLICT, "请先停止模型，再保存增益") };
+    let state = a.telemetry.read().unwrap().control["state"].as_str().unwrap_or("").to_owned();
+    if matches!(state.as_str(), "policy"|"moving"|"preflight"|"disabling") { return error(StatusCode::CONFLICT, "请先停止模型，再保存增益"); }
+    match gains::save_ui(value) {
+        Ok(()) => Json(json!({"saved":true,"gains":{"p":value.p,"d":value.d},"appliesOn":"next-model-start"})).into_response(),
+        Err(e) => error(StatusCode::INTERNAL_SERVER_ERROR, &format!("保存失败：{e}")),
+    }
+}
 fn policy_home_command(kind:&str,cal:Value)->anyhow::Result<Value> {
     let targets=policy::home_targets_for(kind)?;
     Ok(json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind}))
@@ -375,7 +411,7 @@ async fn policy_action(
         return Json(json!({"state":"queued","skill":body["skill"],"sequence":sequence})).into_response();
     }
     if action=="mouth" {
-        let Some(degrees)=body["angleDeg"].as_f64().filter(|v|v.is_finite() && (0. ..=30.).contains(v)) else {return error(StatusCode::BAD_REQUEST,"嘴部角度须为0–30°");};
+        let Some(degrees)=body["angleDeg"].as_f64().filter(|v|v.is_finite() && (-5. ..=30.).contains(v)) else {return error(StatusCode::BAD_REQUEST,"嘴部角度须为−5–30°");};
         let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少指令序号");};
         let mut shared=a.telemetry.write().unwrap();
         if !shared.queue_mouth(body["session"].as_str().unwrap_or(""),sequence,degrees) {return error(StatusCode::CONFLICT,"嘴部会话/序号无效，或动作/反馈尚未就绪");}
@@ -543,6 +579,7 @@ async fn client(mut ws: WebSocket, a: App) {
 }
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    gains::init()?;
     let args: Vec<_> = std::env::args().collect();
     if args.get(1).is_some_and(|s| s == "--verify-policy-fixture") {
         let path = args
@@ -657,6 +694,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/servos/limits", get(limits))
         .route("/api/v1/logs", get(logs))
         .route("/api/v1/policy", get(policy_info))
+        .route("/api/v1/model-gains", get(model_gains_info).post(model_gains))
         .route("/api/v1/policy/{action}", post(policy_action))
         .route("/api/v1/servos/{action}", post(servo_action))
         .route("/api/v1/calibration/{action}", post(guided_action))

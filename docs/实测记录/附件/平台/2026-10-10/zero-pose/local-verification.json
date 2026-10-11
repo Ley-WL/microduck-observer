@@ -1,0 +1,15 @@
+{
+  "rustTests": {
+    "passed": 90,
+    "ignored": 1
+  },
+  "frontendTests": {
+    "passed": 62
+  },
+  "frontendBuild": true,
+  "armBuild": true,
+  "testCoverage": "Mock bus: all 15 calibrated zero targets, holding state and torque enabled; existing protection and linear-pose regression tests",
+  "binarySha256": "12aab3f7b7c80a15ca7938defe6828d9b8157788a7fefb1bfa492559ff52d2f2",
+  "frontendIndexSha256": "dd9a438d517e8a40d9293bd3af2c659915f0e72563426bc788d733a29d252344",
+  "physicalMotionTested": false
+}

@@ -1,14 +1,9 @@
 {
   "artifactType": "training-policy",
-  "task": "XgoDuck-getup",
-  "policySha256": "c414f2bd84b0a79b89f0ba6997135eb45e4ecd9df9271ea989c237864027b2a3",
-  "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
-  "geometry": "XgoDuck donor policy transferred to local MicroDuck HOME and calibration",
   "controlHz": 50,
   "actorObservationDim": 61,
   "actionDim": 14,
   "observationNormalization": "baked into ONNX by upstream exporter",
-  "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
   "jointOrder": [
     "left_hip_yaw",
     "left_hip_roll",
@@ -41,15 +36,24 @@
     0.0049,
     -0.453
   ],
-  "nominalTrunkHeightM": 0.11718236219874864,
-  "simulationMassKg": 0.7372431799999999,
+  "runtimeKind": "kissqy_stand",
+  "task": "Mjlab-StandUp-Rough-Backlash-MicroDuck",
+  "policySha256": "a481d9f211f31d9476ab1a319fe362a21ef0879d9fa59442a122845af598268c",
   "hardwareValidated": false,
-  "intendedStart": "current calibrated pose without upright HOME",
-  "gainBaseline": 5,
-  "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions",
-  "bodyGroundContactMeshes": 68,
-  "source": "https://github.com/LuwuDynamics/xgoduck_runtime_arduino/blob/master/python/xgoduck_getup.onnx",
-  "runtimeActionAlpha": 0.45,
-  "transferBoundary": "Local joint HOME/order retained; model calibration not imported. Simulation transfer can fall; hardware behavior unvalidated.",
-  "runtimeKind": "xgoduck_getup"
+  "modelSource": "kissqy/Microduck-kissqy",
+  "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "actionEmaOldWeight": 0,
+  "actionEmaNewWeight": 1,
+  "skillExecution": {
+    "schema": "kissqy-skills-v1",
+    "policySha256": "a481d9f211f31d9476ab1a319fe362a21ef0879d9fa59442a122845af598268c",
+    "gains": {
+      "p": 5,
+      "d": 20
+    },
+    "durationSeconds": 6,
+    "actionScale": 1
+  },
+  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+  "commandEncoding": "all zero"
 }

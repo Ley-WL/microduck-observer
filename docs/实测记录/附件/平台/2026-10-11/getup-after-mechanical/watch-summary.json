@@ -1,0 +1,11 @@
+{
+  "snapshots": 382,
+  "getupFiles": [
+    "getup-1791685669674.json"
+  ],
+  "lastControl": {
+    "message": "15 个舵机已失能（卸力）",
+    "state": "disabled",
+    "unconfirmedIds": []
+  }
+}

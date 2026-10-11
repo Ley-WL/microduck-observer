@@ -41,6 +41,28 @@ const props = defineProps<{
 }>();
 defineEmits<{ calibrate: []; clear: []; pause: []; mounting: [value: number]; confirmReference: [] }>();
 const state = useTelemetry();
+const zeroPending = ref(false), zeroMessage = ref('');
+const zeroDisabled = computed(() => zeroPending.value || !board.ready || state.joints?.source !== 'hardware'
+  || state.jointsAge >= 500 || ['preflight', 'moving', 'policy', 'disabling'].includes(state.system?.data.servoControl?.state)
+  || [10,11,12,13,14,20,21,22,23,24,30,31,32,33,34].some(id => !Number.isFinite(board.data?.joints.references[String(id)])));
+async function zeroJoints() {
+  if (zeroDisabled.value) return;
+  const endpoint = state.endpoint.replace(/\/$/, ''), boot = state.joints?.bootId;
+  zeroPending.value = true; zeroMessage.value = '';
+  try {
+    const response = await fetch(endpoint + '/api/v1/servos/zero', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirmCalibration: true, revision: board.data?.revision }),
+      signal: AbortSignal.timeout(15000),
+    });
+    const result = await response.json();
+    if (endpoint === state.endpoint.replace(/\/$/, '') && boot === state.joints?.bootId)
+      zeroMessage.value = response.ok ? result.message : result.detail || '零位操作被拒绝';
+  } catch (e) {
+    if (endpoint === state.endpoint.replace(/\/$/, ''))
+      zeroMessage.value = '零位结果未确认，请检查实时角度：' + (e instanceof Error ? e.message : String(e));
+  } finally { zeroPending.value = false; }
+}
 const robot = ref<InstanceType<typeof RobotView>>();
 const lastImu = computed(() => state.chart.at(-1));
 const tilt = computed(() => props.quaternion ? bodyTiltDegrees(props.quaternion).toFixed(2) : "—");
@@ -123,6 +145,7 @@ const value = (values: number[] | undefined, i: number) =>
           <button class="button compact" :disabled="!!board.levelDisabledReason"
             :title="board.levelDisabledReason || '将当前姿态设为 Pitch/Roll 0°，保留航向；请先把躯干摆正。共享参考同时用于模型控制。'"
             @click="board.levelOrientation()">{{ board.saving ? '保存中…' : 'Pitch / Roll 归零' }}</button>
+          <button class="button compact" :disabled="zeroDisabled" title="按已保存的位置标定，将全部15个关节（含嘴部）移动至0°并保持；请托住机器人。" @click="zeroJoints">{{ zeroPending ? '归零中…' : '零位' }}</button>
           <button class="button compact" :disabled="!board.ready" @click="installationOpen=true">IMU 安装位置</button>
           <button
             class="text-button"
@@ -132,7 +155,7 @@ const value = (values: number[] | undefined, i: number) =>
             清除 IMU 参考
           </button>
           <span>{{
-            board.error || board.levelDisabledReason || (calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择")
+            zeroMessage || board.error || board.levelDisabledReason || (calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择")
           }}</span>
         </div>
         <ModelControlPanel />

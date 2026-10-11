@@ -19,15 +19,16 @@ pub fn epoch_ms() -> u128 {
 }
 pub fn limit(id: u8) -> Option<(f64, f64)> {
     Some(match id {
-        10 => ((-0.45f64).to_degrees(), (0.22f64).to_degrees()),
-        20 => ((-0.22f64).to_degrees(), (0.45f64).to_degrees()),
+        // Mechanical bounds from kissqy saved HD1910 calibration (stand contract).
+        10 => (-30., 25.),
+        20 => (-25., 30.),
         11 | 21 => (-22., 22.),
-        12..=14 | 22..=24 => (-90., 90.),
-        31 => (-105., 105.),
-        30 => (-135., 60.),
+        12 | 13 | 22 | 23 | 31 => (-90., 90.),
+        14 | 24 => (-70., 70.),
+        30 => (-90., 70.),
         32 => (-170., 170.),
-        33 => (-25., 25.),
-        34 => (0., 30.),
+        33 => (-20., 20.),
+        34 => (-5., 30.),
         _ => return None,
     })
 }
@@ -50,6 +51,7 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub(crate) native_voltage:crate::policy::NativeVoltage,
     pub pending_skill: Option<String>,
     pub pending_mouth: Option<f64>,
     pub mouth_degrees: f64,
@@ -75,14 +77,14 @@ pub struct DriveCommand {
 }
 impl Telemetry {
     pub fn queue_mouth(&mut self,session:&str,sequence:u64,degrees:f64)->bool {
-        if !degrees.is_finite() || !(0. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
+        if !degrees.is_finite() || !(-5. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
         self.pending_mouth=Some(degrees);true
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
         if self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
-            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=2.))
+            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || (kind=="xgoduck_getup" && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"sitstand_sit"|"sitstand_stand"))) || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.)))
             || self.pending_skill.is_some() { return false; }
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
@@ -101,6 +103,16 @@ impl DriveCommand {
 #[cfg(test)]
 mod drive_tests {
     use super::*;
+    #[test]
+    fn replica_sit_window_blocks_early_stand() {
+        let mut state=Telemetry::new(true);
+        state.drive=Some(DriveCommand{session:"s".into(),sequence:1,twist:[0.;3],updated:Instant::now()});
+        state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"sitstand_sit","skillProgressSeconds":2.,"sitSettleSeconds":4.});
+        assert!(!state.queue_skill("s",2,"sitstand_stand"));
+        assert_eq!(state.drive.as_ref().unwrap().sequence,1);
+        state.control["skillProgressSeconds"]=json!(4.);
+        assert!(state.queue_skill("s",2,"sitstand_stand"));
+    }
     #[test]
     fn seated_only_accepts_rise_after_settle_with_fresh_session() {
         let mut state=Telemetry::new(true);
@@ -143,6 +155,19 @@ mod drive_tests {
         assert!(!state.queue_skill("live",7,"xgoduck_roulade"));
         state.control["activeSkill"]=json!("xgoduck");state.control["feedbackHolding"]=json!(true);
         assert!(!state.queue_skill("live",7,"xgoduck_getup"));
+    }
+    #[test]
+    fn recovery_preempts_seat_pick_and_one_shot_but_not_an_existing_recovery() {
+        for active in ["sitstand_sit","sitstand_stand","xgoduck_pick","xgoduck_roulade"] {
+            let mut state=Telemetry::new(true);
+            state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":active});
+            state.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.2,0.,0.],updated:Instant::now()});
+            assert!(!state.queue_skill("foreign",1,"xgoduck_getup"));
+            assert!(state.queue_skill("s",1,"xgoduck_getup"));assert_eq!(state.drive.unwrap().twist,[0.;3]);
+        }
+        let mut state=Telemetry::new(true);state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck_getup"});
+        state.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        assert!(!state.queue_skill("s",1,"xgoduck_getup"));
     }
     #[test]
     fn released_commands_cannot_be_overwritten_by_late_packets_or_old_sessions() {
@@ -197,6 +222,7 @@ impl Telemetry {
     }
     pub fn new(hardware: bool) -> Self {
         let mut s = Self {
+            native_voltage:crate::policy::NativeVoltage::default(),
             drive: None,
             pending_skill: None,
             pending_mouth: None, mouth_degrees: 0.,
@@ -301,10 +327,37 @@ mod tests {
     }
     #[test]
     fn limits_match() {
-        assert_eq!(limit(34), Some((0., 30.)));
-        assert_eq!(limit(20), Some(((-0.22f64).to_degrees(), (0.45f64).to_degrees())));
-        assert_eq!(limit(30), Some((-135.,60.)));
-        assert_eq!(limit(31), Some((-105.,105.)));
+        assert_eq!(limit(34), Some((-5., 30.)));
+        assert_eq!(limit(20), Some((-25.,30.)));
+        assert_eq!(limit(30), Some((-90.,70.)));
+        assert_eq!(limit(31), Some((-90.,90.)));
         assert_eq!(limit(1), None);
+    }
+
+    #[test]
+    fn historical_visual_training_bounds_remain_separate_from_mechanical_limits() {
+        let donor: Value = serde_json::from_str(include_str!("../tests/fixtures/xgoduck-joint-limits.json")).unwrap();
+        let web: Value = serde_json::from_str(include_str!("../../frontend/public/model/model.json")).unwrap();
+        let joints = donor["joints"].as_object().unwrap();
+        assert_eq!(joints.len(), 14);
+        for (name, entry) in joints {
+            let id = entry["id"].as_u64().unwrap() as u8;
+            let range = entry["range"].as_array().unwrap();
+            let visual = web["bodies"].as_array().unwrap().iter()
+                .find(|body| body["joint"]["name"].as_str() == Some(name.as_str())).unwrap();
+            assert_eq!(visual["joint"]["id"].as_u64(), Some(id as u64));
+            for index in 0..2 {
+                let radians = range[index].as_f64().unwrap();
+                assert!((visual["joint"]["range"][index].as_f64().unwrap() - radians).abs() < 1e-12, "web {name}");
+            }
+        }
+        let mechanical:Value=serde_json::from_str(include_str!("../tests/fixtures/kissqy-mechanical-limits.json")).unwrap();
+        let rows=mechanical["joints"].as_array().unwrap();
+        assert_eq!(rows.len(),15);
+        for row in rows {
+            let (lo,hi)=limit(row["id"].as_u64().unwrap() as u8).unwrap();
+            assert!((lo.to_radians()-row["min_rad"].as_f64().unwrap()).abs()<1e-12);
+            assert!((hi.to_radians()-row["max_rad"].as_f64().unwrap()).abs()<1e-12);
+        }
     }
 }

@@ -132,7 +132,7 @@ try:
     paths[0].write_text('[Unit]\nAfter=bluetooth.service ducklink-wifi.service\nWants=bluetooth.service ducklink-wifi.service\n[Service]\nEnvironment=MICRODUCK_BLE_ENABLED=1\nEnvironment=MICRODUCK_BLE_IDENTITY=/var/lib/ducklink/identity.json\nSupplementaryGroups=bluetooth ducklink\nReadWritePaths=/var/lib/ducklink\n')
     paths[1].write_text('[Service]\nEnvironment=DUCKLINK_CONTROL_USER=radxa\n')
     paths[2].write_text('<busconfig><policy user="radxa"><allow send_destination="org.bluez"/><allow receive_sender="org.bluez"/></policy></busconfig>')
-    shutil.copy2('/home/radxa/ducklink-wifi-unified.py',paths[3])
+    # Wi-Fi is installed by deploy-service-rust.py; do not revive the legacy Python service.
     for path in (identity_dir,identity):os.chown(path,pwd.getpwnam('radxa').pw_uid,pwd.getpwnam('ducklink').pw_gid)
     identity_dir.chmod(0o700);identity.chmod(0o600)
     subprocess.run(['systemctl','reload','dbus'],check=True)

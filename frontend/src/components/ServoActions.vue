@@ -56,7 +56,7 @@ async function run(action: 'enable' | 'disable' | 'stand') {
       <button class="button compact stand-button" :disabled="!live || !calibrated || busy" @click="askStand">静态站姿 <small>≤3s</small></button>
     </div>
     <div class="servo-action-status" :class="{ failed }" role="status">
-      <template v-if="busy && control?.state === 'moving'">站姿过渡 {{ Math.round((control.progress || 0) * 100) }}% · 剩余 {{ control.remainingSeconds }}s</template>
+      <template v-if="busy && control?.state === 'moving'">{{ control.action === 'zero' ? '零位' : '站姿' }}过渡 {{ Math.round((control.progress || 0) * 100) }}% · 剩余 {{ control.remainingSeconds }}s</template>
       <template v-else>{{ message || (control?.action !== 'angle' ? control?.message : '') || '使能锁住当前位置 · 失能释放扭矩' }}</template>
       <span v-if="control?.commandHz != null"> · 发令 {{ control.commandHz.toFixed(1) }}Hz / 目标50Hz · 最大间隔 {{ control.commandMaxGapMs }}ms</span>
     </div>

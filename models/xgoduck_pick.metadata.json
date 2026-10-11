@@ -1,14 +1,9 @@
 {
   "artifactType": "training-policy",
-  "task": "XgoDuck-pick",
-  "policySha256": "f34e990dda785e9a8c53890bdcd0f7f1d457592691fd3703f3776b48fb2d14b8",
-  "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
-  "geometry": "XgoDuck donor policy transferred to local MicroDuck HOME and calibration",
   "controlHz": 50,
   "actorObservationDim": 61,
   "actionDim": 14,
   "observationNormalization": "baked into ONNX by upstream exporter",
-  "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
   "jointOrder": [
     "left_hip_yaw",
     "left_hip_roll",
@@ -41,15 +36,24 @@
     0.0049,
     -0.453
   ],
-  "nominalTrunkHeightM": 0.11718236219874864,
-  "simulationMassKg": 0.7372431799999999,
+  "runtimeKind": "kissqy_ground_pick",
+  "task": "Mjlab-GroundPick-Flat-MicroDuck",
+  "policySha256": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
   "hardwareValidated": false,
-  "intendedStart": "upright XgoDuck balance",
-  "gainBaseline": 5,
-  "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions",
-  "bodyGroundContactMeshes": 68,
-  "source": "https://github.com/LuwuDynamics/xgoduck_runtime_arduino/blob/master/python/xgoduck_pick.onnx",
-  "runtimeActionAlpha": 0.45,
-  "transferBoundary": "Local joint HOME/order retained; model calibration not imported. Simulation transfer can fall; hardware behavior unvalidated.",
-  "runtimeKind": "xgoduck_pick"
+  "modelSource": "kissqy/Microduck-kissqy",
+  "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "actionEmaOldWeight": 0,
+  "actionEmaNewWeight": 1,
+  "skillExecution": {
+    "schema": "kissqy-skills-v1",
+    "policySha256": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
+    "gains": {
+      "p": 5,
+      "d": 20
+    },
+    "durationSeconds": 2.8,
+    "actionScale": 1
+  },
+  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+  "commandEncoding": "phase cos/sin, period4 end0.7"
 }

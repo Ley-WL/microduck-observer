@@ -1,10 +1,20 @@
 # 原生 Rust 部署
 
+## 2026-10-11 板上服务迁移
+
+Wi-Fi 管理与受限电源辅助源码分别为 `backend-rust/src/bin/ducklink-wifi.rs` 和 `backend-rust/src/bin/microduck-power-helper.rs`。构建使用 `cargo build --release --locked --target aarch64-unknown-linux-gnu --bins`；打包入口包含两个 ARM64 helper。`tools/deploy-service-rust.py` 安装独立 `/usr/local/lib/microduck-services/20261011-service-rust-v1/`，替换 systemd ExecStart，保持原 Unix socket 协议和权限隔离，主控制服务不升权、不重启。
+
+Wi-Fi 保留 wpa_supplicant 控制 socket、异步连接、成功关联及 IPv4 后保存 netplan、连接失败恢复原选择、原配置原子写/生成失败回滚。密码不进入命令行、日志或错误回包。主板系统提供的 netplan 命令属于系统网络工具，机器人服务本身不再以 Python 运行。电源 helper 仍只允许 poweroff/reboot，经 systemd 延迟五秒执行；自动验收仅发非法动作，不真正关机/重启。
+
+部署要求空闲且15舵机卸力；检查当前关联、netplan字节、模型/二进制/标定/持久增益/BLE身份不变及20快照。旧单位和 Python helper 归档在 `/var/lib/microduck-observer/service-rust-backup-20261011/` 用于失败回滚，活动位置的 Python helper 删除。构建、部署、诊断、实测附件中的一次性 Python 脚本保留；历史专用部署入口不能视为当前平台整套安装入口。
+
+> **2026-10-11 最新执行覆盖：** 已部署kissqy-mechanical-v1，全部15关节机械范围采用kissqy保存标定。模型先裁机械角度、再按本机零位/方向转4096编码，无跨圈/编码饱和；单圈编码或EEPROM有效边界不满足则拒绝。模型权重、raw历史、增益及其它设置保持。旧训练XML/v3限位合同属于训练历史，和当前机械发令 guard 分开核验；旧段落的“仅v3裁角度/原供体编码饱和”已被本条覆盖。103检查、ARM五技能及152帧目标公式核对通过，只读部署非起身实机成功，详见实测03/04及2026-10-11/kissqy-mechanical证据。
+
 ## 主板电源按钮
 
 页面右上角提供关机/重启，确认后POST `/api/v1/system/poweroff` 或 `/api/v1/system/reboot`，请求必须包含当前info的bootId和confirm=true。模拟器禁用；实机须配置`MICRODUCK_POWER_CONTROL=1`。接口沿用JSON和Origin校验，超时/调度失败不显示成功，也不自动重试。
 
-`microduck-power.socket`创建仅radxa可访问的0600 Unix socket；实例service以root运行固定的`power-helper.py`，只接受两种动作，经systemd-run延迟5秒调用systemctl。不放宽观测服务权限、不配置任意sudo命令。安装文件位于`/usr/local/lib/microduck-power-helper.py`及`/etc/systemd/system/`；启用socket后用power.conf添加环境变量。部署脚本保留旧release及标定备份，启动失败回滚current。
+`microduck-power.socket`创建仅radxa可访问的0600 Unix socket；实例service以root运行固定的 Rust `microduck-power-helper`，只接受两种动作，经systemd-run延迟5秒调用systemctl。不放宽观测服务权限、不配置任意sudo命令。启用socket后用power.conf添加环境变量。部署脚本保留旧release及标定备份，启动失败回滚。
 
 关机前托稳机器人；主板关机不切断舵机电源。等待约30秒并确认关机完成后再断电；页面断线本身不是关机完成证明。关机按钮需要重新供电才能再次启动主板。重启按钮提交后页面自动重连。接口和权限验证可用非法动作/缺确认请求，禁止将实际关机当作无影响的自动测试。
 

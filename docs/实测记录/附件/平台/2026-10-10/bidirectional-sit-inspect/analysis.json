@@ -1,0 +1,137 @@
+{
+  "userReport": "App坐下似有意图但未落座，怀疑控制冲突",
+  "deployedSitPolicySha256": "2a3edcb880e88435a7ac248568859bb4f1eb487b9204db06a4aa3fb59c5ebe29",
+  "latestFailure": {
+    "eventTimeMs": 1791607288446,
+    "error": "#12 电压 3.8V 超出舵机工作范围 4.0–8.4V",
+    "stage": "policy-loop",
+    "stats": {
+      "actionAlpha": 0.45,
+      "activeSkill": "xgoduck",
+      "commandCount": 2699,
+      "commandHz": 77.91,
+      "commandMaxGapMs": 39.93,
+      "commandTargetHz": 100,
+      "commandTwist": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "cycleCosts": {
+        "checksumErrors": 11,
+        "cycleBusy": {
+          "lastMs": 8.58,
+          "maxMs": 35.428,
+          "meanMs": 9.656
+        },
+        "feedbackActualHz": 77.89403932397357,
+        "feedbackReads": 2699,
+        "inferenceActualHz": 47.146393413424384,
+        "inferenceConcurrent": true,
+        "inferenceResultAgeMs": 9.596,
+        "inferenceResults": 1633,
+        "missingFrames": 61,
+        "missingResponses": 309,
+        "observe": {
+          "lastMs": 0.001,
+          "maxMs": 5.077,
+          "meanMs": 0.2
+        },
+        "read": {
+          "lastMs": 6.107,
+          "maxMs": 32.945,
+          "meanMs": 6.249
+        },
+        "write": {
+          "lastMs": 0.161,
+          "maxMs": 1.152,
+          "meanMs": 0.192
+        }
+      },
+      "driveSession": "a82358c5-6ad2-4a30-8658-6d2d59c6a279",
+      "fallDetection": {
+        "confirmMs": 150,
+        "enabled": true,
+        "immediateTiltDegrees": 90.0,
+        "tiltDegrees": 60.0
+      },
+      "feedbackReplyBudgetMs": 6,
+      "feedbackTargetHz": 100,
+      "homeCommandTargetHz": 50,
+      "imuAgeMs": {
+        "imu.orientation": 1.75,
+        "imu.raw": 4.42
+      },
+      "inferenceMs": 0.789,
+      "inferenceTargetHz": 50,
+      "kdHome": 40,
+      "kdRun": 20,
+      "kind": "xgoduck",
+      "kpHome": 32,
+      "kpRun": 6,
+      "modelSource": "donor",
+      "policy": "xgoduck_walk",
+      "policySha256": "5727b909d5ea1a0f9ff63bf4cea9707339dea6a522374c7a120da633605b923f",
+      "posture": "standing",
+      "rawTargetDegrees": [
+        23.968834514678075,
+        -25.321112932597636,
+        59.47443227339797,
+        -38.328405659659445,
+        -18.17273940009984,
+        -279.6582706602369,
+        119.23444841637252,
+        -135.96983256225113,
+        6.70637150073876,
+        12.721751546167548,
+        30.95091343145357,
+        134.21898187041003,
+        -165.4066228283071,
+        -133.8655878827536
+      ],
+      "requestedKind": "xgoduck",
+      "runtimeProfile": "xgoduck-schedule100-v1",
+      "saturatedIds": [
+        30
+      ],
+      "sentTargetDegrees": [
+        23.994140625,
+        -25.3125,
+        59.501953125,
+        -38.3203125,
+        -18.193359375,
+        -181.7578125,
+        119.267578125,
+        -135.966796875,
+        6.6796875,
+        12.744140625,
+        30.937499999999996,
+        134.208984375,
+        -165.43212890625,
+        -133.857421875
+      ],
+      "sitSettleSeconds": 2.0,
+      "skillProgressSeconds": 0.0,
+      "velocityAlphaAt100Hz": 0.4,
+      "velocitySource": "servo-register",
+      "walkSpeedMps": 0.0
+    }
+  },
+  "observedControlProcessCount": 1,
+  "uartOwnerPid": 7882,
+  "servoUart": "/dev/ttyS2",
+  "imuUart": "/dev/ttyS9",
+  "otherPythonProcess": "wifi_service.py (Wi-Fi permissions only)",
+  "readonlySamples": 500,
+  "sitSamples": 0,
+  "allSamplesDisabled": true,
+  "codeChecks": [
+    "One serial owner executes one job at a time",
+    "Switch drops/joins prior inference worker and clears old-generation results",
+    "BLE tick and shared command route reject walking during sit skill",
+    "Sit has no automatic completion transition to walk",
+    "Sit command slot is twist.vx=1"
+  ],
+  "conclusion": "No evidence of simultaneous model output; latest saved fault belongs to walk, not sit. Actual sit trajectory was not captured and cause remains unconfirmed.",
+  "hardwareMotionSent": false
+}

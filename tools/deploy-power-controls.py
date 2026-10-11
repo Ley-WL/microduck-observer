@@ -8,7 +8,8 @@ bundle = root / 'deploy/staging/power-controls.tar.gz'
 with tarfile.open(bundle, 'w:gz') as archive:
     archive.add(root / 'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer', arcname='microduck-observer')
     archive.add(root / 'frontend/dist', arcname='dist')
-    for name in ('power-helper.py', 'microduck-power.socket', 'microduck-power@.service', 'install-power-controls.py'):
+    archive.add(root / 'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-power-helper', arcname='microduck-power-helper')
+    for name in ('microduck-power.socket', 'microduck-power@.service', 'install-power-controls.py'):
         archive.add(root / 'deploy' / name, arcname=name)
 host = 'radxa@192.168.31.186'
 options = ['-o', 'BatchMode=yes', '-o', 'HostKeyAlias=192.168.31.193', '-o', 'ConnectTimeout=8']

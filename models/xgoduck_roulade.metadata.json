@@ -1,14 +1,9 @@
 {
   "artifactType": "training-policy",
-  "task": "XgoDuck-roulade",
-  "policySha256": "8adb1e6bc3f5eef751ce4edbf940f6d5a25fdec3ec4a798e1d9ca135c8248e97",
-  "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
-  "geometry": "XgoDuck donor policy transferred to local MicroDuck HOME and calibration",
   "controlHz": 50,
   "actorObservationDim": 61,
   "actionDim": 14,
   "observationNormalization": "baked into ONNX by upstream exporter",
-  "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
   "jointOrder": [
     "left_hip_yaw",
     "left_hip_roll",
@@ -41,15 +36,26 @@
     0.0049,
     -0.453
   ],
-  "nominalTrunkHeightM": 0.11718236219874864,
-  "simulationMassKg": 0.7372431799999999,
+  "runtimeKind": "kissqy_roulade",
+  "task": "Mjlab-Roulade-Flat-MicroDuck",
+  "policySha256": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
   "hardwareValidated": false,
-  "intendedStart": "upright XgoDuck balance",
-  "gainBaseline": 5,
-  "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions",
-  "bodyGroundContactMeshes": 68,
-  "source": "https://github.com/LuwuDynamics/xgoduck_runtime_arduino/blob/master/python/xgoduck_roulade.onnx",
-  "runtimeActionAlpha": 0.15,
-  "transferBoundary": "Local joint HOME/order retained; model calibration not imported. Simulation transfer can fall; hardware behavior unvalidated.",
-  "runtimeKind": "xgoduck_roulade"
+  "modelSource": "kissqy/Microduck-kissqy",
+  "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "actionEmaOldWeight": 0,
+  "actionEmaNewWeight": 1,
+  "skillExecution": {
+    "schema": "kissqy-skills-v1",
+    "policySha256": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
+    "gains": {
+      "p": 5,
+      "d": 20
+    },
+    "durationSeconds": 1,
+    "actionScale": 1
+  },
+  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+  "commandEncoding": "all zero",
+  "sourceManifest": "microduck-hd1910/firmware/policies/roulade/manifest.json",
+  "sourceContract": "microduck-hd1910/firmware/policies/roulade/deployment-contract.json"
 }

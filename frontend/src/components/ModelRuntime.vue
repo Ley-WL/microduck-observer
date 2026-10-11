@@ -12,7 +12,7 @@ const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), comman
 const skills=[{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'}];
 const skillAvailable=ref<Record<string,boolean>>({});
 
-const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=2 && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
+const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??2) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 const available=computed(()=>modelAvailable.value[kind.value]);
 const poseName=computed(()=>kind.value==='xgoduck'?'预备姿势':kind.value==='walk'?'模型行走姿势':'模型站立姿势');
 const pending=ref(false),message=ref(''),failed=ref(false);
@@ -21,6 +21,7 @@ const running=computed(()=>control.value?.action==='policy' && ['preflight','mov
 const busy=computed(()=>pending.value || ['preflight','moving','policy','disabling'].includes(control.value?.state));
 const live=computed(()=>state.connection==='在线' && state.joints?.source==='hardware' && state.jointsAge<500);
 const canDrive=computed(()=>kind.value==='xgoduck' && live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && !control.value?.feedbackHolding && !skillQueued.value && (!control.value?.activeSkill || control.value.activeSkill==='xgoduck') && !!session.value && control.value?.driveSession===session.value && !pending.value);
+const canRecover=computed(()=>live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && ['xgoduck','xgoduck_pick','xgoduck_roulade','sitstand_sit','sitstand_stand'].includes(control.value?.activeSkill) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 let acknowledgedSequence=0;
 watch(session,()=>{acknowledgedSequence=0;commandState.value='';});
 const hold=holdToWalk(async(twist,sequence)=>{
@@ -91,7 +92,7 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
   <div class="runtime-panel">
     <div class="runtime-overview">
     <div class="runtime-title"><span>{{ kind==='xgoduck'?'XgoDuck':kind==='walk'?'HD1910 · v6':'HD1910 · v5' }}</span><strong>{{ kind==='xgoduck'?'按住行走 · 松开平衡':kind==='walk'?'模型行走':'模型站立维持' }}</strong><small>50 Hz 推理 · 100 Hz 反馈目标</small></div>
-    <div class="model-selector"><button :class="{active:kind==='xgoduck'}" :disabled="busy" @click="kind='xgoduck'">XgoDuck</button><button :class="{active:kind==='stand'}" :disabled="busy" @click="kind='stand'">站立模型</button><button :class="{active:kind==='walk'}" :disabled="busy" @click="kind='walk'">行走模型</button><label v-if="kind==='walk'">前进 <select v-model.number="speed" :disabled="busy"><option :value="0.05">0.05 m/s</option><option :value="0.1">0.10 m/s</option><option :value="0.2">0.20 m/s</option></select></label></div>
+    <div class="model-selector"><button :class="{active:kind==='xgoduck'}" :disabled="busy" @click="kind='xgoduck'">XgoDuck</button><button :class="{active:kind==='stand'}" :disabled="busy" @click="kind='stand'">站立模型</button><button :class="{active:kind==='walk'}" :disabled="busy" @click="kind='walk'">行走模型</button><label v-if="kind==='walk'">前进 <select v-model.number="speed" :disabled="busy"><option :value="0.05">0.05 m/s</option><option :value="0.1">0.10 m/s</option><option :value="0.2">0.20 m/s</option><option :value="0.3">0.30 m/s</option><option :value="0.4">0.40 m/s</option></select></label></div>
     </div>
     <p v-if="kind==='xgoduck'">预备 → 原地平衡 → 按住行走；松开平衡，坐下后点站起恢复。</p>
     <p v-else>开始时先匀速分段到所选模型姿势，再持续{{ kind==='walk'?'按前进速度行走':'调整站姿' }}。“{{ poseName }}”以50Hz匀速分段到初始姿势并保持。停止结束推理并保持；全部失能立即卸力。</p>
@@ -103,17 +104,17 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
       <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>
     </div>
     <div v-if="kind==='xgoduck'" class="walk-speed-row">
-      <label>前后档位 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.20" step="0.01" aria-label="轮盘前后速度" /><output>{{ wheelSpeed.toFixed(2) }}</output></label>
-      <button v-for="value in [0.05,0.1,0.15,0.2]" :key="value" :class="{selected:wheelSpeed===value}" @click="wheelSpeed=value">{{ value.toFixed(2) }}</button>
+      <label>前后档位 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="轮盘前后速度" /><output>{{ wheelSpeed.toFixed(2) }}</output></label>
+      <button v-for="value in [0.05,0.1,0.2,0.3,0.4]" :key="value" :class="{selected:wheelSpeed===value}" @click="wheelSpeed=value">{{ value.toFixed(2) }}</button>
       <small>后退×2 / 转向×2 · 档位不是实测速度</small>
     </div>
     <div v-if="kind==='xgoduck'" class="runtime-interaction">
     <p v-if="kind==='xgoduck'" class="drive-result" role="status">{{ driveReason || commandState || '轮盘已就绪 · 按住拖动行走' }}</p>
     <WalkWheel v-if="kind==='xgoduck'" :speed="wheelSpeed" :disabled="!canDrive" @drive="wheel" @release="release" />
     <div v-if="kind==='xgoduck'" class="hold-directions">
-      <button v-for="skill in skills" :key="skill.key" :disabled="!skillAvailable[skill.key] || !(canDrive || (skill.key==='standup' && canStand) || (['getup','standup'].includes(skill.key) && live && board.ready && !busy))" @click="extra(skill.key)">{{ skill.name }}</button>
+      <button v-for="skill in skills" :key="skill.key" :disabled="!skillAvailable[skill.key] || !(canDrive || (skill.key==='getup' && canRecover) || (skill.key==='standup' && canStand) || (['getup','standup'].includes(skill.key) && live && board.ready && !busy))" @click="extra(skill.key)">{{ skill.name }}</button>
       <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('mouth',30)">张嘴</button>
-      <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('mouth',0)">闭嘴</button>
+      <button :disabled="!(canDrive || (live && board.ready && !busy))" @click="extra('mouth',-5)">闭嘴</button>
       <span>{{ control?.activeSkill==='xgoduck_getup'?'起身中':control?.activeSkill==='xgoduck_pick'?'拾取中':control?.activeSkill==='xgoduck_roulade'?'翻滚中':'' }}</span>
     </div>
     </div>

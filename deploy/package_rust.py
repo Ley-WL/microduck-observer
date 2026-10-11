@@ -17,6 +17,11 @@ if header[:4] != b'\x7fELF' or int.from_bytes(header[18:20], 'little') != 183:
 if not (args.frontend / 'index.html').is_file():
     raise SystemExit('Provide the unchanged frontend dist via --frontend')
 models=[]
+helpers=[args.binary.parent/name for name in ('ducklink-wifi','microduck-power-helper')]
+for helper in helpers:
+    header=helper.read_bytes()[:20]
+    if header[:4]!=b'\x7fELF' or int.from_bytes(header[18:20],'little')!=183:
+        raise SystemExit('Expected ARM64 runtime helper: '+helper.name)
 for name in ('hd1910-head-v5','hd1910-walk-v6-symmetry500','xgoduck_walk',
              'xgoduck_getup','xgoduck_pick','xgoduck_roulade','alpha_sitstand'):
     model=root / 'models' / (name+'.onnx')
@@ -30,6 +35,10 @@ with tarfile.open(args.output, 'w:gz') as archive:
     info.mode = 0o755
     with args.binary.open('rb') as stream:
         archive.addfile(info, stream)
+    for helper in helpers:
+        info=archive.gettarinfo(str(helper),arcname='bin/'+helper.name)
+        info.mode=0o755
+        with helper.open('rb') as stream:archive.addfile(info,stream)
     archive.add(args.frontend, arcname='frontend/dist')
     for model,metadata in models:
         archive.add(model, arcname='models/' + model.name)

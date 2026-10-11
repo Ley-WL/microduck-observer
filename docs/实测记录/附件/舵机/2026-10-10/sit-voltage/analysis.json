@@ -1,0 +1,552 @@
+{
+  "error": "#13 电压 3.8V 超出舵机工作范围 4.0–8.4V",
+  "modelSha": "fa0c9c4ab8f2c6a2f096986f11c102a7561c036ea16f6a7069dcf577500e8209",
+  "activeSkill": "sitstand_sit",
+  "skillProgressSeconds": 2.2000000000000015,
+  "calibrationRevision": 289,
+  "lastFrames": [
+    {
+      "mono": 317.01059876,
+      "rows": [
+        {
+          "id": 10,
+          "voltage": 5.0,
+          "fault": 0,
+          "loadRaw": 156,
+          "currentRaw": 53,
+          "position": 1918,
+          "positionDeg": 14.150390625,
+          "target": 1805,
+          "targetDeg": 24.08203125
+        },
+        {
+          "id": 11,
+          "voltage": 4.7,
+          "fault": 0,
+          "loadRaw": -93,
+          "currentRaw": 126,
+          "position": 2081,
+          "positionDeg": -2.63671875,
+          "target": 2143,
+          "targetDeg": -8.0859375
+        },
+        {
+          "id": 12,
+          "voltage": 4.5,
+          "fault": 0,
+          "loadRaw": -498,
+          "currentRaw": -163,
+          "position": 2236,
+          "positionDeg": -9.31640625,
+          "target": 2596,
+          "targetDeg": -40.95703125
+        },
+        {
+          "id": 13,
+          "voltage": 4.3,
+          "fault": 0,
+          "loadRaw": -1000,
+          "currentRaw": -851,
+          "position": 3001,
+          "positionDeg": -91.77978515625,
+          "target": 4095,
+          "targetDeg": -187.93212890625
+        },
+        {
+          "id": 14,
+          "voltage": 4.2,
+          "fault": 0,
+          "loadRaw": 900,
+          "currentRaw": 949,
+          "position": 1757,
+          "positionDeg": 16.962890625,
+          "target": 1164,
+          "targetDeg": 69.08203125
+        },
+        {
+          "id": 20,
+          "voltage": 5.0,
+          "fault": 0,
+          "loadRaw": -815,
+          "currentRaw": -948,
+          "position": 2463,
+          "positionDeg": -35.419921875,
+          "target": 3003,
+          "targetDeg": -82.880859375
+        },
+        {
+          "id": 21,
+          "voltage": 4.9,
+          "fault": 0,
+          "loadRaw": -157,
+          "currentRaw": -170,
+          "position": 2012,
+          "positionDeg": 4.482421875,
+          "target": 2110,
+          "targetDeg": -4.130859375
+        },
+        {
+          "id": 22,
+          "voltage": 4.9,
+          "fault": 0,
+          "loadRaw": 422,
+          "currentRaw": -64,
+          "position": 2005,
+          "positionDeg": -2.109375,
+          "target": 1686,
+          "targetDeg": 25.927734375
+        },
+        {
+          "id": 23,
+          "voltage": 4.8,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 696,
+          "position": 1022,
+          "positionDeg": 91.494140625,
+          "target": 0,
+          "targetDeg": 181.318359375
+        },
+        {
+          "id": 24,
+          "voltage": 4.7,
+          "fault": 0,
+          "loadRaw": 620,
+          "currentRaw": 87,
+          "position": 1719,
+          "positionDeg": 32.87109375,
+          "target": 1256,
+          "targetDeg": 73.564453125
+        },
+        {
+          "id": 30,
+          "voltage": 4.9,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 1092,
+          "position": 1481,
+          "positionDeg": 47.98828125,
+          "target": 623,
+          "targetDeg": 123.3984375
+        },
+        {
+          "id": 31,
+          "voltage": 4.8,
+          "fault": 0,
+          "loadRaw": -1000,
+          "currentRaw": -1009,
+          "position": 2428,
+          "positionDeg": -31.2890625,
+          "target": 4095,
+          "targetDeg": -177.802734375
+        },
+        {
+          "id": 32,
+          "voltage": 4.2,
+          "fault": 0,
+          "loadRaw": 255,
+          "currentRaw": 244,
+          "position": 1809,
+          "positionDeg": 17.2265625,
+          "target": 1646,
+          "targetDeg": 31.552734375
+        },
+        {
+          "id": 33,
+          "voltage": 4.4,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 925,
+          "position": 1901,
+          "positionDeg": 18.45703125,
+          "target": 958,
+          "targetDeg": 101.337890625
+        },
+        {
+          "id": 34,
+          "voltage": 4.4,
+          "fault": 0,
+          "loadRaw": 0,
+          "currentRaw": 3,
+          "position": 2041,
+          "positionDeg": -1.845703125,
+          "target": 2041,
+          "targetDeg": -1.845703125
+        }
+      ],
+      "checksumsValid": true
+    },
+    {
+      "mono": 317.02074309,
+      "rows": [
+        {
+          "id": 10,
+          "voltage": 5.0,
+          "fault": 0,
+          "loadRaw": 162,
+          "currentRaw": 90,
+          "position": 1913,
+          "positionDeg": 14.58984375,
+          "target": 1805,
+          "targetDeg": 24.08203125
+        },
+        {
+          "id": 11,
+          "voltage": 4.7,
+          "fault": 0,
+          "loadRaw": -60,
+          "currentRaw": 112,
+          "position": 2091,
+          "positionDeg": -3.515625,
+          "target": 2143,
+          "targetDeg": -8.0859375
+        },
+        {
+          "id": 12,
+          "voltage": 4.5,
+          "fault": 0,
+          "loadRaw": -481,
+          "currentRaw": -238,
+          "position": 2252,
+          "positionDeg": -10.72265625,
+          "target": 2596,
+          "targetDeg": -40.95703125
+        },
+        {
+          "id": 13,
+          "voltage": 4.3,
+          "fault": 0,
+          "loadRaw": -1000,
+          "currentRaw": -868,
+          "position": 3001,
+          "positionDeg": -91.77978515625,
+          "target": 4095,
+          "targetDeg": -187.93212890625
+        },
+        {
+          "id": 14,
+          "voltage": 4.3,
+          "fault": 0,
+          "loadRaw": 900,
+          "currentRaw": 892,
+          "position": 1757,
+          "positionDeg": 16.962890625,
+          "target": 1164,
+          "targetDeg": 69.08203125
+        },
+        {
+          "id": 20,
+          "voltage": 5.0,
+          "fault": 0,
+          "loadRaw": -823,
+          "currentRaw": -962,
+          "position": 2461,
+          "positionDeg": -35.244140625,
+          "target": 3003,
+          "targetDeg": -82.880859375
+        },
+        {
+          "id": 21,
+          "voltage": 4.9,
+          "fault": 0,
+          "loadRaw": -157,
+          "currentRaw": -165,
+          "position": 2012,
+          "positionDeg": 4.482421875,
+          "target": 2110,
+          "targetDeg": -4.130859375
+        },
+        {
+          "id": 22,
+          "voltage": 4.9,
+          "fault": 0,
+          "loadRaw": 386,
+          "currentRaw": -9,
+          "position": 1980,
+          "positionDeg": 0.087890625,
+          "target": 1686,
+          "targetDeg": 25.927734375
+        },
+        {
+          "id": 23,
+          "voltage": 4.8,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 808,
+          "position": 1012,
+          "positionDeg": 92.373046875,
+          "target": 0,
+          "targetDeg": 181.318359375
+        },
+        {
+          "id": 24,
+          "voltage": 4.8,
+          "fault": 0,
+          "loadRaw": 541,
+          "currentRaw": -125,
+          "position": 1677,
+          "positionDeg": 36.5625,
+          "target": 1256,
+          "targetDeg": 73.564453125
+        },
+        {
+          "id": 30,
+          "voltage": 4.9,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 1105,
+          "position": 1481,
+          "positionDeg": 47.98828125,
+          "target": 623,
+          "targetDeg": 123.3984375
+        },
+        {
+          "id": 31,
+          "voltage": 4.8,
+          "fault": 0,
+          "loadRaw": -1000,
+          "currentRaw": -1015,
+          "position": 2428,
+          "positionDeg": -31.2890625,
+          "target": 4095,
+          "targetDeg": -177.802734375
+        },
+        {
+          "id": 32,
+          "voltage": 4.3,
+          "fault": 0,
+          "loadRaw": 255,
+          "currentRaw": 251,
+          "position": 1809,
+          "positionDeg": 17.2265625,
+          "target": 1646,
+          "targetDeg": 31.552734375
+        },
+        {
+          "id": 33,
+          "voltage": 4.4,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 933,
+          "position": 1901,
+          "positionDeg": 18.45703125,
+          "target": 958,
+          "targetDeg": 101.337890625
+        },
+        {
+          "id": 34,
+          "voltage": 4.5,
+          "fault": 0,
+          "loadRaw": 0,
+          "currentRaw": 4,
+          "position": 2041,
+          "positionDeg": -1.845703125,
+          "target": 2041,
+          "targetDeg": -1.845703125
+        }
+      ],
+      "checksumsValid": true
+    },
+    {
+      "mono": 317.040703318,
+      "rows": [
+        {
+          "id": 10,
+          "voltage": 4.5,
+          "fault": 0,
+          "loadRaw": 160,
+          "currentRaw": 151,
+          "position": 1908,
+          "positionDeg": 15.029296875,
+          "target": 1805,
+          "targetDeg": 24.08203125
+        },
+        {
+          "id": 11,
+          "voltage": 4.2,
+          "fault": 0,
+          "loadRaw": -218,
+          "currentRaw": 25,
+          "position": 2107,
+          "positionDeg": -4.921875,
+          "target": 2258,
+          "targetDeg": -18.193359375
+        },
+        {
+          "id": 12,
+          "voltage": 4.0,
+          "fault": 0,
+          "loadRaw": -592,
+          "currentRaw": -263,
+          "position": 2279,
+          "positionDeg": -13.095703125,
+          "target": 2686,
+          "targetDeg": -48.8671875
+        },
+        {
+          "id": 13,
+          "voltage": 3.8,
+          "fault": 0,
+          "loadRaw": -1000,
+          "currentRaw": -755,
+          "position": 3001,
+          "positionDeg": -91.77978515625,
+          "target": 4095,
+          "targetDeg": -187.93212890625
+        },
+        {
+          "id": 14,
+          "voltage": 3.8,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 855,
+          "position": 1757,
+          "positionDeg": 16.962890625,
+          "target": 1087,
+          "targetDeg": 75.849609375
+        },
+        {
+          "id": 20,
+          "voltage": 4.4,
+          "fault": 0,
+          "loadRaw": -1000,
+          "currentRaw": -951,
+          "position": 2463,
+          "positionDeg": -35.419921875,
+          "target": 3073,
+          "targetDeg": -89.033203125
+        },
+        {
+          "id": 21,
+          "voltage": 4.3,
+          "fault": 0,
+          "loadRaw": -85,
+          "currentRaw": -70,
+          "position": 2014,
+          "positionDeg": 4.306640625,
+          "target": 2064,
+          "targetDeg": -0.087890625
+        },
+        {
+          "id": 22,
+          "voltage": 4.2,
+          "fault": 0,
+          "loadRaw": 506,
+          "currentRaw": 119,
+          "position": 1937,
+          "positionDeg": 3.8671875,
+          "target": 1575,
+          "targetDeg": 35.68359375
+        },
+        {
+          "id": 23,
+          "voltage": 4.2,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 832,
+          "position": 1008,
+          "positionDeg": 92.724609375,
+          "target": 0,
+          "targetDeg": 181.318359375
+        },
+        {
+          "id": 24,
+          "voltage": 4.1,
+          "fault": 0,
+          "loadRaw": 635,
+          "currentRaw": 78,
+          "position": 1611,
+          "positionDeg": 42.36328125,
+          "target": 1151,
+          "targetDeg": 82.79296875
+        },
+        {
+          "id": 30,
+          "voltage": 4.4,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 977,
+          "position": 1479,
+          "positionDeg": 48.1640625,
+          "target": 489,
+          "targetDeg": 135.17578125
+        },
+        {
+          "id": 31,
+          "voltage": 4.3,
+          "fault": 0,
+          "loadRaw": -1000,
+          "currentRaw": -907,
+          "position": 2428,
+          "positionDeg": -31.2890625,
+          "target": 4095,
+          "targetDeg": -177.802734375
+        },
+        {
+          "id": 32,
+          "voltage": 3.8,
+          "fault": 0,
+          "loadRaw": 375,
+          "currentRaw": 305,
+          "position": 1809,
+          "positionDeg": 17.2265625,
+          "target": 1566,
+          "targetDeg": 38.583984375
+        },
+        {
+          "id": 33,
+          "voltage": 3.8,
+          "fault": 0,
+          "loadRaw": 1000,
+          "currentRaw": 818,
+          "position": 1902,
+          "positionDeg": 18.369140625,
+          "target": 862,
+          "targetDeg": 109.775390625
+        },
+        {
+          "id": 34,
+          "voltage": 4.0,
+          "fault": 0,
+          "loadRaw": 0,
+          "currentRaw": 4,
+          "position": 2041,
+          "positionDeg": -1.845703125,
+          "target": 2041,
+          "targetDeg": -1.845703125
+        }
+      ],
+      "checksumsValid": true
+    }
+  ],
+  "saturatedIds": [
+    23,
+    31,
+    13
+  ],
+  "lastInputTiltDegrees": 33.268889524505745,
+  "rawTargetDegreesById": {
+    "20": -93.96074041170935,
+    "21": -0.19586079709199314,
+    "22": 39.6844884929467,
+    "23": 279.43306566292324,
+    "24": 88.2247338863543,
+    "30": 142.34480328446085,
+    "31": -221.11415113292966,
+    "32": 42.986307805662996,
+    "33": 114.82624432604628,
+    "10": 25.504023691023285,
+    "11": -20.412061315718127,
+    "12": -52.00110224585306,
+    "13": -509.1657953773851,
+    "14": 81.20881821243057
+  },
+  "nominalSitKneeDeg": {
+    "13": -77.34930234266115,
+    "23": 77.34930234266115
+  },
+  "physicalOperations": "read-only; no motion or calibration writes",
+  "causalityBoundary": "Only last ~25ms before fault retained; cannot prove whether voltage sag or posture divergence began first; no simultaneous external supply measurement.",
+  "userObservation": "腿或头部顶住，仍往下压",
+  "trainingBoundary": "HD1910 skills collision config uses robot contype=1/conaffinity=0: robot-ground contacts retained, robot-robot self collisions excluded; contact location of this physical blockage not independently measured"
+}

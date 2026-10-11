@@ -87,6 +87,8 @@ impl State {
             } else {
                 let result: Result<Value> = match body["type"].as_str() {
                     Some("command") => self.motion.command(body).await,
+                    Some("power") => self.motion.power(body).await,
+                    Some("model-gains") => self.motion.request("model-gains", Some(body)).await,
                     Some("calibration") => {
                         let payload = body
                             .get("patch")

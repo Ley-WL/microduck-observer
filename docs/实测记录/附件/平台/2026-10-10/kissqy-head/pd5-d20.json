@@ -1,0 +1,26 @@
+{
+  "before": {
+    "walk-model-gains.json": "{\"d\":20,\"p\":6}",
+    "model-gains.json": "{\"d\":20,\"p\":5}"
+  },
+  "saved": {
+    "appliesOn": "next-model-start",
+    "gains": {
+      "d": 20,
+      "p": 5
+    },
+    "saved": true
+  },
+  "readback": {
+    "appliesOn": "next-model-start",
+    "d": 20,
+    "p": 5,
+    "supported": true
+  },
+  "after": {
+    "walk-model-gains.json": "{\"d\":20,\"p\":5}",
+    "model-gains.json": "{\"d\":20,\"p\":5}"
+  },
+  "recordedAt": "2026-10-10T17:36:33.829765",
+  "motionStarted": false
+}

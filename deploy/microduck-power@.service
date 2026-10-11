@@ -2,7 +2,7 @@
 Description=MicroDuck restricted power request
 
 [Service]
-ExecStart=/usr/bin/python3 /usr/local/lib/microduck-power-helper.py
+ExecStart=/usr/local/lib/microduck-power-helper
 StandardInput=socket
 StandardOutput=socket
 StandardError=journal

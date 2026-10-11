@@ -1,0 +1,2 @@
+{"cpuBusyPercent": 18.15}
+{"imuState": "streaming", "bluetooth": "ready"}

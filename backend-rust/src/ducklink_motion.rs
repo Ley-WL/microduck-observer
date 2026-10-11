@@ -178,7 +178,11 @@ impl Motion {
                 observer[target] = item;
             }
         }
+        observer["modelGains"] = json!({"p":crate::gains::ui_current().p,"d":crate::gains::ui_current().d,"supported":true,"appliesOn":"next-model-start"});
         observer["calibration"] = self.app.cal.lock().unwrap().read(&s.boot);
+        observer["system"] = json!({"bootId":s.boot,"source":if self.app.hardware {"hardware"} else {"simulation"},
+            "resources":s.resources,"resourceAgeMs":s.resources["sampleMonoMs"].as_f64().map(|at|(crate::telemetry::monotonic()*1000.-at).max(0.)),
+            "serviceUptimeSeconds":s.started.elapsed().as_secs_f64(),"powerControl":self.app.hardware && crate::power::enabled()});
         let skill = ctrl["activeSkill"].as_str().unwrap_or("xgoduck");
         let mode = if self.stopped {
             "estop"
@@ -206,6 +210,17 @@ impl Motion {
         let mut status = self.status();
         status["session"] = json!(uuid::Uuid::new_v4().to_string());
         Ok(status)
+    }
+    pub async fn power(&mut self, mut body: Value) -> Result<Value> {
+        ensure!(self.leased && self.app.hardware, "请连接真实主板后操作电源");
+        let action = body["action"].as_str().unwrap_or("").to_owned();
+        body.as_object_mut().ok_or_else(||anyhow::anyhow!("INVALID_COMMAND"))?.remove("type");
+        body.as_object_mut().unwrap().remove("action");
+        let boot = self.app.telemetry.read().unwrap().boot.clone();
+        ensure!(crate::power::validate(&action, &body, &boot), "请重新连接当前主板并确认关机或重启");
+        ensure!(!self.pending && !matches!(self.control()["state"].as_str(), Some("policy"|"moving"|"preflight"|"disabling")), "请先停止保持，再操作主板电源");
+        self.zero();
+        self.request(&format!("system/{action}"), Some(body)).await
     }
     pub async fn halt(&mut self, unload: bool) -> Result<()> {
         self.sync();
@@ -282,7 +297,7 @@ impl Motion {
         }
         let [f, t, speed] = vals;
         ensure!(
-            (-1. ..=1.).contains(&f) && (-1. ..=1.).contains(&t) && (0. ..=0.5).contains(&speed),
+            (-1. ..=1.).contains(&f) && (-1. ..=1.).contains(&t) && (0. ..=1.0).contains(&speed),
             "控制量超出范围"
         );
         self.sequence = Some(seq);
@@ -314,14 +329,14 @@ impl Motion {
             "getup"|"pick"|"roulade"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;
-                    self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{0}}))).await?;self.pending=!mouth;
-                } else if mouth {let cal=self.request("calibration",None).await?;self.request("servos/angle",Some(json!({"id":34,"angleDeg":if action=="mouth_open"{30}else{0},"revision":cal["revision"]}))).await?;}
+                    self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;
+                } else if mouth {let cal=self.request("calibration",None).await?;self.request("servos/angle",Some(json!({"id":34,"angleDeg":if action=="mouth_open"{30}else{-5},"revision":cal["revision"]}))).await?;}
                 else {anyhow::bail!("请先启动平衡");}self.error.clear();
             },
             "drive"|"strafe_left"|"strafe_right"=>{
                 let ctrl=self.control();
                 if self.phase=="active" && ctrl["feedbackHolding"]!=true && ctrl["activeSkill"]=="xgoduck" && !self.pending {
-                    self.error.clear();self.forward=f*speed;self.turn=t*speed;self.lateral=if action=="strafe_left"{0.2*speed}else if action=="strafe_right"{-0.2*speed}else{0.};
+                    self.error.clear();self.forward=f*speed;self.turn=(t*speed).clamp(-0.5,0.5);self.lateral=if action=="strafe_left"{0.2*speed.min(0.5)}else if action=="strafe_right"{-0.2*speed.min(0.5)}else{0.};
                 }else{self.zero();}
             },_=>{}
         }
@@ -443,6 +458,36 @@ pub(crate) mod tests {
         json!({"seq":seq,"action":"drive","forward":1,"turn":0,"speed":0.5})
     }
     #[tokio::test]
+    async fn power_checks_current_boot_and_idle_control_before_using_shared_route() {
+        let (mut motion, calls, _tmp) = fixture();
+        motion.open().unwrap();
+        motion.app.hardware = true;
+        let boot = motion.app.telemetry.read().unwrap().boot.clone();
+        assert!(motion.power(json!({"type":"power","action":"reboot","confirm":true,"bootId":"old"})).await.is_err());
+        assert!(motion.power(json!({"type":"power","action":"poweroff","bootId":boot})).await.is_err());
+        motion.app.telemetry.write().unwrap().control=json!({"state":"policy"});
+        assert!(motion.power(json!({"type":"power","action":"reboot","confirm":true,"bootId":boot})).await.is_err());
+        assert!(calls.lock().unwrap().is_empty());
+        motion.app.telemetry.write().unwrap().control=json!({"state":"idle"});
+        for action in ["reboot","poweroff"] {
+            motion.power(json!({"type":"power","action":action,"confirm":true,"bootId":boot})).await.unwrap();
+        }
+        let requests=calls.lock().unwrap();
+        assert_eq!(requests.len(),2);
+        assert_eq!(requests[0],("/api/v1/system/reboot".into(),json!({"confirm":true,"bootId":boot})));
+        assert_eq!(requests[1].0,"/api/v1/system/poweroff");
+    }
+    #[test]
+    fn status_includes_resource_age_and_boot_for_app() {
+        let (mut motion, _, _tmp) = fixture();
+        motion.app.telemetry.write().unwrap().resources=json!({"cpuUsagePercent":12.,"sampleMonoMs":crate::telemetry::monotonic()*1000.});
+        let status=motion.status();
+        assert_eq!(status["observer"]["system"]["resources"]["cpuUsagePercent"],12.);
+        assert!(status["observer"]["system"]["bootId"].is_string());
+        assert!(status["observer"]["system"]["resourceAgeMs"].as_f64().unwrap()>=0.);
+        assert_eq!(status["observer"]["system"]["powerControl"],false);
+    }
+    #[tokio::test]
     async fn backward_drive_reaches_policy_with_negative_velocity_and_release_zeroes_it() {
         let (mut m, calls, _tmp) = fixture();
         m.open().unwrap();
@@ -453,7 +498,7 @@ pub(crate) mod tests {
         m.tick().await;
         let request=calls.lock().unwrap().last().unwrap().clone();
         assert_eq!(request.0,"/api/v1/policy/command");
-        assert_eq!(crate::policy::drive_twist(&request.1).unwrap(),[-0.4,0.,0.]);
+        assert_eq!(crate::policy::drive_twist(&request.1).unwrap(),[-0.2,0.,0.]);
         m.command(json!({"seq":2,"action":"drive","forward":0,"turn":0,"speed":0.5})).await.unwrap();
         m.tick().await;
         assert_eq!(calls.lock().unwrap().last().unwrap().1["twist"],json!([0.,0.,0.]));
@@ -466,8 +511,27 @@ pub(crate) mod tests {
         for (seq,turn) in [(1,1.),(2,-1.)] {
             m.command(json!({"seq":seq,"action":"drive","forward":0,"turn":turn,"speed":0.5})).await.unwrap();
             m.tick().await;
-            assert_eq!(crate::policy::drive_twist(&calls.lock().unwrap().last().unwrap().1).unwrap(),[0.,0.,turn as f32]);
+            assert_eq!(crate::policy::drive_twist(&calls.lock().unwrap().last().unwrap().1).unwrap(),[0.,0.,turn as f32*0.5]);
         }
+    }
+    #[tokio::test]
+    async fn full_speed_preserves_other_axis_limits() {
+        let (mut m,calls,_tmp)=fixture();
+        m.open().unwrap();m.drive=Some("ble-session".into());m.phase="active".into();
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","feedbackHolding":false});
+        for (seq,speed,forward,action,expected) in [
+            (1,0.5,1.,"drive",[0.2,0.,0.5]),
+            (2,1.,1.,"drive",[0.4,0.,0.5]),
+            (3,1.,-1.,"drive",[-0.4,0.,0.5]),
+            (4,1.,0.,"strafe_left",[0.,0.1,0.5]),
+            (5,1.,0.,"strafe_right",[0.,-0.1,0.5]),
+            (6,0.,1.,"drive",[0.,0.,0.]),
+        ] {
+            m.command(json!({"seq":seq,"action":action,"forward":forward,"turn":1.,"speed":speed})).await.unwrap();
+            m.tick().await;
+            assert_eq!(crate::policy::drive_twist(&calls.lock().unwrap().last().unwrap().1).unwrap(),expected);
+        }
+        assert!(m.command(json!({"seq":7,"action":"drive","forward":1.,"turn":0.,"speed":1.01})).await.is_err());
     }
     #[tokio::test]
     async fn reconnect_defaults_ready_without_motor_calls() {

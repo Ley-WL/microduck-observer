@@ -1,0 +1,906 @@
+{
+  "sourceSha256": "2a3edcb880e88435a7ac248568859bb4f1eb487b9204db06a4aa3fb59c5ebe29",
+  "frames": 97,
+  "pairs": 94,
+  "exactAttributionMaxResidualRad": 1.1920928955078125e-07,
+  "realFirst2sInputStats": {
+    "gyroNormP95RadS": 2.3946858109948854,
+    "gyroNormMaxRadS": 3.0029916953197326,
+    "kneeVelocityAbsP95RadS": [
+      4.346146678924556,
+      4.788236808776848
+    ],
+    "gyroFrameChangeP95RadS": 2.231205237850655
+  },
+  "gyroGravityConsistency": {
+    "scope": "Filtered gyro vs sampled gravity derivative; IMU filtering/timestamp offsets can affect correlation.",
+    "derivativeRmsRadS": 0.6614729501725692,
+    "predictedDerivativeRmsRadS": 0.4538972652760585,
+    "flattenedCorrelation": 0.7601150612197023,
+    "oppositeSignCorrelation": -0.7601150612197023
+  },
+  "simulationSitInputStats": [
+    {
+      "file": "stand_cycle-1009-0.policy.json",
+      "time": 2.0,
+      "gyroNormP95RadS": 1.7593297026933366,
+      "gyroNormMaxRadS": 2.1469688390804946,
+      "kneeVelocityAbsP95RadS": [
+        5.021398782730102,
+        4.389637875556944
+      ],
+      "gyroFrameChangeP95RadS": 0.9904538630039876
+    },
+    {
+      "file": "stand_cycle-1009-0.policy.json",
+      "time": 14.0,
+      "gyroNormP95RadS": 2.119325110484898,
+      "gyroNormMaxRadS": 2.4109696340081976,
+      "kneeVelocityAbsP95RadS": [
+        4.623050689697262,
+        4.494275283813474
+      ],
+      "gyroFrameChangeP95RadS": 1.0133878218359256
+    },
+    {
+      "file": "stand_cycle-1009-1.policy.json",
+      "time": 2.0,
+      "gyroNormP95RadS": 1.6682008822400003,
+      "gyroNormMaxRadS": 2.2156848750784883,
+      "kneeVelocityAbsP95RadS": [
+        4.382733368873592,
+        4.4904849767684905
+      ],
+      "gyroFrameChangeP95RadS": 0.8851388096508235
+    },
+    {
+      "file": "stand_cycle-1009-1.policy.json",
+      "time": 14.0,
+      "gyroNormP95RadS": 2.096404552530885,
+      "gyroNormMaxRadS": 2.545081554033573,
+      "kneeVelocityAbsP95RadS": [
+        4.453885293006892,
+        4.343183445930477
+      ],
+      "gyroFrameChangeP95RadS": 0.9143148715101557
+    },
+    {
+      "file": "stand_cycle-2027-0.policy.json",
+      "time": 2.0,
+      "gyroNormP95RadS": 1.7105313376329359,
+      "gyroNormMaxRadS": 2.1820894277653804,
+      "kneeVelocityAbsP95RadS": [
+        5.082705879211425,
+        4.1928987026214575
+      ],
+      "gyroFrameChangeP95RadS": 0.8270750306183877
+    },
+    {
+      "file": "stand_cycle-2027-0.policy.json",
+      "time": 14.0,
+      "gyroNormP95RadS": 2.1250306218274377,
+      "gyroNormMaxRadS": 2.437291180004531,
+      "kneeVelocityAbsP95RadS": [
+        4.76405551433563,
+        4.643220806121826
+      ],
+      "gyroFrameChangeP95RadS": 1.0167630810001838
+    },
+    {
+      "file": "stand_cycle-2027-1.policy.json",
+      "time": 2.0,
+      "gyroNormP95RadS": 0.3491800662166746,
+      "gyroNormMaxRadS": 0.46908992497260904,
+      "kneeVelocityAbsP95RadS": [
+        4.96966323852539,
+        4.07265772819519
+      ],
+      "gyroFrameChangeP95RadS": 0.08078919369230672
+    },
+    {
+      "file": "stand_cycle-2027-1.policy.json",
+      "time": 14.0,
+      "gyroNormP95RadS": 0.01295850270759766,
+      "gyroNormMaxRadS": 0.03380994009942324,
+      "kneeVelocityAbsP95RadS": [
+        0.008127218903973617,
+        0.00038490688748424865
+      ],
+      "gyroFrameChangeP95RadS": 0.006648776746191424
+    }
+  ],
+  "absoluteContributionTravelDeg": {
+    "gyro": [
+      796.2491494218624,
+      613.0133834817162
+    ],
+    "gravity": [
+      96.25852145777037,
+      65.80905909480478
+    ],
+    "position": [
+      140.742272925022,
+      137.89312267241732
+    ],
+    "velocity": [
+      565.9835306784383,
+      511.67217714720744
+    ],
+    "history": [
+      232.84529523655743,
+      284.35227739897994
+    ]
+  },
+  "topEvents": [
+    {
+      "time": 0.25999239600000124,
+      "rawKneeDeltaDeg": [
+        45.330322265625,
+        -38.77033233642578
+      ],
+      "contributionDeg": {
+        "gyro": [
+          36.068598832781525,
+          -31.555025307407803
+        ],
+        "gravity": [
+          1.5824259575621167,
+          -1.251765867691861
+        ],
+        "position": [
+          2.398742610450339,
+          -3.366212731216776
+        ],
+        "velocity": [
+          11.87956742359657,
+          -9.738035647522457
+        ],
+        "history": [
+          -6.599005239210084,
+          7.140704163874796
+        ]
+      },
+      "positionKneesDeg": [
+        11.513671708479327,
+        -6.965331773178299
+      ],
+      "velocityKneesRadS": [
+        2.1258907318115234,
+        -1.033579707145691
+      ],
+      "gyroRadS": [
+        -0.12401825189590454,
+        -0.835962176322937,
+        -0.6470641493797302
+      ]
+    },
+    {
+      "time": 0.3000641440000038,
+      "rawKneeDeltaDeg": [
+        -41.694854736328125,
+        42.980064392089844
+      ],
+      "contributionDeg": {
+        "gyro": [
+          -17.622262011489955,
+          16.397547941769258
+        ],
+        "gravity": [
+          0.5961889515660378,
+          -0.23520660289761078
+        ],
+        "position": [
+          4.19189551445811,
+          -3.230549623780522
+        ],
+        "velocity": [
+          -24.165878695404626,
+          25.800737353852394
+        ],
+        "history": [
+          -4.694802376396682,
+          4.247538417593879
+        ]
+      },
+      "positionKneesDeg": [
+        14.062499377468509,
+        -8.986816758050075
+      ],
+      "velocityKneesRadS": [
+        0.3294298052787781,
+        -0.15106838941574097
+      ],
+      "gyroRadS": [
+        0.10750000923871994,
+        -0.046799592673778534,
+        0.3706761598587036
+      ]
+    },
+    {
+      "time": 0.6699620290000041,
+      "rawKneeDeltaDeg": [
+        -36.51279067993164,
+        31.61307716369629
+      ],
+      "contributionDeg": {
+        "gyro": [
+          -66.45734682112973,
+          64.49072810553044
+        ],
+        "gravity": [
+          -5.300514857303017,
+          3.9651831497565126
+        ],
+        "position": [
+          7.649589392343313,
+          -9.771577345834642
+        ],
+        "velocity": [
+          29.183846376419012,
+          -31.356626828234887
+        ],
+        "history": [
+          -1.588369993053333,
+          4.285374797449907
+        ]
+      },
+      "positionKneesDeg": [
+        25.66406233371353,
+        -15.842284458181044
+      ],
+      "velocityKneesRadS": [
+        3.6643595695495605,
+        -0.9528390169143677
+      ],
+      "gyroRadS": [
+        -0.11362780630588531,
+        2.3861451148986816,
+        -0.14991988241672516
+      ]
+    },
+    {
+      "time": 0.45005071500000327,
+      "rawKneeDeltaDeg": [
+        35.41885757446289,
+        -31.193225860595703
+      ],
+      "contributionDeg": {
+        "gyro": [
+          21.80521745532486,
+          -23.216034383051984
+        ],
+        "gravity": [
+          3.3713697416523636,
+          -2.889437770334986
+        ],
+        "position": [
+          3.643408792485953,
+          -5.386934806803377
+        ],
+        "velocity": [
+          7.3509842106762004,
+          -10.829424691448772
+        ],
+        "history": [
+          -0.7521181740898054,
+          11.128604319372519
+        ]
+      },
+      "positionKneesDeg": [
+        14.150390251708233,
+        -8.723144135330903
+      ],
+      "velocityKneesRadS": [
+        0.17279952764511108,
+        0.3533157706260681
+      ],
+      "gyroRadS": [
+        -0.18972896039485931,
+        -0.5406534075737,
+        -2.810194969177246
+      ]
+    },
+    {
+      "time": 0.49001541900000234,
+      "rawKneeDeltaDeg": [
+        -19.91683006286621,
+        33.619049072265625
+      ],
+      "contributionDeg": {
+        "gyro": [
+          -21.847696162681316,
+          26.421397977752775
+        ],
+        "gravity": [
+          -4.7761117097006505,
+          4.317002375267834
+        ],
+        "position": [
+          10.675458433776212,
+          -10.737051505566226
+        ],
+        "velocity": [
+          11.319031033969106,
+          -10.243385816203508
+        ],
+        "history": [
+          -15.287513228460748,
+          23.861088654047094
+        ]
+      },
+      "positionKneesDeg": [
+        18.80859292603527,
+        -13.469238537671309
+      ],
+      "velocityKneesRadS": [
+        1.6605979204177856,
+        -1.749825358390808
+      ],
+      "gyroRadS": [
+        0.20193813741207123,
+        1.1178282499313354,
+        -0.6128277778625488
+      ]
+    },
+    {
+      "time": 0.7500098570000091,
+      "rawKneeDeltaDeg": [
+        32.51944351196289,
+        -27.14194107055664
+      ],
+      "contributionDeg": {
+        "gyro": [
+          6.154020632594201,
+          -5.477500907392457
+        ],
+        "gravity": [
+          2.354980820542044,
+          -1.8389054606053932
+        ],
+        "position": [
+          -1.8041870170822567,
+          1.694872057226651
+        ],
+        "velocity": [
+          -10.328478207193806,
+          8.770762640079072
+        ],
+        "history": [
+          36.143110967262785,
+          -30.291171105452612
+        ]
+      },
+      "positionKneesDeg": [
+        38.40820153243308,
+        -33.332520620561944
+      ],
+      "velocityKneesRadS": [
+        1.3000489473342896,
+        -1.9659616947174072
+      ],
+      "gyroRadS": [
+        -0.16330967843532562,
+        -1.352944254875183,
+        0.9702732563018799
+      ]
+    },
+    {
+      "time": 0.7300480680000021,
+      "rawKneeDeltaDeg": [
+        27.900177001953125,
+        -22.935848236083984
+      ],
+      "contributionDeg": {
+        "gyro": [
+          79.09231078205192,
+          -56.261062202886045
+        ],
+        "gravity": [
+          1.4319849404463265,
+          -0.8121289756959278
+        ],
+        "position": [
+          0.15792069040805243,
+          -0.4665443288497058
+        ],
+        "velocity": [
+          -50.84479390805222,
+          38.4569906942524
+        ],
+        "history": [
+          -1.9372444757187437,
+          -3.853106078742831
+        ]
+      },
+      "positionKneesDeg": [
+        37.617187079370154,
+        -31.926270047820946
+      ],
+      "velocityKneesRadS": [
+        2.0643093585968018,
+        -3.7999017238616943
+      ],
+      "gyroRadS": [
+        -0.4794130027294159,
+        -0.9690226316452026,
+        1.1282776594161987
+      ]
+    },
+    {
+      "time": 0.6101422870000022,
+      "rawKneeDeltaDeg": [
+        23.533966064453125,
+        -25.456087112426758
+      ],
+      "contributionDeg": {
+        "gyro": [
+          16.07139280188366,
+          -15.182556833095056
+        ],
+        "gravity": [
+          6.098126893429206,
+          -4.099993471556057
+        ],
+        "position": [
+          -3.5802132300838534,
+          3.790630365918914
+        ],
+        "velocity": [
+          1.9062160243856767,
+          -1.6171644485075554
+        ],
+        "history": [
+          3.03844496820183,
+          -8.347005671099154
+        ]
+      },
+      "positionKneesDeg": [
+        18.01757847297234,
+        -15.227050046050268
+      ],
+      "velocityKneesRadS": [
+        -2.8308751583099365,
+        2.7161173820495605
+      ],
+      "gyroRadS": [
+        -0.33077874779701233,
+        -2.436249017715454,
+        0.21603389084339142
+      ]
+    },
+    {
+      "time": 0.629997325000005,
+      "rawKneeDeltaDeg": [
+        4.388734340667725,
+        -22.925016403198242
+      ],
+      "contributionDeg": {
+        "gyro": [
+          -16.65208884169196,
+          4.972633544373307
+        ],
+        "gravity": [
+          1.2671918232519084,
+          -0.6753341970367175
+        ],
+        "position": [
+          -2.574634017983768,
+          2.0399020513576067
+        ],
+        "velocity": [
+          17.721728749031957,
+          -21.283829735668352
+        ],
+        "history": [
+          4.626537141934963,
+          -7.978389973217193
+        ]
+      },
+      "positionKneesDeg": [
+        17.490234935081286,
+        -12.150878839170034
+      ],
+      "velocityKneesRadS": [
+        -1.6727184057235718,
+        3.2715272903442383
+      ],
+      "gyroRadS": [
+        -0.51254802942276,
+        -0.9443433284759521,
+        -0.4570978283882141
+      ]
+    },
+    {
+      "time": 0.5899769110000079,
+      "rawKneeDeltaDeg": [
+        22.03809928894043,
+        -10.609450340270996
+      ],
+      "contributionDeg": {
+        "gyro": [
+          15.256924359664978,
+          -11.670390852552519
+        ],
+        "gravity": [
+          5.1456926453804455,
+          -3.0256711427047933
+        ],
+        "position": [
+          0.328750226571544,
+          -1.0789753010080787
+        ],
+        "velocity": [
+          -2.47428133687133,
+          12.623728059613683
+        ],
+        "history": [
+          3.781016011717078,
+          -7.4581415277802225
+        ]
+      },
+      "positionKneesDeg": [
+        20.830077910907047,
+        -18.74267647790277
+      ],
+      "velocityKneesRadS": [
+        -2.794780969619751,
+        2.0907089710235596
+      ],
+      "gyroRadS": [
+        -0.3139442205429077,
+        -1.8374627828598022,
+        0.919073224067688
+      ]
+    },
+    {
+      "time": 0.8099976020000099,
+      "rawKneeDeltaDeg": [
+        -20.315195083618164,
+        12.488125801086426
+      ],
+      "contributionDeg": {
+        "gyro": [
+          0.9277286717508241,
+          1.0674062870715295
+        ],
+        "gravity": [
+          -1.9732991875563133,
+          0.9557412135354902
+        ],
+        "position": [
+          -17.67550029450159,
+          12.14531015392321
+        ],
+        "velocity": [
+          0.2953396642228657,
+          1.3908037776834907
+        ],
+        "history": [
+          -1.8894648653843016,
+          -3.071134676079077
+        ]
+      },
+      "positionKneesDeg": [
+        53.78906354324978,
+        -49.24072104662781
+      ],
+      "velocityKneesRadS": [
+        6.314918041229248,
+        -5.643771648406982
+      ],
+      "gyroRadS": [
+        -0.6305217742919922,
+        1.4350892305374146,
+        -1.1940845251083374
+      ]
+    },
+    {
+      "time": 0.5300536250000079,
+      "rawKneeDeltaDeg": [
+        -12.160634994506836,
+        17.827640533447266
+      ],
+      "contributionDeg": {
+        "gyro": [
+          10.368570990734957,
+          -8.408119015481468
+        ],
+        "gravity": [
+          -4.583409828409042,
+          3.30077233943205
+        ],
+        "position": [
+          4.704364461141821,
+          -5.070200051918069
+        ],
+        "velocity": [
+          -11.577035586852947,
+          11.957033534852576
+        ],
+        "history": [
+          -11.073126428004208,
+          16.048155110945103
+        ]
+      },
+      "positionKneesDeg": [
+        27.59765644434558,
+        -23.752440941641407
+      ],
+      "velocityKneesRadS": [
+        4.09562349319458,
+        -5.319741249084473
+      ],
+      "gyroRadS": [
+        -0.02401009202003479,
+        1.1710878610610962,
+        2.136115789413452
+      ]
+    }
+  ],
+  "jacobians": [
+    {
+      "time": 0.0,
+      "historySpectralRadius": 0.5118851065635681,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          0.011072429828345776,
+          -0.2793981730937958,
+          -0.0024418116081506014
+        ],
+        [
+          0.025536416098475456,
+          0.19959111511707306,
+          -0.001112610218115151
+        ]
+      ],
+      "leftKneePositionSelfDerivative": -0.3558756411075592,
+      "rightKneePositionSelfDerivative": -0.36490389704704285,
+      "leftKneeVelocitySelfDerivative": 0.038355473428964615,
+      "rightKneeVelocitySelfDerivative": 0.0006871448713354766
+    },
+    {
+      "time": 0.10004549300001031,
+      "historySpectralRadius": 0.6385934352874756,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          -0.016118040308356285,
+          -0.34064018726348877,
+          -0.003015348222106695
+        ],
+        [
+          0.04591739922761917,
+          0.21525441110134125,
+          0.03588547557592392
+        ]
+      ],
+      "leftKneePositionSelfDerivative": -0.4105198383331299,
+      "rightKneePositionSelfDerivative": -0.37219589948654175,
+      "leftKneeVelocitySelfDerivative": 0.05282856523990631,
+      "rightKneeVelocitySelfDerivative": 0.015066155232489109
+    },
+    {
+      "time": 0.20003848500000743,
+      "historySpectralRadius": 0.6765170097351074,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          -0.049484074115753174,
+          -0.3503434360027313,
+          5.682143455487676e-05
+        ],
+        [
+          0.051741551607847214,
+          0.20990794897079468,
+          0.052413322031497955
+        ]
+      ],
+      "leftKneePositionSelfDerivative": -0.36677026748657227,
+      "rightKneePositionSelfDerivative": -0.38160502910614014,
+      "leftKneeVelocitySelfDerivative": 0.051983632147312164,
+      "rightKneeVelocitySelfDerivative": 0.01968895085155964
+    },
+    {
+      "time": 0.4300282580000072,
+      "historySpectralRadius": 0.6363497376441956,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          -0.11828254163265228,
+          -0.5818653106689453,
+          -0.07989761978387833
+        ],
+        [
+          0.12827801704406738,
+          0.522782564163208,
+          0.12619507312774658
+        ]
+      ],
+      "leftKneePositionSelfDerivative": 0.6098439693450928,
+      "rightKneePositionSelfDerivative": 0.5508280396461487,
+      "leftKneeVelocitySelfDerivative": 0.09290365874767303,
+      "rightKneeVelocitySelfDerivative": 0.0673496350646019
+    },
+    {
+      "time": 0.629997325000005,
+      "historySpectralRadius": 0.5316390991210938,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          -0.05868005007505417,
+          -0.09889451414346695,
+          -0.024017270654439926
+        ],
+        [
+          0.04023532196879387,
+          0.023085860535502434,
+          0.12895077466964722
+        ]
+      ],
+      "leftKneePositionSelfDerivative": 0.5631538033485413,
+      "rightKneePositionSelfDerivative": 0.7153117656707764,
+      "leftKneeVelocitySelfDerivative": 0.03190574795007706,
+      "rightKneeVelocitySelfDerivative": 0.03283226117491722
+    },
+    {
+      "time": 1.0503592580000003,
+      "historySpectralRadius": 0.7435204982757568,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          -0.0012449943460524082,
+          -0.1606832891702652,
+          0.007603160571306944
+        ],
+        [
+          -0.019979098811745644,
+          0.13480859994888306,
+          0.01694483682513237
+        ]
+      ],
+      "leftKneePositionSelfDerivative": -0.5332788228988647,
+      "rightKneePositionSelfDerivative": -0.8139872550964355,
+      "leftKneeVelocitySelfDerivative": -0.030716784298419952,
+      "rightKneeVelocitySelfDerivative": -0.05595572665333748
+    },
+    {
+      "time": 1.4603239350000052,
+      "historySpectralRadius": 0.7131759524345398,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          0.00539673725143075,
+          -0.14334066212177277,
+          0.01842568628489971
+        ],
+        [
+          -0.02880297414958477,
+          0.0803610235452652,
+          0.014706691727042198
+        ]
+      ],
+      "leftKneePositionSelfDerivative": -0.536537230014801,
+      "rightKneePositionSelfDerivative": -0.6751291155815125,
+      "leftKneeVelocitySelfDerivative": -0.02070688270032406,
+      "rightKneeVelocitySelfDerivative": -0.03865257278084755
+    },
+    {
+      "time": 1.8600132740000106,
+      "historySpectralRadius": 0.7177606821060181,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          0.0032550699543207884,
+          -0.14453430473804474,
+          0.018142234534025192
+        ],
+        [
+          -0.02883712761104107,
+          0.07959851622581482,
+          0.014300266280770302
+        ]
+      ],
+      "leftKneePositionSelfDerivative": -0.5359665751457214,
+      "rightKneePositionSelfDerivative": -0.6716744303703308,
+      "leftKneeVelocitySelfDerivative": -0.02104540728032589,
+      "rightKneeVelocitySelfDerivative": -0.03882976248860359
+    },
+    {
+      "time": 6.709785197000002,
+      "historySpectralRadius": 0.7198781371116638,
+      "kneeGyroDerivativesRadPerRadS": [
+        [
+          0.002662830986082554,
+          -0.14678679406642914,
+          0.017823364585638046
+        ],
+        [
+          -0.02923547849059105,
+          0.08023297041654587,
+          0.01466073002666235
+        ]
+      ],
+      "leftKneePositionSelfDerivative": -0.5398781895637512,
+      "rightKneePositionSelfDerivative": -0.6729127168655396,
+      "leftKneeVelocitySelfDerivative": -0.021062972024083138,
+      "rightKneeVelocitySelfDerivative": -0.03927962854504585
+    }
+  ],
+  "frozenSensorHistoryRollouts": [
+    {
+      "time": 0.0,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.00026798248291015625,
+        0.00031566619873046875
+      ],
+      "maxAbsActionRad": 0.6479443311691284
+    },
+    {
+      "time": 0.10004549300001031,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.00038623809814453125,
+        0.000274658203125
+      ],
+      "maxAbsActionRad": 0.21161746978759766
+    },
+    {
+      "time": 0.20003848500000743,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.000255584716796875,
+        0.00024509429931640625
+      ],
+      "maxAbsActionRad": 0.3539028465747833
+    },
+    {
+      "time": 0.4300282580000072,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.0002002716064453125,
+        0.00023937225341796875
+      ],
+      "maxAbsActionRad": 0.35126855969429016
+    },
+    {
+      "time": 0.629997325000005,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.00012969970703125,
+        0.000213623046875
+      ],
+      "maxAbsActionRad": 0.9955294132232666
+    },
+    {
+      "time": 1.0503592580000003,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.00046539306640625,
+        1.52587890625e-05
+      ],
+      "maxAbsActionRad": 1.238114356994629
+    },
+    {
+      "time": 1.4603239350000052,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.0005340576171875,
+        0.00032806396484375
+      ],
+      "maxAbsActionRad": 1.176603078842163
+    },
+    {
+      "time": 1.8600132740000106,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.0,
+        6.103515625e-05
+      ],
+      "maxAbsActionRad": 1.174504280090332
+    },
+    {
+      "time": 6.709785197000002,
+      "finite": true,
+      "last1sKneeTravelDeg": [
+        0.000396728515625,
+        9.1552734375e-05
+      ],
+      "maxAbsActionRad": 1.1734012365341187
+    }
+  ],
+  "limits": "Attribution averages all input-block replacement orders. Correlated blocks are not independent physical causes; absolute contributions can exceed total travel through cancellation. Frozen sensors test only inner action-history loop. Position/velocity feedback and physical actuator gain/delay need system identification to prove outer-loop instability."
+}
