@@ -108,7 +108,7 @@ impl State {
                             .map(|value| json!({"calibration":value}))
                     }
                     Some("wifi") => {
-                        self.motion.halt(false).await?;
+                        if body["op"]!="status" {self.motion.halt(false).await?;}
                         wifi(body).await
                     }
                     Some("unbind") => {

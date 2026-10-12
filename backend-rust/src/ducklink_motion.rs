@@ -185,6 +185,7 @@ impl Motion {
         observer["system"] = json!({"bootId":s.boot,"source":if self.app.hardware {"hardware"} else {"simulation"},
             "resources":s.resources,"resourceAgeMs":s.resources["sampleMonoMs"].as_f64().map(|at|(crate::telemetry::monotonic()*1000.-at).max(0.)),
             "serviceUptimeSeconds":s.started.elapsed().as_secs_f64(),"powerControl":self.app.hardware && crate::power::enabled()});
+        observer["system"]["wifiStatusReadOnly"]=json!(true);
         let skill = ctrl["activeSkill"].as_str().unwrap_or("xgoduck");
         let mode = if self.stopped {
             "estop"
