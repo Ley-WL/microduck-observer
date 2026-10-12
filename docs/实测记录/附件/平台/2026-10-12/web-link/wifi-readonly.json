@@ -1,0 +1,42 @@
+{
+  "wpaJournal": {
+    "code": 0,
+    "out": "-- No entries --\n",
+    "err": ""
+  },
+  "nmJournal": {
+    "code": 0,
+    "out": "-- No entries --\n",
+    "err": ""
+  },
+  "wpaProcesses": {
+    "code": 0,
+    "out": "/sbin/wpa_supplicant -c /run/netplan/wpa-wlan0.conf -iwlan0 -Dnl80211,wext\n/usr/sbin/wpa_supplicant -u -s -O DIR=/run/wpa_supplicant GROUP=netdev\n",
+    "err": ""
+  },
+  "wpaStatus": {
+    "code": 0,
+    "out": "wpa_state=SCANNING\np2p_device_address=cc:c8:37:3d:11:05\naddress=cc:c8:37:3d:11:04\nuuid=de0702e1-2d44-5275-b490-948ee28e8779\n",
+    "err": ""
+  },
+  "wpaNetworks": {
+    "code": 0,
+    "out": "network id / ssid / bssid / flags\n0\tiflytek-taoyun\tany\t\n1\t2_902\tany\t\n",
+    "err": ""
+  },
+  "nmDevices": {
+    "code": 0,
+    "out": "DEVICE  TYPE      STATE      CONNECTION \nend1    ethernet  unmanaged  --         \nlo      loopback  unmanaged  --         \nwlan0   wifi      unmanaged  --         \n",
+    "err": ""
+  },
+  "wpaNetworkBssid": {
+    "code": 0,
+    "out": "FAIL\n",
+    "err": ""
+  },
+  "wpaNetworkBgscan": {
+    "code": 0,
+    "out": "FAIL\n",
+    "err": ""
+  }
+}

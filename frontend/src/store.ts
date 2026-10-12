@@ -1,6 +1,7 @@
 import { validTof } from "./tof";
 import { computed, ref, shallowRef, onScopeDispose } from "vue";
 import { defineStore } from "pinia";
+import { dashboardTopics, StreamWatchdog, streamCloseReason } from "./streamHealth";
 import {
   euler,
   freshness,
@@ -84,8 +85,9 @@ export const useTelemetry = defineStore("telemetry", () => {
     retry: ReturnType<typeof setTimeout> | undefined,
     generation = 0,
     attempts = 0;
-  let lastMessage = 0,
-    lastHz = performance.now(),
+  const watchdog = new StreamWatchdog();
+  let opening: ReturnType<typeof setTimeout> | undefined;
+  let lastHz = performance.now(),
     frameCount = 0,
     chartLast = 0;
   let sequences: Record<string, number> = {};
@@ -202,9 +204,9 @@ export const useTelemetry = defineStore("telemetry", () => {
       frameCount = 0;
       lastHz = now.value;
     }
-    if (ws?.readyState === WebSocket.OPEN && now.value - lastMessage > 6000) {
+    if (ws?.readyState === WebSocket.OPEN && watchdog.expired(now.value, document.hidden)) {
       error.value = "服务心跳超时";
-      ws.close();
+      ws.close(4000, "heartbeat timeout");
     }
   }, 100);
   function base(): string {
@@ -230,6 +232,7 @@ export const useTelemetry = defineStore("telemetry", () => {
   function disconnect() {
     generation++;
     clearTimeout(retry);
+    clearTimeout(opening);
     ws?.close();
     ws = null;
     connection.value = "离线";
@@ -241,11 +244,19 @@ export const useTelemetry = defineStore("telemetry", () => {
       reset("");
       info.value = null;
     }
-    const id = generation;
+    // Every attempt owns its callbacks, including automatic retries.
+    const id = ++generation;
+    clearTimeout(opening);
+    const previous = ws;
+    ws = null;
+    previous?.close();
     connection.value = attempts ? "重连中" : "连接中";
     error.value = "";
+    let retryScheduled = false;
     function reconnect(reason: string) {
-      if (id !== generation) return;
+      if (id !== generation || retryScheduled) return;
+      retryScheduled = true;
+      clearTimeout(opening);
       connection.value = "重连中";
       error.value = reason;
       clearTimeout(retry);
@@ -269,31 +280,28 @@ export const useTelemetry = defineStore("telemetry", () => {
         base().replace(/^http/, "ws") + "/api/v1/stream",
       );
       ws = socket;
+      opening = setTimeout(() => {
+        if (id !== generation) return;
+        reconnect("连接握手超时，正在自动重试");
+        socket.close();
+      }, 5000);
       socket.onopen = () => {
         if (id !== generation) {
           socket.close();
           return;
         }
-        lastMessage = performance.now();
+        watchdog.open(performance.now());
         socket.send(
           JSON.stringify({
             type: "subscribe",
             requestId: "dashboard",
-            topics: {
-              pose: 50,
-              "imu.orientation": 50,
-              "imu.raw": 50,
-              joints: 20,
-              tof: 20,
-              system: 1,
-              logs: null,
-            },
+            topics: dashboardTopics,
           }),
         );
       };
       socket.onmessage = (event) => {
         if (id !== generation) return;
-        lastMessage = performance.now();
+        watchdog.message(performance.now());
         try {
           const message = JSON.parse(event.data);
           if (message.type === "subscribed") {
@@ -303,6 +311,7 @@ export const useTelemetry = defineStore("telemetry", () => {
               return;
             }
             attempts = 0;
+            clearTimeout(opening);
             connection.value = "在线";
             error.value = "";
           } else if (
@@ -316,8 +325,8 @@ export const useTelemetry = defineStore("telemetry", () => {
           rejected.value++;
         }
       };
-      socket.onclose = () => reconnect("连接断开，正在自动重试");
-      socket.onerror = () => socket.close();
+      socket.onclose = (event) => reconnect(streamCloseReason(event.code, event.reason));
+      socket.onerror = () => { if (id === generation) socket.close(); };
     } catch (e) {
       reconnect(e instanceof Error ? e.message : "无法连接服务");
     }
