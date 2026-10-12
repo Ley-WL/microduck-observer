@@ -1,0 +1,17 @@
+{
+  "installed": true,
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261012-200739",
+  "previousRelease": "/home/radxa/microduck-observer/releases/runtime-20261012-200320",
+  "calibrationModelsGainsIdentityUnchanged": true,
+  "assetsHttpVerified": true,
+  "readonlySnapshots": 20,
+  "hardwareMotion": false,
+  "audioPermissionsConfigured": true,
+  "binarySha256": "aec3606c6021f9672a2b08ebb8fa0794d12877705c5c7ee2a97c97ff26e4985d",
+  "rustTestsPassed": 136,
+  "physicalQuackAcceptancePending": true,
+  "sourceHashes": {
+    "backend-rust/src/policy.rs": "86dd17bd3e7b5e10f17bc251e37e20af46c298127cb2838614e45c2bdef5517f",
+    "backend-rust/src/telemetry.rs": "9e6cd4521e8923f0f37e91ea18c6dd0a9b090c715b5d105d1ef89286675e51f6"
+  }
+}

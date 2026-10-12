@@ -75,6 +75,13 @@ fn pause_drive(shared:&Shared) {
     state.pending_skill=None;state.pending_mouth=None;state.pending_quack=false;state.quack_running=false;
     state.control["feedbackHolding"]=json!(true);
 }
+fn pause_drive_for_switch(shared:&Shared) {
+    // Body policy handoff must not swallow an independent queued jaw action.
+    let mut state=shared.write().unwrap();
+    if let Some(drive)=state.drive.as_mut(){drive.twist=[0.;3];drive.updated=Instant::now();}
+    state.pending_skill=None;state.pending_mouth=None;
+    state.control["feedbackHolding"]=json!(true);
+}
 fn check_feedback_age(id: u8, received: f64, now: f64) -> Result<()> {
     if !(0.0..0.15).contains(&(now - received)) {
         return Err(StaleFeedback(id).into());
@@ -883,6 +890,22 @@ impl ExecutionEngine {
         if native_model || self==Self::Native50 {Self::Native50} else {Self::Worker100}
     }
 }
+fn advance_quack(shared:&Shared,cycle:&mut Option<(Instant,crate::quack::Playback)>)->bool {
+    let requested={let mut state=shared.write().unwrap();let v=state.pending_quack;state.pending_quack=false;v};
+    if requested {
+        match crate::quack::Playback::start() {
+            Ok(audio)=>{*cycle=Some((Instant::now(),audio));shared.write().unwrap().quack_running=true;}
+            Err(e)=>{let mut state=shared.write().unwrap();state.quack_running=false;state.log("ERROR","quack",&e.to_string());},
+        }
+    }
+    if let Some((started,audio))=cycle.as_mut() {
+        if let Err(e)=audio.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());}
+        shared.write().unwrap().mouth_degrees=crate::quack::degrees(started.elapsed());
+        if started.elapsed()>=crate::quack::DURATION {*cycle=None;shared.write().unwrap().quack_running=false;}
+        return true;
+    }
+    false
+}
 fn skill_target(id:u8, raw:f64, cal:&Value, hardware:(i32,i32), bounded:bool)->Result<(i32,f64,bool)> {
     if !raw.is_finite() {bail!("#{id} 模型目标无效");}
     let angle=if bounded {
@@ -1047,7 +1070,7 @@ fn native_policy_loop(
             }
             let old_home=model.home;
             let old=std::mem::replace(model,selected);bank.insert(old.kind.clone(),old);
-            pause_drive(shared);
+            pause_drive_for_switch(shared);
             // Rebase the one current sensor sample; only q-HOME and raw history
             // change. Never advance the native one-sample delay a second time.
             for n in 0..14 {obs[6+n]+=old_home[n]-model.home[n];obs[34+n]=model.last_action[n];}
@@ -1066,21 +1089,10 @@ fn native_policy_loop(
         let adjusted=action.map(|v|v*scale);
         let filtered=model.filter_action(&adjusted);
         *goals=model.targets(filtered,feedback,cal,limits)?;
-        let requested={let mut state=shared.write().unwrap();let v=state.pending_quack;state.pending_quack=false;if v {state.quack_running=true;}v};
-        if requested {
-            match crate::quack::Playback::start() {
-                Ok(audio)=>{quack_cycle=Some((Instant::now(),audio));shared.write().unwrap().quack_running=true;}
-                Err(e)=>{let mut state=shared.write().unwrap();state.quack_running=false;state.log("ERROR","quack",&e.to_string());},
-            }
-        }
-        if let Some((started,audio))=quack_cycle.as_mut() {
-            if let Err(e)=audio.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());}
-            shared.write().unwrap().mouth_degrees=crate::quack::degrees(started.elapsed());
-            if started.elapsed()>=crate::quack::DURATION {quack_cycle=None;shared.write().unwrap().quack_running=false;}
-        }
         let mouth_request=shared.write().unwrap().pending_mouth.take();
         if let Some(degrees)=mouth_request {shared.write().unwrap().mouth_degrees=degrees;}
         if model.kind=="xgoduck_pick" {shared.write().unwrap().mouth_degrees=pick_mouth_target(model.progress);}
+        let quacking=advance_quack(shared,&mut quack_cycle);
         if mouth_owned {
             let degrees=shared.read().unwrap().mouth_degrees;
             goals.insert(34,control::target(34,feedback[&34]["position"].as_i64().unwrap() as i32,cal,mouth_limits.0,mouth_limits.1,degrees.to_radians(),true)?);
@@ -1090,7 +1102,7 @@ fn native_policy_loop(
         trace.frame(json!({"type":"inference","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha,"commandTwist":model.command_twist,
             "observation":obs,"rawActionRadians":action,"emaPreviousRadians":model.filtered_action,"filteredActionRadians":filtered,"homeRadians":model.home,
             "preClipTargetDegrees":model.raw,"sentTargetDegrees":model.sent,"goals":goals,"feedbackBeforeWrite":feedback,"readDiagnostics":bus.diagnostics,
-            "mouthTargetDegrees":shared.read().unwrap().mouth_degrees,"mouthControlSource":if model.kind=="xgoduck_pick" {"pickup-choreography"} else {"independent-intent"},"skillProgressSeconds":model.progress,"inferenceMs":ms,"resultAgeMs":0.,"voltageScale":scale,"filteredVoltage":filtered_voltage,"execution":"kissqy-sync50-v1"}));
+            "mouthTargetDegrees":shared.read().unwrap().mouth_degrees,"mouthControlSource":if quacking {"quack"} else if model.kind=="xgoduck_pick" {"pickup-choreography"} else {"independent-intent"},"skillProgressSeconds":model.progress,"inferenceMs":ms,"resultAgeMs":0.,"voltageScale":scale,"filteredVoltage":filtered_voltage,"execution":"kissqy-sync50-v1"}));
         model.last_action=action;model.filtered_action=filtered;model.target_initialized=true;
         if model.kind!="xgoduck" {model.progress+=0.02;}
         {let mut c=costs.lock().unwrap();c.writes+=1;c.inference_results+=1;c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
@@ -1287,6 +1299,7 @@ pub fn execute(
         }
         let mouth_limits = if is_xgoduck(kind) {Some(control::configuration(bus,34)?)} else {None};
         let mut mouth_owned = false;
+        let mut quack_cycle:Option<(Instant,crate::quack::Playback)>=None;
         if kind=="xgoduck_pick" { arm_current(bus,&[34],&feedback,control::MANUAL_GAINS,cancel,halt)?; mouth_owned=true; }
         let mut worker=InferenceWorker::new(model.session.clone());
         let mut generation=0u64;
@@ -1359,6 +1372,10 @@ pub fn execute(
             }
             if worker.thread.as_ref().is_some_and(|t|t.is_finished()) { bail!("模型推理线程意外退出"); }
             if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) { break; }
+            let quack_requested=shared.read().unwrap().pending_quack;
+            if paused.is_none() && feedback_recent && quack_requested && !mouth_owned {
+                arm_current_profile(bus,&[34],&feedback,(10,20),cancel,halt,true)?;mouth_owned=true;
+            }
             let mouth_request=if paused.is_none() && feedback_recent {shared.write().unwrap().pending_mouth.take()} else {None};
             if let Some(degrees)=mouth_request {
                 if model.kind=="xgoduck" {
@@ -1367,7 +1384,9 @@ pub fn execute(
                 }
             }
             if mouth_owned && paused.is_none() {
-                let degrees = if model.kind=="xgoduck_pick" && model.progress<1.6 {30f64} else if model.kind=="xgoduck" {shared.read().unwrap().mouth_degrees} else {0.};
+                let normal_degrees=if model.kind=="xgoduck_pick" && model.progress<1.6 {30f64} else if model.kind=="xgoduck" {shared.read().unwrap().mouth_degrees} else {-5.};
+                let quacking=feedback_recent && advance_quack(shared,&mut quack_cycle);
+                let degrees=if quacking {shared.read().unwrap().mouth_degrees} else {normal_degrees};
                 let (lo,hi,_) = mouth_limits.unwrap();
                 goals.insert(34,control::target(34,feedback[&34]["position"].as_i64().unwrap() as i32,cal,lo,hi,degrees.to_radians(),true)?);
             }
@@ -1506,7 +1525,10 @@ pub fn execute(
                     generation+=1;worker.clear();drop(worker);
                     let old=std::mem::replace(&mut model,selected);bank.insert(old.kind.clone(),old);
                     if ExecutionEngine::Worker100.select(model.donor_sensors())==ExecutionEngine::Native50 {
-                        pause_drive(shared);
+                        pause_drive_for_switch(shared);
+                        // Native entry closes the jaw; the old playback owner
+                        // is dropped on return and must not leave a busy latch.
+                        shared.write().unwrap().quack_running=false;
                         policy_trace.transition(json!({"type":"execution-switch","mono":crate::telemetry::monotonic(),
                             "from":"worker100","to":"kissqy-sync50-v1","kind":model.kind}));
                         // Do not observe/submit the current sample again. The
@@ -1617,6 +1639,13 @@ pub fn execute(
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn body_handoff_preserves_quack_but_feedback_pause_cancels_it() {
+        let shared=std::sync::Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(true)));
+        shared.write().unwrap().pending_quack=true;
+        pause_drive_for_switch(&shared);assert!(shared.read().unwrap().pending_quack);
+        pause_drive(&shared);assert!(!shared.read().unwrap().pending_quack);
+    }
     #[test]
     fn retrained_recovery_session_promotes_walk_and_sitstand_to_native_ticks() {
         let mut engine=ExecutionEngine::Worker100;

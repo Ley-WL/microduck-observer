@@ -80,7 +80,7 @@ pub struct DriveCommand {
 }
 impl Telemetry {
     pub fn queue_quack(&mut self,session:&str,sequence:u64)->bool {
-        if self.pending_quack || self.quack_running || self.pending_skill.is_some() || self.control["activeSkill"]!="xgoduck" || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["feedbackHolding"]==true {return false;}
+        if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["feedbackHolding"]==true {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
         self.pending_mouth=None;self.pending_quack=true;true
@@ -135,6 +135,17 @@ mod drive_tests {
         state.pending_quack=false;state.quack_running=true;assert!(!state.queue_quack("live",2));
         state.quack_running=false;assert!(!state.queue_quack("live",1));
         state.control["feedbackHolding"]=json!(true);assert!(!state.queue_quack("live",2));
+    }
+    #[test]
+    fn quack_is_independent_of_body_skill_and_preserves_queued_body_intent() {
+        for skill in ["sitstand_sit","sitstand_stand","xgoduck_getup","xgoduck_pick","xgoduck_roulade"] {
+            let mut state=Telemetry::new(true);
+            state.drive=Some(DriveCommand{session:"live".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+            state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":skill});
+            state.pending_skill=Some("sitstand_stand".into());
+            assert!(state.queue_quack("live",1),"{skill}");
+            assert_eq!(state.pending_skill.as_deref(),Some("sitstand_stand"));
+        }
     }
     #[test]
     fn donor_seat_can_rise_immediately_but_pause_and_pending_intent_block_it() {
