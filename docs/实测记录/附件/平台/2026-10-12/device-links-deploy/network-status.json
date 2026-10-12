@@ -1,0 +1,31 @@
+{
+  "wifi": {
+    "current": {
+      "connected": true,
+      "ip": "10.10.161.13",
+      "ssid": "iflytek-taoyun",
+      "state": "COMPLETED"
+    },
+    "job": {
+      "message": "",
+      "state": "idle"
+    },
+    "networks": [
+      {
+        "saved": true,
+        "secured": true,
+        "security": "WPA/WPA2",
+        "signal": -53,
+        "ssid": "iflytek-taoyun",
+        "supported": true
+      }
+    ],
+    "saved": [
+      "2_902",
+      "iflytek-taoyun"
+    ],
+    "scanning": false
+  },
+  "service": "active",
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261012-084506"
+}
