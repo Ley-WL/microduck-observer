@@ -1,0 +1,11 @@
+[package]
+name = "microduck-sounds"
+version = "0.15.0"
+edition = "2024"
+rust-version = "1.89"
+license = "Apache-2.0"
+
+[dependencies]
+anyhow = "1"
+hound = "3.5"
+sha2 = "0.10"

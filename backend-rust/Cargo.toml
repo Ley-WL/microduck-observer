@@ -5,6 +5,8 @@ edition = "2021"
 default-run = "microduck-observer"
 
 [dependencies]
+microduck-sounds = { path = "vendor/microduck-sounds" }
+hound = "3.5"
 axum = { version = "0.8", features = ["ws"] }
 tokio = { version = "1", features = ["full"] }
 serde_json = { version = "1", features = ["float_roundtrip"] }

@@ -597,8 +597,14 @@ async fn client(mut ws: WebSocket, a: App) {
 }
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    gains::init()?;
     let args: Vec<_> = std::env::args().collect();
+    if args.get(1).is_some_and(|s| s == "--generate-quack") {
+        let dir = args.get(2).ok_or_else(||anyhow::anyhow!("Output directory required"))?;
+        let seed = match args.get(3) { Some(s) => s.parse::<u32>()?, None => microduck_sounds::hardware_seed()? };
+        println!("{}", quack::generate(std::path::Path::new(dir), seed)?);
+        return Ok(());
+    }
+    gains::init()?;
     if args.get(1).is_some_and(|s| s == "--verify-policy-fixture") {
         let path = args
             .get(2)
@@ -612,6 +618,10 @@ async fn main() -> anyhow::Result<()> {
         anyhow::bail!("Invalid MICRODUCK_SOURCE")
     }
     let hardware = source == "hardware";
+    if hardware {
+        let voice_dir = env("MICRODUCK_VOICE_DIR", "/var/lib/microduck-observer/voice");
+        if let Err(e) = quack::init(std::path::Path::new(&voice_dir)) { eprintln!("quack voice initialization failed: {e:#}"); }
+    }
     if hardware && env("MICRODUCK_IMU_DRIVER", "ms901m") != "ms901m" {
         anyhow::bail!("BNO085 native migration is pending; keep the existing production service")
     };

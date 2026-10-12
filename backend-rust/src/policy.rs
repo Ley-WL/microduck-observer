@@ -899,9 +899,12 @@ fn advance_quack(shared:&Shared,cycle:&mut Option<(Instant,crate::quack::Playbac
         }
     }
     if let Some((started,audio))=cycle.as_mut() {
-        if let Err(e)=audio.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());}
-        shared.write().unwrap().mouth_degrees=crate::quack::degrees(started.elapsed());
-        if started.elapsed()>=crate::quack::DURATION {*cycle=None;shared.write().unwrap().quack_running=false;}
+        if let Err(e)=audio.check(){
+            let mut state=shared.write().unwrap();state.log("ERROR","quack",&e.to_string());state.mouth_degrees=-5.;state.quack_running=false;
+            *cycle=None;return true;
+        }
+        shared.write().unwrap().mouth_degrees=audio.degrees(started.elapsed());
+        if started.elapsed()>=audio.cycle_duration() && audio.finished().unwrap_or(true) {*cycle=None;shared.write().unwrap().quack_running=false;}
         return true;
     }
     false

@@ -370,13 +370,21 @@ pub fn execute<T: Transport>(
         for angle in [30f64,-5.] {target(34,position(&initial[&34])?,&cal,low,high,angle.to_radians(),false)?;}
         execute(bus,&json!({"action":"angle","id":34,"angleDeg":30,"calibration":cal}),cancel,shared)?;
         let audio=crate::quack::Playback::start();
+        let open_duration=audio.as_ref().map(|p|p.open_duration()).unwrap_or(Duration::from_millis(550));
         let began=Instant::now();let mut clock=FrameClock::new(began);
-        while began.elapsed()<Duration::from_millis(550) {
+        while began.elapsed()<open_duration {
             if cancel.load(Ordering::Acquire) {return unload(bus);}
             status(shared,json!({"state":"moving","action":"quack","message":"嘎一下"}));clock.wait();
         }
         let result=execute(bus,&json!({"action":"angle","id":34,"angleDeg":-5,"calibration":cal}),cancel,shared)?;
-        match audio {Ok(mut playback)=>{if let Err(e)=playback.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());}},Err(e)=>shared.write().unwrap().log("ERROR","quack",&e.to_string())}
+        match audio {Ok(mut playback)=>{
+            loop {
+                if cancel.load(Ordering::Acquire) {return unload(bus);}
+                if let Err(e)=playback.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());break;}
+                if playback.finished().unwrap_or(true) {break;}
+                clock.wait();
+            }
+        },Err(e)=>shared.write().unwrap().log("ERROR","quack",&e.to_string())}
         return Ok(json!({"state":"holding","action":"quack","message":"张闭嘴一次完成","mouthResult":result}));
     }
     let pose = matches!(action, "stand" | "zero");

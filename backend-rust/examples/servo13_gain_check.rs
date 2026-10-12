@@ -1,4 +1,6 @@
 //! Hardware acceptance executable: reuses production Bus, FrameClock and FeedbackCoast.
+#[path="../src/walk_profile.rs"] mod walk_profile;
+#[path="../src/quack.rs"] mod quack;
 #[path="../src/calibration.rs"] mod calibration;
 #[path="../src/control.rs"] mod control;
 #[path="../src/guided.rs"] mod guided;

@@ -18,6 +18,8 @@ binary=root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-obs
 assert binary.read_bytes()[:4]==b'\x7fELF' and int.from_bytes(binary.read_bytes()[18:20],'little')==183
 with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
     archive.add(binary,arcname='bin/microduck-observer')
+    for notice in ['LICENSE','UPSTREAM.md']:
+        archive.add(root/'backend-rust/vendor/microduck-sounds'/notice,arcname='licenses/microduck-sounds/'+notice)
     if not args.binary_only:
         archive.add(root/'frontend/dist',arcname='frontend/dist')
     for tool in ['verify_rust_hardware.py','measure_runtime.py','ws_reader.py']:

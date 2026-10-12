@@ -59,3 +59,31 @@ cargo test policy::tests::python_parity -- --ignored
 HTTP/WS检查工具只需Python和websockets，启动一个隔离Rust模拟服务，BLE禁用、使用临时标定，不访问硬件。已移除依赖旧Python后端的对比与数值生成器；数值验证使用tests/fixtures/内已保存的参考。
 
 软件验证不代表实机运动验收。部署与只读性能结果维护在[平台实测](../docs/实测记录/04-网络与观测平台.md)及[HAT实测](../docs/实测记录/07-HAT实测.md)。
+
+## Per-device duck voice
+
+The vendored Rust `microduck-sounds` library generates the upstream `greet` voice
+at 48 kHz. See [source attribution](vendor/microduck-sounds/UPSTREAM.md) and its
+Apache-2.0 license. SoC serial SHA-256 determines the seed; `/etc/machine-id` is
+the upstream fallback. A cloned sound cache is regenerated if the device seed,
+bank version, WAV format, or checksums differ. Never set `DUCK_IDENTITY` on real
+robots; it is an upstream simulation override.
+
+Hardware startup generates 12 variants into `/var/lib/microduck-observer/voice`
+(`MICRODUCK_VOICE_DIR` can override the directory), then loads them into memory
+before opening the control loop. Requests cycle through variants without
+synthesis or filesystem reads in the model loop. Mouth timing uses the actual
+clip duration. Generation failure disables the sound action with an explicit
+error, while the robot service can continue running.
+
+Generate only, without accessing motors or playing audio:
+
+```bash
+microduck-observer --generate-quack /tmp/duck-voice
+# Optional explicit u32 seed for offline previews:
+microduck-observer --generate-quack /tmp/duck-voice 12345
+```
+
+The fixed prototype `assets/quack.wav` is removed. Do not ship one device's bank
+as the identity of every new device. Cached audio remains outside release
+folders and is reproducible from the hardware identity and bank version.

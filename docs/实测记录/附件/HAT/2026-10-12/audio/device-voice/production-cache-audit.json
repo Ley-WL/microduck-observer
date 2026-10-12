@@ -1,0 +1,30 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261012-204954",
+  "manifest": {
+    "bankVersion": 5,
+    "sampleRate": 48000,
+    "seed": 3738635735,
+    "sha256": [
+      "92edf6a1a91eeebf1abcad9c41a2d636f40f491d62170714538dfc0e6b2ba08a",
+      "fc5a66a9c0797cf37967cbf29eb901c8c5ceb2606adb09719d9f8cc2edb37481",
+      "10bf2779d0272b88557c55ea0742e5ed8affbdc30f7c5b36b6499d897ae56e6f",
+      "dec5254be488e67dcd0514b2f2cedb53d7c1280f9d6f4907bb230ae2302e85a6",
+      "3f1955064379a19f1d94726e1781110c0c93fdb7f6cb654bfcdb3681b546231d",
+      "ae358e4b8c2a8c013af5ad4ee8b905ebde8d5f49a9636fbc9561c3bcfa15d205",
+      "4c44a40022c6d8dda98be9a5579a906f8abb9b840bf3840b1cd91556e0fe8833",
+      "f233fe774d46429ecf1c853ca4e63020b5e0b93651c5195ab87e04d2f69ce4af",
+      "d031896c55e76a31700d5a0889b0a30728c3437408d3d994766b6e6794cf5c03",
+      "22ee62cb695ae18159f34ed1874de21c12f92276e8fd4f6d61331f5247afe3a5",
+      "dc6e316845eee28b3b81edca542eb27323b2f936e4c22a180b3df4eb651d5377",
+      "c70449902984680f7b215926a5c2ca4c11b6b585c0b0727eaeb3c18713b9a149"
+    ],
+    "tag": "greet",
+    "upstreamCommit": "46a380b70e70c5eb859107f4a4b529a0cb9548fc",
+    "variants": 12
+  },
+  "productionCacheHashesVerified": true,
+  "licensesPresent": true,
+  "productionMatchesAudiblePreview": true,
+  "all15Unloaded": true,
+  "servoCommands": false
+}

@@ -1,0 +1,20 @@
+{
+  "serviceTestsPassed": 136,
+  "serviceTestsIgnored": 1,
+  "upstreamGeneratorTestsPassed": 67,
+  "armBuildPassed": true,
+  "binarySha256": "d4f12eb0eda043cfd1180d9a97339c01a46f323fe7b712d44127a008a447e326",
+  "generatedOnActualBoard": true,
+  "seed": 3738635735,
+  "bankVersion": 5,
+  "variants": 12,
+  "userConfirmedPreviewAudible": true,
+  "deployment": "installed",
+  "package": "deploy/staging/runtime-20261012-204830",
+  "servoCommands": false,
+  "release": "runtime-20261012-204954",
+  "productionCacheMatchesPreview": true,
+  "all15UnloadedAfterDeployment": true,
+  "readonlyCompleteJointFrames": 999,
+  "readonlySnapshots": 20
+}

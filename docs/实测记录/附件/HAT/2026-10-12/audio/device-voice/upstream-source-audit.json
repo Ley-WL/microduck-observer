@@ -1,0 +1,15 @@
+{
+  "allVendoredLibrarySourcesUnchanged": true,
+  "files": {
+    "lib.rs": "453a4ae44a7a303e911b824e8829b41b898d0ed826a71996b6e2905fff287cc8",
+    "personality.rs": "4715be05bfd3de0a727e37489cdef4c9d9d494d4101403fe177aee3f38b7651b",
+    "rng.rs": "c7b992e6954ebe56d164f7dacca8ce45b692558a712523c7be35c0797da93503",
+    "stream.rs": "cbc4756e8939a75e743d3bd85447c6ef7fa52bdf472eeb4f45a811d6333592f4",
+    "synth.rs": "d37c0c1bc27fde19e43f243790806882f324e9ffcfd0ec611eb9929f1845cec6",
+    "voices.rs": "ea633fe2b968024fcaba7d4ff66c673eb118446a8ae7eb439ee4b34b886a2a67",
+    "chorale\\beat.rs": "79bda372c8174f9970a4496d0e0df3a5c197de1a0b8c41dde99d8b40394d7dcd",
+    "chorale\\midi.rs": "d8b2e0a7022aef2a40d3813f6f5cbc1ea5bad044b9619c81c72b0b8f649c030e",
+    "chorale\\mod.rs": "3bb27d79f594a3f1d9388b3c50a3ab56da3ee5ad6db83a5340708c63b94903ee",
+    "chorale\\text.rs": "69b1f46b6a507597e7682d076238f714478cec9bbcaf7d554e139801f6954e94"
+  }
+}
