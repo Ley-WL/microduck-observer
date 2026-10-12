@@ -875,6 +875,14 @@ impl Model {
         Ok(goals)
     }
 }
+
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+enum ExecutionEngine { Worker100, Native50 }
+impl ExecutionEngine {
+    fn select(self,native_model:bool)->Self {
+        if native_model || self==Self::Native50 {Self::Native50} else {Self::Worker100}
+    }
+}
 fn skill_target(id:u8, raw:f64, cal:&Value, hardware:(i32,i32), bounded:bool)->Result<(i32,f64,bool)> {
     if !raw.is_finite() {bail!("#{id} 模型目标无效");}
     let angle=if bounded {
@@ -1087,6 +1095,7 @@ fn native_policy_loop(
         if model.kind!="xgoduck" {model.progress+=0.02;}
         {let mut c=costs.lock().unwrap();c.writes+=1;c.inference_results+=1;c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
         let mut v=stats(model,timing,ms);v["state"]=json!("policy");v["action"]=json!("policy");v["policyPhase"]=json!("running");v["feedbackHolding"]=json!(false);
+        v["runtimeProfile"]=json!("kissqy-sync50-v1");v["feedbackTargetHz"]=json!(50);
         v["voltageAdapt"]=json!(true);v["filteredVoltage"]=json!(filtered_voltage);v["voltageScale"]=json!(scale);v["skippedControlTicks"]=json!(clock.skipped);
         v["mouthTargetDegrees"]=json!(shared.read().unwrap().mouth_degrees);v["mouthControlSource"]=json!(if model.kind=="xgoduck_pick" {"pickup-choreography"} else {"independent-intent"});
         v["recoveryFallen"]=json!(recovery_fallen);v["recoveryReturnHome"]=json!(return_home);v["recoveryResumeSkill"]=json!(recovery_resume);
@@ -1271,7 +1280,7 @@ pub fn execute(
         model.filtered_gyro = None;
         goals=if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") { ORDER.iter().map(|id|(*id,feedback[id]["position"].as_i64().unwrap() as i32)).collect() }
             else {model.targets([0.;14],&feedback,cal,&limits)?};
-        if model.donor_sensors() {
+        if ExecutionEngine::Worker100.select(model.donor_sensors())==ExecutionEngine::Native50 {
             stage="policy-loop";
             return native_policy_loop(bus,&mut model,&mut bank,cal,&limits,cancel,halt,shared,&mut feedback,&mut previous,&mut goals,
                 &mut last_obs,&mut infer_ms,&mut timing,&mut policy_trace,&costs,&stats);
@@ -1496,6 +1505,17 @@ pub fn execute(
                         "initialRawActionRadians":selected.last_action,"initialFilteredActionRadians":selected.filtered_action}));
                     generation+=1;worker.clear();drop(worker);
                     let old=std::mem::replace(&mut model,selected);bank.insert(old.kind.clone(),old);
+                    if ExecutionEngine::Worker100.select(model.donor_sensors())==ExecutionEngine::Native50 {
+                        pause_drive(shared);
+                        policy_trace.transition(json!({"type":"execution-switch","mono":crate::telemetry::monotonic(),
+                            "from":"worker100","to":"kissqy-sync50-v1","kind":model.kind}));
+                        // Do not observe/submit the current sample again. The
+                        // native loop polls the next sample and keeps raw action
+                        // and velocity history transferred above.
+                        return native_policy_loop(bus,&mut model,&mut bank,cal,&limits,cancel,halt,shared,
+                            &mut feedback,&mut previous,&mut goals,&mut last_obs,&mut infer_ms,&mut timing,
+                            &mut policy_trace,&costs,&stats);
+                    }
                     worker=InferenceWorker::new(model.session.clone());
                     let mut state=shared.write().unwrap();
                     if let Some(drive)=state.drive.as_mut() {drive.twist=[0.;3];drive.updated=Instant::now();}
@@ -1597,6 +1617,18 @@ pub fn execute(
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn retrained_recovery_session_promotes_walk_and_sitstand_to_native_ticks() {
+        let mut engine=ExecutionEngine::Worker100;
+        // Recorded session: mechanical recovery -> donor walk -> sit -> rise
+        // -> walk. A later recovery must not downgrade an already native loop.
+        for (native_model,expected) in [(false,ExecutionEngine::Worker100),
+            (true,ExecutionEngine::Native50),(true,ExecutionEngine::Native50),
+            (true,ExecutionEngine::Native50),(true,ExecutionEngine::Native50),
+            (false,ExecutionEngine::Native50)] {
+            engine=engine.select(native_model);assert_eq!(engine,expected);
+        }
+    }
     use super::*;
     #[test]
     fn same_actor_command_change_preserves_history_only_for_identical_sit_models() {

@@ -1,0 +1,11 @@
+{
+  "installed": true,
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261012-164043",
+  "previousRelease": "/home/radxa/microduck-observer/releases/getup-mechanical-20261012-v2",
+  "calibrationModelsGainsIdentityUnchanged": true,
+  "assetsHttpVerified": true,
+  "readonlySnapshots": 20,
+  "hardwareMotion": false,
+  "audioPermissionsConfigured": true,
+  "binarySha256": "3164689e1a12e8522b96c0ff5d00ef8615108883fcba6e28e42e4c3467a96961"
+}
