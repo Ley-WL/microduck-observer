@@ -1,0 +1,107 @@
+{
+  "observedUtc": "2026-10-12T05:55:43.328657+00:00",
+  "jobExit": null,
+  "totalPlanned": 4800,
+  "conditions": {
+    "normal": {
+      "completedTrials": 1810,
+      "completedGroups": [
+        {
+          "scenario": "prone",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "supine",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "left_side",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "right_side",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "oblique",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "inverted",
+          "seed": 517031,
+          "successRate": 0.995
+        },
+        {
+          "scenario": "prone",
+          "seed": 629017,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "supine",
+          "seed": 629017,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "left_side",
+          "seed": 629017,
+          "successRate": 1.0
+        }
+      ]
+    },
+    "stress": {
+      "completedTrials": 1859,
+      "completedGroups": [
+        {
+          "scenario": "prone",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "supine",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "left_side",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "right_side",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "oblique",
+          "seed": 517031,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "inverted",
+          "seed": 517031,
+          "successRate": 0.99
+        },
+        {
+          "scenario": "prone",
+          "seed": 629017,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "supine",
+          "seed": 629017,
+          "successRate": 1.0
+        },
+        {
+          "scenario": "left_side",
+          "seed": 629017,
+          "successRate": 1.0
+        }
+      ]
+    }
+  }
+}

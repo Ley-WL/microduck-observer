@@ -222,6 +222,8 @@ impl SkillProfile {
 }
 fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
     let profile=SkillProfile::from_metadata(meta);
+    let mechanical_getup=meta["skillPhysicsRevision"]=="getup-kissqy-mechanical-v1";
+    if mechanical_getup && (kind!="xgoduck_getup" || !valid_mechanical_getup_contract(meta)) {bail!("起身机械限位合同不匹配");}
     if profile.donor_pick || profile.donor_getup || profile.donor_roll {
         let e=&meta["skillExecution"];
         let (expected,task,seconds)=if profile.donor_pick {("xgoduck_pick","Mjlab-GroundPick-Flat-MicroDuck",2.8)} else if profile.donor_roll {("xgoduck_roulade","Mjlab-Roulade-Flat-MicroDuck",1.)} else {("xgoduck_getup","Mjlab-StandUp-Rough-Backlash-MicroDuck",6.)};
@@ -241,11 +243,11 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
         let (runtime,task)=if kind.starts_with("sitstand_") {
             ("hd1910_sitstand", if profile.bounded_targets {"Mjlab-SitStandContact-Flat-MicroDuck-HD1910"} else {"Mjlab-SitStand-Flat-MicroDuck-HD1910"})
         } else if kind=="xgoduck_getup" {
-            ("hd1910_getup","Mjlab-Getup-Flat-MicroDuck-HD1910")
+            ("hd1910_getup",if mechanical_getup {"Mjlab-GetupMechanical-Flat-MicroDuck-HD1910"} else {"Mjlab-Getup-Flat-MicroDuck-HD1910"})
         } else { bail!("HD1910技能模型与动作不匹配") };
         if meta["runtimeKind"]!=runtime || meta["task"]!=task
             || meta["actionEmaOldWeight"]!=0.45 || meta["actionEmaNewWeight"]!=0.55
-            || if profile.bounded_targets { !valid_sit_target_contract(meta) } else { !meta["trainingTargetClipRadians"].is_null() }
+            || if profile.bounded_targets { !valid_sit_target_contract(meta) } else if mechanical_getup { !valid_mechanical_getup_contract(meta) } else { !meta["trainingTargetClipRadians"].is_null() }
             || meta["assembledBodyGroundContactMeshes"]!=68
             || meta["uprightHoldSeconds"]!=1
             || (kind.starts_with("sitstand_") && (meta["sitSettleSeconds"]!=4 || meta["standSeconds"]!=4
@@ -258,6 +260,19 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
         if is_xgoduck(kind) && !kind.starts_with("sitstand_") && meta["runtimeKind"]!=kind && !(kind=="xgoduck" && meta["task"]=="Mjlab-Velocity-Flat-XgoDuck") { bail!("XgoDuck模型任务不匹配") }
     }
     Ok(())
+}
+fn valid_mechanical_getup_contract(meta: &Value) -> bool {
+    meta["runtimeKind"]=="hd1910_getup" && meta["jointOrder"]==json!(NAMES)
+        && meta["mechanicalExecutionContract"]=="kissqy-mechanical-ema045-rawhistory-encoder4096-v1"
+        && ["trainingTargetClipRadians","mechanicalPhysicalJointLimitsRadians"].iter().all(|key| {
+            let Some(bounds)=meta[*key].as_object() else {return false};
+            bounds.len()==14 && ORDER.iter().enumerate().all(|(n,id)| {
+                let Some(range)=bounds.get(NAMES[n]).and_then(Value::as_array) else {return false};
+                let (lo,hi)=limit(*id).unwrap();
+                range.len()==2 && range[0].as_f64().is_some_and(|v|(v-lo.to_radians()).abs()<1e-8)
+                    && range[1].as_f64().is_some_and(|v|(v-hi.to_radians()).abs()<1e-8)
+            })
+        })
 }
 fn valid_sit_target_contract(meta: &Value) -> bool {
     // Historical v3 training bounds describe its training physics, not today's
@@ -1781,7 +1796,7 @@ mod tests {
     fn kissqy_pick_and_getup_contracts_and_handoffs() {
         for (kind,text,duration) in [
             ("xgoduck_pick",include_str!("../../models/xgoduck_pick.metadata.json"),2.8),
-            ("xgoduck_getup",include_str!("../../models/xgoduck_getup.metadata.json"),6.)] {
+            ("xgoduck_getup",include_str!("../tests/fixtures/kissqy-getup.metadata.json"),6.)] {
             let meta:Value=serde_json::from_str(text).unwrap();
             validate_skill_metadata(kind,&meta).unwrap();let p=SkillProfile::from_metadata(&meta);
             assert!(p.donor());assert!(!p.complete(kind,duration-0.02,100.));
@@ -1814,6 +1829,21 @@ mod tests {
         bad=meta.clone();bad["actionEmaOldWeight"]=json!(0.45);
         assert!(validate_skill_metadata("sitstand_sit",&bad).is_err());
         assert!(validate_skill_metadata("xgoduck",&meta).is_err());
+    }
+
+    #[test]
+    fn mechanical_getup_metadata_contract() {
+        let meta:Value=serde_json::from_str(include_str!("../../models/xgoduck_getup.metadata.json")).unwrap();
+        validate_skill_metadata("xgoduck_getup",&meta).unwrap();
+        assert!(validate_skill_metadata("sitstand_sit",&meta).is_err());
+        for key in ["trainingTargetClipRadians","mechanicalPhysicalJointLimitsRadians"] {
+            let mut bad=meta.clone();bad[key][NAMES[0]][0]=json!(-9.);
+            assert!(validate_skill_metadata("xgoduck_getup",&bad).is_err());
+        }
+        let mut bad=meta.clone();bad["mechanicalExecutionContract"]=json!("wrong");
+        assert!(validate_skill_metadata("xgoduck_getup",&bad).is_err());
+        bad=meta.clone();bad["skillPhysicsRevision"]=json!("unknown");
+        assert!(validate_skill_metadata("xgoduck_getup",&bad).is_err());
     }
 
     #[test]
