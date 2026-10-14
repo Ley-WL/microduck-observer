@@ -338,12 +338,12 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
 async fn policy_info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     let meta = policy::metadata_for("stand");
-    let models: Vec<Value> = ["stand","walk","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","sitstand_sit","sitstand_stand"].iter().map(|kind| {
+    let models: Vec<Value> = ["stand","walk","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","sitstand_sit","sitstand_stand"].iter().map(|kind| {
         let metadata=policy::metadata_for(kind);
         json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata})
     }).collect();
     Json(
-        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
 async fn model_gains_info() -> Json<Value> {

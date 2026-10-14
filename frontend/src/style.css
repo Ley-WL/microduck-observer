@@ -1060,6 +1060,23 @@ footer b {
   min-height: 0;
   overflow: hidden;
 }
+@media (max-width: 1000px), (max-height: 620px) {
+  .workbench-shell {height:auto;min-height:100dvh;overflow:visible}
+  .workbench-shell .main-shell {height:auto;min-height:100dvh}
+  .workbench-shell main {flex:none}
+  .workbench-shell .workbench {height:auto}
+  .workbench-shell .bench-grid {grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"model model" "imu servos";flex:none}
+  .workbench-shell .bench-model {grid-template-rows:260px auto;overflow:visible}
+  .workbench-shell .bench-controls {container-type:inline-size;overflow:visible}
+  .workbench-shell .bench-imu {min-height:560px}
+  .workbench-shell .servo-panel {min-height:640px}
+}
+@media (max-width: 650px) {
+  .workbench-shell .bench-grid {grid-template-columns:minmax(0,1fr);grid-template-areas:"model" "imu" "servos"}
+  .workbench-shell .bench-model {grid-template-rows:220px auto}
+  .workbench-shell .bench-toolbar {height:auto;min-height:44px;flex-wrap:wrap;gap:8px}
+  .workbench-shell .bench-live {margin-left:0;gap:8px}
+}
 .workbench-shell .sidebar {
   width: 64px;
   padding: 18px 8px;

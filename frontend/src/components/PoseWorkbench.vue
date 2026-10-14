@@ -350,7 +350,7 @@ const value = (values: number[] | undefined, i: number) =>
 .bench-model {
   grid-area: model;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(160px, .85fr) minmax(350px, 1.15fr);
   overflow: hidden;
 }
 .bench-visual { display:flex;flex-direction:column;min-height:0;overflow:hidden; }
@@ -370,7 +370,7 @@ const value = (values: number[] | undefined, i: number) =>
 .bench-controls .control-heading { padding-bottom:4px; }
 .bench-controls .runtime-overview { display:none; }
 .bench-controls .runtime-panel { gap:4px;padding:4px 0; }
-.bench-controls .pad-wrap { width:min(100%,max(190px,calc((100cqh - 176px) * 1.8286))); }
+.bench-controls .pad-wrap { width:100%; }
 .bench-controls .gamepad { margin-top:3px; }
 .bench-controls .pad-footer { padding:2px 0; }
 .bench-controls .pad-footer>span { font-size:9px; }

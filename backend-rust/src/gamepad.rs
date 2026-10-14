@@ -161,6 +161,10 @@ impl Input {
             Some("getup")
         } else if sample.down(LB) && edge(RB) {
             Some("quack")
+        } else if ready && sample.down(LB) && sample.centered() && sample.dpad[1] && !self.previous.dpad[1] {
+            Some("kick_left")
+        } else if ready && sample.down(LB) && sample.centered() && sample.dpad[2] && !self.previous.dpad[2] {
+            Some("kick_right")
         } else {
             None
         };

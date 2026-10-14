@@ -95,7 +95,7 @@ impl Telemetry {
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
         let recovery_allowed=kind=="xgoduck_getup" && (matches!(self.control["activeSkill"].as_str(),Some("sitstand_sit"|"sitstand_stand"|"xgoduck_getup"))
-            || (self.control["recoveryFallen"]==true && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"))));
+            || (self.control["recoveryFallen"]==true && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"kick_left"|"kick_right"))));
         if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
             || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || recovery_allowed || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["standAllowed"].as_bool().unwrap_or_else(||self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.))))
             || self.pending_skill.is_some() { return false; }

@@ -134,21 +134,44 @@ pub fn path_for(kind: &str) -> Result<PathBuf> {
         "stand" => Ok(path()),
         "walk" => Ok(path().with_file_name("hd1910-walk-v6-symmetry500.onnx")),
         "xgoduck" => Ok(path().with_file_name("xgoduck_walk.onnx")),
-        "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" => Ok(path().with_file_name(format!("{kind}.onnx"))),
+        "kick_left" | "kick_right" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" => Ok(path().with_file_name(format!("{kind}.onnx"))),
         _ => bail!("未知模型类型"),
     }
 }
 pub fn model_id(kind: &str) -> &'static str {
     match kind { "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "walk" => "hd1910-walk-v6-symmetry500", "xgoduck" => "xgoduck_walk",
         "xgoduck_getup" => "xgoduck_getup", "xgoduck_pick" => "xgoduck_pick",
-        "xgoduck_roulade" => "xgoduck_roulade", _ => "hd1910-head-v5" }
+        "xgoduck_roulade" => "xgoduck_roulade", "kick_left" => "kick_left", "kick_right" => "kick_right", _ => "hd1910-head-v5" }
 }
-pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
+pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "kick_left" | "kick_right" | "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
+#[cfg(test)]
+mod kick_tests {
+    use super::*;
+    #[test]
+    fn official_kicks_validate_side_timing_and_preserve_unfiltered_raw() {
+        for (side,kind) in [("left","kick_left"),("right","kick_right")] {
+            let mut meta:Value=serde_json::from_str(if side=="left" {
+                include_str!("../../models/kick_left.metadata.json")
+            } else {include_str!("../../models/kick_right.metadata.json")}).unwrap();
+            validate_skill_metadata(kind,&meta).unwrap();
+            assert!(is_xgoduck(kind));
+            assert_eq!(skill_kind(&json!(kind)).unwrap(),kind);
+            let profile=SkillProfile::from_metadata(&meta);
+            assert!(profile.donor());assert!(!profile.voltage_adapt());
+            assert!(!profile.complete(kind,0.48,0.));assert!(profile.complete(kind,0.5,0.));
+            assert_eq!(skill_twist(kind,0.2),[0.;3]);
+            assert_eq!(native_handoff(kind,true,false,false,"xgoduck",None),NativeHandoff::Skill("xgoduck".into()));
+            assert!(native_recovery_transition(kind,false,false).is_err());
+            meta["kickFoot"]=json!(if side=="left" {"right"} else {"left"});
+            assert!(validate_skill_metadata(kind,&meta).is_err());
+        }
+    }
+}
 pub fn skill_kind(value: &Value) -> Result<&str> {
     match value.as_str() {
         Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
         Some("sit") => Ok("sitstand_sit"), Some("standup") => Ok("sitstand_stand"),
-        Some("roulade") => Ok("xgoduck_roulade"), _ => bail!("动作须为getup/pick/roulade/sit/standup"),
+        Some("kick_left") => Ok("kick_left"), Some("kick_right") => Ok("kick_right"), Some("roulade") => Ok("xgoduck_roulade"), _ => bail!("动作须为getup/pick/roulade/sit/standup/kick_left/kick_right"),
     }
 }
 fn skill_twist(kind: &str, progress: f64) -> [f32;3] {
@@ -167,7 +190,7 @@ fn skill_complete(kind: &str, progress: f64, upright: f64) -> bool {
 // kissqy robotd's LB edge: HOME-origin or confirmed-fallen recovery resets
 // the controller; upright policy-origin recovery preserves its seated state.
 fn native_recovery_transition(active: &str, return_home: bool, fallen: bool) -> Result<(bool, &'static str)> {
-    if !return_home && !fallen && matches!(active,"xgoduck_pick"|"xgoduck_roulade") {
+    if !return_home && !fallen && matches!(active,"xgoduck_pick"|"xgoduck_roulade"|"kick_left"|"kick_right") {
         bail!("当前动作执行中，直立状态不能切入倒地起身");
     }
     let reset=return_home || fallen;
@@ -198,15 +221,15 @@ impl NativeRecoveryPosture {
     }
 }
 #[derive(Clone, Copy, Default)]
-struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool }
+struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool }
 impl SkillProfile {
     fn from_metadata(meta: &Value) -> Self {
-        Self { donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
+        Self { donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
             kissqy: meta["runtimeKind"]=="kissqy_sitstand", bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
     }
-    fn donor(self)->bool {self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll}
+    fn donor(self)->bool {self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
     // Roulade HD1910 deployment contract explicitly disables voltage adaptation.
-    fn voltage_adapt(self)->bool {!self.donor_roll}
+    fn voltage_adapt(self)->bool {!self.donor_roll && !self.donor_kick}
     fn voltage_scale(self,voltage:&mut NativeVoltage,feedback:&Feedback,now:Instant)->f32 {
         if self.voltage_adapt() {voltage.scale(feedback,now)} else {1.}
     }
@@ -214,6 +237,7 @@ impl SkillProfile {
     // Donor sit_toggle allows Sitting -> Rising without a dwell timer.
     fn stand_request_delay(self)->f64 {if self.kissqy {0.} else {self.sit_settle()}}
     fn complete(self, kind: &str, progress: f64, upright: f64) -> bool {
+        if self.donor_kick {return matches!(kind,"kick_left"|"kick_right") && progress>=0.5-1e-9;}
         if self.donor_pick {return kind=="xgoduck_pick" && progress>=2.8;}
         if self.donor_roll {return kind=="xgoduck_roulade" && progress>=1.-1e-9;}
         if self.donor_getup {return kind=="xgoduck_getup" && progress>=6.-1e-9;}
@@ -236,9 +260,9 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
     let profile=SkillProfile::from_metadata(meta);
     let mechanical_getup=meta["skillPhysicsRevision"]=="getup-kissqy-mechanical-v1";
     if mechanical_getup && (kind!="xgoduck_getup" || !valid_mechanical_getup_contract(meta)) {bail!("起身机械限位合同不匹配");}
-    if profile.donor_pick || profile.donor_getup || profile.donor_roll {
+    if profile.donor_pick || profile.donor_getup || profile.donor_roll || profile.donor_kick {
         let e=&meta["skillExecution"];
-        let (expected,task,seconds)=if profile.donor_pick {("xgoduck_pick","Mjlab-GroundPick-Flat-MicroDuck",2.8)} else if profile.donor_roll {("xgoduck_roulade","Mjlab-Roulade-Flat-MicroDuck",1.)} else {("xgoduck_getup","Mjlab-StandUp-Rough-Backlash-MicroDuck",6.)};
+        let (expected,task,seconds)=if profile.donor_kick { (if meta["kickFoot"]=="left" {"kick_left"} else if meta["kickFoot"]=="right" {"kick_right"} else {bail!("踢球脚别缺失")},"Mjlab-BallKick-Flat-MicroDuck",0.5) } else if profile.donor_pick {("xgoduck_pick","Mjlab-GroundPick-Flat-MicroDuck",2.8)} else if profile.donor_roll {("xgoduck_roulade","Mjlab-Roulade-Flat-MicroDuck",1.)} else {("xgoduck_getup","Mjlab-StandUp-Rough-Backlash-MicroDuck",6.)};
         if kind!=expected || meta["task"]!=task || e["schema"]!="kissqy-skills-v1"
             || e["policySha256"]!=meta["policySha256"] || e["gains"]!=json!({"p":5,"d":20})
             || e["durationSeconds"].as_f64()!=Some(seconds) || e["actionScale"]!=1
@@ -1179,7 +1203,7 @@ pub fn execute(
     // Load and warm before any enable/goal write; transitions never load a graph on UART.
     let mut bank = BTreeMap::new();
     if is_xgoduck(kind) && command["shadow"] != true {
-        for next in ["xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand"] {
+        for next in ["xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand", "kick_left", "kick_right"] {
             if next != kind { bank.insert(next.to_owned(), Model::open_for(next, 0.)?); }
         }
     }
@@ -1203,6 +1227,7 @@ pub fn execute(
         for (key,value) in json!({"policy":model_id(&model.kind),"kind":if is_xgoduck(kind) {"xgoduck"} else {kind},"requestedKind":kind,"activeSkill":model.kind,"skillProgressSeconds":model.progress,"sitSettleSeconds":model.skill_profile.sit_settle(),"standAllowed":model.kind=="sitstand_sit" && model.progress>=model.skill_profile.stand_request_delay(),"modelSource":if model.skill_profile.retrained {"replica-hd1910"} else {"donor"},"posture":if model.kind=="sitstand_sit" {if model.progress>=model.skill_profile.sit_settle() {"seated"} else {"sitting"}} else if model.kind=="sitstand_stand" {"rising"} else {"standing"},"walkSpeedMps":speed,"policySha256":model.sha,"inferenceMs":control::rounded(infer_ms,3),"runtimeProfile":"xgoduck-schedule100-v1","homeCommandTargetHz":50,"feedbackReplyBudgetMs":6,"feedbackTargetHz":100,"inferenceTargetHz":50,"actionAlpha":if model.kind=="xgoduck_roulade" {0.15} else {0.45},"velocitySource":"servo-register","velocityAlphaAt100Hz":0.4,"kpRun":model.gains.p,"kdRun":model.gains.d,"kpHome":control::MANUAL_GAINS.0,"kdHome":control::MANUAL_GAINS.1,"saturatedIds":model.saturated,"rawTargetDegrees":model.raw,"sentTargetDegrees":model.sent}).as_object().unwrap(){v[key]=value.clone();}
         if model.skill_profile.donor() {
             v["runtimeProfile"]=json!(if model.skill_profile.kissqy {"kissqy-sitstand-v1"} else {"kissqy-skills-v1"});v["modelSource"]=json!("kissqy/Microduck-kissqy");
+            if model.skill_profile.donor_kick {v["modelSource"]=json!("pollen-robotics/microduck-policies");}
             v["actionAlpha"]=json!(0);v["actionScale"]=json!(1);v["velocitySource"]=json!("servo-register-one-sample-delay");v["velocityAlphaAt100Hz"]=Value::Null;
         }
         if let Some(profile)=model.walk_profile {
@@ -1215,7 +1240,7 @@ pub fn execute(
             v["runtimeProfile"]=json!("kissqy-sync50-v1");
             v["commandTargetHz"]=json!(50);v["feedbackTargetHz"]=json!(50);
             v["kpHome"]=json!(model.gains.p);v["kdHome"]=json!(model.gains.d);
-            v["voltageAdapt"]=json!(true);v["nominalVoltage"]=json!(7.4);
+            v["voltageAdapt"]=json!(model.skill_profile.voltage_adapt());v["nominalVoltage"]=json!(7.4);
             v["executionOrder"]=json!("read-observe-infer-write");
         }
         let s = shared.read().unwrap();
@@ -1269,7 +1294,7 @@ pub fn execute(
         if command["shadow"]!=true && walking_policy(kind) && tilt(&initial_obs)>=FALL_TILT_DEG {
             bail!("机身倾角{:.1}°，拒绝启动行走模型；请扶正或主动选择倒地起身",tilt(&initial_obs));
         }
-        if matches!(kind,"xgoduck_pick"|"xgoduck_roulade"|"sitstand_sit"|"sitstand_stand") && tilt(&initial_obs)>55. {
+        if matches!(kind,"xgoduck_pick"|"xgoduck_roulade"|"kick_left"|"kick_right"|"sitstand_sit"|"sitstand_stand") && tilt(&initial_obs)>55. {
             bail!("坐站/拾取/翻滚需要先扶正机身");
         }
         let mut limits = BTreeMap::new();
@@ -1614,7 +1639,7 @@ pub fn execute(
                 v["feedbackHolding"] = json!(false);
                 v["consecutiveFeedbackFailures"] = json!(coast.misses);
                 v["skippedControlTicks"] = json!(clock.skipped);
-                v["message"] = json!(if model.kind=="sitstand_sit" {"坐下模型维持坐姿，点站起恢复行走"} else if model.kind=="sitstand_stand" {"站起模型过渡中"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup {"kissqy倒地起身，6有效秒后尝试返回平衡"}else{"倒地起身中，直立稳定后返回零速度平衡"}} else if model.kind=="xgoduck_pick" {"XgoDuck 拾取中"} else if model.kind=="xgoduck_roulade" {"XgoDuck 翻滚中"} else if is_xgoduck(kind) { if model.command_twist==[0.;3] {"XgoDuck 原地平衡，按住方向键行走"} else {"XgoDuck 按住行走中"} } else if kind=="walk" { "v6 模型行走中" } else { "v5 模型站立维持中" });
+                v["message"] = json!(if model.kind=="sitstand_sit" {"坐下模型维持坐姿，点站起恢复行走"} else if model.kind=="sitstand_stand" {"站起模型过渡中"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup {"kissqy倒地起身，6有效秒后尝试返回平衡"}else{"倒地起身中，直立稳定后返回零速度平衡"}} else if model.kind=="kick_left" {"左脚踢球中"} else if model.kind=="kick_right" {"右脚踢球中"} else if model.kind=="xgoduck_pick" {"XgoDuck 拾取中"} else if model.kind=="xgoduck_roulade" {"XgoDuck 翻滚中"} else if is_xgoduck(kind) { if model.command_twist==[0.;3] {"XgoDuck 原地平衡，按住方向键行走"} else {"XgoDuck 按住行走中"} } else if kind=="walk" { "v6 模型行走中" } else { "v5 模型站立维持中" });
                 control::status(shared, v);
                 last_status = tick;
             }

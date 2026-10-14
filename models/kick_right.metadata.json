@@ -1,0 +1,63 @@
+{
+  "artifactType": "training-policy",
+  "controlHz": 50,
+  "actorObservationDim": 61,
+  "actionDim": 14,
+  "observationNormalization": "baked into ONNX by upstream exporter",
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "homeRadians": [
+    0.0,
+    -0.0873,
+    -0.4579,
+    -0.0049,
+    0.453,
+    0.3491,
+    0.3491,
+    0.0,
+    0.0,
+    0.0,
+    0.0873,
+    0.4579,
+    0.0049,
+    -0.453
+  ],
+  "runtimeKind": "official_ball_kick",
+  "task": "Mjlab-BallKick-Flat-MicroDuck",
+  "policySha256": "147a32c388c6b19111b3ac3b550a9a6dc8b8bf267118af4d8c3712522eedb5af",
+  "hardwareValidated": false,
+  "modelSource": "pollen-robotics/microduck-policies",
+  "sourceCommit": "665ae4eb20bfe13bca1ef4ea6d4bb6b4a096e448",
+  "actionEmaOldWeight": 0,
+  "actionEmaNewWeight": 1,
+  "skillExecution": {
+    "schema": "kissqy-skills-v1",
+    "policySha256": "147a32c388c6b19111b3ac3b550a9a6dc8b8bf267118af4d8c3712522eedb5af",
+    "gains": {
+      "p": 5,
+      "d": 20
+    },
+    "durationSeconds": 0.5,
+    "actionScale": 1
+  },
+  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+  "commandEncoding": "all zero",
+  "sourceManifest": "https://huggingface.co/pollen-robotics/microduck-policies/blob/main/manifest.json",
+  "sourceContract": "official manifest duration=0.5; local mechanical target clamp, no EMA or voltage adaptation; hardware PD not identified",
+  "kickFoot": "right",
+  "simulationValidated": true
+}

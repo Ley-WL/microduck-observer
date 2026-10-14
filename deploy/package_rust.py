@@ -23,7 +23,7 @@ for helper in helpers:
     if header[:4]!=b'\x7fELF' or int.from_bytes(header[18:20],'little')!=183:
         raise SystemExit('Expected ARM64 runtime helper: '+helper.name)
 for name in ('hd1910-head-v5','hd1910-walk-v6-symmetry500','xgoduck_walk',
-             'xgoduck_getup','xgoduck_pick','xgoduck_roulade','alpha_sitstand'):
+             'xgoduck_getup','xgoduck_pick','xgoduck_roulade','alpha_sitstand','kick_left','kick_right'):
     model=root / 'models' / (name+'.onnx')
     metadata=model.with_suffix('.metadata.json')
     if hashlib.sha256(model.read_bytes()).hexdigest() != json.loads(metadata.read_text())['policySha256']:

@@ -53,6 +53,7 @@ pub struct Motion {
     phase: String,
     error: String,
     pending: bool,
+    kick_models: [bool; 2],
 }
 impl Motion {
     pub fn new(app: App, router: Router) -> Self {
@@ -73,6 +74,7 @@ impl Motion {
             phase: "idle".into(),
             error: String::new(),
             pending: false,
+            kick_models: ["kick_left","kick_right"].map(|kind|crate::policy::metadata_for(kind).is_some()),
         }
     }
     pub async fn request(&self, path: &str, body: Option<Value>) -> Result<Value> {
@@ -225,6 +227,7 @@ impl Motion {
             "resources":s.resources,"resourceAgeMs":s.resources["sampleMonoMs"].as_f64().map(|at|(crate::telemetry::monotonic()*1000.-at).max(0.)),
             "serviceUptimeSeconds":s.started.elapsed().as_secs_f64(),"powerControl":self.app.hardware && crate::power::enabled()});
         observer["system"]["wifiStatusReadOnly"]=json!(true);
+        observer["kickModels"]=json!({"left":self.kick_models[0],"right":self.kick_models[1]});
         let skill = ctrl["activeSkill"].as_str().unwrap_or("xgoduck");
         let mode = if self.stopped {
             "estop"
@@ -339,6 +342,8 @@ impl Motion {
                 "getup",
                 "pick",
                 "roulade",
+                "kick_left",
+                "kick_right",
                 "sit",
                 "standup",
                 "mouth_open",
@@ -394,7 +399,7 @@ impl Motion {
                 else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"]}))).await?;}
                 self.error.clear();
             },
-            "getup"|"pick"|"roulade"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
+            "getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;
                     self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;
