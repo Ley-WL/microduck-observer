@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-14",
+  "scope": "local software validation only",
+  "baselineCommit": "a81c5cd",
+  "tests": {
+    "passed": 153,
+    "failed": 0,
+    "ignored": 1
+  },
+  "armBuild": "passed",
+  "deployed": false,
+  "hardwareTested": false,
+  "gamepadIdentityConfirmed": false,
+  "sha256": {
+    "backend-rust/src/gamepad.rs": "02bb92a35b9659680a1f75d8d38e00e519a8c213e6b404320961a177f155cf6c",
+    "backend-rust/src/ducklink_motion.rs": "376e22cc794f4934ca9fc7fed4efa62dc1cd5839f1e0925e8e19169fa006789f",
+    "backend-rust/src/main.rs": "e53109c4d2eec60de0acf5acc1cb03803d70e15863697a387e2fd68eae369960",
+    "tools/inspect-gamepad.py": "b82e64abf47abe36b304bcf727d58224cb6bfa455419a87a4262577d1a8ed759",
+    "backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer": "2fc7d1c66ccf863df67dcc0dfd1fcf88005fe008b2e6883be5a74bdb4da68a66"
+  }
+}

@@ -1,0 +1,26 @@
+   Compiling microduck-observer v0.9.1 (/mnt/d/Users/wl/Desktop/MicroDuck/microduck-observer/backend-rust)
+warning: constant `POLICY_GAINS` is never used
+   --> src/control.rs:329:11
+    |
+329 | ...st POLICY_GAINS: (...
+    |       ^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `smooth_action` is never used
+   --> src/policy.rs:478:4
+    |
+478 | fn smooth_action(pr...
+    |    ^^^^^^^^^^^^^
+
+warning: associated function `open` is never used
+   --> src/policy.rs:682:8
+    |
+676 | impl Model {
+    | ---------- associated function in this implementation
+...
+682 |     fn open() ...
+    |        ^^^^
+
+warning: `microduck-observer` (bin "microduck-observer") generated 3 warnings
+    Finished `release` profile [optimized] target(s) in 23.01s

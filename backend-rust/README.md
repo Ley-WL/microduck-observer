@@ -88,3 +88,5 @@ microduck-observer --generate-quack /tmp/duck-voice 12345
 The fixed prototype `assets/quack.wav` is removed. Do not ship one device's bank
 as the identity of every new device. Cached audio remains outside release
 folders and is reproducible from the hardware identity and bank version.
+
+主板直连 GameSir T4 Nova Lite 手柄开发入口、按键和只读识别见 [GAMEPAD.md](../docs/GAMEPAD.md)。默认关闭，尚待实物映射和断连验收。

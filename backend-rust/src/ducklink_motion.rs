@@ -40,6 +40,8 @@ pub struct Motion {
     app: App,
     router: Router,
     pub leased: bool,
+    input_permit: Option<tokio::sync::OwnedSemaphorePermit>,
+    source: &'static str,
     sequence: Option<u64>,
     last: Instant,
     drive: Option<String>,
@@ -58,6 +60,8 @@ impl Motion {
             app,
             router,
             leased: false,
+            input_permit: None,
+            source: "ble-command",
             sequence: None,
             last: Instant::now(),
             drive: None,
@@ -90,6 +94,11 @@ impl Motion {
             value["detail"].as_str().unwrap_or("主板请求失败")
         );
         Ok(value)
+    }
+    pub fn local(app: App, router: Router) -> Self {
+        let mut motion = Self::new(app, router);
+        motion.source = "gamepad";
+        motion
     }
     fn zero(&mut self) {
         self.app.telemetry.write().unwrap().head_intent.clear();
@@ -223,6 +232,8 @@ impl Motion {
     }
     pub fn open(&mut self) -> Result<Value> {
         ensure!(!self.leased, "已有控制设备连接");
+        self.input_permit = Some(self.app.input_gate.clone().try_acquire_owned()
+            .map_err(|_| anyhow::anyhow!("手机或手柄正在控制，请先释放控制权"))?);
         self.leased = true;
         self.sequence = None;
         self.last = Instant::now();
@@ -287,10 +298,12 @@ impl Motion {
         Ok(())
     }
     pub async fn close(&mut self) {
+        if !self.leased { return; }
         let _ = self.halt(false).await;
         self.leased = false;
         self.stopped = false;
         self.sequence = None;
+        self.input_permit = None;
     }
     pub async fn command(&mut self, body: Value) -> Result<Value> {
         ensure!(self.leased, "控制会话无效，请重新连接");
@@ -300,7 +313,7 @@ impl Motion {
         ensure!(self.sequence.is_none_or(|last| seq > last), "指令序号过期");
         let action = body["action"].as_str().unwrap_or("");
         if !matches!(action,"drive"|"strafe_left"|"strafe_right") {
-            self.app.telemetry.write().unwrap().log("INFO","ble-command",&format!("App动作已收到：{action}，seq={seq}"));
+            self.app.telemetry.write().unwrap().log("INFO",self.source,&format!("控制动作已收到：{action}，seq={seq}"));
         }
         ensure!(
             [
@@ -382,7 +395,7 @@ impl Motion {
         }
         Ok(()) }.await;
         if let Err(e) = execution {
-            self.app.telemetry.write().unwrap().log("WARN","ble-command",&format!("App动作失败：{action}，{e}"));
+            self.app.telemetry.write().unwrap().log("WARN",self.source,&format!("控制动作失败：{action}，{e}"));
             if action == "quack" { self.sync(); self.quack_input(head); } else { self.zero(); }
             self.error = e.to_string();
             if self.drive.is_none() && matches!(action, "prepare" | "stand" | "getup" | "standup") {
@@ -512,6 +525,7 @@ pub(crate) mod tests {
             tof: false,
             owner: None,
             gate: Arc::new(tokio::sync::Semaphore::new(1)),
+            input_gate: Arc::new(tokio::sync::Semaphore::new(1)),
             plans: Arc::new(Mutex::new(None)),
             shutdown: Arc::new(AtomicBool::new(false)),
         };
@@ -531,6 +545,22 @@ pub(crate) mod tests {
     }
     fn drive(seq: u64) -> Value {
         json!({"seq":seq,"action":"drive","forward":1,"turn":0,"speed":0.5})
+    }
+    #[tokio::test]
+    async fn local_gamepad_and_ble_cannot_lease_together_and_unleased_close_is_noop() {
+        let (mut phone, calls, _tmp) = fixture();
+        let mut pad = Motion::new(phone.app.clone(), phone.router.clone());
+        phone.open().unwrap();
+        phone.app.telemetry.write().unwrap().head_intent.set([0.5, -0.5]);
+        assert!(pad.open().is_err());
+        pad.close().await;
+        assert_eq!(phone.app.telemetry.read().unwrap().head_intent.current(Instant::now()), [0.5, -0.5]);
+        assert!(calls.lock().unwrap().is_empty());
+        phone.close().await;
+        pad.open().unwrap();
+        assert!(phone.open().is_err());
+        pad.close().await;
+        phone.open().unwrap();
     }
     #[tokio::test]
     async fn power_checks_current_boot_and_idle_control_before_using_shared_route() {

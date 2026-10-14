@@ -1,4 +1,5 @@
 mod head_control;
+mod gamepad;
 mod calibration;
 mod control;
 mod ducklink;
@@ -52,6 +53,7 @@ struct App {
     tof: bool,
     owner: Option<control::Owner>,
     gate: Arc<tokio::sync::Semaphore>,
+    input_gate: Arc<tokio::sync::Semaphore>,
     plans: guided::Plans,
     shutdown: Arc<AtomicBool>,
 }
@@ -355,7 +357,7 @@ mod gain_route_tests {
     async fn quack_route_is_registered_and_requires_real_hardware() {
         let tmp=tempfile::tempdir().unwrap();
         let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
-        let app=App {telemetry:shared,cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
+        let app=App {telemetry:shared,cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
         let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
         let response=policy_action(State(app),Path("quack".into()),headers,Bytes::from_static(b"{}" )).await;
         assert_eq!(response.status(),StatusCode::CONFLICT);
@@ -364,7 +366,7 @@ mod gain_route_tests {
     async fn active_control_cannot_save_new_gains() {
         let tmp=tempfile::tempdir().unwrap();
         let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
-        let app=App {telemetry:shared.clone(),cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
+        let app=App {telemetry:shared.clone(),cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
         let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
         for state in ["policy","moving","preflight","disabling"] {
             shared.write().unwrap().control=json!({"state":state});
@@ -670,6 +672,7 @@ async fn main() -> anyhow::Result<()> {
         tof: !tof_path.is_empty(),
         owner,
         gate: Arc::new(tokio::sync::Semaphore::new(1)),
+        input_gate: Arc::new(tokio::sync::Semaphore::new(1)),
         plans: Arc::new(Mutex::new(None)),
         shutdown: stop.clone(),
     };
@@ -716,6 +719,7 @@ async fn main() -> anyhow::Result<()> {
         .allow_headers([axum::http::header::CONTENT_TYPE]);
     let shutdown_app = a.clone();
     let ble_app = a.clone();
+    let gamepad_app = a.clone();
     let owner = a.owner.clone();
     let router = Router::new()
         .route("/api/v1/info", get(info))
@@ -741,6 +745,7 @@ async fn main() -> anyhow::Result<()> {
     if env("MICRODUCK_BLE_ENABLED", "0") == "1" {
         ducklink::spawn(ble_app, router.clone(), stop.clone());
     }
+    gamepad::spawn(gamepad_app, router.clone());
     let listener = tokio::net::TcpListener::bind(env("MICRODUCK_BIND", "127.0.0.1:8878")).await?;
     axum::serve(listener, router)
         .with_graceful_shutdown(shutdown_signal(shutdown_app))
