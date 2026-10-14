@@ -64,7 +64,7 @@ const driveReason=computed(()=>{
   if(pending.value)return '等待操作完成';
   if(control.value?.state==='failed')return control.value.message || '模型故障，手柄锁定';
   if(control.value?.state==='holding')return '模型已停止：请站起后行走';
-  if(control.value?.state!=='policy')return '点击 A / Start 站起，或 X 坐下预备';
+  if(control.value?.state!=='policy')return '点击 A 站立，或 X 坐下预备';
   if(control.value?.kind!=='xgoduck')return '当前运行其他模型，请切换平衡行走';
   if(control.value?.feedbackHolding)return '反馈暂缺，等待恢复后重新按住';
   if(skillQueued.value || (control.value?.activeSkill && control.value.activeSkill!=='xgoduck'))return control.value?.activeSkill==='sitstand_sit'?'坐姿维持中：点站起后恢复行走':'动作执行中，完成后再行走';
@@ -107,7 +107,7 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <p class="drive-result" role="status">{{ driveReason || commandState || '手柄已就绪 · 左行走，右转头' }}</p>
     <ModelGamepad :drive="canDrive" :head="canHead" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
     <div class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
-    <details class="runtime-help"><summary>按键说明与诊断</summary><p>A / Start 站起 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · LB 拾取 · RB 嘎一下；十字键上拾取、左脚踢球 / 右脚踢球、下自主行动；踢球和自主行动暂为预留入口。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
+    <details class="runtime-help"><summary>按键说明与诊断</summary><p>A 站立 · Start 预留 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · LB 拾取 · RB 嘎一下；十字键上舞蹈、左脚踢球 / 右脚踢球、下自主行动；舞蹈、踢球和自主行动暂为预留入口。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
 </details>
     <div v-if="message || control?.action==='policy' || control?.state==='failed'" class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?'平衡行走模型就绪 · 等待开始':'模型未就绪') }}</div>
   </div>

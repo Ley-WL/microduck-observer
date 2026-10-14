@@ -134,12 +134,10 @@ impl Input {
             Some("release")
         } else if !self.neutral_seen {
             None
-        } else if sample.down(LB) && sample.centered() && edge(START) {
+        } else if sample.down(LB) && sample.centered() && edge(A) {
             Some("stand")
         } else if sample.down(LB) && edge(X) {
             Some("sit")
-        } else if sample.down(LB) && edge(A) {
-            Some("standup")
         } else if sample.down(LB) && sample.centered() && edge(Y) {
             Some("getup")
         } else if sample.down(LB) && edge(RB) {
@@ -205,7 +203,7 @@ pub fn spawn(app: App, router: Router) {
                 last_error.clear();
                 report(
                     &app,
-                    "手柄已连接；松开全部按键并回中，再按 LB+Start 取得控制",
+                    "手柄已连接；松开全部按键并回中，再按 LB+A 取得控制",
                 );
                 let mut input = Input::default();
                 let mut clock = tokio::time::interval(Duration::from_millis(40));
@@ -315,11 +313,23 @@ mod tests {
     #[test]
     fn plug_in_held_buttons_never_starts_and_requires_new_edge() {
         let mut input = Input::default();
-        let start = sample(&[LB, START], [0.; 4]);
+        let start = sample(&[LB, A], [0.; 4]);
         assert_eq!(input.update(&start, false), None);
         input.update(&Sample::default(), false);
         assert_eq!(input.update(&start, false), Some("stand"));
         assert_eq!(input.update(&start, false), None);
+    }
+    #[test]
+    fn start_is_reserved_and_stand_requires_centered_sticks() {
+        let mut input = Input::default();
+        input.update(&Sample::default(), false);
+        assert_eq!(input.update(&sample(&[START], [0.; 4]), false), None);
+        input.update(&Sample::default(), false);
+        assert_eq!(input.update(&sample(&[LB, START], [0.; 4]), false), None);
+        input.update(&Sample::default(), false);
+        assert_eq!(input.update(&sample(&[LB, A], [1.; 4]), false), None);
+        input.update(&Sample::default(), false);
+        assert_eq!(input.update(&sample(&[LB, A], [0.; 4]), false), Some("stand"));
     }
     #[test]
     fn drive_requires_ready_then_release_and_deadman() {

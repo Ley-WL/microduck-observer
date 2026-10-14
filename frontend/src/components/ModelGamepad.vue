@@ -16,15 +16,15 @@ function body(x:number,y:number){emit('body',wheelTwist(x,y,props.speed));}
     <div class="stick-right"><PadStick label="R · 头部" :disabled="!head" :reset="reset" @move="(x,y)=>emit('head',[-y,-x])" @release="emit('head',null)" /></div>
     <div class="pad-brand"><span :class="{online:active}"/><strong>MICRODUCK</strong><small>VIRTUAL CONTROLLER</small></div>
     <button class="menu-button back" :disabled="!allowed.disable" aria-label="Back 急停卸力" title="Back / Select · 急停卸力" @click="emit('action','disable')">■<small>急停卸力</small></button>
-    <button class="menu-button start" :disabled="!allowed.standup" aria-label="Start 站起" @click="emit('action','standup')">▷<small>开始</small></button>
+    <button class="menu-button start" disabled aria-label="Start 预留，未启用" title="Start：预留按键，暂不执行动作">▷<small>预留</small></button>
     <div class="face-buttons">
-      <button class="face y" :disabled="!allowed.getup" aria-label="Y 倒地起身" @click="emit('action','getup')"><b>Y</b><small>起身</small></button>
+      <button class="face y" :disabled="!allowed.getup" aria-label="Y 倒地起身" @click="emit('action','getup')"><b>Y</b><small>倒地<br>起身</small></button>
       <button class="face x" :disabled="!allowed.sit" aria-label="X 坐下" @click="emit('action','sit')"><b>X</b><small>坐下</small></button>
       <button class="face b" :disabled="!allowed.stop" aria-label="B 停止保持" @click="emit('action','stop')"><b>B</b><small>停止</small></button>
-      <button class="face a" :disabled="!allowed.standup" aria-label="A 站起" @click="emit('action','standup')"><b>A</b><small>站起</small></button>
+      <button class="face a" :disabled="!allowed.standup" aria-label="A 站立" @click="emit('action','standup')"><b>A</b><small>站立</small></button>
     </div>
     <div class="dpad" aria-label="策略动作">
-      <button :disabled="!allowed.pick" @click="emit('action','pick')" aria-label="十字键上 拾取">↑<small>拾取</small></button>
+      <button disabled title="舞蹈：预留入口，后续接入舞蹈策略" aria-label="十字键上 舞蹈，待接入">♫<small>舞蹈</small></button>
       <button disabled title="官方左脚踢球策略待接入" aria-label="十字键左 左脚踢球，待接入"><small>左脚<br>踢球</small></button>
       <span/>
       <button disabled title="官方右脚踢球策略待接入" aria-label="十字键右 右脚踢球，待接入"><small>右脚<br>踢球</small></button>
@@ -32,7 +32,7 @@ function body(x:number,y:number){emit('body',wheelTwist(x,y,props.speed));}
     </div>
     <span class="grip left-grip">按住拖动</span><span class="grip right-grip">松开回中</span>
   </div>
-  <div class="pad-footer"><span><i/> 左右踢球 / 自主行动待接入</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
+  <div class="pad-footer"><span><i/> 舞蹈 / 踢球 / 自主行动待接入</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
 </div>
 </template>
 <style scoped>
