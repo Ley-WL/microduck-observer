@@ -2,7 +2,7 @@
 
 `microduck-observer` 同一进程运行 BlueZ GATT、DuckLink/1 AES-GCM 认证、意图控制和 Web API。BLE 从内存读取遥测，动作复用进程内控制入口和唯一 UART owner，不再由 Python HTTP 网关轮询/转发。预备姿势将任务交给同一 owner，异步收结果，BLE 急停/心跳不会等待姿势完成。
 
-兼容旧 Service/RX/TX UUID、MTU≥185、8192 字节分片、HMAC 派生、AES-GCM 方向密钥及递增序号。沿用 `/var/lib/ducklink/identity.json` 的 robotId/setupCode/owner，升级不生成替代身份。一个 BLE peer、一份控制租约；认证前不能执行命令，另一手机不能驱逐当前连接。Web/BLE 仍共享运动任务锁，BLE 不接管网页模型会话。
+兼容旧 Service/RX/TX UUID、MTU≥185、8192 字节分片、HMAC 派生、AES-GCM 方向密钥及递增序号。沿用 `/var/lib/ducklink/identity.json` 的 robotId/setupCode/owner，升级不生成替代身份。一个 BLE App peer，可与蓝牙 HID 手柄同时连接；App 认证不占运动控制权，只有显式运动操作才获取与手柄共享的输入租约；认证前不能执行命令，另一手机不能驱逐当前连接。Web/BLE 仍共享运动任务锁，BLE 不接管网页模型会话。
 
 连接默认零指令待机，无需解锁；主动急停卸力，点击恢复仅解除状态，不自动使能/启动。250ms 指令过期归零，500ms 无有效命令停止本控制端模型并保持；断开停止本人模型且回到待机，重连不恢复旧行走。IMU/舵机反馈暂停清方向，恢复需重新按住。共享标定、舵机限位/故障与工作电压检查保持。
 
@@ -39,3 +39,5 @@ BLE command 可携带 headPitch/headYaw（有限数字−1至1，缺省0）。�
 正pitch为抬头（机械#31负方向），正yaw为左转（#32正方向）。偏转范围±25°/±35°，在现有模型目标上合成，机械边界与硬件编码检查保持。唯一UART owner每20ms至多改变1.2°偏转，松手/超过250ms未更新回零偏转。技能切换、反馈暂停、停止/断开清请求，不能复播旧输入。手机旧固件缺少能力标记时锁定轮盘并提示更新；后台心跳携带零头部量。实际方向与稳定性待实机验收。
 
 2026-10-12 quack同包携带当前headPitch/headYaw，在本BLE会话native行走就绪时刷新头部意图；身体twist仍归零。嘴部busy失败不重置有效头部输入，保护状态/非本会话/技能切换仍清头部，缺省0及250ms过期规则不变。App保留轮盘pointer并允许另一指点击嘎一下；版本0.9.50配套runtime-20261012-220325，实机并行动作待验收。
+
+2026-10-14：状态新增 `controlOwned` / `controlBusy`。空闲 drive 心跳不抢占控制，非控制端 reset/idle/断连/超时不清另一端头部输入；双方急停均走全局卸力。停止保持释放运动权而保留连接，另一端须显式发起动作，旧方向不自动接管。物理蓝牙双连接仍待主板实测。

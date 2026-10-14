@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-14",
+  "tests": {
+    "passed": 154,
+    "failed": 0,
+    "ignored": 1
+  },
+  "armBuild": "passed",
+  "armSha256": "5e11b6fbd5dd3531e6f7fd650e9c30b2f6796ac31f81cfa4ba3c12e48f3faf66",
+  "deployed": false,
+  "bluetoothCoexistenceHardwareTested": false,
+  "verified": [
+    "simultaneous Motion connections",
+    "idle input and reset do not alter other owner",
+    "busy action rejected without disconnect",
+    "nonowner close and timeout harmless",
+    "stop releases control without reconnect",
+    "nonowner global emergency stop"
+  ]
+}

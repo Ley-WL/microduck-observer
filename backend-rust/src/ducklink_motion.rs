@@ -101,7 +101,9 @@ impl Motion {
         motion
     }
     fn zero(&mut self) {
-        self.app.telemetry.write().unwrap().head_intent.clear();
+        if self.input_permit.is_some() {
+            self.app.telemetry.write().unwrap().head_intent.clear();
+        }
         self.zero_drive();
     }
     fn zero_drive(&mut self) {
@@ -111,6 +113,7 @@ impl Motion {
     }
     fn quack_input(&mut self, head: [f64; 2]) {
         self.zero_drive();
+        if self.input_permit.is_none() { return; }
         let ctrl = self.control();
         let ready = self.phase == "active" && !self.stopped && !self.pending
             && self.drive.as_deref().is_some_and(|session| ctrl["driveSession"] == session)
@@ -159,6 +162,14 @@ impl Motion {
                 self.pending = false;
             }
         }
+        if self.drive.is_none() { self.input_permit = None; }
+    }
+    fn acquire_input(&mut self) -> Result<()> {
+        if self.input_permit.is_none() {
+            self.input_permit = Some(self.app.input_gate.clone().try_acquire_owned()
+                .map_err(|_| anyhow::anyhow!("另一端正在控制，请先在该端停止保持再操作"))?);
+        }
+        Ok(())
     }
     pub fn status(&mut self) -> Value {
         self.sync();
@@ -228,12 +239,10 @@ impl Motion {
         } else {
             "idle"
         };
-        json!({"headControl":true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&ctrl),"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"sitSettleSeconds":ctrl["sitSettleSeconds"].as_f64().unwrap_or(2.),"standAllowed":ctrl["standAllowed"]==true,"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
+        json!({"controlOwned":self.input_permit.is_some(),"controlBusy":self.input_permit.is_none() && self.app.input_gate.available_permits()==0,"headControl":true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&ctrl),"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"sitSettleSeconds":ctrl["sitSettleSeconds"].as_f64().unwrap_or(2.),"standAllowed":ctrl["standAllowed"]==true,"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
     }
     pub fn open(&mut self) -> Result<Value> {
         ensure!(!self.leased, "已有控制设备连接");
-        self.input_permit = Some(self.app.input_gate.clone().try_acquire_owned()
-            .map_err(|_| anyhow::anyhow!("手机或手柄正在控制，请先释放控制权"))?);
         self.leased = true;
         self.sequence = None;
         self.last = Instant::now();
@@ -273,7 +282,7 @@ impl Motion {
         self.sync();
         self.zero();
         self.pending = false;
-        // Only cancel this BLE controller's policy; explicit emergency stop unloads globally.
+        // Only cancel this controller's policy; explicit emergency stop unloads globally.
         let ctrl = self.control();
         let owned = self
             .drive
@@ -290,12 +299,13 @@ impl Motion {
         });
         self.drive = None;
         self.phase = "idle".into();
-        if unload {
-            self.request("servos/disable", Some(json!({}))).await?;
+        let result = if unload {
+            self.request("servos/disable", Some(json!({}))).await.map(|_| ())
         } else if owned || starting {
-            self.request("policy/stop", Some(json!({}))).await?;
-        }
-        Ok(())
+            self.request("policy/stop", Some(json!({}))).await.map(|_| ())
+        } else { Ok(()) };
+        self.input_permit = None;
+        result
     }
     pub async fn close(&mut self) {
         if !self.leased { return; }
@@ -356,7 +366,14 @@ impl Motion {
         self.sequence = Some(seq);
         self.last = Instant::now();
         self.sync();
-        let execution:Result<()> = async { match action {
+        let execution:Result<()> = async {
+            // Connections/heartbeats never reserve motion. Only an explicit action
+            // (or input for an existing owned drive session) may take the permit.
+            if !self.stopped && !matches!(action, "estop"|"release"|"reset"|"idle")
+                && (!matches!(action, "drive"|"strafe_left"|"strafe_right") || self.drive.is_some()) {
+                self.acquire_input()?;
+            }
+            match action {
             "estop"=>{self.stopped=true;self.halt(true).await?;},
             "release"=>self.close().await,
             "reset"=>{self.zero();self.stopped=false;self.error.clear();},
@@ -402,6 +419,7 @@ impl Motion {
                 self.phase = "failed".into();
             }
         }
+        if self.drive.is_none() { self.input_permit = None; }
         let status = self.status();
         Ok(if body["compact"] == true {
             compact_status(status, &body)
@@ -547,20 +565,50 @@ pub(crate) mod tests {
         json!({"seq":seq,"action":"drive","forward":1,"turn":0,"speed":0.5})
     }
     #[tokio::test]
-    async fn local_gamepad_and_ble_cannot_lease_together_and_unleased_close_is_noop() {
+    async fn simultaneous_connections_do_not_steal_or_clear_input_and_handoff_needs_no_reconnect() {
         let (mut phone, calls, _tmp) = fixture();
-        let mut pad = Motion::new(phone.app.clone(), phone.router.clone());
-        phone.open().unwrap();
-        phone.app.telemetry.write().unwrap().head_intent.set([0.5, -0.5]);
-        assert!(pad.open().is_err());
-        pad.close().await;
-        assert_eq!(phone.app.telemetry.read().unwrap().head_intent.current(Instant::now()), [0.5, -0.5]);
+        let mut pad = Motion::local(phone.app.clone(), phone.router.clone());
+        pad.open().unwrap();
+        pad.acquire_input().unwrap();
+        pad.drive = Some("ble-session".into());
+        pad.phase = "active".into();
+        pad.app.telemetry.write().unwrap().control = json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1"});
+        pad.app.telemetry.write().unwrap().head_intent.set([0.5,-0.5]);
+        assert_eq!(phone.open().unwrap()["controlBusy"], true);
+        phone.command(drive(1)).await.unwrap();
+        phone.command(json!({"seq":2,"action":"reset"})).await.unwrap();
+        phone.command(json!({"seq":3,"action":"idle"})).await.unwrap();
+        phone.tick().await;
+        let denied = phone.command(json!({"seq":4,"action":"stand"})).await.unwrap();
+        assert!(denied["motionError"].as_str().unwrap().contains("另一端"));
+        let denied_quack = phone.command(json!({"seq":5,"action":"quack"})).await.unwrap();
+        assert!(denied_quack["motionError"].as_str().unwrap().contains("另一端"));
+        assert_eq!(pad.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.5,-0.5]);
         assert!(calls.lock().unwrap().is_empty());
         phone.close().await;
-        pad.open().unwrap();
-        assert!(phone.open().is_err());
-        pad.close().await;
+        assert!(pad.input_permit.is_some());
         phone.open().unwrap();
+        pad.command(json!({"seq":1,"action":"idle"})).await.unwrap();
+        assert!(pad.leased && phone.leased);
+        phone.app.telemetry.write().unwrap().drive = Some(crate::telemetry::DriveCommand {session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        phone.command(json!({"seq":1,"action":"stand"})).await.unwrap();
+        assert!(phone.input_permit.is_some());
+        assert!(pad.acquire_input().is_err());
+    }
+    #[tokio::test]
+    async fn nonowner_emergency_stop_is_global_and_idle_connection_timeout_is_harmless() {
+        let (mut phone,calls,_tmp)=fixture();
+        let mut pad=Motion::local(phone.app.clone(),phone.router.clone());
+        phone.open().unwrap();pad.open().unwrap();
+        pad.acquire_input().unwrap();
+        pad.app.telemetry.write().unwrap().head_intent.set([0.5,0.5]);
+        phone.last=Instant::now()-Duration::from_secs(1);
+        phone.tick().await;
+        assert!(calls.lock().unwrap().is_empty());
+        assert_eq!(pad.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.5,0.5]);
+        phone.command(json!({"seq":1,"action":"estop"})).await.unwrap();
+        assert_eq!(calls.lock().unwrap().last().unwrap().0,"/api/v1/servos/disable");
+        assert!(phone.leased && pad.leased);
     }
     #[tokio::test]
     async fn power_checks_current_boot_and_idle_control_before_using_shared_route() {
