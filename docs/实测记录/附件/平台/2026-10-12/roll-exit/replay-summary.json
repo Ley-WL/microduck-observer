@@ -1,0 +1,23 @@
+{
+  "simulationTrials": 256,
+  "complete": 255,
+  "timeout": 1,
+  "minSeconds": 1.32,
+  "maxSeconds": 1.96,
+  "meanSeconds": 1.496078431372549,
+  "realRecordOutcomes": [
+    [
+      "new-policy-session-latest.json",
+      "incomplete-record",
+      "1",
+      "82.64742767283674"
+    ],
+    [
+      "fixed-policy-session-latest.json",
+      "incomplete-record",
+      "1",
+      "80.59502476528317"
+    ]
+  ],
+  "simulationOnlyNotHardwareAcceptance": true
+}

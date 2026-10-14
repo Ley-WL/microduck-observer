@@ -1,0 +1,505 @@
+{
+  "hardwareMotion": false,
+  "writes": false,
+  "kernelBootId": "0a2805f6-459c-4d44-986d-10f02d9c36e8",
+  "uptime": "322.96 1092.87\n",
+  "serialBefore": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:2851 rx:847 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:180987 rx:101518 fe:563 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:12 rx:3307722 fe:9 RTS|CTS|DTR\n",
+  "requests": [
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 124.92362600005436,
+      "baud": 1000000,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.47883500002854,
+      "baud": 1000000,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.61414499999046,
+      "baud": 1000000,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.72145899998077,
+      "baud": 1000000,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.44967399998541,
+      "baud": 1000000,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.50977300003751,
+      "baud": 1000000,
+      "id": 34,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.68156199995883,
+      "baud": 500000,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.54391899999928,
+      "baud": 500000,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.54479400001128,
+      "baud": 500000,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.51446600003146,
+      "baud": 500000,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.49201100001028,
+      "baud": 500000,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.59378499998274,
+      "baud": 500000,
+      "id": 34,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.64219400002685,
+      "baud": 250000,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.44595499997968,
+      "baud": 250000,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.86766100003388,
+      "baud": 250000,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.53609399998777,
+      "baud": 250000,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.46872999997049,
+      "baud": 250000,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.55184100000815,
+      "baud": 250000,
+      "id": 34,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.80263100000366,
+      "baud": 128000,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.31913100003067,
+      "baud": 128000,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.14474400001518,
+      "baud": 128000,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.05935700000236,
+      "baud": 128000,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 122.36632499997313,
+      "baud": 128000,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 122.39986100001943,
+      "baud": 128000,
+      "id": 34,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.55134199999884,
+      "baud": 115200,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 121.04446699999016,
+      "baud": 115200,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.91902900004925,
+      "baud": 115200,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 122.27125800001204,
+      "baud": 115200,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.1199979999501,
+      "baud": 115200,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.21106599996756,
+      "baud": 115200,
+      "id": 34,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.71035300004951,
+      "baud": 76800,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.54783899998256,
+      "baud": 76800,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.67065200000116,
+      "baud": 76800,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.62657500001706,
+      "baud": 76800,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.32096000001502,
+      "baud": 76800,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.51284400001805,
+      "baud": 76800,
+      "id": 34,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.69189800001823,
+      "baud": 57600,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 121.153779999986,
+      "baud": 57600,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 122.14306699996769,
+      "baud": 57600,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.41664299999866,
+      "baud": 57600,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.28045599998904,
+      "baud": 57600,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.40964400000576,
+      "baud": 57600,
+      "id": 34,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.36619299999529,
+      "baud": 38400,
+      "id": 30,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 121.96342900000445,
+      "baud": 38400,
+      "id": 30,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff1e04020523b3",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.04307900002686,
+      "baud": 38400,
+      "id": 30,
+      "trial": 2
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.42759299998806,
+      "baud": 38400,
+      "id": 34,
+      "trial": 0
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 121.0561910000365,
+      "baud": 38400,
+      "id": 34,
+      "trial": 1
+    },
+    {
+      "txHex": "ffff2204020523af",
+      "rxHex": "",
+      "frames": [],
+      "badChecksum": 0,
+      "elapsedMs": 120.16820999997435,
+      "baud": 38400,
+      "id": 34,
+      "trial": 2
+    }
+  ],
+  "kernelCurrent": {
+    "exit": 0,
+    "text": "Oct 13 21:00:38 microduck-4152e0 systemd[1]: systemd-sysusers.service - Create System Users was skipped because no trigger condition checks were met.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup was skipped because of an unmet condition check (ConditionSecurity=measured-uki).\nOct 13 21:00:38 microduck-4152e0 systemd[1]: systemd-tpm2-setup.service - TPM SRK Setup was skipped because of an unmet condition check (ConditionSecurity=measured-uki).\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Finished armbian-zram-config.service - Armbian ZRAM config.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Starting armbian-ramlog.service - Armbian memory supported logging...\nOct 13 21:00:38 microduck-4152e0 systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: systemd-pstore.service - Platform Persistent Storage Archival was skipped because of an unmet condition check (ConditionDirectoryNotEmpty=/sys/fs/pstore).\nOct 13 21:00:38 microduck-4152e0 systemd[1]: fake-hwclock-load.service: Deactivated successfully.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Listening on systemd-rfkill.socket - Load/Save RF Kill Switch Status /dev/rfkill Watch.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Starting systemd-rfkill.service - Load/Save RF Kill Switch Status...\nOct 13 21:00:38 microduck-4152e0 kernel: [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\nOct 13 21:00:38 microduck-4152e0 kernel: EXT4-fs (zram1): mounted filesystem without journal. Quota mode: none.\nOct 13 21:00:38 microduck-4152e0 kernel: [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\nOct 13 21:00:38 microduck-4152e0 kernel: [BT_RFKILL]: ENABLE UART_RTS\nOct 13 21:00:38 microduck-4152e0 kernel: [BT_RFKILL]: DISABLE UART_RTS\nOct 13 21:00:38 microduck-4152e0 kernel: [BT_RFKILL]: bt turn on power\nOct 13 21:00:38 microduck-4152e0 kernel: [BT_RFKILL]: Request irq for bt wakeup host\nOct 13 21:00:38 microduck-4152e0 kernel: [BT_RFKILL]: ** disable irq\nOct 13 21:00:38 microduck-4152e0 kernel: bluetooth_set_power: start_block=0\nOct 13 21:00:38 microduck-4152e0 kernel: aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\nOct 13 21:00:38 microduck-4152e0 kernel: aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\nOct 13 21:00:38 microduck-4152e0 kernel: bluetooth_set_power: end_block=0\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Started systemd-rfkill.service - Load/Save RF Kill Switch Status.\nOct 13 21:00:38 microduck-4152e0 kernel: rk_gmac-dwmac fe010000.ethernet: Failed to reset the dma\nOct 13 21:00:38 microduck-4152e0 kernel: rk_gmac-dwmac fe010000.ethernet end1: stmmac_hw_setup: DMA engine initialization failed\nOct 13 21:00:38 microduck-4152e0 kernel: rk_gmac-dwmac fe010000.ethernet end1: __stmmac_open: Hw setup failed\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Started systemd-resolved.service - Network Name Resolution.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Reached target nss-lookup.target - Host and Network Name Lookups.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Finished systemd-networkd-persistent-storage.service - Enable Persistent Storage in systemd-networkd.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Found device sys-subsystem-net-devices-wlan0.device - /sys/subsystem/net/devices/wlan0.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Started netplan-wpa-wlan0.service - WPA supplicant for netplan wlan0.\nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 systemd[1]: Finished armbian-ramlog.service - Armbian memory supported logging.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Starting systemd-journald.service - Journal Service...\nOct 13 21:00:38 microduck-4152e0 kernel: rwnx_virtual_interface_add: 10, p2p-dev-wlan0\nOct 13 21:00:38 microduck-4152e0 kernel: rwnx_virtual_interface_add, ifname=p2p-dev-wlan0, wdev=000000007426d6ff, vif_idx=1\nOct 13 21:00:38 microduck-4152e0 kernel: p2p dev addr=cc c8 37 e3 f6 5d\nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 kernel: P2P interface started\nOct 13 21:00:38 microduck-4152e0 systemd-journald[498]: Collecting audit messages is disabled.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Started systemd-journald.service - Journal Service.\nOct 13 21:00:39 microduck-4152e0 systemd-journald[498]: Received client request to flush runtime journal.\nOct 13 21:00:39 microduck-4152e0 systemd-journald[498]: /var/log/journal/edff27699b164fbd8b512b5b0f496d00/system.journal: Realtime clock jumped backwards relative to last journal entry, rotating.\nOct 13 21:00:39 microduck-4152e0 systemd-journald[498]: Rotating system journal.\nOct 13 21:00:39 microduck-4152e0 kernel: rwnx_send_sm_connect_req drv_vif_index:0 connect to 2_902(5) channel:5180 auth_type:0\nOct 13 21:00:39 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:39 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:41 microduck-4152e0 systemd-journald[498]: Received client request to relinquish /var/log/journal/edff27699b164fbd8b512b5b0f496d00 access.\nOct 13 21:00:42 microduck-4152e0 kernel: of_dma_request_slave_channel: dma-names property of node '/serial@fe660000' missing or empty\nOct 13 21:00:42 microduck-4152e0 kernel: dw-apb-uart fe660000.serial: failed to request DMA, use interrupt mode\nOct 13 21:00:42 microduck-4152e0 kernel: of_dma_request_slave_channel: dma-names property of node '/serial@fe6d0000' missing or empty\nOct 13 21:00:42 microduck-4152e0 kernel: dw-apb-uart fe6d0000.serial: failed to request DMA, use interrupt mode\nOct 13 21:00:45 microduck-4152e0 kernel: [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\nOct 13 21:00:45 microduck-4152e0 kernel: [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\nOct 13 21:00:45 microduck-4152e0 kernel: [BT_RFKILL]: ENABLE UART_RTS\nOct 13 21:00:46 microduck-4152e0 kernel: [BT_RFKILL]: DISABLE UART_RTS\nOct 13 21:00:46 microduck-4152e0 kernel: [BT_RFKILL]: bt turn on power\nOct 13 21:00:46 microduck-4152e0 kernel: [BT_RFKILL]: Request irq for bt wakeup host\nOct 13 21:00:46 microduck-4152e0 kernel: [BT_RFKILL]: ** disable irq\nOct 13 21:00:46 microduck-4152e0 kernel: bluetooth_set_power: start_block=0\nOct 13 21:00:46 microduck-4152e0 kernel: aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\nOct 13 21:00:46 microduck-4152e0 kernel: aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\nOct 13 21:00:46 microduck-4152e0 kernel: bluetooth_set_power: end_block=0\nOct 13 21:00:46 microduck-4152e0 kernel: of_dma_request_slave_channel: dma-names property of node '/serial@fe650000' missing or empty\nOct 13 21:00:46 microduck-4152e0 kernel: dw-apb-uart fe650000.serial: failed to request DMA, use interrupt mode\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART driver ver 2.3\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol H4 registered\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol BCSP registered\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol ATH3K registered\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol Three-wire (H5) registered\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol Intel registered\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol Broadcom registered\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol QCA registered\nOct 13 21:00:46 microduck-4152e0 kernel: Bluetooth: HCI UART protocol AG6XX registered\nOct 13 21:00:47 microduck-4152e0 kernel: [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\nOct 13 21:00:47 microduck-4152e0 kernel: [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\nOct 13 21:00:47 microduck-4152e0 kernel: [BT_RFKILL]: ENABLE UART_RTS\nOct 13 21:00:47 microduck-4152e0 kernel: [BT_RFKILL]: DISABLE UART_RTS\nOct 13 21:00:47 microduck-4152e0 kernel: [BT_RFKILL]: bt turn on power\nOct 13 21:00:47 microduck-4152e0 kernel: [BT_RFKILL]: Request irq for bt wakeup host\nOct 13 21:00:47 microduck-4152e0 kernel: [BT_RFKILL]: ** disable irq\nOct 13 21:00:47 microduck-4152e0 kernel: bluetooth_set_power: start_block=0\nOct 13 21:00:47 microduck-4152e0 kernel: aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\nOct 13 21:00:47 microduck-4152e0 kernel: aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\nOct 13 21:00:47 microduck-4152e0 kernel: bluetooth_set_power: end_block=0\nOct 13 21:00:47 microduck-4152e0 kernel: Bluetooth: MGMT ver 1.22\nOct 13 21:00:56 microduck-4152e0 kernel: platform mtd_vendor_storage: deferred probe pending\n"
+  },
+  "previousBoot": {
+    "exit": 0,
+    "text": "Oct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: btmp\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: cron.log\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: dpkg.log\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: kern.log\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: lastlog\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: syslog\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: user.log\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: wtmp\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: apt/\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: apt/history.log\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: apt/term.log\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: private/\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: runit/\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: runit/ssh/\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: sent 8,696,209 bytes  received 289 bytes  -17,392,996.00 bytes/sec\nOct 13 21:00:38 microduck-4152e0 armbian-ramlog[457]: total size is 8,692,946  speedup is 1.00\nOct 13 21:00:38 microduck-4152e0 systemd-journald[502]: Time spent on flushing to /var/log/journal/edff27699b164fbd8b512b5b0f496d00 is 55.022ms for 1131 entries.\nOct 13 21:00:38 microduck-4152e0 systemd-journald[502]: System Journal (/var/log/journal/edff27699b164fbd8b512b5b0f496d00) is 18.4M, max 20M, 1.5M free.\nOct 13 21:00:38 microduck-4152e0 systemd-journald[502]: Received client request to flush runtime journal.\nOct 13 21:00:38 microduck-4152e0 kernel: get_txpwr_max:txpwr_max:18 \nOct 13 21:00:38 microduck-4152e0 wpa_supplicant[363]: wlan0: Associated with a4:ba:70:8d:3a:2f\nOct 13 21:00:38 microduck-4152e0 wpa_supplicant[363]: wlan0: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0\nOct 13 21:00:38 microduck-4152e0 wpa_supplicant[363]: wlan0: WPA: Key negotiation completed with a4:ba:70:8d:3a:2f [PTK=CCMP GTK=CCMP]\nOct 13 21:00:38 microduck-4152e0 wpa_supplicant[363]: wlan0: CTRL-EVENT-CONNECTED - Connection to a4:ba:70:8d:3a:2f completed [id=0 id_str=]\nOct 13 21:00:38 microduck-4152e0 systemd-networkd[369]: wlan0: Connected WiFi access point: 2_902 (a4:ba:70:8d:3a:2f)\nOct 13 21:00:38 microduck-4152e0 systemd-networkd[369]: wlan0: Gained carrier\nOct 13 21:00:38 microduck-4152e0 systemd-timesyncd[318]: Network configuration changed, trying to establish connection.\nOct 13 21:00:38 microduck-4152e0 systemd-networkd[369]: wlan0: DHCPv4 address 192.168.31.230/24, gateway 192.168.31.1 acquired from 192.168.31.1\nOct 13 21:00:38 microduck-4152e0 systemd-timesyncd[318]: Network configuration changed, trying to establish connection.\nOct 13 21:00:38 microduck-4152e0 systemd-timesyncd[318]: Network configuration changed, trying to establish connection.\nOct 13 21:00:38 microduck-4152e0 systemd-timesyncd[318]: Network configuration changed, trying to establish connection.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Finished systemd-journal-flush.service - Flush Journal to Persistent Storage.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Starting systemd-tmpfiles-setup.service - Create System Files and Directories...\nOct 13 21:00:38 microduck-4152e0 systemd-tmpfiles[545]: /usr/lib/tmpfiles.d/legacy.conf:14: Duplicate line for path \"/run/lock\", ignoring.\nOct 13 21:00:38 microduck-4152e0 systemd-tmpfiles[545]: Setting file flags is only supported on regular files and directories, cannot set on '/var/log/journal'.\nOct 13 21:00:38 microduck-4152e0 systemd[1]: Finished systemd-tmpfiles-setup.service - Create System Files and Directories.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: ldconfig.service - Rebuild Dynamic Linker Cache was skipped because no trigger condition checks were met.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: systemd-journal-catalog-update.service - Rebuild Journal Catalog was skipped because of an unmet condition check (ConditionNeedsUpdate=/var).\nOct 13 21:00:39 microduck-4152e0 systemd[1]: systemd-update-done.service - Update is Completed was skipped because no trigger condition checks were met.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Reached target sysinit.target - System Initialization.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started apt-daily.timer - Daily apt download activities.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started apt-daily-upgrade.timer - Daily apt upgrade and clean activities.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started dpkg-db-backup.timer - Daily dpkg database backup timer.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started e2scrub_all.timer - Periodic ext4 Online Metadata Check for All Filesystems.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started fake-hwclock-save.timer - Periodically save current clock.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started fstrim.timer - Discard unused filesystem blocks once a week.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started logrotate.timer - Daily rotation of log files.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started man-db.timer - Daily man-db regeneration.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started systemd-tmpfiles-clean.timer - Daily Cleanup of Temporary Directories.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Reached target timers.target - Timer Units.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Listening on dbus.socket - D-Bus System Message Bus Socket.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting microduck-power.socket - MicroDuck restricted power control socket...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Listening on sshd-unix-local.socket - OpenSSH Server Socket (systemd-ssh-generator, AF_UNIX Local).\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Listening on systemd-hostnamed.socket - Hostname Service Socket.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting armbian-hardware-monitor.service - Armbian hardware monitoring...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting armbian-hardware-optimize.service - Armbian hardware optimization...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting armbian-led-state.service - Armbian leds state...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: systemd-pcrphase-sysinit.service - TPM PCR Barrier (Initialization) was skipped because of an unmet condition check (ConditionSecurity=measured-uki).\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Listening on microduck-power.socket - MicroDuck restricted power control socket.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Reached target sockets.target - Socket Units.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Finished armbian-hardware-monitor.service - Armbian hardware monitoring.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Finished armbian-hardware-optimize.service - Armbian hardware optimization.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Reached target basic.target - Basic System.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: System is tainted: unmerged-bin\nOct 13 21:00:39 microduck-4152e0 systemd[1]: alsa-state.service - Manage Sound Card State (restore and store) was skipped because of an unmet condition check (ConditionPathExists=/etc/alsa/state-daemon.conf).\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting alsa-restore.service - Save/Restore Sound Card State...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting bluetooth.service - Bluetooth service...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started cron.service - Regular background program processing daemon.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting dbus.service - D-Bus System Message Bus...\nOct 13 21:00:39 microduck-4152e0 alsactl[598]: alsa-lib parser.c:2796:(load_toplevel_config) Unable to find the top-level configuration file '/usr/share/alsa/ucm2/ucm.conf'.\nOct 13 21:00:39 microduck-4152e0 alsactl[598]: alsa-lib main.c:1554:(snd_use_case_mgr_open) error: failed to import hw:0 use case configuration -2\nOct 13 21:00:39 microduck-4152e0 alsactl[598]: alsa-lib parser.c:2796:(load_toplevel_config) Unable to find the top-level configuration file '/usr/share/alsa/ucm2/ucm.conf'.\nOct 13 21:00:39 microduck-4152e0 alsactl[598]: alsa-lib main.c:1554:(snd_use_case_mgr_open) error: failed to import hw:1 use case configuration -2\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started ducklink-wifi.service - DuckLink local Wi-Fi management helper.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting e2scrub_reap.service - Remove Stale Online ext4 Metadata Check Snapshots...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: getty-static.service - getty on tty2-tty6 if dbus and logind are not available was skipped because of an unmet condition check (ConditionPathExists=!/usr/bin/dbus-daemon).\nOct 13 21:00:39 microduck-4152e0 (uetoothd)[603]: bluetooth.service: ConfigurationDirectory 'bluetooth' already exists but the mode is different. (File system: 755 ConfigurationDirectoryMode: 555)\nOct 13 21:00:39 microduck-4152e0 armbian-hardware-optimization[578]: [ ok ] Setting none I/O scheduler for mmcblk1\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting rsyslog.service - System Logging Service...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: sshd-keygen.service - Generate sshd host keys on first boot was skipped because of an unmet condition check (ConditionFirstBoot=yes).\nOct 13 21:00:39 microduck-4152e0 cron[606]: (CRON) INFO (pidfile fd = 3)\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting systemd-logind.service - User Login Management...\nOct 13 21:00:39 microduck-4152e0 systemd[1]: systemd-pcrphase.service - TPM PCR Barrier (User) was skipped because of an unmet condition check (ConditionSecurity=measured-uki).\nOct 13 21:00:39 microduck-4152e0 cron[606]: (CRON) INFO (Running @reboot jobs)\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Finished armbian-led-state.service - Armbian leds state.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Finished alsa-restore.service - Save/Restore Sound Card State.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Reached target sound.target - Sound Card.\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Started dbus.service - D-Bus System Message Bus.\nOct 13 21:00:39 microduck-4152e0 dbus-daemon[607]: [system] Activating systemd to hand-off: service name='org.freedesktop.hostname1' unit='dbus-org.freedesktop.hostname1.service' requested by ':1.2' (uid=998 pid=369 comm=\"/usr/lib/systemd/systemd-networkd\")\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting wpa_supplicant.service - WPA supplicant...\nOct 13 21:00:39 microduck-4152e0 dbus-daemon[607]: [system] Successfully activated service 'org.freedesktop.systemd1'\nOct 13 21:00:39 microduck-4152e0 systemd-timesyncd[318]: Network configuration changed, trying to establish connection.\nOct 13 21:00:39 microduck-4152e0 CRON[641]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)\nOct 13 21:00:39 microduck-4152e0 CRON[711]: (root) CMD (/usr/lib/armbian/armbian-truncate-logs)\nOct 13 21:00:39 microduck-4152e0 systemd[1]: Starting systemd-hostnamed.service - Hostname Service...\nOct 13 21:00:39 microduck-4152e0 systemd-networkd[369]: wlan0: DHCPv6 address 2409:8a31:cc4:fc60::b02/128 (valid for 11h 59min 59s, preferred for 11h 59min 59s)\nOct 13 21:00:39 microduck-4152e0 CRON[640]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)\nOct 13 21:00:39 microduck-4152e0 systemd[1]: e2scrub_reap.service: Deactivated successfully.\nOct 13 21:00:39 microduck-4152e0 systemd-timesyncd[318]: Network configuration changed, trying to establish connection.\nOct 13 21:00:39 microduck-4152e0 CRON[720]: (root) CMD (/usr/lib/armbian/armbian-apt-updates)\n"
+  },
+  "serviceJournal": {
+    "exit": 0,
+    "text": "Oct 13 18:49:54 microduck-4152e0 microduck-observer[798]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 18:49:54 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 18:49:54 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 18:49:54 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 9.300s CPU time, 15.5M memory peak.\n-- Boot d1914885241e4b3590266114a2fc1fc5 --\nOct 13 18:49:57 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 18:49:59 microduck-4152e0 microduck-observer[758]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 18:50:04 microduck-4152e0 microduck-observer[758]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 18:50:09 microduck-4152e0 microduck-observer[758]: DuckLink BLE ready in Rust backend\nOct 13 18:54:46 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 18:54:46 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 18:54:46 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 18:54:46 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 1min 46.327s CPU time, 16.9M memory peak.\n-- Boot 5f092e76225d45778f3a7918b14ab226 --\nOct 13 18:54:52 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 18:54:54 microduck-4152e0 microduck-observer[820]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 18:54:59 microduck-4152e0 microduck-observer[820]: DuckLink BLE ready in Rust backend\nOct 13 19:06:47 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 19:06:47 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 19:06:47 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:06:47 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 1min 15.200s CPU time, 17.1M memory peak.\n-- Boot a3a6e6056fac47c8bd2a623c817400a5 --\nOct 13 19:06:51 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:06:52 microduck-4152e0 microduck-observer[833]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 19:06:57 microduck-4152e0 microduck-observer[833]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 19:07:02 microduck-4152e0 microduck-observer[833]: DuckLink BLE ready in Rust backend\nOct 13 19:30:47 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 19:30:47 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 19:30:47 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:30:47 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 43.525s CPU time, 16.9M memory peak.\n-- Boot 76494c1e484e4bebad895856d5473ac0 --\nOct 13 19:30:51 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:30:52 microduck-4152e0 microduck-observer[799]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 19:30:57 microduck-4152e0 microduck-observer[799]: DuckLink BLE ready in Rust backend\nOct 13 19:41:26 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 19:41:26 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 19:41:26 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:41:26 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 1min 52.502s CPU time, 15.8M memory peak.\nOct 13 19:41:27 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:41:28 microduck-4152e0 microduck-observer[1198]: DuckLink BLE ready in Rust backend\nOct 13 19:43:28 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 19:43:28 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 19:43:28 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:43:28 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 30.281s CPU time, 3.8M memory peak.\nOct 13 19:43:28 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:43:28 microduck-4152e0 microduck-observer[1261]: DuckLink BLE ready in Rust backend\nOct 13 19:53:53 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 19:53:53 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 19:53:53 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:53:53 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 3min 407ms CPU time, 4.5M memory peak.\n-- Boot 6baec819de33461a8d006eb09efa1503 --\nOct 13 19:53:56 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 19:53:57 microduck-4152e0 microduck-observer[762]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 19:54:02 microduck-4152e0 microduck-observer[762]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 19:54:07 microduck-4152e0 microduck-observer[762]: DuckLink BLE ready in Rust backend\nOct 13 20:00:07 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 20:00:07 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 20:00:07 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 20:00:07 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 56.400s CPU time, 16M memory peak.\n-- Boot c1c002ef157c4aa982fc22d4b78c44f2 --\nOct 13 20:00:10 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 20:00:11 microduck-4152e0 microduck-observer[834]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 20:00:16 microduck-4152e0 microduck-observer[834]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 20:00:21 microduck-4152e0 microduck-observer[834]: DuckLink BLE ready in Rust backend\nOct 13 20:34:11 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 20:34:11 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 20:34:11 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 20:34:11 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 5min 37.861s CPU time, 16.7M memory peak.\nOct 13 20:40:20 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 20:40:20 microduck-4152e0 microduck-observer[1519]: DuckLink BLE ready in Rust backend\nOct 13 20:43:26 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 20:43:26 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 20:43:26 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 20:43:26 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 1min 31.037s CPU time, 10M memory peak.\n-- Boot 0d952c0572284dd4b45501dba4d00efc --\nOct 13 20:43:29 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 20:43:30 microduck-4152e0 microduck-observer[854]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 20:43:36 microduck-4152e0 microduck-observer[854]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 20:43:41 microduck-4152e0 microduck-observer[854]: DuckLink BLE ready in Rust backend\nOct 13 20:43:49 microduck-4152e0 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...\nOct 13 20:43:49 microduck-4152e0 systemd[1]: microduck-observer.service: Deactivated successfully.\nOct 13 20:43:49 microduck-4152e0 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 20:43:49 microduck-4152e0 systemd[1]: microduck-observer.service: Consumed 8.517s CPU time, 16M memory peak.\n-- Boot 0a2805f6459c4d44986d10f02d9c36e8 --\nOct 13 21:00:40 microduck-4152e0 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.\nOct 13 21:00:42 microduck-4152e0 microduck-observer[816]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 21:00:47 microduck-4152e0 microduck-observer[816]: DuckLink BLE unavailable; retrying in 5 seconds\nOct 13 21:00:52 microduck-4152e0 microduck-observer[816]: DuckLink BLE ready in Rust backend\n"
+  },
+  "serviceBefore": {
+    "exit": 0,
+    "text": "MainPID=816\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Tue 2026-10-13 21:00:40 CST\n"
+  }
+}

@@ -8,6 +8,8 @@ parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--host',default='radxa@8.133.210.70')
 parser.add_argument('--port',type=int,default=5722)
 parser.add_argument('--package-only',action='store_true')
+parser.add_argument('--known-hosts',type=Path,help='SSH host keys for the target board')
+parser.add_argument('--host-key-alias',default='192.168.31.193',help='Verified SSH target identity')
 args=parser.parse_args()
 name='frontend-'+datetime.now(timezone(timedelta(hours=8))).strftime('%Y%m%d-%H%M%S')
 stage=root/'deploy/staging'/name;stage.mkdir(parents=True,exist_ok=True)
@@ -29,6 +31,7 @@ sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 def get():return json.load(urllib.request.urlopen('http://127.0.0.1:8877/api/v1/snapshot',timeout=5))
 def idle(s):return s['system']['data']['servoControl']['state'] in ('idle','disabled','failed','holding') and all(r['torque']==0 for r in s['joints']['data']['servos'])
 before=get();assert idle(before),'Active/enabled robot; leave platform unchanged'
+services_before={svc:subprocess.run(['systemctl','is-enabled',svc],capture_output=True,text=True).stdout.strip() for svc in ['tofd','rsyslog']}
 pid=subprocess.check_output(['systemctl','show','microduck-observer','-p','MainPID','--value']).strip()
 unchanged={str(p):sha(p) for directory in [old/'bin',old/'models',old/'lib',Path('/var/lib/ducklink')] for p in directory.rglob('*') if p.is_file()}
 gains=Path('/var/lib/microduck-observer/model-gains.json')
@@ -56,8 +59,8 @@ try:
     after=get();assert after['calibration']==before['calibration'] and idle(after)
     assert subprocess.check_output(['systemctl','show','microduck-observer','-p','MainPID','--value']).strip()==pid
     assert all(sha(Path(p))==digest for p,digest in unchanged.items())
-    assert all(subprocess.run(['systemctl','is-enabled',svc],capture_output=True,text=True).stdout.strip()=='masked' for svc in ['tofd','rsyslog'])
-    report={'installed':True,'release':str(new),'previousRelease':str(old),'assets':meta['files'],'mainPidUnchanged':int(pid),'calibrationUnchanged':True,'modelsAndGainsUnchanged':True,'hardwareMotion':False,'serviceRestart':False}
+    assert all(subprocess.run(['systemctl','is-enabled',svc],capture_output=True,text=True).stdout.strip()==prior for svc,prior in services_before.items())
+    report={'installed':True,'release':str(new),'previousRelease':str(old),'assets':meta['files'],'mainPidUnchanged':int(pid),'calibrationUnchanged':True,'modelsAndGainsUnchanged':True,'hardwareMotion':False,'serviceRestart':False,'serviceEnablementUnchanged':services_before}
     (stage/'deployment.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
 except BaseException:
     temporary.symlink_to(old);os.replace(temporary,root/'current');raise
@@ -68,7 +71,8 @@ with tarfile.open(stage/'assets.tar.gz','w:gz') as archive:
 with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
     for file in ['assets.tar.gz','manifest.json','install.py']:archive.add(stage/file,arcname=file)
 if args.package_only:print(stage/'payload.tar.gz');raise SystemExit(0)
-options=['-o','BatchMode=yes','-o','ConnectTimeout=8','-o','ServerAliveInterval=5','-o','ServerAliveCountMax=2','-o','HostKeyAlias=192.168.31.193']
+options=['-o','BatchMode=yes','-o','ConnectTimeout=8','-o','ServerAliveInterval=5','-o','ServerAliveCountMax=2','-o','HostKeyAlias='+args.host_key_alias]
+if args.known_hosts:options+=['-o','UserKnownHostsFile='+str(args.known_hosts.resolve())]
 ssh=['ssh',*options,'-p',str(args.port),args.host];remote='/home/radxa/frontend-stage'
 subprocess.run([*ssh,'mkdir -p '+remote],check=True)
 for attempt in range(3):

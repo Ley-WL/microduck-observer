@@ -1,0 +1,63 @@
+{
+  "PCM": {
+    "exit": 0,
+    "output": "Simple mixer control 'PCM',0\n  Capabilities: pvolume\n  Playback channels: Front Left - Front Right\n  Limits: Playback 0 - 127\n  Mono:\n  Front Left: Playback 127 [100%] [0.00dB]\n  Front Right: Playback 127 [100%] [0.00dB]\n",
+    "error": ""
+  },
+  "Line": {
+    "exit": 0,
+    "output": "Simple mixer control 'Line',0\n  Capabilities: pvolume pswitch\n  Playback channels: Front Left - Front Right\n  Limits: Playback 0 - 9\n  Mono:\n  Front Left: Playback 9 [100%] [9.00dB] [on]\n  Front Right: Playback 9 [100%] [9.00dB] [on]\n",
+    "error": ""
+  },
+  "Line DAC": {
+    "exit": 0,
+    "output": "Simple mixer control 'Line DAC',0\n  Capabilities: pvolume\n  Playback channels: Front Left - Front Right\n  Limits: Playback 0 - 118\n  Mono:\n  Front Left: Playback 118 [100%] [0.00dB]\n  Front Right: Playback 118 [100%] [0.00dB]\n",
+    "error": ""
+  },
+  "Right Line Mixer DACR1": {
+    "exit": 0,
+    "output": "Simple mixer control 'Right Line Mixer DACR1',0\n  Capabilities: pswitch pswitch-joined\n  Playback channels: Mono\n  Mono: Playback [on]\n",
+    "error": ""
+  },
+  "Left Line Mixer DACL1": {
+    "exit": 0,
+    "output": "Simple mixer control 'Left Line Mixer DACL1',0\n  Capabilities: pswitch pswitch-joined\n  Playback channels: Mono\n  Mono: Playback [on]\n",
+    "error": ""
+  },
+  "Right Line Mixer Line2R Bypass": {
+    "exit": 0,
+    "output": "Simple mixer control 'Right Line Mixer Line2R Bypass',0\n  Capabilities: pswitch pswitch-joined\n  Playback channels: Mono\n  Mono: Playback [off]\n",
+    "error": ""
+  },
+  "Right Line Mixer PGAR Bypass": {
+    "exit": 0,
+    "output": "Simple mixer control 'Right Line Mixer PGAR Bypass',0\n  Capabilities: pswitch pswitch-joined\n  Playback channels: Mono\n  Mono: Playback [off]\n",
+    "error": ""
+  },
+  "Left Line Mixer Line2L Bypass": {
+    "exit": 0,
+    "output": "Simple mixer control 'Left Line Mixer Line2L Bypass',0\n  Capabilities: pswitch pswitch-joined\n  Playback channels: Mono\n  Mono: Playback [on]\n",
+    "error": ""
+  },
+  "Left Line Mixer PGAL Bypass": {
+    "exit": 0,
+    "output": "Simple mixer control 'Left Line Mixer PGAL Bypass',0\n  Capabilities: pswitch pswitch-joined\n  Playback channels: Mono\n  Mono: Playback [on]\n",
+    "error": ""
+  },
+  "cards": " 0 [rockchiphdmi0  ]: simple-card - rockchip-hdmi0\n                      rockchip-hdmi0\n 1 [aic3104        ]: simple-card - aic3104\n                      aic3104\n",
+  "voiceFiles": [
+    "greet_0.wav",
+    "greet_9.wav",
+    "greet_4.wav",
+    "greet_10.wav",
+    "greet_1.wav",
+    "greet_2.wav",
+    "greet_5.wav",
+    "greet_6.wav",
+    "greet_11.wav",
+    "greet_8.wav",
+    "greet_3.wav",
+    "greet_7.wav"
+  ],
+  "serviceAudioLogs": "-- No entries --\n"
+}

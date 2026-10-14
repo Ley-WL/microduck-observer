@@ -1,0 +1,29 @@
+{
+  "estopSeq": 208,
+  "oldAppReplyBudgetMs": 1500,
+  "newEstopReplyBudgetMs": 4500,
+  "followingEvents": [
+    {
+      "message": "App动作已收到：estop，seq=208",
+      "afterMs": 0
+    },
+    {
+      "message": "15 个舵机已失能（卸力）",
+      "afterMs": 1473
+    },
+    {
+      "message": "15 个舵机已失能（卸力）",
+      "afterMs": 1482
+    },
+    {
+      "message": "App动作已收到：release，seq=209",
+      "afterMs": 1516
+    }
+  ],
+  "serviceRestartedByEstop": false,
+  "residualPhoneConnectionObserved": true,
+  "userConfirmedReconnectAfterLeDisconnect": true,
+  "hardwareMotion": false,
+  "modelUnchanged": "getup4750 ec665",
+  "physicalNewAppEstopVerified": false
+}

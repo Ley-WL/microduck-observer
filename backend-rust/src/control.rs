@@ -796,7 +796,8 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
             match rx.try_recv(){
                 Ok(job)=>{
                     let result=if let Some(b)=bus.as_mut(){if job.command["action"]=="calibrate"{crate::guided::hardware(b,&job.command["plan"],std::path::Path::new(job.command["backupPath"].as_str().unwrap()),&cancel)}else if job.command["action"]=="policy"{crate::policy::execute(b,&job.command,&cancel,&halt,&shared)}else{execute(b,&job.command,&cancel,&shared)}}else{Err(anyhow::anyhow!("舵机串口不可用"))};
-                    let state=if job.command["action"]=="calibrate"&&result.is_ok(){json!({"state":"idle","message":"硬件标定任务结束，请检查逐颗写入结果"})}else{result.as_ref().cloned().unwrap_or_else(|e|json!({"state":"failed","action":job.command["action"],"message":e.to_string()}))};
+                    let mut state=if job.command["action"]=="calibrate"&&result.is_ok(){json!({"state":"idle","message":"硬件标定任务结束，请检查逐颗写入结果"})}else{result.as_ref().cloned().unwrap_or_else(|e|json!({"state":"failed","action":job.command["action"],"message":e.to_string()}))};
+                    if let Some(session)=job.command["driveSession"].as_str(){state["driveSession"]=json!(session);}
                     status(&shared,state.clone());shared.write().unwrap().log(if result.is_ok(){"INFO"}else{"WARN"},"servo-control",state["message"].as_str().unwrap_or(""));
                     if !job.off{busy.store(false,Ordering::Release);}else{pending_off.fetch_sub(1,Ordering::AcqRel);}let _=job.reply.send(result);
                 },

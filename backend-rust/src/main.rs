@@ -1,3 +1,4 @@
+mod head_control;
 mod calibration;
 mod control;
 mod ducklink;
@@ -8,6 +9,8 @@ mod gains;
 mod imu;
 mod orientation;
 mod policy;
+mod observer_ota;
+mod roll_exit;
 mod walk_profile;
 mod power;
 mod quack;
@@ -476,13 +479,14 @@ async fn policy_action(
     if body["revision"] != cal["revision"] {
         return error(StatusCode::CONFLICT, "标定已更新，请刷新后重试");
     }
-    let command = if action == "home" {
+    let mut command = if action == "home" {
         match policy_home_command(kind,cal) {Ok(command)=>command,Err(e)=>return error(StatusCode::CONFLICT,&e.to_string())}
     } else {
         json!({"action":"policy","calibration":cal,"shadow":action=="shadow","kind":kind,"speed":speed})
     };
     let drive_session=uuid::Uuid::new_v4().to_string();
     if action=="start" {
+        command["driveSession"]=json!(drive_session);
         {let mut state=a.telemetry.write().unwrap();state.pending_skill=None;state.pending_mouth=None;state.mouth_degrees=0.;}
         a.telemetry.write().unwrap().drive = if policy::is_xgoduck(kind) { Some(crate::telemetry::DriveCommand {
             session:drive_session.clone(),sequence:0,twist:[0.;3],updated:Instant::now(),
@@ -669,6 +673,7 @@ async fn main() -> anyhow::Result<()> {
         plans: Arc::new(Mutex::new(None)),
         shutdown: stop.clone(),
     };
+    if hardware {observer_ota::startup_lock(a.gate.clone());}
     if hardware {
         resources::spawn(shared.clone(),stop.clone());
         imu::spawn_reader(

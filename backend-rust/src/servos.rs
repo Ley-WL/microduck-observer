@@ -6,6 +6,14 @@ use std::{
     io::{Read, Write},
     time::{Duration, Instant},
 };
+
+fn configured_baud(value: Option<&str>) -> Result<u32> {
+    let baud = value.unwrap_or("1000000").parse::<u32>()?;
+    if ![1_000_000, 500_000, 250_000, 128_000, 115_200, 76_800, 57_600, 38_400].contains(&baud) {
+        bail!("MICRODUCK_SERVO_BAUD 不支持的舵机波特率：{baud}");
+    }
+    Ok(baud)
+}
 pub fn packet(id: u8, instruction: u8, params: &[u8]) -> Vec<u8> {
     let mut p = vec![255, 255, id, (params.len() + 2) as u8, instruction];
     p.extend(params);
@@ -217,8 +225,10 @@ impl Bus {
         Ok(())
     }
     pub fn open(port: &str) -> Result<Self> {
+        let setting = std::env::var("MICRODUCK_SERVO_BAUD").ok();
+        let baud = configured_baud(setting.as_deref())?;
         Ok(Self {
-            serial: serialport::new(port, 1_000_000)
+            serial: serialport::new(port, baud)
                 .timeout(Duration::from_millis(2))
                 .open()?,
             diagnostics: Value::Null,
@@ -354,6 +364,19 @@ fn hex(bytes: &[u8]) -> String {
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn baud_defaults_and_supported_rates() {
+        assert_eq!(super::configured_baud(None).unwrap(), 1_000_000);
+        for baud in [1_000_000, 500_000, 250_000, 128_000, 115_200, 76_800, 57_600, 38_400] {
+            assert_eq!(super::configured_baud(Some(&baud.to_string())).unwrap(), baud);
+        }
+    }
+    #[test]
+    fn baud_rejects_invalid_settings() {
+        for value in ["", "zero", "0", "333333", "2000000"] {
+            assert!(super::configured_baud(Some(value)).is_err());
+        }
+    }
     #[test]
     fn restored_gain_profile_applies_to_mouth_and_other_joints() {
         let mut row=json!({"id":34,"torque":1,"accelerationRaw":0,"speedLimitRaw":0,"kpRaw":32,"kdRaw":40,"_profileMono":1.});

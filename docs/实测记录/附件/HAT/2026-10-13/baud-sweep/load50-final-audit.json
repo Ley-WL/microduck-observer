@@ -1,0 +1,132 @@
+{
+  "shaVerified": {
+    "servo-baud-load50-20261013\\before-snapshot.json": "16d546e8f0b96568b669be96f254e0a84bcd690e2295bcd9197251f16a155e9f",
+    "servo-baud-load50-20261013\\frames-0-1000000.jsonl": "6ba51c0b323ba1050d60176ad2e3f8fb6c1a3e7a4185bb1d7cc1646012bc2c9d",
+    "servo-baud-load50-20261013\\frames-1-500000.jsonl": "af49fccc93402682c44e8160c8eb0ef5df8fb1ec03934adab208632214908747",
+    "servo-baud-load50-20261013\\frames-2-250000.jsonl": "8cf4dbb06375c505d0f8f51c10e34d286700db60bf3c1f7ecac61e54dcf9c156",
+    "servo-baud-load50-20261013\\frames-3-1000000.jsonl": "a30925d93a5ed9d0d93f7625370b065414bd27d6012aed7ca51c4ab8c75e4a08",
+    "servo-baud-load50-20261013\\progress.json": "3aa65efdf9fe024e5541db99b683ffbb7bc96c743df50784c4ff9c00c0c0ea17",
+    "servo-baud-load50-20261013\\result.json": "3aa65efdf9fe024e5541db99b683ffbb7bc96c743df50784c4ff9c00c0c0ea17",
+    "servo-baud-recurrence-before-20261013\\recurrence-before-frames-v3.jsonl": "867118141ce2a284f5c18416526f0cd1a2f81a69dfc87ddbd2f43bc08aa63ec5",
+    "servo-baud-recurrence-before-20261013\\recurrence-before-start-v3.json": "a40bca39b1cd78358c3efaf66aea41d38d78d2568870ce84bbbf04064a6cc1db",
+    "servo-baud-recurrence-before-20261013\\recurrence-before-summary.json": "e4f2470a67d3a04585be714028ae16766f89e94ce7e940e716ecdf81c7ed081d",
+    "servo-baud-load50-after-20261013\\load50-after-frames-v3.jsonl": "30770bd399b0a5aafbc0c51692668e356c89fdb9d2475173b22ce332b124acca",
+    "servo-baud-load50-after-20261013\\load50-after-start-v3.json": "53ce281c74c7c9858e67dcfee09a36b56ac6b686bdaed417cc8f1e11d8597d91",
+    "servo-baud-load50-after-20261013\\load50-after-summary.json": "162c31278e7e1eb5c7a6969b95cb836bed1720fd38f12f010aa4662e57d252e9",
+    "load50.py": "5c6fca7c6d5ee6c04a59268021f24db981f19ae87c32ffb488ecf378c853151f",
+    "sweep.py": "0317f5338e3f7595ae046a0da1cb5a584fea1313c569139b57df4cc8b5facc58"
+  },
+  "sourceAndDataVerified": true,
+  "stages": [
+    {
+      "baud": 1000000,
+      "complete": 1442,
+      "samples": 1500,
+      "badChecksum": 8,
+      "zeroRx": 34,
+      "readMsMean": 5.507001159999807,
+      "readMsP95": 8.493500000014365,
+      "observedHz": 50.02331229252762,
+      "maxIntervalMs": 83.39859099999103,
+      "uartDelta": {
+        "fe": 101,
+        "rx": 456357,
+        "oe": 0,
+        "brk": 0,
+        "tx": 34500
+      }
+    },
+    {
+      "baud": 500000,
+      "complete": 1476,
+      "samples": 1500,
+      "badChecksum": 43,
+      "zeroRx": 1,
+      "readMsMean": 8.972936745333223,
+      "readMsP95": 9.661808999993582,
+      "observedHz": 50.01710495292047,
+      "maxIntervalMs": 87.75543500001959,
+      "uartDelta": {
+        "fe": 298,
+        "rx": 469156,
+        "oe": 0,
+        "brk": 0,
+        "tx": 34500
+      }
+    },
+    {
+      "baud": 250000,
+      "complete": 1490,
+      "samples": 1500,
+      "badChecksum": 0,
+      "zeroRx": 0,
+      "readMsMean": 16.538587912000708,
+      "readMsP95": 17.221326000026238,
+      "observedHz": 50.00423203150488,
+      "maxIntervalMs": 94.41189200003919,
+      "uartDelta": {
+        "fe": 0,
+        "rx": 472500,
+        "oe": 0,
+        "brk": 0,
+        "tx": 34500
+      }
+    },
+    {
+      "baud": 1000000,
+      "complete": 1500,
+      "samples": 1500,
+      "badChecksum": 0,
+      "zeroRx": 0,
+      "readMsMean": 4.974233935999716,
+      "readMsP95": 5.7648939999808135,
+      "observedHz": 50.02173258867088,
+      "maxIntervalMs": 89.91701399997964,
+      "uartDelta": {
+        "fe": 0,
+        "rx": 472500,
+        "oe": 0,
+        "brk": 0,
+        "tx": 34500
+      }
+    }
+  ],
+  "restoredAll15To1Mbps": true,
+  "config5to39AndRam40to55ExactMatch": true,
+  "postRestoreProduction": {
+    "seconds": 10.012282098000014,
+    "uniqueJointSamples": 500,
+    "completeSamples": 500,
+    "zeroRxSamples": 0,
+    "onlineCountHistogram": {
+      "15": 500
+    },
+    "missingById": {},
+    "checksumErrorsInSampledReads": 0,
+    "sampledRxBytes": 159420,
+    "readMsMean": 4.5028654679999995,
+    "readMsMax": 7.447622,
+    "freshVoltageMin": 7.9,
+    "freshVoltageMax": 8.1,
+    "controlStates": {
+      "idle": 10
+    },
+    "serialBefore": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:3449 rx:904 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:566738 rx:7427683 fe:3880 brk:2 oe:1 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:24 rx:2420806 fe:7 RTS|CTS|DTR\n",
+    "serialAfter": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:3449 rx:904 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:589623 rx:7743361 fe:3880 brk:2 oe:1 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:24 rx:2528567 fe:7 RTS|CTS|DTR\n",
+    "hardwareMotion": false,
+    "uartOpened": false
+  },
+  "finalControl": {
+    "message": "等待操作",
+    "state": "idle"
+  },
+  "finalOnline": 15,
+  "hardwareMotion": false,
+  "persistentWrites": false,
+  "interpretation": [
+    "500k still had framing/checksum errors.",
+    "250k kernel received exactly472500 bytes=1500*315; ten partial app reads mainly tail IDs and 18.5ms deadline, no framing or checksum errors in that stage. Timeout/scheduling consistent but not uniquely isolated.",
+    "Returning 1Mbps was also error-free, so sequential stages cannot separate baud causation from intermittent recovery.",
+    "No production lower-baud deployment; service restored at original1Mbps. Independent static50Hz Python sync-read is not complete production/model-loop equivalence."
+  ]
+}

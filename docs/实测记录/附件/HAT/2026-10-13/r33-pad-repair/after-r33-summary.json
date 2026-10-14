@@ -1,0 +1,44 @@
+{
+  "seconds": 30.001624023000034,
+  "uniqueJointSamples": 751,
+  "completeSamples": 0,
+  "zeroRxSamples": 256,
+  "onlineCountHistogram": {
+    "0": 319,
+    "5": 401,
+    "2": 10,
+    "3": 8,
+    "1": 6,
+    "4": 7
+  },
+  "missingById": {
+    "10": 751,
+    "11": 751,
+    "12": 751,
+    "13": 751,
+    "14": 751,
+    "20": 751,
+    "21": 751,
+    "22": 751,
+    "23": 751,
+    "24": 751,
+    "30": 331,
+    "31": 332,
+    "32": 335,
+    "33": 337,
+    "34": 337
+  },
+  "checksumErrorsInSampledReads": 11,
+  "sampledRxBytes": 46198,
+  "readMsMean": 31.464443085219706,
+  "readMsMax": 32.359507,
+  "freshVoltageMin": 7.9,
+  "freshVoltageMax": 8.0,
+  "controlStates": {
+    "failed": 30
+  },
+  "serialBefore": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:2851 rx:847 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:166475 rx:65588 fe:1674 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:13 rx:3140408 fe:2 RTS|CTS|DTR\n",
+  "serialAfter": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:2851 rx:847 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:183725 rx:111891 fe:1951 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:13 rx:3463220 fe:2 RTS|CTS|DTR\n",
+  "hardwareMotion": false,
+  "uartOpened": false
+}

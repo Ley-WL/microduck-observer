@@ -1,0 +1,419 @@
+{
+  "summary": {
+    "start": 1,
+    "voltageMode": "recordedMean",
+    "frames": 50,
+    "final": {
+      "progress": 0.9800000000000005,
+      "simTilt": 84.33062428303813,
+      "realTilt": 83.884466728767,
+      "simSignedPitchIntegralDegrees": 78.28353442778645,
+      "jointRmsErrorDegrees": 5.959701536153325,
+      "vin": 6.942857142857142
+    },
+    "maxSimPitchIntegral": 90.81717415662565,
+    "maxSimTilt": 96.16756440919754
+  },
+  "trace": [
+    {
+      "progress": 0.0,
+      "simTilt": 5.062447553296718,
+      "realTilt": 5.062447298412485,
+      "simSignedPitchIntegralDegrees": -0.005071288744561488,
+      "jointRmsErrorDegrees": 0.0,
+      "vin": 7.742857142857143
+    },
+    {
+      "progress": 0.02,
+      "simTilt": 5.289496879131158,
+      "realTilt": 5.062447298412485,
+      "simSignedPitchIntegralDegrees": 1.0772427740457489,
+      "jointRmsErrorDegrees": 0.2435549921796109,
+      "vin": 6.450000000000001
+    },
+    {
+      "progress": 0.04,
+      "simTilt": 8.155717846423698,
+      "realTilt": 8.004079399208456,
+      "simSignedPitchIntegralDegrees": 5.124856016551173,
+      "jointRmsErrorDegrees": 0.4587470265554081,
+      "vin": 6.978571428571428
+    },
+    {
+      "progress": 0.06,
+      "simTilt": 11.918252512100667,
+      "realTilt": 13.39291044072372,
+      "simSignedPitchIntegralDegrees": 10.978131987529844,
+      "jointRmsErrorDegrees": 1.76499969793807,
+      "vin": 7.2
+    },
+    {
+      "progress": 0.08,
+      "simTilt": 17.891308620646026,
+      "realTilt": 17.34568471259634,
+      "simSignedPitchIntegralDegrees": 17.312018845526243,
+      "jointRmsErrorDegrees": 2.1114215318102465,
+      "vin": 7.021428571428571
+    },
+    {
+      "progress": 0.1,
+      "simTilt": 23.93611725487988,
+      "realTilt": 21.103926776698938,
+      "simSignedPitchIntegralDegrees": 26.366333366312155,
+      "jointRmsErrorDegrees": 2.175255934908287,
+      "vin": 7.1499999999999995
+    },
+    {
+      "progress": 0.12000000000000001,
+      "simTilt": 34.17786728049092,
+      "realTilt": 23.697511390259944,
+      "simSignedPitchIntegralDegrees": 38.532196741172264,
+      "jointRmsErrorDegrees": 2.7950849303269725,
+      "vin": 6.771428571428571
+    },
+    {
+      "progress": 0.14,
+      "simTilt": 47.44166767562924,
+      "realTilt": 40.83473641661861,
+      "simSignedPitchIntegralDegrees": 46.160895127185576,
+      "jointRmsErrorDegrees": 3.515934939075694,
+      "vin": 7.607142857142856
+    },
+    {
+      "progress": 0.16,
+      "simTilt": 55.54449519966467,
+      "realTilt": 47.98688188691013,
+      "simSignedPitchIntegralDegrees": 54.443630008197196,
+      "jointRmsErrorDegrees": 4.265838182602645,
+      "vin": 6.985714285714287
+    },
+    {
+      "progress": 0.18,
+      "simTilt": 63.8238068218983,
+      "realTilt": 55.779542971057616,
+      "simSignedPitchIntegralDegrees": 61.8225415505677,
+      "jointRmsErrorDegrees": 4.62421954122602,
+      "vin": 7.264285714285714
+    },
+    {
+      "progress": 0.19999999999999998,
+      "simTilt": 69.68329058545099,
+      "realTilt": 63.105812359138056,
+      "simSignedPitchIntegralDegrees": 69.46613423355866,
+      "jointRmsErrorDegrees": 4.993500042755308,
+      "vin": 7.421428571428573
+    },
+    {
+      "progress": 0.21999999999999997,
+      "simTilt": 76.65795592618443,
+      "realTilt": 69.50287804283194,
+      "simSignedPitchIntegralDegrees": 76.0224780337211,
+      "jointRmsErrorDegrees": 5.336453969495205,
+      "vin": 7.507142857142858
+    },
+    {
+      "progress": 0.23999999999999996,
+      "simTilt": 83.33189461488674,
+      "realTilt": 79.88302366523607,
+      "simSignedPitchIntegralDegrees": 87.08464776412768,
+      "jointRmsErrorDegrees": 4.785371131583717,
+      "vin": 7.242857142857141
+    },
+    {
+      "progress": 0.25999999999999995,
+      "simTilt": 88.18254126289615,
+      "realTilt": 82.22365073889567,
+      "simSignedPitchIntegralDegrees": 88.66010358647276,
+      "jointRmsErrorDegrees": 4.185851445006212,
+      "vin": 5.942857142857143
+    },
+    {
+      "progress": 0.27999999999999997,
+      "simTilt": 90.76174295985463,
+      "realTilt": 80.84334254852689,
+      "simSignedPitchIntegralDegrees": 89.47018154554941,
+      "jointRmsErrorDegrees": 4.857465322647303,
+      "vin": 7.035714285714285
+    },
+    {
+      "progress": 0.3,
+      "simTilt": 91.39708060768196,
+      "realTilt": 79.45161559210744,
+      "simSignedPitchIntegralDegrees": 89.4822931193776,
+      "jointRmsErrorDegrees": 4.835352188140696,
+      "vin": 7.0
+    },
+    {
+      "progress": 0.32,
+      "simTilt": 91.54379768334117,
+      "realTilt": 80.12251954465508,
+      "simSignedPitchIntegralDegrees": 88.84426709929386,
+      "jointRmsErrorDegrees": 5.346414858138135,
+      "vin": 6.957142857142856
+    },
+    {
+      "progress": 0.34,
+      "simTilt": 90.17749548703789,
+      "realTilt": 77.76285877960733,
+      "simSignedPitchIntegralDegrees": 86.14407706640692,
+      "jointRmsErrorDegrees": 5.672276610500162,
+      "vin": 7.257142857142857
+    },
+    {
+      "progress": 0.36000000000000004,
+      "simTilt": 85.87111223476359,
+      "realTilt": 73.04271571900381,
+      "simSignedPitchIntegralDegrees": 80.40610204436388,
+      "jointRmsErrorDegrees": 6.3078290346119985,
+      "vin": 7.200000000000001
+    },
+    {
+      "progress": 0.38000000000000006,
+      "simTilt": 80.12268445368656,
+      "realTilt": 66.27630405921019,
+      "simSignedPitchIntegralDegrees": 70.48395924159136,
+      "jointRmsErrorDegrees": 7.3385084535540965,
+      "vin": 7.235714285714286
+    },
+    {
+      "progress": 0.4000000000000001,
+      "simTilt": 71.88708572781842,
+      "realTilt": 58.79895007057108,
+      "simSignedPitchIntegralDegrees": 63.38822900961461,
+      "jointRmsErrorDegrees": 9.08104192664676,
+      "vin": 7.285714285714286
+    },
+    {
+      "progress": 0.4200000000000001,
+      "simTilt": 67.81774684645264,
+      "realTilt": 54.14863157982078,
+      "simSignedPitchIntegralDegrees": 61.649659981211116,
+      "jointRmsErrorDegrees": 9.613294734907857,
+      "vin": 7.3357142857142845
+    },
+    {
+      "progress": 0.4400000000000001,
+      "simTilt": 66.96022362407265,
+      "realTilt": 57.73109587813445,
+      "simSignedPitchIntegralDegrees": 60.603802894254876,
+      "jointRmsErrorDegrees": 9.766582336513103,
+      "vin": 6.307142857142856
+    },
+    {
+      "progress": 0.46000000000000013,
+      "simTilt": 67.3901804966727,
+      "realTilt": 57.63191098333538,
+      "simSignedPitchIntegralDegrees": 60.88378834353985,
+      "jointRmsErrorDegrees": 9.551461224108317,
+      "vin": 6.435714285714286
+    },
+    {
+      "progress": 0.48000000000000015,
+      "simTilt": 68.5548804609572,
+      "realTilt": 57.99483706651628,
+      "simSignedPitchIntegralDegrees": 61.475326047747416,
+      "jointRmsErrorDegrees": 7.95050815166379,
+      "vin": 7.028571428571429
+    },
+    {
+      "progress": 0.5000000000000001,
+      "simTilt": 69.17603015741349,
+      "realTilt": 58.966041034146606,
+      "simSignedPitchIntegralDegrees": 62.209984001257844,
+      "jointRmsErrorDegrees": 6.288924662980183,
+      "vin": 7.028571428571429
+    },
+    {
+      "progress": 0.5200000000000001,
+      "simTilt": 69.29947380237103,
+      "realTilt": 60.411424519919244,
+      "simSignedPitchIntegralDegrees": 64.01158680335358,
+      "jointRmsErrorDegrees": 6.87287189585164,
+      "vin": 7.4
+    },
+    {
+      "progress": 0.5400000000000001,
+      "simTilt": 70.2587674978314,
+      "realTilt": 62.32253463326064,
+      "simSignedPitchIntegralDegrees": 66.03355380189127,
+      "jointRmsErrorDegrees": 8.22717726494184,
+      "vin": 7.135714285714286
+    },
+    {
+      "progress": 0.5600000000000002,
+      "simTilt": 72.1240409241763,
+      "realTilt": 67.31444949943,
+      "simSignedPitchIntegralDegrees": 67.7095471925121,
+      "jointRmsErrorDegrees": 8.455471132566423,
+      "vin": 7.192857142857142
+    },
+    {
+      "progress": 0.5800000000000002,
+      "simTilt": 73.94751191298232,
+      "realTilt": 70.4400580978601,
+      "simSignedPitchIntegralDegrees": 69.73819343217062,
+      "jointRmsErrorDegrees": 8.345523145332919,
+      "vin": 7.421428571428571
+    },
+    {
+      "progress": 0.6000000000000002,
+      "simTilt": 76.9142654272776,
+      "realTilt": 74.54518430690032,
+      "simSignedPitchIntegralDegrees": 73.27120323995607,
+      "jointRmsErrorDegrees": 8.041932592076854,
+      "vin": 7.542857142857143
+    },
+    {
+      "progress": 0.6200000000000002,
+      "simTilt": 81.12985759190325,
+      "realTilt": 77.34305813320961,
+      "simSignedPitchIntegralDegrees": 78.022898485247,
+      "jointRmsErrorDegrees": 7.563991842686308,
+      "vin": 7.45
+    },
+    {
+      "progress": 0.6400000000000002,
+      "simTilt": 85.90926509523526,
+      "realTilt": 81.06835870027707,
+      "simSignedPitchIntegralDegrees": 82.71986441196971,
+      "jointRmsErrorDegrees": 7.190298625733855,
+      "vin": 7.45
+    },
+    {
+      "progress": 0.6600000000000003,
+      "simTilt": 89.51414335697416,
+      "realTilt": 82.27180052832334,
+      "simSignedPitchIntegralDegrees": 84.8425608068039,
+      "jointRmsErrorDegrees": 6.859255290368696,
+      "vin": 7.514285714285714
+    },
+    {
+      "progress": 0.6800000000000003,
+      "simTilt": 91.30154886998675,
+      "realTilt": 85.03281366441378,
+      "simSignedPitchIntegralDegrees": 87.0825126861469,
+      "jointRmsErrorDegrees": 6.243752795144805,
+      "vin": 6.835714285714287
+    },
+    {
+      "progress": 0.7000000000000003,
+      "simTilt": 93.01279668556096,
+      "realTilt": 86.09499757415581,
+      "simSignedPitchIntegralDegrees": 89.00496558439328,
+      "jointRmsErrorDegrees": 5.213564331958577,
+      "vin": 7.321428571428571
+    },
+    {
+      "progress": 0.7200000000000003,
+      "simTilt": 95.04771405060052,
+      "realTilt": 89.53882251513404,
+      "simSignedPitchIntegralDegrees": 90.04699564194141,
+      "jointRmsErrorDegrees": 3.829333102019381,
+      "vin": 7.549999999999999
+    },
+    {
+      "progress": 0.7400000000000003,
+      "simTilt": 95.77470968879126,
+      "realTilt": 90.55228889775158,
+      "simSignedPitchIntegralDegrees": 90.59432523828856,
+      "jointRmsErrorDegrees": 3.2567038475906984,
+      "vin": 7.42857142857143
+    },
+    {
+      "progress": 0.7600000000000003,
+      "simTilt": 96.16756440919754,
+      "realTilt": 91.33478217119729,
+      "simSignedPitchIntegralDegrees": 90.81717415662565,
+      "jointRmsErrorDegrees": 2.7373921687820433,
+      "vin": 7.307142857142858
+    },
+    {
+      "progress": 0.7800000000000004,
+      "simTilt": 96.14540555667487,
+      "realTilt": 91.73715826786709,
+      "simSignedPitchIntegralDegrees": 90.48612079261612,
+      "jointRmsErrorDegrees": 2.5288948083660974,
+      "vin": 7.3
+    },
+    {
+      "progress": 0.8000000000000004,
+      "simTilt": 95.4698637499385,
+      "realTilt": 92.28670334525395,
+      "simSignedPitchIntegralDegrees": 89.39238330310025,
+      "jointRmsErrorDegrees": 2.5486590483180858,
+      "vin": 7.4071428571428575
+    },
+    {
+      "progress": 0.8200000000000004,
+      "simTilt": 94.06353777111929,
+      "realTilt": 90.7126875196863,
+      "simSignedPitchIntegralDegrees": 86.19250300968504,
+      "jointRmsErrorDegrees": 3.6593248755114205,
+      "vin": 7.2714285714285705
+    },
+    {
+      "progress": 0.8400000000000004,
+      "simTilt": 90.25425869497124,
+      "realTilt": 87.01363827621849,
+      "simSignedPitchIntegralDegrees": 81.23852400337188,
+      "jointRmsErrorDegrees": 6.364437493942697,
+      "vin": 7.1571428571428575
+    },
+    {
+      "progress": 0.8600000000000004,
+      "simTilt": 84.53278337738811,
+      "realTilt": 80.11164155429003,
+      "simSignedPitchIntegralDegrees": 77.48137759210249,
+      "jointRmsErrorDegrees": 7.414799380386532,
+      "vin": 7.314285714285715
+    },
+    {
+      "progress": 0.8800000000000004,
+      "simTilt": 80.68578117828702,
+      "realTilt": 77.82604217208385,
+      "simSignedPitchIntegralDegrees": 73.64958111613704,
+      "jointRmsErrorDegrees": 7.71097924738572,
+      "vin": 7.085714285714286
+    },
+    {
+      "progress": 0.9000000000000005,
+      "simTilt": 77.91719903709826,
+      "realTilt": 76.73169362735669,
+      "simSignedPitchIntegralDegrees": 71.1477008243492,
+      "jointRmsErrorDegrees": 8.042109280068066,
+      "vin": 7.321428571428571
+    },
+    {
+      "progress": 0.9200000000000005,
+      "simTilt": 76.816823110041,
+      "realTilt": 77.58573135625288,
+      "simSignedPitchIntegralDegrees": 70.5568808075102,
+      "jointRmsErrorDegrees": 8.052003494148122,
+      "vin": 7.321428571428571
+    },
+    {
+      "progress": 0.9400000000000005,
+      "simTilt": 77.05177582999876,
+      "realTilt": 78.36316293012958,
+      "simSignedPitchIntegralDegrees": 70.94059387625346,
+      "jointRmsErrorDegrees": 7.734748710828846,
+      "vin": 7.071428571428572
+    },
+    {
+      "progress": 0.9600000000000005,
+      "simTilt": 78.52719246489576,
+      "realTilt": 79.73892566874515,
+      "simSignedPitchIntegralDegrees": 74.37793166827801,
+      "jointRmsErrorDegrees": 7.593777880119397,
+      "vin": 7.192857142857142
+    },
+    {
+      "progress": 0.9800000000000005,
+      "simTilt": 84.33062428303813,
+      "realTilt": 83.884466728767,
+      "simSignedPitchIntegralDegrees": 78.28353442778645,
+      "jointRmsErrorDegrees": 5.959701536153325,
+      "vin": 6.942857142857142
+    }
+  ]
+}

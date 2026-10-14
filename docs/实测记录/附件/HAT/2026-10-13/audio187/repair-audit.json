@@ -1,0 +1,19 @@
+{
+  "outputBypassesDisabled": [
+    "Left Line Mixer Line2L Bypass",
+    "Left Line Mixer Line2R Bypass",
+    "Left Line Mixer PGAL Bypass",
+    "Left Line Mixer PGAR Bypass",
+    "Right Line Mixer Line2L Bypass",
+    "Right Line Mixer Line2R Bypass",
+    "Right Line Mixer PGAL Bypass",
+    "Right Line Mixer PGAR Bypass"
+  ],
+  "pcmUnchanged": true,
+  "lineVolumeUnchanged": true,
+  "audioPreviewExit": 0,
+  "audioSha256": "92edf6a1a91eeebf1abcad9c41a2d636f40f491d62170714538dfc0e6b2ba08a",
+  "hardwareMotion": false,
+  "serviceRestart": false,
+  "acousticConfirmed": false
+}

@@ -1,0 +1,15 @@
+{
+  "microduck-observer/backend-rust/src/observer_ota.rs": "961013c145ed7eb44d5047d1cc38d94c7daec267f5b039a99f0b8905330c3b3e",
+  "microduck-observer/backend-rust/src/bin/microduck-observer-ota-helper.rs": "65e9b0ab402e06f810a77fa9a788be5cf4966a7c81c4ca62cc1ffd89240f9672",
+  "microduck-observer/backend-rust/src/ducklink_motion.rs": "f8a6e4e3bc6e47e6cf9ac3c3c110335cf91ab888928c3379c7441d8ac6bcc044",
+  "microduck-observer/backend-rust/src/ducklink_protocol.rs": "c6f7b04139e9e789077022985c7a899f5ee4729401d172bb63b41c876c5b96eb",
+  "microduck-observer/backend-rust/src/main.rs": "c02c755d677962c585f525fcced5be2c24ae5fdc7b8262e420764698971c0d6f",
+  "microduck-observer/tools/publish-observer-ota.py": "59c974cc54e701a0cfc9e1fa71ada54039ded0d1ddf08733e589c4253b7963b0",
+  "microduck-observer/tools/provision-observer-ota.py": "64d41cc634c6276a6432e869f672c9ec408d9df524fbc963c30b06c56beec878",
+  "mobile/android/app/src/main/java/io/microduck/control/BindingStore.java": "10cb7e361cbf80dd366f4d4dff6afa7c1f706973da3490882a85a4c325e33be3",
+  "mobile/android/app/src/main/java/io/microduck/control/BleSession.java": "f7250298077d44a6f2d45e9f2844fa11594cc6faa4b9df5ceccaad008e67109b",
+  "mobile/android/app/src/main/java/io/microduck/control/BleLink.java": "2ff79e67c7c3d97d7a9ea912b1b7fb60e0b1e78bce074af7c8966241ea250514",
+  "mobile/android/app/src/main/java/io/microduck/control/DeviceSwitch.java": "ca0b6fd25215331e2a3c9d2f6ad952cc61ce3be7bd472bcdceac5242aeb3d5e9",
+  "mobile/android/app/src/main/java/io/microduck/control/MainActivity.java": "bbc2d0d6aca7bf3af549758a6d6ab5b8824e01f2ca9eb52c073b12af308b38ce",
+  "mobile/android/app/src/androidTest/java/io/microduck/control/MultiDeviceTest.java": "465bf40a7c20d9db9b45f59076da926eded1107b3bb46f733b2e09e44d57a3c4"
+}

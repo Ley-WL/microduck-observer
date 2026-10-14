@@ -1,0 +1,7 @@
+{
+  "serialBefore": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:3449 rx:904 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:1204380 rx:11926213 fe:3985 brk:62 oe:2 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:25 rx:11235394 fe:6 RTS|CTS|DTR\n",
+  "bootId": "c1c002ef-157c-4aa9-82fc-22d4b78c44f2",
+  "uptime": "1428.42 4989.91\n",
+  "hardwareMotion": false,
+  "uartOpened": false
+}

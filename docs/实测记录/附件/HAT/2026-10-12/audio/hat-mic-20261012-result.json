@@ -1,0 +1,48 @@
+{
+  "playback": "not played: microphone-only test",
+  "rate": 48000,
+  "channels": [
+    {
+      "channel": 0,
+      "rmsAc": 198.30324392914835,
+      "peak": 13970,
+      "unique": 2507,
+      "rmsEachSecond": [
+        295.83,
+        146.37,
+        145.73,
+        143.24,
+        412.58,
+        157.52,
+        147.99,
+        139.31,
+        141.35,
+        147.69,
+        148.96,
+        144.45
+      ]
+    },
+    {
+      "channel": 1,
+      "rmsAc": 3382.734167309957,
+      "peak": 23080,
+      "unique": 28424,
+      "rmsEachSecond": [
+        3355.22,
+        3458.47,
+        3408.98,
+        3262.5,
+        3524.68,
+        3236.77,
+        3451.56,
+        3203.78,
+        3208.68,
+        3512.74,
+        3575.16,
+        3367.02
+      ]
+    }
+  ],
+  "result": "capture_and_playback_completed",
+  "mixerRestored": true
+}

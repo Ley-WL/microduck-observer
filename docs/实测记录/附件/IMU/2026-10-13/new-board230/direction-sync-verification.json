@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "directionMatchesOld": true,
+    "yawMatchesOld": true,
+    "referenceUnchanged": true,
+    "targetUnchanged": true,
+    "jointsUnchanged": true,
+    "positionUnchanged": true
+  },
+  "revisionBefore": 2,
+  "revisionAfter": 3,
+  "motionSent": false
+}

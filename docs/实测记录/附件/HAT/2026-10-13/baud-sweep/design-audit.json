@@ -1,0 +1,10 @@
+{
+  "sourceSha256": "0317f5338e3f7595ae046a0da1cb5a584fea1313c569139b57df4cc8b5facc58",
+  "datasheet": "HD-1910-C001串型规格书20260907.pdf page4",
+  "registerTable": "磁编码STS内存表手册-v1.1-2026-08-27.md addr6/55",
+  "onlyWrites": "addr6 while lock55=1; temporary, no persistent EEPROM writes",
+  "protocolTestsPassed": 6,
+  "firstAttempt": "Rejected before stopping service or writes because state holding; user then confirmed emergency stop.",
+  "connectedIds": "all15, changed from previous head-only phase",
+  "trial": "same 5Hz, 150 samples/baud, 150ms budget; lowest-baud wire occupancy about88ms for338bytes; static communication only"
+}

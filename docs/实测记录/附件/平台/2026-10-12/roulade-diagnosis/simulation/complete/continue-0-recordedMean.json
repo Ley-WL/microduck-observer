@@ -1,0 +1,929 @@
+{
+  "summary": {
+    "replay": {
+      "start": 0,
+      "voltageMode": "recordedMean",
+      "frames": 50,
+      "final": {
+        "progress": 0.9800000000000005,
+        "simTilt": 105.06592074414931,
+        "realTilt": 85.99844593893637,
+        "simSignedPitchIntegralDegrees": 120.93948728192866,
+        "jointRmsErrorDegrees": 3.4087275297094677,
+        "vin": 7.221428571428571
+      },
+      "maxSimPitchIntegral": 120.93948728192866,
+      "maxSimTilt": 106.42416590891052
+    },
+    "continuationFinal": {
+      "extraSeconds": 1.98,
+      "tilt": 1.0371025294196636,
+      "pitchIntegral": 235.6570451017577
+    },
+    "continuationMaxPitch": 235.6570451017577
+  },
+  "trace": [
+    {
+      "progress": 0.0,
+      "simTilt": 5.630926426206268,
+      "realTilt": 5.630924154084362,
+      "simSignedPitchIntegralDegrees": 0.033309488958967376,
+      "jointRmsErrorDegrees": 0.0,
+      "vin": 7.75
+    },
+    {
+      "progress": 0.02,
+      "simTilt": 6.5366363711864155,
+      "realTilt": 6.280664085811702,
+      "simSignedPitchIntegralDegrees": 2.079303290540845,
+      "jointRmsErrorDegrees": 0.2580867380287856,
+      "vin": 7.078571428571428
+    },
+    {
+      "progress": 0.04,
+      "simTilt": 8.892147963852425,
+      "realTilt": 9.495831287041645,
+      "simSignedPitchIntegralDegrees": 6.910571795147712,
+      "jointRmsErrorDegrees": 1.3753625772765992,
+      "vin": 7.592857142857142
+    },
+    {
+      "progress": 0.06,
+      "simTilt": 13.861640921245153,
+      "realTilt": 13.878262433459698,
+      "simSignedPitchIntegralDegrees": 10.948098424563003,
+      "jointRmsErrorDegrees": 1.268535991528296,
+      "vin": 7.4785714285714295
+    },
+    {
+      "progress": 0.08,
+      "simTilt": 17.799915453201187,
+      "realTilt": 15.37407630314715,
+      "simSignedPitchIntegralDegrees": 18.89392671097266,
+      "jointRmsErrorDegrees": 1.4460618899123863,
+      "vin": 7.599999999999999
+    },
+    {
+      "progress": 0.1,
+      "simTilt": 23.989489790682118,
+      "realTilt": 20.969536372533856,
+      "simSignedPitchIntegralDegrees": 22.631331967192537,
+      "jointRmsErrorDegrees": 1.6915649779082014,
+      "vin": 7.721428571428572
+    },
+    {
+      "progress": 0.12000000000000001,
+      "simTilt": 28.506451231840234,
+      "realTilt": 24.77741997824358,
+      "simSignedPitchIntegralDegrees": 26.454780775945988,
+      "jointRmsErrorDegrees": 2.5187240681979146,
+      "vin": 7.257142857142858
+    },
+    {
+      "progress": 0.14,
+      "simTilt": 33.17694892207135,
+      "realTilt": 29.254996711526253,
+      "simSignedPitchIntegralDegrees": 31.572997569638947,
+      "jointRmsErrorDegrees": 2.337638236325294,
+      "vin": 7.135714285714285
+    },
+    {
+      "progress": 0.16,
+      "simTilt": 39.13976411163523,
+      "realTilt": 34.10454452109238,
+      "simSignedPitchIntegralDegrees": 37.95408951711679,
+      "jointRmsErrorDegrees": 2.1372821770666377,
+      "vin": 7.007142857142858
+    },
+    {
+      "progress": 0.18,
+      "simTilt": 46.27349764170516,
+      "realTilt": 40.62882119407192,
+      "simSignedPitchIntegralDegrees": 46.11235727219128,
+      "jointRmsErrorDegrees": 2.7049073133816646,
+      "vin": 7.442857142857143
+    },
+    {
+      "progress": 0.19999999999999998,
+      "simTilt": 54.974814790772356,
+      "realTilt": 48.25919348349506,
+      "simSignedPitchIntegralDegrees": 54.858442685810836,
+      "jointRmsErrorDegrees": 2.8000865028300184,
+      "vin": 7.385714285714287
+    },
+    {
+      "progress": 0.21999999999999997,
+      "simTilt": 64.63869749020063,
+      "realTilt": 56.34822244053054,
+      "simSignedPitchIntegralDegrees": 70.47091850841238,
+      "jointRmsErrorDegrees": 2.7584466631886624,
+      "vin": 7.478571428571428
+    },
+    {
+      "progress": 0.23999999999999996,
+      "simTilt": 78.36216169954612,
+      "realTilt": 63.538093253412825,
+      "simSignedPitchIntegralDegrees": 83.25414920155337,
+      "jointRmsErrorDegrees": 4.262654709237109,
+      "vin": 7.478571428571428
+    },
+    {
+      "progress": 0.25999999999999995,
+      "simTilt": 86.33172580696397,
+      "realTilt": 81.40926162087382,
+      "simSignedPitchIntegralDegrees": 83.77898101280185,
+      "jointRmsErrorDegrees": 4.069229201579309,
+      "vin": 7.5
+    },
+    {
+      "progress": 0.27999999999999997,
+      "simTilt": 86.52407963160384,
+      "realTilt": 80.91119904948997,
+      "simSignedPitchIntegralDegrees": 84.00151887787757,
+      "jointRmsErrorDegrees": 3.3889840848122903,
+      "vin": 6.364285714285715
+    },
+    {
+      "progress": 0.3,
+      "simTilt": 88.11270233114364,
+      "realTilt": 84.62827931541823,
+      "simSignedPitchIntegralDegrees": 86.64734491662891,
+      "jointRmsErrorDegrees": 4.4013880090831625,
+      "vin": 6.221428571428571
+    },
+    {
+      "progress": 0.32,
+      "simTilt": 90.99769109359549,
+      "realTilt": 86.21744463108189,
+      "simSignedPitchIntegralDegrees": 89.70134114323504,
+      "jointRmsErrorDegrees": 4.536805704689209,
+      "vin": 6.8
+    },
+    {
+      "progress": 0.34,
+      "simTilt": 94.07708457868702,
+      "realTilt": 89.34201164312923,
+      "simSignedPitchIntegralDegrees": 91.96785583367186,
+      "jointRmsErrorDegrees": 4.536444624553251,
+      "vin": 7.3500000000000005
+    },
+    {
+      "progress": 0.36000000000000004,
+      "simTilt": 95.93969832016235,
+      "realTilt": 90.70174424274684,
+      "simSignedPitchIntegralDegrees": 96.12381055646537,
+      "jointRmsErrorDegrees": 4.251313600880439,
+      "vin": 7.185714285714286
+    },
+    {
+      "progress": 0.38000000000000006,
+      "simTilt": 100.19223041669716,
+      "realTilt": 92.56535038607932,
+      "simSignedPitchIntegralDegrees": 99.14944623717344,
+      "jointRmsErrorDegrees": 4.295766009698612,
+      "vin": 7.085714285714284
+    },
+    {
+      "progress": 0.4000000000000001,
+      "simTilt": 102.06008501351278,
+      "realTilt": 94.72955799905813,
+      "simSignedPitchIntegralDegrees": 99.7346962743959,
+      "jointRmsErrorDegrees": 4.204618348253637,
+      "vin": 7.5
+    },
+    {
+      "progress": 0.4200000000000001,
+      "simTilt": 102.08493431630302,
+      "realTilt": 92.7517715283672,
+      "simSignedPitchIntegralDegrees": 99.30360476017188,
+      "jointRmsErrorDegrees": 4.653520634347516,
+      "vin": 7.321428571428571
+    },
+    {
+      "progress": 0.4400000000000001,
+      "simTilt": 100.99753696923,
+      "realTilt": 89.10979667609274,
+      "simSignedPitchIntegralDegrees": 97.60193517532818,
+      "jointRmsErrorDegrees": 5.360705342681059,
+      "vin": 7.342857142857143
+    },
+    {
+      "progress": 0.46000000000000013,
+      "simTilt": 96.6536736172605,
+      "realTilt": 83.27250489608704,
+      "simSignedPitchIntegralDegrees": 93.12794290133843,
+      "jointRmsErrorDegrees": 6.366185778016865,
+      "vin": 7.407142857142858
+    },
+    {
+      "progress": 0.48000000000000015,
+      "simTilt": 91.98086767622158,
+      "realTilt": 77.24768304998732,
+      "simSignedPitchIntegralDegrees": 88.96894740227727,
+      "jointRmsErrorDegrees": 6.6441282001759605,
+      "vin": 7.4142857142857155
+    },
+    {
+      "progress": 0.5000000000000001,
+      "simTilt": 88.93085610300666,
+      "realTilt": 71.3181321318279,
+      "simSignedPitchIntegralDegrees": 85.28509716350388,
+      "jointRmsErrorDegrees": 6.937278268274291,
+      "vin": 7.200000000000001
+    },
+    {
+      "progress": 0.5200000000000001,
+      "simTilt": 86.35208457532018,
+      "realTilt": 66.66312322549258,
+      "simSignedPitchIntegralDegrees": 83.65864799481199,
+      "jointRmsErrorDegrees": 7.617168634559586,
+      "vin": 7.314285714285714
+    },
+    {
+      "progress": 0.5400000000000001,
+      "simTilt": 87.56767157583245,
+      "realTilt": 59.92909971907789,
+      "simSignedPitchIntegralDegrees": 84.7489535511416,
+      "jointRmsErrorDegrees": 7.580083434084186,
+      "vin": 7.621428571428569
+    },
+    {
+      "progress": 0.5600000000000002,
+      "simTilt": 88.9233803396158,
+      "realTilt": 56.91226401308797,
+      "simSignedPitchIntegralDegrees": 86.44920966005644,
+      "jointRmsErrorDegrees": 7.3391376781501485,
+      "vin": 7.4071428571428575
+    },
+    {
+      "progress": 0.5800000000000002,
+      "simTilt": 90.35299260311925,
+      "realTilt": 53.06184935764125,
+      "simSignedPitchIntegralDegrees": 88.6070562131947,
+      "jointRmsErrorDegrees": 7.309316810184129,
+      "vin": 7.449999999999998
+    },
+    {
+      "progress": 0.6000000000000002,
+      "simTilt": 92.62127007186162,
+      "realTilt": 56.15819293612257,
+      "simSignedPitchIntegralDegrees": 91.38207944579536,
+      "jointRmsErrorDegrees": 7.670494461931484,
+      "vin": 7.35
+    },
+    {
+      "progress": 0.6200000000000002,
+      "simTilt": 95.99220675433712,
+      "realTilt": 57.92146775458708,
+      "simSignedPitchIntegralDegrees": 94.26613186316946,
+      "jointRmsErrorDegrees": 6.956286077043769,
+      "vin": 6.064285714285715
+    },
+    {
+      "progress": 0.6400000000000002,
+      "simTilt": 98.3323109852088,
+      "realTilt": 56.28272812073287,
+      "simSignedPitchIntegralDegrees": 97.47298741505162,
+      "jointRmsErrorDegrees": 7.086411744860182,
+      "vin": 6.6499999999999995
+    },
+    {
+      "progress": 0.6600000000000003,
+      "simTilt": 101.90970185277787,
+      "realTilt": 57.72817571007003,
+      "simSignedPitchIntegralDegrees": 100.47861302727604,
+      "jointRmsErrorDegrees": 5.755058543721047,
+      "vin": 7.092857142857142
+    },
+    {
+      "progress": 0.6800000000000003,
+      "simTilt": 103.29512311925991,
+      "realTilt": 59.15184336536218,
+      "simSignedPitchIntegralDegrees": 102.07720035059081,
+      "jointRmsErrorDegrees": 5.971700201658112,
+      "vin": 6.328571428571429
+    },
+    {
+      "progress": 0.7000000000000003,
+      "simTilt": 103.37144272569905,
+      "realTilt": 60.39465777547983,
+      "simSignedPitchIntegralDegrees": 102.41583062143933,
+      "jointRmsErrorDegrees": 7.29703859813452,
+      "vin": 7.442857142857142
+    },
+    {
+      "progress": 0.7200000000000003,
+      "simTilt": 101.9283534895698,
+      "realTilt": 61.78126928686407,
+      "simSignedPitchIntegralDegrees": 101.45767154843074,
+      "jointRmsErrorDegrees": 8.39995327868313,
+      "vin": 7.314285714285715
+    },
+    {
+      "progress": 0.7400000000000003,
+      "simTilt": 98.81479602572925,
+      "realTilt": 64.12587524635721,
+      "simSignedPitchIntegralDegrees": 99.3846472873818,
+      "jointRmsErrorDegrees": 9.217156390987315,
+      "vin": 7.250000000000002
+    },
+    {
+      "progress": 0.7600000000000003,
+      "simTilt": 95.51063970013968,
+      "realTilt": 67.5429781348577,
+      "simSignedPitchIntegralDegrees": 96.23223031794004,
+      "jointRmsErrorDegrees": 9.572304819626693,
+      "vin": 7.414285714285714
+    },
+    {
+      "progress": 0.7800000000000004,
+      "simTilt": 92.66234662654921,
+      "realTilt": 71.5920892711755,
+      "simSignedPitchIntegralDegrees": 98.43814110313319,
+      "jointRmsErrorDegrees": 9.783883400215394,
+      "vin": 7.507142857142857
+    },
+    {
+      "progress": 0.8000000000000004,
+      "simTilt": 93.74175085852337,
+      "realTilt": 74.22692242810595,
+      "simSignedPitchIntegralDegrees": 101.76611467757067,
+      "jointRmsErrorDegrees": 9.274548530829742,
+      "vin": 7.421428571428573
+    },
+    {
+      "progress": 0.8200000000000004,
+      "simTilt": 94.32225285136599,
+      "realTilt": 77.30799559387289,
+      "simSignedPitchIntegralDegrees": 104.49111377583252,
+      "jointRmsErrorDegrees": 8.774465852331378,
+      "vin": 7.078571428571427
+    },
+    {
+      "progress": 0.8400000000000004,
+      "simTilt": 96.34960399590905,
+      "realTilt": 78.4431508603163,
+      "simSignedPitchIntegralDegrees": 106.7986700956179,
+      "jointRmsErrorDegrees": 8.329918342485444,
+      "vin": 6.8357142857142845
+    },
+    {
+      "progress": 0.8600000000000004,
+      "simTilt": 99.83581538282922,
+      "realTilt": 81.8549215523737,
+      "simSignedPitchIntegralDegrees": 108.67665630582154,
+      "jointRmsErrorDegrees": 7.312680160603195,
+      "vin": 7.2
+    },
+    {
+      "progress": 0.8800000000000004,
+      "simTilt": 101.41852668186507,
+      "realTilt": 83.50555195569618,
+      "simSignedPitchIntegralDegrees": 110.78115695687076,
+      "jointRmsErrorDegrees": 6.345923076946028,
+      "vin": 7.042857142857144
+    },
+    {
+      "progress": 0.9000000000000005,
+      "simTilt": 104.30892148845288,
+      "realTilt": 84.7534776411629,
+      "simSignedPitchIntegralDegrees": 112.35283049292816,
+      "jointRmsErrorDegrees": 4.991500740087481,
+      "vin": 7.257142857142857
+    },
+    {
+      "progress": 0.9200000000000005,
+      "simTilt": 105.84354626701352,
+      "realTilt": 85.50024817559404,
+      "simSignedPitchIntegralDegrees": 113.92308908452347,
+      "jointRmsErrorDegrees": 4.157680214409077,
+      "vin": 7.6428571428571415
+    },
+    {
+      "progress": 0.9400000000000005,
+      "simTilt": 106.42416590891052,
+      "realTilt": 86.98790251640327,
+      "simSignedPitchIntegralDegrees": 116.32661729291515,
+      "jointRmsErrorDegrees": 3.324909849962623,
+      "vin": 7.178571428571429
+    },
+    {
+      "progress": 0.9600000000000005,
+      "simTilt": 106.1986552837001,
+      "realTilt": 86.91664887498426,
+      "simSignedPitchIntegralDegrees": 118.73740160297014,
+      "jointRmsErrorDegrees": 3.175261263524097,
+      "vin": 7.300000000000002
+    },
+    {
+      "progress": 0.9800000000000005,
+      "simTilt": 105.06592074414931,
+      "realTilt": 85.99844593893637,
+      "simSignedPitchIntegralDegrees": 120.93948728192866,
+      "jointRmsErrorDegrees": 3.4087275297094677,
+      "vin": 7.221428571428571
+    }
+  ],
+  "continuation": [
+    {
+      "extraSeconds": 0.0,
+      "tilt": 103.98960659683362,
+      "pitchIntegral": 122.50168039893012
+    },
+    {
+      "extraSeconds": 0.02,
+      "tilt": 103.22689656910997,
+      "pitchIntegral": 123.57666752360943
+    },
+    {
+      "extraSeconds": 0.04,
+      "tilt": 103.07429825779431,
+      "pitchIntegral": 124.89670118535935
+    },
+    {
+      "extraSeconds": 0.06,
+      "tilt": 103.35373019850266,
+      "pitchIntegral": 126.12720374202873
+    },
+    {
+      "extraSeconds": 0.08,
+      "tilt": 104.92806684626622,
+      "pitchIntegral": 124.87820040683613
+    },
+    {
+      "extraSeconds": 0.1,
+      "tilt": 106.68696712908306,
+      "pitchIntegral": 126.24693892493781
+    },
+    {
+      "extraSeconds": 0.12,
+      "tilt": 105.7044602963025,
+      "pitchIntegral": 127.7612490762958
+    },
+    {
+      "extraSeconds": 0.14,
+      "tilt": 105.79273623166138,
+      "pitchIntegral": 127.16626560215678
+    },
+    {
+      "extraSeconds": 0.16,
+      "tilt": 107.36932894122012,
+      "pitchIntegral": 125.07361416390775
+    },
+    {
+      "extraSeconds": 0.18,
+      "tilt": 108.86895086508936,
+      "pitchIntegral": 123.70409069711025
+    },
+    {
+      "extraSeconds": 0.2,
+      "tilt": 109.8582595372938,
+      "pitchIntegral": 123.26485169969581
+    },
+    {
+      "extraSeconds": 0.22,
+      "tilt": 109.53817464792604,
+      "pitchIntegral": 124.12689875270263
+    },
+    {
+      "extraSeconds": 0.24,
+      "tilt": 109.05083641038027,
+      "pitchIntegral": 125.53345436354381
+    },
+    {
+      "extraSeconds": 0.26,
+      "tilt": 108.48275629724682,
+      "pitchIntegral": 126.23487485081483
+    },
+    {
+      "extraSeconds": 0.28,
+      "tilt": 108.6148294608007,
+      "pitchIntegral": 125.93302223933851
+    },
+    {
+      "extraSeconds": 0.3,
+      "tilt": 109.75399125730512,
+      "pitchIntegral": 124.36176756075794
+    },
+    {
+      "extraSeconds": 0.32,
+      "tilt": 111.9279230828355,
+      "pitchIntegral": 121.76750506990523
+    },
+    {
+      "extraSeconds": 0.34,
+      "tilt": 114.3521384181602,
+      "pitchIntegral": 119.15697932315732
+    },
+    {
+      "extraSeconds": 0.36,
+      "tilt": 116.5163433055397,
+      "pitchIntegral": 116.97689276039368
+    },
+    {
+      "extraSeconds": 0.38,
+      "tilt": 118.24305154075448,
+      "pitchIntegral": 115.37244775934785
+    },
+    {
+      "extraSeconds": 0.4,
+      "tilt": 119.37766610923649,
+      "pitchIntegral": 114.38561124061088
+    },
+    {
+      "extraSeconds": 0.42,
+      "tilt": 120.04566993185531,
+      "pitchIntegral": 113.78854865764491
+    },
+    {
+      "extraSeconds": 0.44,
+      "tilt": 120.49621546918772,
+      "pitchIntegral": 113.34857877735088
+    },
+    {
+      "extraSeconds": 0.46,
+      "tilt": 120.87506948081669,
+      "pitchIntegral": 112.91068183835803
+    },
+    {
+      "extraSeconds": 0.48,
+      "tilt": 121.28178484956754,
+      "pitchIntegral": 112.46566537238228
+    },
+    {
+      "extraSeconds": 0.5,
+      "tilt": 121.60277601722423,
+      "pitchIntegral": 112.15575955866335
+    },
+    {
+      "extraSeconds": 0.52,
+      "tilt": 121.81389462715092,
+      "pitchIntegral": 111.90343028182579
+    },
+    {
+      "extraSeconds": 0.54,
+      "tilt": 121.96261474860408,
+      "pitchIntegral": 111.66697583370046
+    },
+    {
+      "extraSeconds": 0.56,
+      "tilt": 122.3118445061144,
+      "pitchIntegral": 111.22934655188476
+    },
+    {
+      "extraSeconds": 0.58,
+      "tilt": 122.84536462277977,
+      "pitchIntegral": 110.6698306950576
+    },
+    {
+      "extraSeconds": 0.6,
+      "tilt": 123.44823464853322,
+      "pitchIntegral": 110.08147025232469
+    },
+    {
+      "extraSeconds": 0.62,
+      "tilt": 123.9424862398304,
+      "pitchIntegral": 109.67260127736616
+    },
+    {
+      "extraSeconds": 0.64,
+      "tilt": 124.05975296749475,
+      "pitchIntegral": 109.74625476862488
+    },
+    {
+      "extraSeconds": 0.66,
+      "tilt": 123.80377128967837,
+      "pitchIntegral": 110.14076271979184
+    },
+    {
+      "extraSeconds": 0.68,
+      "tilt": 123.43146776691464,
+      "pitchIntegral": 110.61731964619376
+    },
+    {
+      "extraSeconds": 0.7000000000000001,
+      "tilt": 123.08645074929073,
+      "pitchIntegral": 111.0289195485098
+    },
+    {
+      "extraSeconds": 0.72,
+      "tilt": 123.10742254506711,
+      "pitchIntegral": 110.85349632200189
+    },
+    {
+      "extraSeconds": 0.74,
+      "tilt": 123.27493518323075,
+      "pitchIntegral": 110.94133548179356
+    },
+    {
+      "extraSeconds": 0.76,
+      "tilt": 123.23328424731105,
+      "pitchIntegral": 110.94408580894353
+    },
+    {
+      "extraSeconds": 0.78,
+      "tilt": 123.31707829641452,
+      "pitchIntegral": 110.76170677772046
+    },
+    {
+      "extraSeconds": 0.8,
+      "tilt": 123.57466038484992,
+      "pitchIntegral": 110.4039023484139
+    },
+    {
+      "extraSeconds": 0.8200000000000001,
+      "tilt": 124.04398603238138,
+      "pitchIntegral": 109.82867997972811
+    },
+    {
+      "extraSeconds": 0.84,
+      "tilt": 124.75248297994757,
+      "pitchIntegral": 109.09285169036767
+    },
+    {
+      "extraSeconds": 0.86,
+      "tilt": 125.32704350929026,
+      "pitchIntegral": 108.6282670649143
+    },
+    {
+      "extraSeconds": 0.88,
+      "tilt": 125.37048203279426,
+      "pitchIntegral": 108.72773600478232
+    },
+    {
+      "extraSeconds": 0.9,
+      "tilt": 125.11992081965832,
+      "pitchIntegral": 109.04738989067526
+    },
+    {
+      "extraSeconds": 0.92,
+      "tilt": 124.64226681694574,
+      "pitchIntegral": 109.62758463980272
+    },
+    {
+      "extraSeconds": 0.9400000000000001,
+      "tilt": 123.96442758752877,
+      "pitchIntegral": 110.33344881124376
+    },
+    {
+      "extraSeconds": 0.96,
+      "tilt": 123.10176665537689,
+      "pitchIntegral": 111.262137509697
+    },
+    {
+      "extraSeconds": 0.98,
+      "tilt": 122.12932135869114,
+      "pitchIntegral": 112.29814279447734
+    },
+    {
+      "extraSeconds": 1.0,
+      "tilt": 121.14638437549232,
+      "pitchIntegral": 113.28760442533148
+    },
+    {
+      "extraSeconds": 1.02,
+      "tilt": 120.2811902813883,
+      "pitchIntegral": 114.0639687469652
+    },
+    {
+      "extraSeconds": 1.04,
+      "tilt": 119.59281228611208,
+      "pitchIntegral": 114.63234535389216
+    },
+    {
+      "extraSeconds": 1.06,
+      "tilt": 119.28326082148358,
+      "pitchIntegral": 114.79410319736591
+    },
+    {
+      "extraSeconds": 1.08,
+      "tilt": 119.34082736329883,
+      "pitchIntegral": 114.63314188705105
+    },
+    {
+      "extraSeconds": 1.1,
+      "tilt": 119.64612910057456,
+      "pitchIntegral": 114.2433511420275
+    },
+    {
+      "extraSeconds": 1.12,
+      "tilt": 120.11096606880788,
+      "pitchIntegral": 113.79963383700841
+    },
+    {
+      "extraSeconds": 1.1400000000000001,
+      "tilt": 120.44948666989224,
+      "pitchIntegral": 113.53005087316468
+    },
+    {
+      "extraSeconds": 1.16,
+      "tilt": 120.6163877708005,
+      "pitchIntegral": 113.43872583305085
+    },
+    {
+      "extraSeconds": 1.18,
+      "tilt": 120.5767196129074,
+      "pitchIntegral": 113.59969869905959
+    },
+    {
+      "extraSeconds": 1.2,
+      "tilt": 120.18160823982845,
+      "pitchIntegral": 114.1798227921689
+    },
+    {
+      "extraSeconds": 1.22,
+      "tilt": 119.37567858991493,
+      "pitchIntegral": 115.12911931351395
+    },
+    {
+      "extraSeconds": 1.24,
+      "tilt": 118.1701838215578,
+      "pitchIntegral": 116.42180019897187
+    },
+    {
+      "extraSeconds": 1.26,
+      "tilt": 116.86706983334848,
+      "pitchIntegral": 117.64998900065821
+    },
+    {
+      "extraSeconds": 1.28,
+      "tilt": 115.84114769839627,
+      "pitchIntegral": 118.4952688030064
+    },
+    {
+      "extraSeconds": 1.3,
+      "tilt": 115.29688414854346,
+      "pitchIntegral": 118.82386060795635
+    },
+    {
+      "extraSeconds": 1.32,
+      "tilt": 115.2402000107056,
+      "pitchIntegral": 118.76481573001526
+    },
+    {
+      "extraSeconds": 1.34,
+      "tilt": 115.56238950662875,
+      "pitchIntegral": 118.37710367118534
+    },
+    {
+      "extraSeconds": 1.36,
+      "tilt": 115.93195891792627,
+      "pitchIntegral": 118.04257161314115
+    },
+    {
+      "extraSeconds": 1.3800000000000001,
+      "tilt": 116.23202594296549,
+      "pitchIntegral": 117.76292613690084
+    },
+    {
+      "extraSeconds": 1.4000000000000001,
+      "tilt": 116.43416837824864,
+      "pitchIntegral": 117.59203716170147
+    },
+    {
+      "extraSeconds": 1.42,
+      "tilt": 116.51398979246989,
+      "pitchIntegral": 117.52453732429737
+    },
+    {
+      "extraSeconds": 1.44,
+      "tilt": 116.56049208666825,
+      "pitchIntegral": 117.51181574485595
+    },
+    {
+      "extraSeconds": 1.46,
+      "tilt": 116.4147979775022,
+      "pitchIntegral": 117.79102200967165
+    },
+    {
+      "extraSeconds": 1.48,
+      "tilt": 115.88173213698069,
+      "pitchIntegral": 118.4596118044824
+    },
+    {
+      "extraSeconds": 1.5,
+      "tilt": 114.98870282776203,
+      "pitchIntegral": 119.48244226370852
+    },
+    {
+      "extraSeconds": 1.52,
+      "tilt": 113.73027559974497,
+      "pitchIntegral": 120.91564012409512
+    },
+    {
+      "extraSeconds": 1.54,
+      "tilt": 111.96106655657748,
+      "pitchIntegral": 122.91435816577463
+    },
+    {
+      "extraSeconds": 1.56,
+      "tilt": 109.5522296309109,
+      "pitchIntegral": 125.59239410474866
+    },
+    {
+      "extraSeconds": 1.58,
+      "tilt": 106.36335845501942,
+      "pitchIntegral": 129.1584696965271
+    },
+    {
+      "extraSeconds": 1.6,
+      "tilt": 102.04766705264497,
+      "pitchIntegral": 134.0356972999536
+    },
+    {
+      "extraSeconds": 1.62,
+      "tilt": 96.15273219729096,
+      "pitchIntegral": 140.50173178963422
+    },
+    {
+      "extraSeconds": 1.6400000000000001,
+      "tilt": 88.8960532500166,
+      "pitchIntegral": 148.15388462531504
+    },
+    {
+      "extraSeconds": 1.6600000000000001,
+      "tilt": 83.04888781923974,
+      "pitchIntegral": 154.00390150619197
+    },
+    {
+      "extraSeconds": 1.68,
+      "tilt": 77.11230858848832,
+      "pitchIntegral": 160.00748670474945
+    },
+    {
+      "extraSeconds": 1.7,
+      "tilt": 70.940155504431,
+      "pitchIntegral": 166.35655109574628
+    },
+    {
+      "extraSeconds": 1.72,
+      "tilt": 64.08842642130834,
+      "pitchIntegral": 173.5257863610672
+    },
+    {
+      "extraSeconds": 1.74,
+      "tilt": 57.220306293856325,
+      "pitchIntegral": 179.99118421028155
+    },
+    {
+      "extraSeconds": 1.76,
+      "tilt": 50.353113025061596,
+      "pitchIntegral": 184.93008237954385
+    },
+    {
+      "extraSeconds": 1.78,
+      "tilt": 45.36884062710781,
+      "pitchIntegral": 190.3478780511652
+    },
+    {
+      "extraSeconds": 1.8,
+      "tilt": 39.559277577355154,
+      "pitchIntegral": 196.206477043413
+    },
+    {
+      "extraSeconds": 1.82,
+      "tilt": 33.92838806236464,
+      "pitchIntegral": 201.72374856009813
+    },
+    {
+      "extraSeconds": 1.84,
+      "tilt": 28.488342083659784,
+      "pitchIntegral": 207.16803431315412
+    },
+    {
+      "extraSeconds": 1.86,
+      "tilt": 22.9664152919543,
+      "pitchIntegral": 212.74979903524513
+    },
+    {
+      "extraSeconds": 1.8800000000000001,
+      "tilt": 17.36042215784887,
+      "pitchIntegral": 218.19188365606496
+    },
+    {
+      "extraSeconds": 1.9000000000000001,
+      "tilt": 12.607187424620053,
+      "pitchIntegral": 222.41108843847107
+    },
+    {
+      "extraSeconds": 1.92,
+      "tilt": 9.162395395153782,
+      "pitchIntegral": 225.37116135397616
+    },
+    {
+      "extraSeconds": 1.94,
+      "tilt": 6.39287875837881,
+      "pitchIntegral": 228.47134769654477
+    },
+    {
+      "extraSeconds": 1.96,
+      "tilt": 2.8546524086822243,
+      "pitchIntegral": 232.21163776002015
+    },
+    {
+      "extraSeconds": 1.98,
+      "tilt": 1.0371025294196636,
+      "pitchIntegral": 235.6570451017577
+    }
+  ]
+}

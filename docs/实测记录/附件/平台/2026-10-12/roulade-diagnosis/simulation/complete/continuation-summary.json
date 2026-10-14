@@ -1,0 +1,103 @@
+{
+  "diagnosticOnly": true,
+  "hardwareMotionAdded": false,
+  "training": false,
+  "gpuAccess": false,
+  "targetStream": "recorded quantized sent angles",
+  "timeStream": "recorded frame times",
+  "voltageReplay": "joint mean scalar approximation; no power circuit model",
+  "results": [
+    {
+      "replay": {
+        "start": 0,
+        "voltageMode": "constant7.4",
+        "frames": 50,
+        "final": {
+          "progress": 0.9800000000000005,
+          "simTilt": 106.4799105429028,
+          "realTilt": 85.99844593893637,
+          "simSignedPitchIntegralDegrees": 134.41414738131317,
+          "jointRmsErrorDegrees": 3.102269489571996,
+          "vin": 7.4
+        },
+        "maxSimPitchIntegral": 134.41414738131317,
+        "maxSimTilt": 123.12806407770192
+      },
+      "continuationFinal": {
+        "extraSeconds": 1.98,
+        "tilt": 0.3991546119771534,
+        "pitchIntegral": 254.3951275304118
+      },
+      "continuationMaxPitch": 261.5927195516434
+    },
+    {
+      "replay": {
+        "start": 0,
+        "voltageMode": "recordedMean",
+        "frames": 50,
+        "final": {
+          "progress": 0.9800000000000005,
+          "simTilt": 105.06592074414931,
+          "realTilt": 85.99844593893637,
+          "simSignedPitchIntegralDegrees": 120.93948728192866,
+          "jointRmsErrorDegrees": 3.4087275297094677,
+          "vin": 7.221428571428571
+        },
+        "maxSimPitchIntegral": 120.93948728192866,
+        "maxSimTilt": 106.42416590891052
+      },
+      "continuationFinal": {
+        "extraSeconds": 1.98,
+        "tilt": 1.0371025294196636,
+        "pitchIntegral": 235.6570451017577
+      },
+      "continuationMaxPitch": 235.6570451017577
+    },
+    {
+      "replay": {
+        "start": 1,
+        "voltageMode": "constant7.4",
+        "frames": 50,
+        "final": {
+          "progress": 0.9800000000000005,
+          "simTilt": 88.27583606749164,
+          "realTilt": 83.884466728767,
+          "simSignedPitchIntegralDegrees": 79.86543572314861,
+          "jointRmsErrorDegrees": 6.0797547737593876,
+          "vin": 7.4
+        },
+        "maxSimPitchIntegral": 96.7650571330153,
+        "maxSimTilt": 97.51315235825538
+      },
+      "continuationFinal": {
+        "extraSeconds": 1.98,
+        "tilt": 0.4195898141795186,
+        "pitchIntegral": 245.16690064583048
+      },
+      "continuationMaxPitch": 248.88189844755988
+    },
+    {
+      "replay": {
+        "start": 1,
+        "voltageMode": "recordedMean",
+        "frames": 50,
+        "final": {
+          "progress": 0.9800000000000005,
+          "simTilt": 84.33062428303813,
+          "realTilt": 83.884466728767,
+          "simSignedPitchIntegralDegrees": 78.28353442778645,
+          "jointRmsErrorDegrees": 5.959701536153325,
+          "vin": 6.942857142857142
+        },
+        "maxSimPitchIntegral": 90.81717415662565,
+        "maxSimTilt": 96.16756440919754
+      },
+      "continuationFinal": {
+        "extraSeconds": 1.98,
+        "tilt": 0.4986361837241748,
+        "pitchIntegral": 197.539692962466
+      },
+      "continuationMaxPitch": 203.34855740211094
+    }
+  ]
+}

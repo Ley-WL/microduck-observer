@@ -1,0 +1,927 @@
+{
+  "summary": {
+    "label": "start0-training-clipped",
+    "at1sec": {
+      "t": 0.98,
+      "tilt": 33.03014795492046,
+      "signedPitchIntegralDegrees": 322.33176208874715,
+      "clippedJoints": 0
+    },
+    "at2sec": {
+      "t": 1.98,
+      "tilt": 0.05505218986353254,
+      "signedPitchIntegralDegrees": 353.3074531871626,
+      "clippedJoints": 0
+    },
+    "at3sec": {
+      "t": 2.98,
+      "tilt": 0.1618413416427907,
+      "signedPitchIntegralDegrees": 353.10160109775654,
+      "clippedJoints": 0
+    },
+    "maxSignedPitchIntegralDegrees": 361.6453630490679,
+    "maxTilt": 178.2368757051949
+  },
+  "frames": [
+    {
+      "t": 0.0,
+      "tilt": 5.630926426206268,
+      "signedPitchIntegralDegrees": 0.021976534928129766,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.02,
+      "tilt": 5.795504754632944,
+      "signedPitchIntegralDegrees": 0.9890369527386644,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.04,
+      "tilt": 7.971094140071225,
+      "signedPitchIntegralDegrees": 5.002699145220735,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.06,
+      "tilt": 12.025559820944377,
+      "signedPitchIntegralDegrees": 9.859765239096992,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.08,
+      "tilt": 16.64885987130566,
+      "signedPitchIntegralDegrees": 14.776600003923946,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.1,
+      "tilt": 21.830778852124702,
+      "signedPitchIntegralDegrees": 20.22567573323966,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.12,
+      "tilt": 27.47029108335278,
+      "signedPitchIntegralDegrees": 26.06909160876071,
+      "clippedJoints": 2
+    },
+    {
+      "t": 0.14,
+      "tilt": 33.61161680798692,
+      "signedPitchIntegralDegrees": 32.52048589887627,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.16,
+      "tilt": 40.61371911660128,
+      "signedPitchIntegralDegrees": 39.8762966381505,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.18,
+      "tilt": 48.33607594437093,
+      "signedPitchIntegralDegrees": 47.71706903027926,
+      "clippedJoints": 5
+    },
+    {
+      "t": 0.2,
+      "tilt": 56.423850352047545,
+      "signedPitchIntegralDegrees": 55.6737535495067,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.22,
+      "tilt": 64.01630148108231,
+      "signedPitchIntegralDegrees": 63.050833707631504,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.24,
+      "tilt": 71.31546587234973,
+      "signedPitchIntegralDegrees": 70.47956166931517,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.26,
+      "tilt": 79.05549389586751,
+      "signedPitchIntegralDegrees": 78.74511290076906,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.28,
+      "tilt": 86.81020216665134,
+      "signedPitchIntegralDegrees": 83.13625623676037,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.3,
+      "tilt": 90.2403987768898,
+      "signedPitchIntegralDegrees": 87.3144737848365,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.32,
+      "tilt": 95.33382523411699,
+      "signedPitchIntegralDegrees": 92.83360664005762,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.34,
+      "tilt": 101.23886248761312,
+      "signedPitchIntegralDegrees": 98.84628187607242,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.36,
+      "tilt": 107.1898916135741,
+      "signedPitchIntegralDegrees": 104.75107936012263,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.38,
+      "tilt": 112.93549059040843,
+      "signedPitchIntegralDegrees": 110.5127160860055,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.4,
+      "tilt": 118.81423349495482,
+      "signedPitchIntegralDegrees": 116.49680617812139,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.42,
+      "tilt": 124.89058544756487,
+      "signedPitchIntegralDegrees": 122.6637842388043,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.44,
+      "tilt": 131.16404106207202,
+      "signedPitchIntegralDegrees": 129.03437129963916,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.46,
+      "tilt": 137.65443401044837,
+      "signedPitchIntegralDegrees": 135.62514825594084,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.48,
+      "tilt": 144.36145893979148,
+      "signedPitchIntegralDegrees": 142.3690987606068,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.5,
+      "tilt": 151.05437478561186,
+      "signedPitchIntegralDegrees": 149.02777289495182,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.52,
+      "tilt": 157.64357584031865,
+      "signedPitchIntegralDegrees": 155.59655908213784,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.54,
+      "tilt": 164.23707620424344,
+      "signedPitchIntegralDegrees": 162.19955859422927,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.56,
+      "tilt": 171.0832009953169,
+      "signedPitchIntegralDegrees": 169.1656051855329,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.58,
+      "tilt": 178.2368757051949,
+      "signedPitchIntegralDegrees": 176.34948044958773,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.6,
+      "tilt": 174.60562881019237,
+      "signedPitchIntegralDegrees": 183.38136274476662,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.62,
+      "tilt": 167.69420138091917,
+      "signedPitchIntegralDegrees": 190.11551813192634,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.64,
+      "tilt": 160.84725009585745,
+      "signedPitchIntegralDegrees": 196.79873683322538,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.66,
+      "tilt": 153.8952325630604,
+      "signedPitchIntegralDegrees": 203.5567301530809,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.68,
+      "tilt": 147.0195855481769,
+      "signedPitchIntegralDegrees": 210.05359734539735,
+      "clippedJoints": 2
+    },
+    {
+      "t": 0.7000000000000001,
+      "tilt": 140.562150858537,
+      "signedPitchIntegralDegrees": 216.21388422377893,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.72,
+      "tilt": 134.73784565002066,
+      "signedPitchIntegralDegrees": 222.02911218034922,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.74,
+      "tilt": 128.77406043763722,
+      "signedPitchIntegralDegrees": 228.1525872956934,
+      "clippedJoints": 2
+    },
+    {
+      "t": 0.76,
+      "tilt": 122.46298780347574,
+      "signedPitchIntegralDegrees": 234.72036333443893,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.78,
+      "tilt": 112.96539157819872,
+      "signedPitchIntegralDegrees": 245.31991351486468,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.8,
+      "tilt": 102.74278848360773,
+      "signedPitchIntegralDegrees": 255.19209976150117,
+      "clippedJoints": 3
+    },
+    {
+      "t": 0.8200000000000001,
+      "tilt": 93.43381597883763,
+      "signedPitchIntegralDegrees": 264.27350030124455,
+      "clippedJoints": 2
+    },
+    {
+      "t": 0.84,
+      "tilt": 84.66626430483979,
+      "signedPitchIntegralDegrees": 271.91704619200027,
+      "clippedJoints": 2
+    },
+    {
+      "t": 0.86,
+      "tilt": 76.43149577832189,
+      "signedPitchIntegralDegrees": 280.2537789852125,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.88,
+      "tilt": 67.98617052993836,
+      "signedPitchIntegralDegrees": 287.4532048310325,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.9,
+      "tilt": 61.09617459216832,
+      "signedPitchIntegralDegrees": 294.4435331933633,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.92,
+      "tilt": 53.77031827101941,
+      "signedPitchIntegralDegrees": 301.85144086846407,
+      "clippedJoints": 0
+    },
+    {
+      "t": 0.9400000000000001,
+      "tilt": 46.534939688638445,
+      "signedPitchIntegralDegrees": 308.93028484619964,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.96,
+      "tilt": 39.74532312169983,
+      "signedPitchIntegralDegrees": 315.70309038055836,
+      "clippedJoints": 1
+    },
+    {
+      "t": 0.98,
+      "tilt": 33.03014795492046,
+      "signedPitchIntegralDegrees": 322.33176208874715,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.0,
+      "tilt": 26.55270275553258,
+      "signedPitchIntegralDegrees": 328.7598684181917,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.02,
+      "tilt": 20.192197426089034,
+      "signedPitchIntegralDegrees": 335.0753716046967,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.04,
+      "tilt": 14.135161775748223,
+      "signedPitchIntegralDegrees": 341.1062189380547,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.06,
+      "tilt": 9.53174433213458,
+      "signedPitchIntegralDegrees": 345.42102615076817,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.08,
+      "tilt": 5.598263688766669,
+      "signedPitchIntegralDegrees": 349.3267440281099,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.1,
+      "tilt": 2.204730068397725,
+      "signedPitchIntegralDegrees": 353.1161354794471,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.12,
+      "tilt": 2.6540067541980044,
+      "signedPitchIntegralDegrees": 356.7126628246118,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.1400000000000001,
+      "tilt": 5.553010405894252,
+      "signedPitchIntegralDegrees": 359.6998523322556,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.16,
+      "tilt": 7.942638818825317,
+      "signedPitchIntegralDegrees": 361.6453630490679,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.18,
+      "tilt": 8.323762647111678,
+      "signedPitchIntegralDegrees": 361.27986216018235,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.2,
+      "tilt": 7.057453611547492,
+      "signedPitchIntegralDegrees": 359.7120272407616,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.22,
+      "tilt": 5.439286663832999,
+      "signedPitchIntegralDegrees": 358.2430628626183,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.24,
+      "tilt": 4.4088116920554805,
+      "signedPitchIntegralDegrees": 357.39741922884883,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.26,
+      "tilt": 3.7680451030490856,
+      "signedPitchIntegralDegrees": 356.8615715255648,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.28,
+      "tilt": 3.3664262532781573,
+      "signedPitchIntegralDegrees": 356.55431078238377,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.3,
+      "tilt": 3.153733863204523,
+      "signedPitchIntegralDegrees": 356.3717290968597,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.32,
+      "tilt": 2.9220113055830277,
+      "signedPitchIntegralDegrees": 356.105738573656,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.34,
+      "tilt": 2.6235310202940627,
+      "signedPitchIntegralDegrees": 355.7951264281633,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.36,
+      "tilt": 2.3289098775870514,
+      "signedPitchIntegralDegrees": 355.5067556089049,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.3800000000000001,
+      "tilt": 2.05792184048582,
+      "signedPitchIntegralDegrees": 355.23700596141146,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.4000000000000001,
+      "tilt": 1.8092800128339226,
+      "signedPitchIntegralDegrees": 355.0043129567205,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.42,
+      "tilt": 1.6140693247439655,
+      "signedPitchIntegralDegrees": 354.8279579522864,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.44,
+      "tilt": 1.45744670315277,
+      "signedPitchIntegralDegrees": 354.6871223172509,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.46,
+      "tilt": 1.3391850570313881,
+      "signedPitchIntegralDegrees": 354.5864076433923,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.48,
+      "tilt": 1.2645320994226983,
+      "signedPitchIntegralDegrees": 354.52279674415547,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.5,
+      "tilt": 1.2045730854771066,
+      "signedPitchIntegralDegrees": 354.44464598269735,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.52,
+      "tilt": 1.1249249575516544,
+      "signedPitchIntegralDegrees": 354.3687835057939,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.54,
+      "tilt": 1.049741896835136,
+      "signedPitchIntegralDegrees": 354.2917471021277,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.56,
+      "tilt": 0.9695626961397322,
+      "signedPitchIntegralDegrees": 354.20850623270707,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.58,
+      "tilt": 0.8742129917227458,
+      "signedPitchIntegralDegrees": 354.09867081116585,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.6,
+      "tilt": 0.7638085820989954,
+      "signedPitchIntegralDegrees": 353.98334775135925,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.62,
+      "tilt": 0.6528820614192512,
+      "signedPitchIntegralDegrees": 353.8751247636542,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.6400000000000001,
+      "tilt": 0.5551189934582199,
+      "signedPitchIntegralDegrees": 353.7756806260247,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.6600000000000001,
+      "tilt": 0.47337731145176,
+      "signedPitchIntegralDegrees": 353.6830726375397,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.68,
+      "tilt": 0.40090151142507324,
+      "signedPitchIntegralDegrees": 353.6153570305914,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.7,
+      "tilt": 0.34301742940922403,
+      "signedPitchIntegralDegrees": 353.57226943474734,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.72,
+      "tilt": 0.308314018315011,
+      "signedPitchIntegralDegrees": 353.54191718475954,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.74,
+      "tilt": 0.2725762616706504,
+      "signedPitchIntegralDegrees": 353.4837542332121,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.76,
+      "tilt": 0.24351693530165147,
+      "signedPitchIntegralDegrees": 353.46014482456377,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.78,
+      "tilt": 0.2339183344806027,
+      "signedPitchIntegralDegrees": 353.4490210917829,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.8,
+      "tilt": 0.2012730712584292,
+      "signedPitchIntegralDegrees": 353.42290902758435,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.82,
+      "tilt": 0.1841729719866773,
+      "signedPitchIntegralDegrees": 353.4216374019952,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.84,
+      "tilt": 0.16500690229126505,
+      "signedPitchIntegralDegrees": 353.41383137759163,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.86,
+      "tilt": 0.14826974307488697,
+      "signedPitchIntegralDegrees": 353.39617094332897,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.8800000000000001,
+      "tilt": 0.11970634891081278,
+      "signedPitchIntegralDegrees": 353.3794464405667,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.9000000000000001,
+      "tilt": 0.10078106601686564,
+      "signedPitchIntegralDegrees": 353.36354872464835,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.92,
+      "tilt": 0.09352503883209035,
+      "signedPitchIntegralDegrees": 353.36075720356075,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.94,
+      "tilt": 0.07987395126612737,
+      "signedPitchIntegralDegrees": 353.3509372865363,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.96,
+      "tilt": 0.07030654803749516,
+      "signedPitchIntegralDegrees": 353.3314718590482,
+      "clippedJoints": 0
+    },
+    {
+      "t": 1.98,
+      "tilt": 0.05505218986353254,
+      "signedPitchIntegralDegrees": 353.3074531871626,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.0,
+      "tilt": 0.04780355007750148,
+      "signedPitchIntegralDegrees": 353.2995159487388,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.02,
+      "tilt": 0.034517753556161455,
+      "signedPitchIntegralDegrees": 353.28591967455816,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.04,
+      "tilt": 0.025545551468051264,
+      "signedPitchIntegralDegrees": 353.26332744576996,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.06,
+      "tilt": 0.020890712497215178,
+      "signedPitchIntegralDegrees": 353.2555647117826,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.08,
+      "tilt": 0.013973395957503312,
+      "signedPitchIntegralDegrees": 353.25892198390176,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.1,
+      "tilt": 0.002295212255557453,
+      "signedPitchIntegralDegrees": 353.2555270765876,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.12,
+      "tilt": 0.00537441091116169,
+      "signedPitchIntegralDegrees": 353.24505042051334,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.14,
+      "tilt": 0.011812828172478864,
+      "signedPitchIntegralDegrees": 353.2249514143937,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.16,
+      "tilt": 0.014608641953288187,
+      "signedPitchIntegralDegrees": 353.2188151354706,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.18,
+      "tilt": 0.028016245431419076,
+      "signedPitchIntegralDegrees": 353.2059501310012,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.2,
+      "tilt": 0.030056562748652822,
+      "signedPitchIntegralDegrees": 353.2056781304563,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.22,
+      "tilt": 0.036937564497520205,
+      "signedPitchIntegralDegrees": 353.19612889698453,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.24,
+      "tilt": 0.042651706585028926,
+      "signedPitchIntegralDegrees": 353.17716178637005,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.2600000000000002,
+      "tilt": 0.044032225318276344,
+      "signedPitchIntegralDegrees": 353.17144006601836,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.2800000000000002,
+      "tilt": 0.05691471518974928,
+      "signedPitchIntegralDegrees": 353.1585889193119,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.3000000000000003,
+      "tilt": 0.05865453316953633,
+      "signedPitchIntegralDegrees": 353.1578662716596,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.32,
+      "tilt": 0.05839255576378941,
+      "signedPitchIntegralDegrees": 353.1677858906158,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.34,
+      "tilt": 0.06588101557347678,
+      "signedPitchIntegralDegrees": 353.16885767234623,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.36,
+      "tilt": 0.082567227016076,
+      "signedPitchIntegralDegrees": 353.1625631961882,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.38,
+      "tilt": 0.0839886658486364,
+      "signedPitchIntegralDegrees": 353.1456768845523,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.4,
+      "tilt": 0.08951858478039622,
+      "signedPitchIntegralDegrees": 353.14255572392295,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.42,
+      "tilt": 0.09440663605964388,
+      "signedPitchIntegralDegrees": 353.12914287999155,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.44,
+      "tilt": 0.09729970629984777,
+      "signedPitchIntegralDegrees": 353.1277860121225,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.46,
+      "tilt": 0.10042442164281595,
+      "signedPitchIntegralDegrees": 353.11582368607327,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.48,
+      "tilt": 0.10210925559480769,
+      "signedPitchIntegralDegrees": 353.115750724951,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.5,
+      "tilt": 0.11052271641015468,
+      "signedPitchIntegralDegrees": 353.1072097121955,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.52,
+      "tilt": 0.11679213592439609,
+      "signedPitchIntegralDegrees": 353.0878908339872,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.54,
+      "tilt": 0.11188952520270638,
+      "signedPitchIntegralDegrees": 353.10160982300636,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.56,
+      "tilt": 0.11688601628980066,
+      "signedPitchIntegralDegrees": 353.1043531882217,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.58,
+      "tilt": 0.12073298417031939,
+      "signedPitchIntegralDegrees": 353.096999678179,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.6,
+      "tilt": 0.12838469329728558,
+      "signedPitchIntegralDegrees": 353.10213080440656,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.62,
+      "tilt": 0.13047089999924788,
+      "signedPitchIntegralDegrees": 353.0972965059315,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.64,
+      "tilt": 0.13073421129870869,
+      "signedPitchIntegralDegrees": 353.10340141774765,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.66,
+      "tilt": 0.1379045540355431,
+      "signedPitchIntegralDegrees": 353.0997305340625,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.68,
+      "tilt": 0.13660249087991697,
+      "signedPitchIntegralDegrees": 353.1066297976852,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.7,
+      "tilt": 0.13643914098235038,
+      "signedPitchIntegralDegrees": 353.1016853390597,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.72,
+      "tilt": 0.14157770986100515,
+      "signedPitchIntegralDegrees": 353.10946496743134,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.74,
+      "tilt": 0.14668726072817728,
+      "signedPitchIntegralDegrees": 353.1071678223079,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.7600000000000002,
+      "tilt": 0.14408408827947533,
+      "signedPitchIntegralDegrees": 353.11519729414954,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.7800000000000002,
+      "tilt": 0.14900914891346262,
+      "signedPitchIntegralDegrees": 353.11332265316605,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.8000000000000003,
+      "tilt": 0.15339464601840713,
+      "signedPitchIntegralDegrees": 353.1011201652431,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.82,
+      "tilt": 0.15555186455587222,
+      "signedPitchIntegralDegrees": 353.1001946959757,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.84,
+      "tilt": 0.15053288411020532,
+      "signedPitchIntegralDegrees": 353.1094912438995,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.86,
+      "tilt": 0.1541582454599569,
+      "signedPitchIntegralDegrees": 353.108607965542,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.88,
+      "tilt": 0.16369076375748373,
+      "signedPitchIntegralDegrees": 353.09925668278316,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.9,
+      "tilt": 0.15671343223654313,
+      "signedPitchIntegralDegrees": 353.0989848297281,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.92,
+      "tilt": 0.15910666163261958,
+      "signedPitchIntegralDegrees": 353.0885459012331,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.94,
+      "tilt": 0.1599237945899221,
+      "signedPitchIntegralDegrees": 353.0892591338047,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.96,
+      "tilt": 0.15379675540264118,
+      "signedPitchIntegralDegrees": 353.10014828813456,
+      "clippedJoints": 0
+    },
+    {
+      "t": 2.98,
+      "tilt": 0.1618413416427907,
+      "signedPitchIntegralDegrees": 353.10160109775654,
+      "clippedJoints": 0
+    }
+  ]
+}

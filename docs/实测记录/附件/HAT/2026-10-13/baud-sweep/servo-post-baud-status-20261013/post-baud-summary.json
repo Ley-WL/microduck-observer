@@ -1,0 +1,23 @@
+{
+  "seconds": 10.005308007999929,
+  "uniqueJointSamples": 500,
+  "completeSamples": 500,
+  "zeroRxSamples": 0,
+  "onlineCountHistogram": {
+    "15": 500
+  },
+  "missingById": {},
+  "checksumErrorsInSampledReads": 0,
+  "sampledRxBytes": 159420,
+  "readMsMean": 4.4733983,
+  "readMsMax": 6.853610000000001,
+  "freshVoltageMin": 7.9,
+  "freshVoltageMax": 8.0,
+  "controlStates": {
+    "idle": 10
+  },
+  "serialBefore": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:3449 rx:904 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:1204380 rx:11926213 fe:3985 brk:62 oe:2 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:25 rx:11235394 fe:6 RTS|CTS|DTR\n",
+  "serialAfter": "serinfo:1.0 driver revision:\n1: uart:16550A mmio:0xFE650000 irq:31 tx:3449 rx:904 RTS|CTS|DTR\n2: uart:16550A mmio:0xFE660000 irq:32 tx:1227150 rx:12240463 fe:3985 brk:62 oe:2 RTS|DTR\n9: uart:16550A mmio:0xFE6D0000 irq:33 tx:25 rx:11343146 fe:6 RTS|CTS|DTR\n",
+  "hardwareMotion": false,
+  "uartOpened": false
+}

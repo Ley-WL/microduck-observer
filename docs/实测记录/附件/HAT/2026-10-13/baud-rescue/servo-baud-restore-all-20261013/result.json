@@ -1,0 +1,166 @@
+{
+  "persistentWrites": false,
+  "hardwareMotion": false,
+  "readbacks": {
+    "10": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "11": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "12": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "13": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "14": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "20": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "21": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "22": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "23": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "24": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "30": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "31": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "32": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "33": {
+      "baudIndex": 0,
+      "lock": 1
+    },
+    "34": {
+      "baudIndex": 0,
+      "lock": 1
+    }
+  },
+  "writes": [
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 6,
+      "value": 0
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 6,
+      "value": 0
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 6,
+      "value": 0
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 6,
+      "value": 0
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 6,
+      "value": 0
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 55,
+      "value": 1
+    },
+    {
+      "address": 6,
+      "value": 0
+    }
+  ],
+  "restoredAll15": true,
+  "serviceRestored": true
+}

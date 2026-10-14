@@ -40,8 +40,8 @@ const props = defineProps<{
 }>();
 defineEmits<{ calibrate: []; clear: []; pause: []; mounting: [value: number]; confirmReference: [] }>();
 const state = useTelemetry();
-const zeroPending = ref(false), zeroMessage = ref('');
-const zeroDisabled = computed(() => zeroPending.value || !board.ready || state.joints?.source !== 'hardware'
+const zeroPending = ref(false), homePending = ref(false), zeroMessage = ref('');
+const zeroDisabled = computed(() => zeroPending.value || homePending.value || !board.ready || state.joints?.source !== 'hardware'
   || state.jointsAge >= 500 || ['preflight', 'moving', 'policy', 'disabling'].includes(state.system?.data.servoControl?.state)
   || [10,11,12,13,14,20,21,22,23,24,30,31,32,33,34].some(id => !Number.isFinite(board.data?.joints.references[String(id)])));
 async function zeroJoints() {
@@ -61,6 +61,25 @@ async function zeroJoints() {
     if (endpoint === state.endpoint.replace(/\/$/, ''))
       zeroMessage.value = '零位结果未确认，请检查实时角度：' + (e instanceof Error ? e.message : String(e));
   } finally { zeroPending.value = false; }
+}
+async function homePose() {
+  if (zeroDisabled.value) return;
+  const endpoint = state.endpoint.replace(/\/$/, ''), boot = state.joints?.bootId;
+  homePending.value = true; zeroMessage.value = '';
+  try {
+    const response = await fetch(endpoint + '/api/v1/policy/home', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'xgoduck', speed: 0, revision: board.data?.revision }),
+      signal: AbortSignal.timeout(15000),
+    });
+    const result = await response.json();
+    if (endpoint === state.endpoint.replace(/\/$/, '') && boot === state.joints?.bootId)
+      zeroMessage.value = response.ok && result.state !== 'failed'
+        ? result.message : result.detail || result.message || 'HOME 姿态操作被拒绝';
+  } catch (e) {
+    if (endpoint === state.endpoint.replace(/\/$/, '') && boot === state.joints?.bootId)
+      zeroMessage.value = 'HOME 姿态结果未确认，请检查实时角度：' + (e instanceof Error ? e.message : String(e));
+  } finally { homePending.value = false; }
 }
 const robot = ref<InstanceType<typeof RobotView>>();
 const lastImu = computed(() => state.chart.at(-1));
@@ -145,6 +164,7 @@ const value = (values: number[] | undefined, i: number) =>
             :title="board.levelDisabledReason || '将当前姿态设为 Pitch/Roll 0°，保留航向；请先把躯干摆正。共享参考同时用于模型控制。'"
             @click="board.levelOrientation()">{{ board.saving ? '保存中…' : 'Pitch / Roll 归零' }}</button>
           <button class="button compact" :disabled="zeroDisabled" title="按已保存的位置标定，将全部15个关节（含嘴部）移动至0°并保持；请托住机器人。" @click="zeroJoints">{{ zeroPending ? '归零中…' : '零位' }}</button>
+          <button class="button compact" :disabled="zeroDisabled" title="移动至当前行走模型的 HOME 姿态并保持，不启动模型推理；请托住机器人。" @click="homePose">{{ homePending ? 'HOME 到位中…' : 'HOME 姿态' }}</button>
           <button class="button compact" :disabled="!board.ready" @click="installationOpen=true">IMU 安装位置</button>
           <button
             class="text-button"

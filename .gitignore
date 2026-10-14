@@ -15,3 +15,6 @@ __pycache__/
 
 # Local browser profiles and temporary QA files.
 /.local/
+
+# OTA verification key is public; private PEM files remain excluded.
+!deploy/ota-public.pem

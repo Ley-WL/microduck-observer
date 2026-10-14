@@ -92,9 +92,23 @@ impl Motion {
         Ok(value)
     }
     fn zero(&mut self) {
+        self.app.telemetry.write().unwrap().head_intent.clear();
+        self.zero_drive();
+    }
+    fn zero_drive(&mut self) {
         self.forward = 0.;
         self.turn = 0.;
         self.lateral = 0.;
+    }
+    fn quack_input(&mut self, head: [f64; 2]) {
+        self.zero_drive();
+        let ctrl = self.control();
+        let ready = self.phase == "active" && !self.stopped && !self.pending
+            && self.drive.as_deref().is_some_and(|session| ctrl["driveSession"] == session)
+            && crate::head_control::ready(&ctrl);
+        let mut telemetry = self.app.telemetry.write().unwrap();
+        if ready { telemetry.head_intent.set(head); }
+        else { telemetry.head_intent.clear(); }
     }
     fn control(&self) -> Value {
         self.app.telemetry.read().unwrap().control.clone()
@@ -102,7 +116,11 @@ impl Motion {
     fn sync(&mut self) {
         let ctrl = self.control();
         if let Some(session) = &self.drive {
-            if ctrl["state"] == "failed" {
+            // A newly accepted start can precede the worker's first status.
+            // The previous episode's failure must not discard that new lease.
+            // Worker failures carry their job session, including preflight errors.
+            if ctrl["state"] == "failed" && (ctrl["driveSession"] == session.as_str()
+                || (ctrl["driveSession"].is_null() && self.phase != "starting")) {
                 self.phase = "failed".into();
                 self.error = ctrl["message"].as_str().unwrap_or("模型失败").into();
                 self.drive = None;
@@ -181,6 +199,7 @@ impl Motion {
             }
         }
         observer["modelGains"] = json!({"p":crate::gains::ui_current().p,"d":crate::gains::ui_current().d,"supported":true,"appliesOn":"next-model-start"});
+        observer["observerOta"]=crate::observer_ota::status();observer["observerOta"]["supported"]=json!(crate::observer_ota::enabled());
         observer["calibration"] = self.app.cal.lock().unwrap().read(&s.boot);
         observer["system"] = json!({"bootId":s.boot,"source":if self.app.hardware {"hardware"} else {"simulation"},
             "resources":s.resources,"resourceAgeMs":s.resources["sampleMonoMs"].as_f64().map(|at|(crate::telemetry::monotonic()*1000.-at).max(0.)),
@@ -200,7 +219,7 @@ impl Motion {
         } else {
             "idle"
         };
-        json!({"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"sitSettleSeconds":ctrl["sitSettleSeconds"].as_f64().unwrap_or(2.),"standAllowed":ctrl["standAllowed"]==true,"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
+        json!({"headControl":true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&ctrl),"simulation":!self.app.hardware,"motion":self.app.owner.is_some() && crate::policy::metadata_for("xgoduck").is_some(),"mode":mode,"stopped":self.stopped,"forward":self.forward,"turn":self.turn,"attitude":null,"voltage":null,"imu":"integrated","protocol":1,"activeSkill":skill,"skillProgressSeconds":ctrl["skillProgressSeconds"].as_f64().unwrap_or(0.),"sitSettleSeconds":ctrl["sitSettleSeconds"].as_f64().unwrap_or(2.),"standAllowed":ctrl["standAllowed"]==true,"skillsPending":self.pending,"policy":"xgoduck","policyPhase":self.phase,"motionError":self.error,"observer":observer})
     }
     pub fn open(&mut self) -> Result<Value> {
         ensure!(!self.leased, "已有控制设备连接");
@@ -224,6 +243,20 @@ impl Motion {
         ensure!(!self.pending && !matches!(self.control()["state"].as_str(), Some("policy"|"moving"|"preflight"|"disabling")), "请先停止保持，再操作主板电源");
         self.zero();
         self.request(&format!("system/{action}"), Some(body)).await
+    }
+    pub async fn observer_ota(&mut self,body:Value)->Result<Value>{
+        ensure!(self.leased&&self.app.hardware,"请连接真实主板");
+        let op=body["op"].as_str().unwrap_or("");
+        if op=="check" {return crate::observer_ota::request(op).await;}
+        ensure!(op=="apply"&&body["confirm"]==true,"请确认更新操作");
+        ensure!(body["bootId"]==self.app.telemetry.read().unwrap().boot,"主板会话已变化，请重新确认");
+        let permit=self.app.gate.clone().try_acquire_owned()?;
+        let rows={let telemetry=self.app.telemetry.read().unwrap();telemetry.latest.get("joints").map(|s|telemetry.stamp(s)).unwrap_or(Value::Null)};
+        ensure!(rows["ageMs"].as_f64().is_some_and(|age|age<1000.),"反馈过期，不能更新");
+        ensure!(crate::observer_ota::idle(&json!({"system":{"data":{"servoControl":self.control()}},"joints":{"ageMs":rows["ageMs"],"data":rows["data"]}})),"请先急停卸力，15个舵机必须全部在线且失能");
+        self.zero();let result=crate::observer_ota::request(op).await?;ensure!(result["accepted"]==true,"主板未接受更新");
+        tokio::spawn(async move{let _permit=permit;for _ in 0..300{tokio::time::sleep(Duration::from_secs(1)).await;if matches!(crate::observer_ota::status()["phase"].as_str(),Some("failed"|"success")){break;}}});
+        Ok(result)
     }
     pub async fn halt(&mut self, unload: bool) -> Result<()> {
         self.sync();
@@ -306,6 +339,7 @@ impl Motion {
             (-1. ..=1.).contains(&f) && (-1. ..=1.).contains(&t) && (0. ..=1.0).contains(&speed),
             "控制量超出范围"
         );
+        let head=crate::head_control::parse(&body)?;
         self.sequence = Some(seq);
         self.last = Instant::now();
         self.sync();
@@ -325,7 +359,7 @@ impl Motion {
             "stand"=>{self.zero();if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"standup"}))).await?;self.pending=true;}},
             "prepare"=>anyhow::bail!("请先停止模型，再进入坐下预备"),
             "quack"=>{
-                self.zero();
+                self.quack_input(head);
                 if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/quack",Some(json!({"session":session,"sequence":self.drive_seq}))).await?;}
                 else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"]}))).await?;}
                 self.error.clear();
@@ -340,6 +374,8 @@ impl Motion {
             "drive"|"strafe_left"|"strafe_right"=>{
                 let ctrl=self.control();
                 if self.phase=="active" && ctrl["feedbackHolding"]!=true && ctrl["activeSkill"]=="xgoduck" && !self.pending {
+                    ensure!(head==[0.;2] || crate::head_control::ready(&ctrl),"当前模型不支持头部控制");
+                    self.app.telemetry.write().unwrap().head_intent.set(head);
                     self.error.clear();self.forward=f*speed;self.turn=(t*speed).clamp(-1.0,1.0);self.lateral=if action=="strafe_left"{0.3*speed}else if action=="strafe_right"{-0.3*speed}else{0.};
                 }else{self.zero();}
             },_=>{}
@@ -347,7 +383,7 @@ impl Motion {
         Ok(()) }.await;
         if let Err(e) = execution {
             self.app.telemetry.write().unwrap().log("WARN","ble-command",&format!("App动作失败：{action}，{e}"));
-            self.zero();
+            if action == "quack" { self.sync(); self.quack_input(head); } else { self.zero(); }
             self.error = e.to_string();
             if self.drive.is_none() && matches!(action, "prepare" | "stand" | "getup" | "standup") {
                 self.phase = "failed".into();
@@ -516,6 +552,21 @@ pub(crate) mod tests {
         assert_eq!(requests[0],("/api/v1/system/reboot".into(),json!({"confirm":true,"bootId":boot})));
         assert_eq!(requests[1].0,"/api/v1/system/poweroff");
     }
+    #[tokio::test]
+    async fn observer_ota_rejects_wrong_boot_missing_confirmation_busy_and_enabled_servos() {
+        let (mut motion,calls,_tmp)=fixture();
+        assert!(motion.observer_ota(json!({"op":"check"})).await.is_err());
+        motion.open().unwrap();assert!(motion.observer_ota(json!({"op":"apply","confirm":true})).await.is_err());
+        motion.app.hardware=true;let boot=motion.app.telemetry.read().unwrap().boot.clone();
+        assert!(motion.observer_ota(json!({"op":"apply","bootId":boot})).await.is_err());
+        assert!(motion.observer_ota(json!({"op":"apply","confirm":true,"bootId":"old"})).await.is_err());
+        let request=json!({"op":"apply","confirm":true,"bootId":boot});
+        let permit=motion.app.gate.clone().try_acquire_owned().unwrap();assert!(motion.observer_ota(request.clone()).await.is_err());drop(permit);
+        assert!(motion.observer_ota(request.clone()).await.is_err());
+        motion.app.telemetry.write().unwrap().sample("joints",json!({"servos":(0..15).map(|_|json!({"online":true,"torque":1,"ageMs":0})).collect::<Vec<_>>()}),true,Instant::now());
+        motion.app.telemetry.write().unwrap().control=json!({"state":"idle"});
+        assert!(motion.observer_ota(request).await.is_err());assert!(calls.lock().unwrap().is_empty());
+    }
     #[test]
     fn status_includes_resource_age_and_boot_for_app() {
         let (mut motion, _, _tmp) = fixture();
@@ -603,6 +654,28 @@ pub(crate) mod tests {
         assert!(calls.lock().unwrap().is_empty());
     }
     #[tokio::test]
+    async fn retry_getup_ignores_previous_failure_and_becomes_controllable() {
+        let (mut m,calls,_tmp)=fixture();m.open().unwrap();
+        m.app.telemetry.write().unwrap().control=json!({"state":"failed","message":"previous roll timeout"});
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        let response=m.command(json!({"seq":1,"action":"getup"})).await.unwrap();
+        assert_eq!(response["policyPhase"],"starting");assert_eq!(m.drive.as_deref(),Some("ble-session"));
+        m.app.telemetry.write().unwrap().control=json!({"state":"failed","driveSession":"previous-session","message":"previous roll timeout"});
+        assert_eq!(m.status()["policyPhase"],"starting");
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck_getup"});
+        assert_eq!(m.status()["activeSkill"],"xgoduck_getup");
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","feedbackHolding":false});
+        assert_eq!(m.status()["policyPhase"],"active");
+        m.command(drive(2)).await.unwrap();m.tick().await;
+        let last=calls.lock().unwrap().last().unwrap().clone();assert_eq!(last.0,"/api/v1/policy/command");assert_eq!(last.1["twist"][0],0.2);
+    }
+    #[tokio::test]
+    async fn current_episode_preflight_failure_still_clears_the_lease() {
+        let (mut m,_calls,_tmp)=fixture();m.open().unwrap();m.drive=Some("ble-session".into());m.phase="starting".into();
+        m.app.telemetry.write().unwrap().control=json!({"state":"failed","driveSession":"ble-session","message":"current preflight failed"});
+        assert_eq!(m.status()["policyPhase"],"failed");assert!(m.drive.is_none());assert_eq!(m.error,"current preflight failed");
+    }
+    #[tokio::test]
     async fn paused_feedback_cancels_intent_and_disconnect_halts_only_owned_policy() {
         let (mut m, calls, _tmp) = fixture();
         m.open().unwrap();
@@ -657,4 +730,30 @@ pub(crate) mod tests {
             "/api/v1/policy/stop"
         );
     }
+    #[tokio::test]
+    async fn quack_preserves_current_head_even_when_mouth_busy_but_honors_safety() {
+        let (mut m,calls,_tmp)=fixture();m.open().unwrap();
+        m.drive=Some("ble-session".into());m.phase="active".into();
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1","feedbackHolding":false});
+        m.forward=0.5;m.turn=0.5;
+        m.command(json!({"seq":1,"action":"quack","headPitch":0.6,"headYaw":-0.7})).await.unwrap();
+        assert_eq!(calls.lock().unwrap().last().unwrap().0,"/api/v1/policy/quack");
+        assert_eq!((m.forward,m.turn,m.lateral),(0.,0.,0.));
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.6,-0.7]);
+        m.router=Router::new().fallback(||async{(axum::http::StatusCode::CONFLICT,axum::Json(json!({"detail":"mouth busy"})))});
+        m.command(json!({"seq":2,"action":"quack","headPitch":-0.4,"headYaw":0.8})).await.unwrap();
+        assert_eq!(m.error,"mouth busy");
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[-0.4,0.8]);
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()+Duration::from_millis(251)),[0.,0.]);
+        m.command(json!({"seq":3,"action":"quack"})).await.unwrap();
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,0.]);
+        m.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(true);
+        m.command(json!({"seq":4,"action":"quack","headPitch":1})).await.unwrap();
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,0.]);
+        m.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(false);
+        m.stopped=true;
+        m.command(json!({"seq":5,"action":"quack","headPitch":1})).await.unwrap();
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,0.]);
+    }
+
 }

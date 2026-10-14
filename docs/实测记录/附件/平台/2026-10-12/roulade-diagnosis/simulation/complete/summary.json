@@ -1,0 +1,221 @@
+{
+  "training": false,
+  "gpuAccess": false,
+  "hardwareAccess": false,
+  "frictionRevision": "dof-id-friction-force-v1",
+  "bodyMassDifferenceBeforeAlignment": {
+    "trunk_base": -0.014756820000000004,
+    "yaw2roll": -0.005000000000000001,
+    "hip_l": 0.0,
+    "upper_leg_left": -0.010000000000000002,
+    "leg": -0.005000000000000001,
+    "ankle_left": 0.0,
+    "neck": -0.010000000000000002,
+    "neck_pitch": 0.0,
+    "yaw_roll_motion": -0.0049999999999999975,
+    "jaw_soft": -0.013000000000000012,
+    "bearing_roll": -0.005000000000000001,
+    "hip_l_2": 0.0,
+    "upper_leg_right": -0.010000000000000002,
+    "leg_2": -0.005000000000000001,
+    "ankle_right": 0.0
+  },
+  "bodyMassMaxDifferenceAfterAlignment": 0,
+  "constantSimVoltage": 7.4,
+  "actorFrozen": true,
+  "sameInitialQposAndQvelWithinEachStart": true,
+  "diagnosticOnly": true,
+  "limitations": [
+    "estimated base height from floor clearance",
+    "base translation velocity unavailable; set zero",
+    "no real transient voltage replay",
+    "replica CPU contact assembly not full training/hardware contact equivalence",
+    "signed pitch integral is a diagnostic, not certified full-roll success"
+  ],
+  "results": [
+    {
+      "label": "start0-training-unbounded",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 14.090710638273547,
+        "signedPitchIntegralDegrees": 341.54162787632885,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.374836801825465,
+        "signedPitchIntegralDegrees": 352.6426216377013,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.5873786295877849,
+        "signedPitchIntegralDegrees": 352.42270993258757,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 361.32447967217917,
+      "maxTilt": 179.3324139716304
+    },
+    {
+      "label": "start0-training-clipped",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 33.03014795492046,
+        "signedPitchIntegralDegrees": 322.33176208874715,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.05505218986353254,
+        "signedPitchIntegralDegrees": 353.3074531871626,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.1618413416427907,
+        "signedPitchIntegralDegrees": 353.10160109775654,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 361.6453630490679,
+      "maxTilt": 178.2368757051949
+    },
+    {
+      "label": "start0-mechanical-unbounded",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 14.150644965946945,
+        "signedPitchIntegralDegrees": 341.97967781149816,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.4405392313966929,
+        "signedPitchIntegralDegrees": 353.1562902122919,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.6448787787888641,
+        "signedPitchIntegralDegrees": 352.9181211230102,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 362.1912097046201,
+      "maxTilt": 179.3324139716304
+    },
+    {
+      "label": "start0-mechanical-clipped",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 35.061787688115984,
+        "signedPitchIntegralDegrees": 321.6965232401959,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.3970996128742522,
+        "signedPitchIntegralDegrees": 354.1795069667147,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.6468322746822492,
+        "signedPitchIntegralDegrees": 353.85243042455147,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 362.16322521746497,
+      "maxTilt": 177.38462422111212
+    },
+    {
+      "label": "start1-training-unbounded",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 8.30049249827911,
+        "signedPitchIntegralDegrees": 349.6109161913889,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.16557467694821112,
+        "signedPitchIntegralDegrees": 355.96060325301306,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.3866973664185945,
+        "signedPitchIntegralDegrees": 355.7367553490818,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 365.1485924727203,
+      "maxTilt": 177.37283422430954
+    },
+    {
+      "label": "start1-training-clipped",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 19.88142142384059,
+        "signedPitchIntegralDegrees": 339.23143731550084,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.05664448419905939,
+        "signedPitchIntegralDegrees": 357.2224802667659,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.17286618312114038,
+        "signedPitchIntegralDegrees": 357.02757004217506,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 365.6902550461852,
+      "maxTilt": 178.79053306448392
+    },
+    {
+      "label": "start1-mechanical-unbounded",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 7.324702641902233,
+        "signedPitchIntegralDegrees": 350.77106560485845,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.5145851925393687,
+        "signedPitchIntegralDegrees": 355.68383385288683,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.8936549469071767,
+        "signedPitchIntegralDegrees": 355.28840966839965,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 364.46377126718687,
+      "maxTilt": 177.37283422430954
+    },
+    {
+      "label": "start1-mechanical-clipped",
+      "at1sec": {
+        "t": 0.98,
+        "tilt": 22.19663507868945,
+        "signedPitchIntegralDegrees": 337.24367075205254,
+        "clippedJoints": 0
+      },
+      "at2sec": {
+        "t": 1.98,
+        "tilt": 0.40865772567010084,
+        "signedPitchIntegralDegrees": 356.9015436790432,
+        "clippedJoints": 0
+      },
+      "at3sec": {
+        "t": 2.98,
+        "tilt": 0.5379411282225031,
+        "signedPitchIntegralDegrees": 356.70458313042246,
+        "clippedJoints": 0
+      },
+      "maxSignedPitchIntegralDegrees": 365.3194517797392,
+      "maxTilt": 178.0781859236327
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "gap": false,
+  "items": [
+    {
+      "ageMs": 325251.26498,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815656503,
+        "level": "INFO",
+        "message": "Rust 后端启动",
+        "module": "server"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 0.011667,
+      "seq": 1,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 111350.78338300003,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815870404,
+        "level": "INFO",
+        "message": "App动作已收到：getup，seq=24",
+        "module": "ble-command"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 213900.526223,
+      "seq": 2,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 102140.66551399996,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815879614,
+        "level": "INFO",
+        "message": "App动作已收到：quack，seq=80",
+        "module": "ble-command"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 223110.670051,
+      "seq": 3,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 100592.98319799997,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815881161,
+        "level": "INFO",
+        "message": "App动作已收到：roulade，seq=89",
+        "module": "ble-command"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 224658.40107599998,
+      "seq": 4,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 100580.56642699998,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815881174,
+        "level": "INFO",
+        "message": "动作请求已排队：xgoduck_roulade，sequence=57",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 224670.839723,
+      "seq": 5,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 100552.80245399999,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815881202,
+        "level": "INFO",
+        "message": "模型已切换：xgoduck → xgoduck_roulade",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 224698.635488,
+      "seq": 6,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 96845.26974299998,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815884909,
+        "level": "WARN",
+        "message": "翻滚2秒窗口内未确认完整旋转并稳定直立，停止并卸力（倾角84.4°）；stage=policy-loop；本帧缺失[]，读取4.353206ms，校验错误0，收到315字节；诊断已保存；15 个舵机已失能（卸力）",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 228406.200283,
+      "seq": 7,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 92480.76022500003,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815889274,
+        "level": "INFO",
+        "message": "App动作已收到：getup，seq=138",
+        "module": "ble-command"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 232770.731385,
+      "seq": 8,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 79971.85369199998,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815901783,
+        "level": "INFO",
+        "message": "App动作已收到：stand，seq=213",
+        "module": "ble-command"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 245279.655418,
+      "seq": 9,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 79970.995593,
+      "bootId": "4ab6ce38-d7d0-41e2-a19c-3a978c792ba8",
+      "data": {
+        "eventTimeMs": 1791815901784,
+        "level": "WARN",
+        "message": "App动作失败：stand，已有标定或运动任务正在执行",
+        "module": "ble-command"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 245280.53976699998,
+      "seq": 10,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    }
+  ],
+  "nextCursor": 10
+}

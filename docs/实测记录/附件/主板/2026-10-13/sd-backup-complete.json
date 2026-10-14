@@ -1,0 +1,17 @@
+{
+  "phase": "complete",
+  "time": 1791857083.8195338,
+  "sourceDisk": {
+    "Number": 3,
+    "FriendlyName": "MXT-USB Storage Device",
+    "SerialNumber": "150101v01",
+    "Size": 63864569856,
+    "BusType": "USB",
+    "IsBoot": false,
+    "IsSystem": false
+  },
+  "size": 63864569856,
+  "sha256": "770b24e8e5365671efe95a3a26f5d6f5ea5f15fa5cc3aaef1c2b19f625c621c2",
+  "image": "D:\\Users\\wl\\Downloads\\MicroDuck-Flash\\MicroDuck-current-20261013-original64.img",
+  "sourceReadOnly": true
+}

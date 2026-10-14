@@ -97,6 +97,7 @@ impl State {
                 let result: Result<Value> = match body["type"].as_str() {
                     Some("command") => self.motion.command(body).await,
                     Some("power") => self.motion.power(body).await,
+                    Some("observer-ota") => self.motion.observer_ota(body).await,
                     Some("model-gains") => self.motion.request("model-gains", Some(body)).await,
                     Some("calibration") => {
                         let payload = body
@@ -445,7 +446,7 @@ mod tests {
         let greeting = exchange(&mut s, address, hello.clone()).await.unwrap();
         let greeting: Value = serde_json::from_slice(&greeting[1..]).unwrap();
         let key = derive(
-            &hex::decode("000102030405060708090a0b0c0d0e0f").unwrap(),
+            &hex::decode(crate::ducklink_protocol::AUTO_CODE).unwrap(),
             &format!("owner|{client}"),
         );
         let context = format!("1234567890abcdef|{}", greeting["nonce"].as_str().unwrap());

@@ -1,0 +1,19 @@
+{
+  "sourceHashesExactlyPreserved": true,
+  "realInputInferenceChecks": [
+    {
+      "file": "before.json",
+      "frames": 50,
+      "maxRawActionErrorRadians": 2.384185791015625e-07
+    },
+    {
+      "file": "after.json",
+      "frames": 50,
+      "maxRawActionErrorRadians": 2.384185791015625e-07
+    }
+  ],
+  "training": false,
+  "hardwareCommandsAdded": false,
+  "gpuAccess": false,
+  "fullRollAcceptance": false
+}

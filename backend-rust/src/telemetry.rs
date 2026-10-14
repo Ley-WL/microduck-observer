@@ -51,6 +51,7 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub head_intent:crate::head_control::HeadIntent,
     pub(crate) native_homed: bool,
     pub(crate) native_voltage:crate::policy::NativeVoltage,
     pub pending_skill: Option<String>,
@@ -99,7 +100,7 @@ impl Telemetry {
             || self.pending_skill.is_some() { return false; }
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
-        self.pending_mouth=None;self.pending_skill=Some(kind.to_owned());true
+        self.head_intent.clear();self.pending_mouth=None;self.pending_skill=Some(kind.to_owned());true
     }
 }
 impl DriveCommand {
@@ -278,7 +279,7 @@ impl Telemetry {
             native_voltage:crate::policy::NativeVoltage::default(),
             drive: None,
             pending_skill: None,
-            pending_quack:false, quack_running:false, pending_mouth: None, mouth_degrees: 0.,
+            head_intent:Default::default(), pending_quack:false, quack_running:false, pending_mouth: None, mouth_degrees: 0.,
             resources: Value::Null,
             boot: Uuid::new_v4().to_string(),
             source: if hardware { "hardware" } else { "simulation" }.into(),

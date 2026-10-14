@@ -1,0 +1,13 @@
+{
+  "pcmDb": 0,
+  "previousPcmDb": -10,
+  "persistent": true,
+  "audioPreviewExit": 0,
+  "initialSoundConfirmedByUser": true,
+  "userRequestedLouder": true,
+  "louderSoundConfirmedByUser": false,
+  "hardwareMotion": false,
+  "before": "Simple mixer control 'PCM',0\n  Capabilities: pvolume\n  Playback channels: Front Left - Front Right\n  Limits: Playback 0 - 127\n  Mono:\n  Front Left: Playback 107 [84%] [-10.00dB]\n  Front Right: Playback 107 [84%] [-10.00dB]\n",
+  "after": "Simple mixer control 'PCM',0\n  Capabilities: pvolume\n  Playback channels: Front Left - Front Right\n  Limits: Playback 0 - 127\n  Mono:\n  Front Left: Playback 127 [100%] [0.00dB]\n  Front Right: Playback 127 [100%] [0.00dB]\n",
+  "audioSha256": "fa15af962e1206088c982c78bf0d01f79eb406e72962a9d9e54cea96296888f0"
+}

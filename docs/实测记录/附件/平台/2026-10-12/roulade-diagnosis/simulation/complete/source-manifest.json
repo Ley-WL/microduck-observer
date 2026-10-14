@@ -1,0 +1,15 @@
+{
+  "training": false,
+  "hardwareAccess": false,
+  "gpuAccess": false,
+  "sourceHashes": {
+    "simulate-roll.py": "27a88d12b3e49a2e28c90c425a20c1f76d2e05c715f49ce82f7c065432641210",
+    "evaluate_skills_cpu.py": "eaaf8134acb2ef619b34fb0131b4061718f952b4d993af964505d1b96d15e5b3",
+    "bam_cpu_controller.py": "e300e825a238ed7aeb527c3782d6cd9e1fdbe43541cfcc48dd23ace86dd09405",
+    "roulade.onnx": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
+    "contract.json": "ed711ad5a9d13f02d88901c0e238b56766d75a6b986ca022ca7006bbc7bed527",
+    "limits.json": "dd288139745838c91ccd59b5641aaf8da8a296dc2e116c0c30e72aa46cc7a404",
+    "before.json": "25f30a5ddd4145863dd4e2e2dc95c278f1056d64da3d3c2ac6d98fb5d7ec02b8",
+    "after.json": "ebc4b3d32bb29f7555aec22ff80652c7b3cbda95ef0161476241b818fc923245"
+  }
+}

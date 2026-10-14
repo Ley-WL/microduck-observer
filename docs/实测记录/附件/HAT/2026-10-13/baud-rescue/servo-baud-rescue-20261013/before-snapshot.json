@@ -1,0 +1,391 @@
+{
+  "calibration": {
+    "bootId": "ee764753-aa5e-4152-8712-650de410b494",
+    "deviceId": "f2ddec71-e67b-4d69-81ea-301434668a3b",
+    "imu": {
+      "bootId": "ee764753-aa5e-4152-8712-650de410b494",
+      "initialized": true,
+      "mountingQuaternion": [
+        -0.0001834299496673054,
+        -0.7326422509126465,
+        -0.0005837753775421644,
+        0.6806136626144181
+      ],
+      "mountingSamples": {},
+      "quaternion": [
+        -0.03840679023745413,
+        0.06906057933978045,
+        0.9966979050442295,
+        -0.0186772836717243
+      ],
+      "targetQuaternion": [
+        0,
+        -0.7071067811865476,
+        0,
+        0.7071067811865476
+      ],
+      "time": "2026/10/13 17:29:03",
+      "validForBoot": true
+    },
+    "joints": {
+      "directions": {},
+      "initialized": true,
+      "references": {
+        "10": 2033,
+        "11": 1990,
+        "12": 2378,
+        "13": 2240,
+        "14": 2027,
+        "20": 2009,
+        "21": 2046,
+        "22": 1936,
+        "23": 1961,
+        "24": 2577,
+        "30": 2226,
+        "31": 2100,
+        "32": 2001,
+        "33": 1931,
+        "34": 2047
+      }
+    },
+    "mounting": {
+      "yaw": 0
+    },
+    "revision": 61,
+    "schema": 1,
+    "updatedAt": 1791896449450
+  },
+  "imu.orientation": {
+    "ageMs": 1.0086919999448583,
+    "bootId": "ee764753-aa5e-4152-8712-650de410b494",
+    "data": {
+      "accuracy": null,
+      "calibrationId": null,
+      "device": "MS901M",
+      "frame": "sensor",
+      "mountingCalibrated": false,
+      "quaternion": [
+        0.0042724609375,
+        0.004486083984375,
+        0.937042236328125,
+        -0.34912109375
+      ],
+      "timestampBasis": "host_receive"
+    },
+    "protocolVersion": 1,
+    "sampleMonoMs": 307634.68654100003,
+    "seq": 61252,
+    "source": "hardware",
+    "topic": "imu.orientation",
+    "type": "sample",
+    "valid": true
+  },
+  "imu.raw": {
+    "ageMs": 3.7737740000593476,
+    "bootId": "ee764753-aa5e-4152-8712-650de410b494",
+    "data": {
+      "accel": [
+        0.12449848632812499,
+        0.0718260498046875,
+        9.811438403320311
+      ],
+      "accelAccuracy": null,
+      "accelUnit": "m/s\u00b2",
+      "device": "MS901M",
+      "frame": "sensor",
+      "gyro": [
+        -0.0010652644360316954,
+        0.0010652644360316954,
+        -0.0021305288720633907
+      ],
+      "gyroAccuracy": null,
+      "gyroUnit": "rad/s",
+      "timestampBasis": "host_receive"
+    },
+    "protocolVersion": 1,
+    "sampleMonoMs": 307631.95791099995,
+    "seq": 61251,
+    "source": "hardware",
+    "topic": "imu.raw",
+    "type": "sample",
+    "valid": true
+  },
+  "joints": {
+    "ageMs": 13.657731999992393,
+    "bootId": "ee764753-aa5e-4152-8712-650de410b494",
+    "data": {
+      "configuredIds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        20,
+        21,
+        22,
+        23,
+        24,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "diagnostics": {
+        "checksumErrors": 0,
+        "discardedBeforeRead": 0,
+        "discardedBeforeReadHex": "",
+        "discardedBytes": 0,
+        "elapsedMs": 30.247930999999998,
+        "feedbackTargetHz": 100,
+        "kind": "read",
+        "missingIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "mono": 307.61828464,
+        "observedScanHz": 25.581138407123767,
+        "pendingHex": "",
+        "profileMissingIds": [],
+        "readAddress": 56,
+        "readLength": 15,
+        "receivedIds": [],
+        "rejectedFrames": [],
+        "replyBudgetMs": 30.0,
+        "requestedIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "rxBytes": 0,
+        "rxHex": "",
+        "skippedScanTicks": 22892,
+        "txDrainMs": 0.0,
+        "txHex": "fffffe1382380f0a0b0c0d0e14151617181e1f202122db"
+      },
+      "error": "",
+      "readMode": "sync-read",
+      "scanMs": 30.247930999999998,
+      "servos": [
+        {
+          "ageMs": 0,
+          "id": 10,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 11,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 12,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 13,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 14,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 20,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 21,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 22,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 23,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 24,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 30,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 31,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 32,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 33,
+          "online": false
+        },
+        {
+          "ageMs": 0,
+          "id": 34,
+          "online": false
+        }
+      ],
+      "targetHz": 100
+    },
+    "protocolVersion": 1,
+    "sampleMonoMs": 307622.198181,
+    "seq": 7868,
+    "source": "hardware",
+    "topic": "joints",
+    "type": "sample",
+    "valid": true
+  },
+  "logs": {
+    "ageMs": 307635.81390899996,
+    "bootId": "ee764753-aa5e-4152-8712-650de410b494",
+    "data": {
+      "eventTimeMs": 1791896442053,
+      "level": "INFO",
+      "message": "Rust \u540e\u7aef\u542f\u52a8",
+      "module": "server"
+    },
+    "protocolVersion": 1,
+    "sampleMonoMs": 0.063,
+    "seq": 1,
+    "source": "hardware",
+    "topic": "logs",
+    "type": "sample",
+    "valid": true
+  },
+  "system": {
+    "ageMs": 162.36822100001154,
+    "bootId": "ee764753-aa5e-4152-8712-650de410b494",
+    "data": {
+      "imu": {
+        "address": null,
+        "baud": 115200,
+        "checksumErrors": 0,
+        "counts": {
+          "accel": 61218,
+          "gyro": 61218,
+          "quaternion": 61219
+        },
+        "device": "/dev/ttyS9",
+        "droppedEvents": 0,
+        "frames": {
+          "01": 61219,
+          "02": 61219,
+          "03": 61218,
+          "06": 61219
+        },
+        "ioErrors": 0,
+        "model": "MS901M",
+        "mountingCalibrated": false,
+        "observedHz": {
+          "accel": 199.1047908500992,
+          "gyro": 199.1047908500992,
+          "quaternion": 199.1080432397697
+        },
+        "productId": null,
+        "rangeState": "confirmed",
+        "ranges": {
+          "accelG": 4.0,
+          "gyroDps": 2000.0
+        },
+        "readerTiming": {
+          "lastSerialReadMs": 2.902432,
+          "maxPublishLockWaitMs": 378.48945499999996,
+          "maxReadGapMs": 378.84645500000005,
+          "maxSerialReadMs": 16.058585,
+          "receivedBytes": 3305865,
+          "timestampBasis": "host_receive"
+        },
+        "sampleAgeMs": 4.190197999996599,
+        "state": "streaming",
+        "unparsedReports": 0
+      },
+      "resources": {
+        "board": {
+          "architecture": "aarch64",
+          "hostname": "microduck-4152e0",
+          "kernel": "6.1.115-vendor-rk35xx",
+          "model": "Radxa ZERO 3",
+          "os": "Armbian 26.2.1 trixie",
+          "release": "frontend-20261013-173900",
+          "serviceVersion": "0.9.1"
+        },
+        "boardUptimeSeconds": 321.8,
+        "cpuUsagePercent": 30.927835051546392,
+        "intervalMs": 2000,
+        "memory": {
+          "availableBytes": 866136064,
+          "totalBytes": 1009881088,
+          "usagePercent": 14.233856412211573,
+          "usedBytes": 143745024
+        },
+        "sampleMonoMs": 306473.94799300004,
+        "temperature": {
+          "celsius": 60.0,
+          "sensor": "soc-thermal"
+        }
+      },
+      "scenario": null,
+      "servoControl": {
+        "message": "\u7b49\u5f85\u64cd\u4f5c",
+        "state": "idle"
+      },
+      "tof": {
+        "ageMs": null,
+        "error": "No such file or directory (os error 2)",
+        "hz": 0,
+        "state": "offline"
+      },
+      "uptimeSeconds": 307.473462904
+    },
+    "protocolVersion": 1,
+    "sampleMonoMs": 307473.59879599995,
+    "seq": 303,
+    "source": "hardware",
+    "topic": "system",
+    "type": "sample",
+    "valid": true
+  }
+}

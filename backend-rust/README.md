@@ -30,6 +30,7 @@ MICRODUCK_BIND=127.0.0.1:8877 ./target/release/microduck-observer
 | MICRODUCK_IMU_DRIVER | ms901m |
 | MICRODUCK_IMU_PORT | 当前HAT /dev/ttyS9，115200bps |
 | MICRODUCK_SERVO_PORT | 当前HAT /dev/ttyS2，1Mbps；空值禁用 |
+| MICRODUCK_SERVO_BAUD | 舵机串口速率，默认1000000；支持厂家8档38400～1000000。必须与舵机地址6一致，此选项只设置主板串口，不自动写舵机配置；低速不保证既有控制频率。 |
 | MICRODUCK_SERVO_IDS | 逗号分隔的配置ID，生产为10–14、20–24、30–34 |
 | MICRODUCK_TOF_SOCKET | /run/tofd/tof.sock；空值禁用 |
 | MICRODUCK_POLICY_PATH | v5 ONNX模型，与同名.metadata.json配套 |

@@ -1,0 +1,6 @@
+{
+  "localPath": "deploy/staging/bootstrap/payload.tar.gz",
+  "sha256": "a42d52b18249d6f58296f6fcdaa5d68e4347fa0d79bc304f35e338d31ae4fbb0",
+  "provenance": "Original SD backup current runtime-20261013-085643; validated on board87 2026-10-13",
+  "note": "Frozen verified bootstrap bundle. For newer builds provide a newly validated bundle and explicit SHA256."
+}

@@ -1,0 +1,28 @@
+{
+  "baud": 1000000,
+  "internalLoopFlagVerified": true,
+  "rows": [
+    {
+      "trial": 0,
+      "txHex": "4d6963726f4475636b2d496e7465726e616c2d526561644f6e6c792d30",
+      "rxHex": "4d6963726f4475636b2d496e7465726e616c2d526561644f6e6c792d30",
+      "matched": true
+    },
+    {
+      "trial": 1,
+      "txHex": "4d6963726f4475636b2d496e7465726e616c2d526561644f6e6c792d31",
+      "rxHex": "4d6963726f4475636b2d496e7465726e616c2d526561644f6e6c792d31",
+      "matched": true
+    },
+    {
+      "trial": 2,
+      "txHex": "4d6963726f4475636b2d496e7465726e616c2d526561644f6e6c792d32",
+      "rxHex": "4d6963726f4475636b2d496e7465726e616c2d526561644f6e6c792d32",
+      "matched": true
+    }
+  ],
+  "hardwareMotion": false,
+  "dataContainsServoInstructions": false,
+  "loopModeRestored": true,
+  "serviceRestarted": true
+}

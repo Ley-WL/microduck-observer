@@ -16,6 +16,7 @@ use std::{
 pub const SERVICE: &str = "5d6b1000-6c69-4e6b-9f21-4475636b4c6b";
 pub const RX: &str = "5d6b1001-6c69-4e6b-9f21-4475636b4c6b";
 pub const TX: &str = "5d6b1002-6c69-4e6b-9f21-4475636b4c6b";
+pub const AUTO_CODE: &str = "00000000000000000000000000123456";
 const MAX_FRAME: usize = 8192;
 fn valid_hex(s: &str, size: usize) -> bool {
     s.len() == size
@@ -69,7 +70,7 @@ impl Identity {
                 .unwrap())
         } else {
             Ok(derive(
-                &hex::decode(self.data["setupCode"].as_str().unwrap())?,
+                &hex::decode(AUTO_CODE)?,
                 &format!("owner|{client}"),
             ))
         }
@@ -329,6 +330,7 @@ mod tests {
         let mut identity = Identity::load(path.clone()).unwrap();
         let client = "a".repeat(32);
         let key = identity.owner_key(&client).unwrap();
+        assert_eq!(key,derive(&hex::decode(AUTO_CODE).unwrap(),&format!("owner|{client}")));
         identity.bind(&client, &key).unwrap();
         let mut reloaded = Identity::load(path).unwrap();
         assert_eq!(reloaded.owner_key(&client).unwrap(), key);
@@ -337,6 +339,14 @@ mod tests {
         reloaded.unbind(&client).unwrap();
         assert!(reloaded.data["owner"].is_null());
         assert!(reloaded.owner_key(&"b".repeat(32)).is_ok());
+    }
+    #[test]
+    fn existing_owner_key_is_not_replaced_by_auto_code() {
+        let tmp=tempfile::tempdir().unwrap();let path=tmp.path().join("identity.json");let client="a".repeat(32);let old=[17u8;32];
+        std::fs::write(&path,json!({"robotId":"1234567890abcdef","setupCode":"000102030405060708090a0b0c0d0e0f","owner":{"client":client,"key":hex::encode(old)}}).to_string()).unwrap();
+        let identity=Identity::load(path).unwrap();assert_eq!(identity.owner_key(&client).unwrap(),old);
+        assert_ne!(old,derive(&hex::decode(AUTO_CODE).unwrap(),&format!("owner|{client}")));
+        assert!(identity.owner_key(&"b".repeat(32)).is_err());
     }
     #[test]
     fn android_vector_crypto_and_replay() {
