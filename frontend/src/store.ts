@@ -1,3 +1,4 @@
+import {freshGamepad,validGamepad} from './gamepadFeedback';
 import { validTof } from "./tof";
 import { computed, ref, shallowRef, onScopeDispose } from "vue";
 import { defineStore } from "pinia";
@@ -34,6 +35,12 @@ export const useTelemetry = defineStore("telemetry", () => {
   let pendingTofReceived = 0;
   const tofAge = computed(() => tof.value ? tof.value.ageMs + Math.max(0, now.value - tofReceived.value) : Infinity);
   const system = shallowRef<Sample | null>(null);
+  const gamepad = shallowRef<Sample | null>(null);
+  const gamepadReceived = ref(0);
+  const gamepadFeedback = computed(()=>freshGamepad(gamepad.value,
+    gamepad.value ? gamepad.value.ageMs + Math.max(0,now.value-gamepadReceived.value) : Infinity,
+    connection.value==='在线'));
+
   const joints = shallowRef<Sample | null>(null);
   const jointsReceived = ref(0);
   const jointsAge = computed(() => joints.value
@@ -100,6 +107,7 @@ export const useTelemetry = defineStore("telemetry", () => {
     pendingTof = null;
     joints.value = null;
     system.value = null;
+    gamepad.value = null;
     pendingJoints = null;
     pose.value = null;
     sensorOrientation.value = null;
@@ -172,6 +180,10 @@ export const useTelemetry = defineStore("telemetry", () => {
       pendingTof = item;
       pendingTofReceived = performance.now();
       if (!paused.value) { tof.value = item; tofReceived.value = pendingTofReceived; }
+    } else if (item.topic === "gamepad") {
+      if (!validGamepad(item.data)) { gamepad.value=null; rejected.value++; return; }
+      gamepad.value=item;
+      gamepadReceived.value=performance.now();
     } else if (item.topic === "system") {
       system.value = item;
     } else if (item.topic === "logs") {
@@ -350,6 +362,7 @@ export const useTelemetry = defineStore("telemetry", () => {
   return {
     tof,
     tofAge,
+    gamepadFeedback,
     system,
     joints,
     jointsAge,

@@ -36,6 +36,7 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     let mut r = BTreeMap::from([
         ("imu.raw".into(), json!(50)),
         ("system".into(), json!(1)),
+        ("gamepad".into(), json!(25)),
         ("logs".into(), Value::Null),
     ]);
     r.insert(

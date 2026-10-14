@@ -7,6 +7,7 @@ use std::{
     fs::{File, OpenOptions},
     os::fd::AsRawFd,
     time::Duration,
+    sync::Arc,
 };
 
 const A: usize = 304;
@@ -60,6 +61,7 @@ fn axis(raw: AbsInfo) -> Result<f64> {
 struct Sample {
     axes: [f64; 4],
     keys: [bool; 8],
+    dpad: [bool; 4],
 }
 impl Sample {
     fn down(&self, code: usize) -> bool {
@@ -69,13 +71,14 @@ impl Sample {
         self.axes.iter().all(|v| *v == 0.)
     }
     fn neutral(&self) -> bool {
-        self.centered() && self.keys.iter().all(|v| !v)
+        self.centered() && self.keys.iter().chain(self.dpad.iter()).all(|v| !v)
     }
 }
 
 struct Device {
     file: File,
     axes: [u32; 4],
+    hats: [bool; 2],
 }
 impl Device {
     fn open(path: &str, expected_name: &str, axes: [u32; 4]) -> Result<Self> {
@@ -97,7 +100,10 @@ impl Device {
                 .all(|k| key_bits[k / 8] & (1 << (k % 8)) != 0),
             "gamepad lacks Xbox-layout buttons"
         );
-        let device = Self { file, axes };
+        let mut abs_bits = [0u8; 8];
+        read_ioctl(&file, 0x23, &mut abs_bits)?; // EVIOCGBIT(EV_ABS)
+        let hats = [16usize, 17].map(|code| abs_bits[code / 8] & (1 << (code % 8)) != 0);
+        let device = Self { file, axes, hats };
         device.sample()?;
         Ok(device)
     }
@@ -114,6 +120,19 @@ impl Device {
             let mut abs = AbsInfo::default();
             read_ioctl(&self.file, 0x40 + code, &mut abs)?;
             sample.axes[i] = axis(abs)?;
+        }
+        let mut hat = [0; 2];
+        for (i, supported) in self.hats.iter().enumerate() {
+            if *supported {
+                let mut abs = AbsInfo::default();
+                read_ioctl(&self.file, 0x40 + 16 + i as u32, &mut abs)?;
+                hat[i] = abs.value;
+            }
+        }
+        // Xbox hats and Linux BTN_DPAD variants are both display-only.
+        sample.dpad = [hat[1] < 0, hat[0] < 0, hat[0] > 0, hat[1] > 0];
+        for (i, code) in [544usize, 546, 547, 545].iter().enumerate() {
+            sample.dpad[i] |= keys[code / 8] & (1 << (code % 8)) != 0;
         }
         Ok(sample)
     }
@@ -170,7 +189,59 @@ fn report(app: &App, message: &str) {
         .log("INFO", "gamepad", message);
 }
 
+fn input_data(name: &str, sample: Option<&Sample>) -> serde_json::Value {
+    let empty = Sample::default();
+    let current = sample.unwrap_or(&empty);
+    let mut buttons = serde_json::Map::new();
+    for (key, down) in ["a", "b", "x", "y", "lb", "rb", "back", "start"].iter().zip(current.keys) {
+        buttons.insert((*key).into(), json!(down));
+    }
+    for (key, down) in ["up", "left", "right", "down"].iter().zip(current.dpad) {
+        buttons.insert((*key).into(), json!(down));
+    }
+    json!({"connected":sample.is_some(),"device":name,"buttons":buttons,"axes":current.axes})
+}
+fn publish_input(app: &App, name: &str, sample: Option<&Sample>) {
+    app.telemetry.write().unwrap().sample("gamepad", input_data(name, sample), true, std::time::Instant::now());
+}
+// Sampling is independent of motion HTTP requests: release feedback remains live
+// while a stand/getup request is waiting on the robot's control service.
+struct InputMonitor { task: tokio::task::JoinHandle<()>, app: App, name: String }
+impl Drop for InputMonitor {
+    fn drop(&mut self) {
+        self.task.abort();
+        publish_input(&self.app, &self.name, None);
+    }
+}
+fn monitor(app: App, name: String, device: Arc<Device>) -> Result<(InputMonitor, tokio::sync::watch::Receiver<std::result::Result<(std::time::Instant, Sample), String>>)> {
+    let first = device.sample()?;
+    publish_input(&app, &name, Some(&first));
+    let (tx, rx) = tokio::sync::watch::channel(Ok((std::time::Instant::now(), first)));
+    let reader_app = app.clone();
+    let reader_name = name.clone();
+    let task = tokio::spawn(async move {
+        let mut clock = tokio::time::interval(Duration::from_millis(40));
+        clock.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+        loop {
+            clock.tick().await;
+            match device.sample() {
+                Ok(sample) => {
+                    publish_input(&reader_app, &reader_name, Some(&sample));
+                    if tx.send(Ok((std::time::Instant::now(), sample))).is_err() { break; }
+                }
+                Err(error) => {
+                    publish_input(&reader_app, &reader_name, None);
+                    let _ = tx.send(Err(error.to_string()));
+                    break;
+                }
+            }
+        }
+    });
+    Ok((InputMonitor { task, app, name }, rx))
+}
+
 pub fn spawn(app: App, router: Router) {
+    publish_input(&app, "", None);
     let Ok(path) = std::env::var("MICRODUCK_GAMEPAD_DEVICE") else {
         return;
     };
@@ -199,7 +270,8 @@ pub fn spawn(app: App, router: Router) {
         let mut last_error = String::new();
         while !app.shutdown.load(std::sync::atomic::Ordering::Acquire) {
             let result = async {
-                let device = Device::open(&path, &name, axes)?;
+                let device = Arc::new(Device::open(&path, &name, axes)?);
+                let (_monitor, samples) = monitor(app.clone(), name.clone(), device)?;
                 last_error.clear();
                 report(
                     &app,
@@ -221,7 +293,8 @@ pub fn spawn(app: App, router: Router) {
                         report(&app, "手柄采样中断，已释放控制，请回中后重新启动");
                     }
                     last_tick = std::time::Instant::now();
-                    let sample = device.sample()?;
+                    let (sampled_at, sample) = samples.borrow().clone().map_err(anyhow::Error::msg)?;
+                    ensure!(sampled_at.elapsed() < Duration::from_millis(250), "gamepad sample expired");
                     let ready = motion.leased && motion.status()["headReady"] == true;
                     if let Some(action) = input.update(&sample, ready) {
                         if action == "estop" {
@@ -283,7 +356,23 @@ mod tests {
         Sample {
             axes,
             keys: BUTTONS.map(|key| keys.contains(&key)),
+            dpad: [false; 4],
         }
+    }
+    #[test]
+    fn input_feedback_preserves_raw_keys_and_clears_on_disconnect() {
+        let mut raw = sample(&[A, LB, START], [0.5, -1., 0., 1.]);
+        raw.dpad = [true, false, true, false];
+        let data = input_data("test-pad", Some(&raw));
+        assert_eq!(data["buttons"]["a"], true);
+        assert_eq!(data["buttons"]["start"], true);
+        assert_eq!(data["buttons"]["up"], true);
+        assert_eq!(data["axes"][1], -1.);
+        let offline = input_data("test-pad", None);
+        assert_eq!(offline["connected"], false);
+        assert!(offline["buttons"].as_object().unwrap().values().all(|v| v == false));
+        assert_eq!(offline["axes"], json!([0., 0., 0., 0.]));
+        assert!(!raw.neutral());
     }
     #[test]
     fn normalize_signed_unsigned_deadzone_and_invalid_ranges() {

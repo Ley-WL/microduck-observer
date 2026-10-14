@@ -1,7 +1,7 @@
 // Display rates only: hardware acquisition and policy loops keep their own rates.
 export const dashboardTopics = {
   pose: 50, "imu.orientation": 50, "imu.raw": 10,
-  joints: 10, tof: 10, system: 1, logs: null,
+  joints: 10, tof: 10, gamepad: 25, system: 1, logs: null,
 };
 
 export class StreamWatchdog {
