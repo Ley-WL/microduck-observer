@@ -1,0 +1,18 @@
+
+> microduck-observer@0.8.0 build
+> vue-tsc -b && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 679 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                     0.46 kB │ gzip:   0.31 kB
+dist/assets/index-CLuDcvjc.css     64.28 kB │ gzip:  13.17 kB
+dist/assets/index-CCdv-RGg.js   1,210.33 kB │ gzip: 372.30 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 4.29s

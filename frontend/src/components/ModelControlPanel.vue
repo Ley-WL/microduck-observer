@@ -5,7 +5,7 @@ import ModelRuntime from './ModelRuntime.vue';
 <template>
   <section class="model-controls" aria-label="实机模型控制">
     <div class="control-heading">
-      <div><span class="control-symbol" aria-hidden="true">◇</span><strong>模型控制</strong></div>
+      <div><span class="control-symbol" aria-hidden="true">◇</span><strong>模型手柄</strong></div>
       <span class="backend-tag">实机模型</span>
     </div>
     <ModelRuntime />

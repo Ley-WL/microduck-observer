@@ -343,7 +343,7 @@ async fn policy_info(State(a): State<App>) -> Json<Value> {
         json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata})
     }).collect();
     Json(
-        json!({"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
 async fn model_gains_info() -> Json<Value> {
@@ -393,6 +393,40 @@ fn policy_home_command(kind:&str,cal:Value)->anyhow::Result<Value> {
     let targets=policy::home_targets_for(kind)?;
     Ok(json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind,"requireUpright":true}))
 }
+fn policy_drive_command(shared: &mut Telemetry, body: &Value) -> Response {
+        let twist=match policy::drive_twist(&body) { Ok(v)=>v, Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string()) };
+        let head=match head_control::parse(&body) { Ok(v)=>v, Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string()) };
+        let has_head=body.get("headPitch").is_some() || body.get("headYaw").is_some();
+        let Some(sequence)=body["sequence"].as_u64() else { return error(StatusCode::BAD_REQUEST,"缺少行走指令序号"); };
+        if shared.control["state"]!="policy" || shared.control["kind"]!="xgoduck" {
+            return error(StatusCode::CONFLICT,"请先启动XgoDuck零速度平衡，等待预备姿势完成");
+        }
+        if shared.control["feedbackHolding"]==true {
+            let message = if shared.control["policyPhase"]=="imu-hold" {
+                "IMU数据暂时过期，行走已暂停；恢复后请松开并重新按住方向"
+            } else {
+                "舵机反馈暂缺，行走已暂停；恢复后请松开并重新按住方向"
+            };
+            return error(StatusCode::CONFLICT,message);
+        }
+        if shared.control["activeSkill"]=="sitstand_sit" {
+            return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
+        }
+        if shared.pending_skill.is_some() || shared.control["activeSkill"].as_str().is_some_and(|kind|kind!="xgoduck") {
+            return error(StatusCode::CONFLICT,"动作执行中，方向指令暂不可用");
+        }
+        if has_head && head != [0.;2] && !head_control::ready(&shared.control) {
+            return error(StatusCode::CONFLICT,"当前模型不支持头部控制");
+        }
+        let Some(drive)=shared.drive.as_mut() else { return error(StatusCode::CONFLICT,"行走会话已结束"); };
+        if !drive.update(body["session"].as_str().unwrap_or(""),sequence,twist) {
+            return error(StatusCode::CONFLICT,"行走会话或指令序号已过期");
+        }
+        // Apply only after the shared session/sequence accepted the body command.
+        // Legacy BLE renewals omit these fields and retain their own head intent.
+        if has_head { shared.head_intent.set(head); }
+        Json(json!({"state":"commanded","twist":twist,"sequence":sequence})).into_response()
+}
 async fn policy_action(
     State(a): State<App>,
     Path(action): Path<String>,
@@ -441,31 +475,7 @@ async fn policy_action(
         return Json(json!({"state":"queued","angleDeg":degrees})).into_response();
     }
     if action == "command" {
-        let twist=match policy::drive_twist(&body) { Ok(v)=>v, Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string()) };
-        let Some(sequence)=body["sequence"].as_u64() else { return error(StatusCode::BAD_REQUEST,"缺少行走指令序号"); };
-        let mut shared=a.telemetry.write().unwrap();
-        if shared.control["state"]!="policy" || shared.control["kind"]!="xgoduck" {
-            return error(StatusCode::CONFLICT,"请先启动XgoDuck零速度平衡，等待预备姿势完成");
-        }
-        if shared.control["feedbackHolding"]==true {
-            let message = if shared.control["policyPhase"]=="imu-hold" {
-                "IMU数据暂时过期，行走已暂停；恢复后请松开并重新按住方向"
-            } else {
-                "舵机反馈暂缺，行走已暂停；恢复后请松开并重新按住方向"
-            };
-            return error(StatusCode::CONFLICT,message);
-        }
-        if shared.control["activeSkill"]=="sitstand_sit" {
-            return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
-        }
-        if shared.pending_skill.is_some() || shared.control["activeSkill"].as_str().is_some_and(|kind|kind!="xgoduck") {
-            return error(StatusCode::CONFLICT,"动作执行中，方向指令暂不可用");
-        }
-        let Some(drive)=shared.drive.as_mut() else { return error(StatusCode::CONFLICT,"行走会话已结束"); };
-        if !drive.update(body["session"].as_str().unwrap_or(""),sequence,twist) {
-            return error(StatusCode::CONFLICT,"行走会话或指令序号已过期");
-        }
-        return Json(json!({"state":"commanded","twist":twist,"sequence":sequence})).into_response();
+        return policy_drive_command(&mut a.telemetry.write().unwrap(), &body);
     }
     let (kind, speed) = match policy::request_profile(&body) {
         Ok(profile) => profile,
@@ -758,4 +768,41 @@ async fn main() -> anyhow::Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod web_gamepad_tests {
+    use super::*;
+    fn ready() -> Telemetry {
+        let mut s=Telemetry::new(false);
+        s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1"});
+        s.drive=Some(telemetry::DriveCommand{session:"web".into(),sequence:0,twist:[0.;3],updated:Instant::now()});s
+    }
+    #[test]
+    fn head_requires_current_session_and_sequence_and_legacy_packets_preserve_it() {
+        let mut s=ready();
+        let mut body=json!({"session":"web","sequence":1,"twist":[0.1,0,0],"headPitch":0.4,"headYaw":-0.3});
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::OK);
+        assert_eq!(s.head_intent.current(Instant::now()),[0.4,-0.3]);
+        body["headYaw"]=json!(1);
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+        body["sequence"]=json!(2);body["session"]=json!("other");
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+        assert_eq!(s.head_intent.current(Instant::now()),[0.4,-0.3]);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":2,"twist":[0,0,0]})).status(),StatusCode::OK);
+        assert_eq!(s.head_intent.current(Instant::now()),[0.4,-0.3]);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":3,"twist":[0,0,0],"headPitch":0,"headYaw":0})).status(),StatusCode::OK);
+        assert_eq!(s.head_intent.current(Instant::now()),[0.,0.]);
+    }
+    #[test]
+    fn invalid_or_unready_head_does_not_advance_body_sequence() {
+        for value in [json!(2),json!("bad"),Value::Null] {
+            let mut s=ready();
+            assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":1,"twist":[0.1,0,0],"headPitch":value})).status(),StatusCode::BAD_REQUEST);
+            assert_eq!(s.drive.as_ref().unwrap().sequence,0);
+        }
+        let mut s=ready();s.control["runtimeProfile"]=json!("other");
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":1,"twist":[0.1,0,0],"headYaw":1})).status(),StatusCode::CONFLICT);
+        assert_eq!(s.drive.as_ref().unwrap().sequence,0);
+    }
 }

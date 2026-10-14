@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-14",
+  "frontendTests": 69,
+  "rustTests": {
+    "passed": 156,
+    "ignored": 1,
+    "failed": 0
+  },
+  "frontendBuild": "passed",
+  "armBuild": "passed",
+  "deployed": false,
+  "hardwareMotionTested": false,
+  "uiValidation": {
+    "mode": "isolated component preview; no robot network calls",
+    "widths": [
+      720,
+      360
+    ],
+    "actions": [
+      "A standup",
+      "B stop",
+      "Y getup",
+      "emergency disable",
+      "left stick drag and release",
+      "right stick drag and release"
+    ],
+    "screenshot": "preview.png"
+  },
+  "armSha256": "e3337a25acff515a2f82c3bb23ec7cc73892309d68abd1bd27f2ea657a14d628"
+}
