@@ -129,6 +129,7 @@ const value = (values: number[] | undefined, i: number) =>
     </div>
     <div class="bench-grid">
       <section class="panel bench-model">
+        <div class="bench-visual">
         <div class="bench-panel-head">
           <h2>3D 姿态</h2>
           <span class="subtle-tag">{{ state.source }}</span>
@@ -151,7 +152,6 @@ const value = (values: number[] | undefined, i: number) =>
           }}</span>
           <button class="bench-home" @click="robot?.home()">↺ 回正视角</button>
         </div>
-        <div class="bench-controls">
         <div class="bench-calibration">
           <button
             class="button compact"
@@ -177,6 +177,8 @@ const value = (values: number[] | undefined, i: number) =>
             zeroMessage || board.error || board.levelDisabledReason || (calibrated ? "已保存到主板 " + calibrationTime : "舵机 / 硬件中位 / IMU 自由选择")
           }}</span>
         </div>
+        </div>
+        <div class="bench-controls">
         <ModelControlPanel />
         <label v-if="state.sensorOnly && !board.data?.imu.mountingQuaternion" class="bench-mounting">
           安装方向
@@ -347,9 +349,11 @@ const value = (values: number[] | undefined, i: number) =>
 }
 .bench-model {
   grid-area: model;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  overflow: hidden;
 }
+.bench-visual { display:flex;flex-direction:column;min-height:0;overflow:hidden; }
 .bench-model-stage {
   position: relative;
   flex: 1 1 0;
@@ -357,8 +361,25 @@ const value = (values: number[] | undefined, i: number) =>
   background: radial-gradient(ellipse at center, #edf3e8, #fafcf7);
 }
 .bench-controls {
-  flex: 0 0 auto;
   min-height: 0;
+  overflow: auto;
+  container-type: size;
+  border-top: 1px solid #c8dace;
+}
+.bench-controls .model-controls { min-height:100%;padding:6px 12px;border:0;border-radius:0; }
+.bench-controls .control-heading { padding-bottom:4px; }
+.bench-controls .runtime-overview { display:none; }
+.bench-controls .runtime-panel { gap:4px;padding:4px 0; }
+.bench-controls .pad-wrap { width:min(100%,max(190px,calc((100cqh - 176px) * 1.8286))); }
+.bench-controls .gamepad { margin-top:3px; }
+.bench-controls .pad-footer { padding:2px 0; }
+.bench-controls .pad-footer>span { font-size:9px; }
+.bench-controls .estop { padding:6px 8px;font-size:10px;white-space:nowrap; }
+.bench-controls .walk-speed-row { gap:4px; }
+.bench-controls .walk-speed-row input { width:100px; }
+@container(max-height:340px) {
+  .bench-controls .pad-footer>span { display:none; }
+  .bench-controls .pad-footer { justify-content:flex-end; }
 }
 .bench-model-state {
   position: absolute;
