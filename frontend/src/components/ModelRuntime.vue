@@ -7,11 +7,15 @@ import type { Twist } from '../holdToWalk';
 import { useTelemetry } from '../store';
 import { useBoardCalibration } from '../boardCalibration';
 const state=useTelemetry(),board=useBoardCalibration();
-const modelAvailable=ref(false),headAvailable=ref(false),wheelSpeed=ref(0.1);
+const modelAvailable=ref(false),headAvailable=ref(false),wheelSpeed=ref(0.2);
 const lease=driveLease(sessionStorage,state.endpoint);
 const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), commandState=ref('');
-const skills=[{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'},{key:'kick_left',name:'左脚踢球'},{key:'kick_right',name:'右脚踢球'}];
+const skills=[{key:'dance',name:'十拍鸭子舞'},{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'},{key:'kick_left',name:'左脚踢球'},{key:'kick_right',name:'右脚踢球'}];
 const skillAvailable=ref<Record<string,boolean>>({});
+const nearbyPads=ref<{address:string;name:string;likelyController:boolean}[]>([]), bluetoothBusy=ref(false), bluetoothMessage=ref('');
+const visibleBluetoothDevices=computed(()=>nearbyPads.value.filter(device=>{const name=device.name.toLocaleLowerCase();return name.includes('xbox')||name.includes('wireless controller')||name.includes('gamesir');}));
+async function scanBluetooth(){bluetoothBusy.value=true;bluetoothMessage.value='正在扫描主板附近的蓝牙设备…';nearbyPads.value=[];try{const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/gamepad/bluetooth/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(18000)});const data=await response.json();if(!response.ok)throw new Error(data.detail||'扫描失败');nearbyPads.value=data.devices||[];const controllers=visibleBluetoothDevices.value.length;bluetoothMessage.value=controllers?`发现 ${controllers} 个疑似手柄，请核对后连接。`:nearbyPads.value.length?`发现 ${nearbyPads.value.length} 台设备，但没有名称匹配 Xbox、Wireless Controller 或 GameSir 的设备。`:'没有发现设备。请让手柄进入蓝牙配对模式后重试。';}catch(e){bluetoothMessage.value=String(e);}finally{bluetoothBusy.value=false;}}
+async function pairBluetooth(address:string){bluetoothBusy.value=true;bluetoothMessage.value='正在配对、信任并连接所选设备…';try{const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/gamepad/bluetooth/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address}),signal:AbortSignal.timeout(55000)});const data=await response.json();if(!response.ok)throw new Error(data.detail||'连接失败');bluetoothMessage.value=data.message;}catch(e){const detail=String(e);bluetoothMessage.value=/AuthenticationFailed/i.test(detail)?'蓝牙配对认证未完成。主板没有保存这只手柄的配对；请断开它与手机、电脑或接收器的连接，关机后按 B + Home 进入 PC 蓝牙模式，确认指示灯快速闪烁，再立即扫描并配对。':/ConnectionAttemptFailed|Device not available/i.test(detail)?'扫描到手柄，但它目前没有接受连接。请确保手柄指示灯快速闪烁；若慢闪，按住 Home + Screenshot 约 2 秒直到快闪，然后马上重新扫描并配对。也请确认它没有连着手机或无线接收器。':detail;}finally{bluetoothBusy.value=false;}}
 
 const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && (control.value?.standAllowed??(control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??4))) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 const available=computed(()=>modelAvailable.value);
@@ -21,6 +25,7 @@ const allowed=computed(()=>({
   standup:!!skillAvailable.value.standup && (canStand.value || (live.value && board.ready && !busy.value)),
   sit:!!skillAvailable.value.sit && (canDrive.value || (live.value && board.ready && !busy.value)),
   getup:!!skillAvailable.value.getup && (canDrive.value || canRecover.value || (live.value && board.ready && !busy.value)),
+  dance:!!skillAvailable.value.dance && canDrive.value,
   pick:!!skillAvailable.value.pick && canDrive.value,roulade:!!skillAvailable.value.roulade && canDrive.value,
   kick_left:!!skillAvailable.value.kick_left && canDrive.value,kick_right:!!skillAvailable.value.kick_right && canDrive.value,
   quack:canDrive.value || (live.value && board.ready && !busy.value),
@@ -85,7 +90,7 @@ onUnmounted(()=>{release();window.removeEventListener('blur',release);window.rem
 onMounted(async()=>{
   try { const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy');
     const result=await response.json();headAvailable.value=response.ok && result.webHeadControl===true;modelAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='xgoduck')?.available;
-    for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':skill.key.startsWith('kick_')?skill.key:'xgoduck_'+skill.key))?.available;
+    for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='dance'?'dance10':skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':skill.key.startsWith('kick_')?skill.key:'xgoduck_'+skill.key))?.available;
     }
   catch { modelAvailable.value=false; }
 });
@@ -105,16 +110,18 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
 <template>
   <div class="runtime-panel">
     <div class="runtime-overview"><div class="runtime-title"><span>网页手柄</span><strong>点击按键 · 按住摇杆</strong><small>T4 Nova Lite 布局</small></div></div>
+    <details class="bluetooth-setup"><summary>连接实物蓝牙手柄</summary><p>手柄关机时同时短按 <b>B + Home</b> 进入蓝牙配对，再扫描。确认名称和设备后点“配对并连接”。</p><div class="bluetooth-actions"><button :disabled="bluetoothBusy" @click="scanBluetooth">{{ bluetoothBusy?'请稍候…':'扫描主板附近设备' }}</button><span role="status">{{ bluetoothMessage }}</span></div><div class="bluetooth-devices"><div v-for="device in visibleBluetoothDevices" :key="device.address" class="bluetooth-device"><span><b>{{ device.name }}</b> · {{ device.address }}<small>疑似 Xbox / GameSir 手柄</small></span><button :disabled="bluetoothBusy" @click="pairBluetooth(device.address)">配对并连接</button></div></div><small>仅列出名称包含 Xbox、Wireless Controller 或 GameSir 的设备。扫描和配对由主板执行，不要求登录后台。配对后若网页未显示实物输入，还需主板内核提供手柄输入设备。</small></details>
     <p class="drive-result" role="status">{{ state.gamepadFeedback ? '实物手柄已连接 · 橙色表示输入，不代表动作执行' : (driveReason || commandState || '手柄已就绪 · 左行走，右转头') }}</p>
     <ModelGamepad :feedback="state.gamepadFeedback" :drive="canDrive" :head="canHead" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
     <div class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
-    <details class="runtime-help"><summary>按键说明与诊断</summary><p>A 站立 · Start 预留 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · LB 拾取 · RB 嘎一下；十字键上舞蹈、左脚踢球 / 右脚踢球、下自主行动；左右踢球执行 0.5 秒后返回平衡；舞蹈和自主行动暂为预留入口。实物手柄：LB 按住使能、LB+A 站立、LB+Y 倒地起身、LB+RB 嘎一下；网页高亮仅显示实物输入，松键或超过 500ms 无新输入自动清除。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
+    <details class="runtime-help"><summary>按键说明与诊断</summary><p>A 站立 · Start 预留 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · LB 拾取 · LT 加速×2（0.2→0.4m/s）· RB / RT 嘎一下；十字键上舞蹈、左脚踢球 / 右脚踢球、下自主行动；左右踢球执行 0.5 秒后返回平衡；舞蹈执行8秒后返回平衡，自主行动暂为预留入口。实物手柄：LB 按住使能、LB+A 站立、LB+Y 倒地起身、LB+RB / LB+RT 嘎一下；LB+LT按住走行速度0.4m/s（默认0.2m/s）；网页高亮仅显示实物输入，松键或超过 500ms 无新输入自动清除。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
 </details>
     <div v-if="message || control?.action==='policy' || control?.state==='failed'" class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?'平衡行走模型就绪 · 等待开始':'模型未就绪') }}</div>
   </div>
 </template>
 <style scoped>
 .runtime-help{font-size:11px;line-height:1.7}.runtime-help summary{cursor:pointer}.runtime-help button{margin-top:6px;border:1px solid #bdd0c3;background:#f5faf6;border-radius:6px;padding:6px 10px;color:#365843}.runtime-help button:disabled{opacity:.45}
+.bluetooth-setup{border:1px solid #c8dace;background:#f8fbf8;border-radius:8px;padding:8px 10px;font-size:11px}.bluetooth-setup summary{cursor:pointer;font-weight:600}.bluetooth-setup p{margin:6px 0}.bluetooth-actions,.bluetooth-device{display:flex;align-items:center;gap:8px;margin:6px 0}.bluetooth-actions span{overflow-wrap:anywhere}.bluetooth-devices{max-height:220px;overflow:auto}.bluetooth-device{justify-content:space-between;border-top:1px solid #e0e9e1;padding-top:6px}.bluetooth-device small{display:block;color:#71877a}.bluetooth-setup button{border:1px solid #bdd0c3;background:#edf5ee;border-radius:6px;padding:6px 10px;color:#365843;cursor:pointer}.bluetooth-setup button:disabled{opacity:.5}.bluetooth-setup>small{color:#72877a;line-height:1.5}
 .runtime-panel{grid-column:1/-1;box-sizing:border-box;display:flex;flex-direction:column;gap:7px;padding:8px 0;color:#426556;min-width:0}
 .runtime-overview{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .runtime-title{display:flex;align-items:center;gap:8px}.runtime-title>span{font-size:10px;border-radius:6px;background:#dcebe1;padding:4px 6px}.runtime-title strong{font-size:14px}.runtime-title small{font-size:10px;color:#7b9185}

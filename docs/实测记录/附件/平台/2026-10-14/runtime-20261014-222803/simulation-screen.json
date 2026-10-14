@@ -1,0 +1,146 @@
+{
+  "stage": "screen-complete-needs-video-review",
+  "comparison": [
+    {
+      "profile": "nominal-110017",
+      "baseline": 32,
+      "candidate": 32,
+      "worlds": 32,
+      "lostWorlds": [],
+      "gainedWorlds": [],
+      "fullMotionPassed": 32,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 0.9923415184020996,
+      "survivingBodyRollMeanRad": 0.21798795461654663,
+      "survivingHeightSpanMeanM": 0.016667651012539864
+    },
+    {
+      "profile": "robust-110017",
+      "baseline": 28,
+      "candidate": 30,
+      "worlds": 32,
+      "lostWorlds": [
+        12,
+        25
+      ],
+      "gainedWorlds": [
+        4,
+        16,
+        17,
+        28
+      ],
+      "fullMotionPassed": 30,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 1.00612473487854,
+      "survivingBodyRollMeanRad": 0.2200089395046234,
+      "survivingHeightSpanMeanM": 0.017145123332738876
+    },
+    {
+      "profile": "stress-110017",
+      "baseline": 29,
+      "candidate": 30,
+      "worlds": 32,
+      "lostWorlds": [],
+      "gainedWorlds": [
+        17
+      ],
+      "fullMotionPassed": 30,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 1.0164482593536377,
+      "survivingBodyRollMeanRad": 0.21877464652061462,
+      "survivingHeightSpanMeanM": 0.01794910430908203
+    },
+    {
+      "profile": "nominal-110023",
+      "baseline": 32,
+      "candidate": 32,
+      "worlds": 32,
+      "lostWorlds": [],
+      "gainedWorlds": [],
+      "fullMotionPassed": 32,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 0.9926100969314575,
+      "survivingBodyRollMeanRad": 0.21789008378982544,
+      "survivingHeightSpanMeanM": 0.01666262373328209
+    },
+    {
+      "profile": "robust-110023",
+      "baseline": 27,
+      "candidate": 28,
+      "worlds": 32,
+      "lostWorlds": [
+        15,
+        17,
+        29
+      ],
+      "gainedWorlds": [
+        5,
+        11,
+        25,
+        28
+      ],
+      "fullMotionPassed": 28,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 0.9970480799674988,
+      "survivingBodyRollMeanRad": 0.2202925831079483,
+      "survivingHeightSpanMeanM": 0.017060263082385063
+    },
+    {
+      "profile": "stress-110023",
+      "baseline": 28,
+      "candidate": 31,
+      "worlds": 32,
+      "lostWorlds": [],
+      "gainedWorlds": [
+        0,
+        11,
+        31
+      ],
+      "fullMotionPassed": 31,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 1.0000207424163818,
+      "survivingBodyRollMeanRad": 0.21890299022197723,
+      "survivingHeightSpanMeanM": 0.01723298244178295
+    },
+    {
+      "profile": "fresh-candidate-120011",
+      "baseline": 61,
+      "candidate": 64,
+      "worlds": 64,
+      "lostWorlds": [],
+      "gainedWorlds": [
+        11,
+        42,
+        62
+      ],
+      "fullMotionPassed": 64,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 0.9967554807662964,
+      "survivingBodyRollMeanRad": 0.21838170289993286,
+      "survivingHeightSpanMeanM": 0.017291922122240067
+    },
+    {
+      "profile": "fresh-candidate-120017",
+      "baseline": 59,
+      "candidate": 59,
+      "worlds": 64,
+      "lostWorlds": [
+        14,
+        57,
+        59
+      ],
+      "gainedWorlds": [
+        11,
+        28,
+        55
+      ],
+      "fullMotionPassed": 59,
+      "initialQposQvelObservationMatched": true,
+      "survivingHeadYawMeanRad": 1.0003244876861572,
+      "survivingBodyRollMeanRad": 0.21968606114387512,
+      "survivingHeightSpanMeanM": 0.01739007979631424
+    }
+  ],
+  "accepted": false,
+  "deployment": false
+}

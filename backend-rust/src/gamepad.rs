@@ -1,13 +1,13 @@
 //! Local Linux evdev controller. No network bridge and no second UART owner.
 use crate::{ducklink_motion::Motion, App};
 use anyhow::{ensure, Context, Result};
-use axum::Router;
-use serde_json::json;
+use axum::{body::Bytes, extract::State, http::{HeaderMap, StatusCode}, response::{IntoResponse, Response}, routing::{get, post}, Json, Router};
+use serde_json::{json, Value};
 use std::{
     fs::{File, OpenOptions},
     os::fd::AsRawFd,
     time::Duration,
-    sync::Arc,
+    sync::{atomic::Ordering, Arc},
 };
 
 const A: usize = 304;
@@ -16,9 +16,26 @@ const X: usize = 307;
 const Y: usize = 308;
 const LB: usize = 310;
 const RB: usize = 311;
+const LT: usize = 312;
+const RT: usize = 313;
 const BACK: usize = 314;
 const START: usize = 315;
-const BUTTONS: [usize; 8] = [A, B, X, Y, LB, RB, BACK, START];
+const BUTTONS: [usize; 10] = [A, B, X, Y, LB, RB, LT, RT, BACK, START];
+
+pub fn mode_router() -> Router<App> {
+    Router::new().route("/api/v1/gamepad/mode", get(get_mode)).route("/api/v1/gamepad/mode", post(set_mode))
+}
+async fn get_mode(State(app): State<App>) -> Json<Value> {
+    Json(json!({"debug":app.gamepad_debug.load(Ordering::Acquire)}))
+}
+async fn set_mode(State(app): State<App>, headers: HeaderMap, body: Bytes) -> Response {
+    let value = match crate::check_action(&headers, &body, 64) { Ok(v) => v, Err(r) => return r };
+    let Some(enabled) = value["debug"].as_bool() else {
+        return crate::error(StatusCode::UNPROCESSABLE_ENTITY, "debug must be boolean");
+    };
+    app.gamepad_debug.store(enabled, Ordering::Release);
+    Json(json!({"debug":enabled,"message":if enabled{"调试模式已开启：输入只显示在网页，不发送实体控制指令"}else{"调试模式已关闭：实体手柄控制已允许，请先确认机器人周围安全"}})).into_response()
+}
 
 #[repr(C)]
 #[derive(Default, Clone, Copy)]
@@ -60,7 +77,7 @@ fn axis(raw: AbsInfo) -> Result<f64> {
 #[derive(Default, Clone)]
 struct Sample {
     axes: [f64; 4],
-    keys: [bool; 8],
+    keys: [bool; 10],
     dpad: [bool; 4],
 }
 impl Sample {
@@ -143,27 +160,51 @@ struct Input {
     previous: Sample,
     neutral_seen: bool,
     drive_armed: bool,
+    y_hold_ticks: u8,
+    y_hold_triggered: bool,
 }
 impl Input {
-    fn update(&mut self, sample: &Sample, ready: bool) -> Option<&'static str> {
+    fn update(&mut self, sample: &Sample, ready: bool, diagnostic_only: bool) -> Option<&'static str> {
+        if diagnostic_only {
+            self.previous = sample.clone();
+            self.neutral_seen = sample.neutral();
+            self.drive_armed = false;
+            self.y_hold_ticks = 0;
+            self.y_hold_triggered = false;
+            return None;
+        }
         let edge = |key| sample.down(key) && !self.previous.down(key);
+        if sample.down(Y) && sample.centered() {
+            self.y_hold_ticks = self.y_hold_ticks.saturating_add(1);
+        } else {
+            self.y_hold_ticks = 0;
+            self.y_hold_triggered = false;
+        }
+        let long_y = self.y_hold_ticks >= 14 && !self.y_hold_triggered;
+        if long_y {
+            self.y_hold_triggered = true;
+        }
         let action = if edge(BACK) {
             Some("estop")
         } else if edge(B) {
             Some("release")
         } else if !self.neutral_seen {
             None
-        } else if sample.down(LB) && sample.centered() && edge(A) {
-            Some("stand")
-        } else if sample.down(LB) && edge(X) {
-            Some("sit")
-        } else if sample.down(LB) && sample.centered() && edge(Y) {
+        } else if long_y {
             Some("getup")
-        } else if sample.down(LB) && edge(RB) {
+        } else if sample.centered() && edge(A) {
+            Some("stand")
+        } else if edge(X) {
+            Some("sit")
+        } else if (sample.down(RB) && !self.previous.down(RB))
+            || (sample.down(RT) && !self.previous.down(RT))
+        {
             Some("quack")
-        } else if ready && sample.down(LB) && sample.centered() && sample.dpad[1] && !self.previous.dpad[1] {
+        } else if ready && sample.centered() && sample.dpad[0] && !self.previous.dpad[0] {
+            Some("dance")
+        } else if ready && sample.centered() && sample.dpad[1] && !self.previous.dpad[1] {
             Some("kick_left")
-        } else if ready && sample.down(LB) && sample.centered() && sample.dpad[2] && !self.previous.dpad[2] {
+        } else if ready && sample.centered() && sample.dpad[2] && !self.previous.dpad[2] {
             Some("kick_right")
         } else {
             None
@@ -180,9 +221,10 @@ impl Input {
         action
     }
     fn drive(&self, sample: &Sample, seq: u64) -> serde_json::Value {
-        let enabled = self.drive_armed && sample.down(LB);
+        let enabled = self.drive_armed;
         let [lx, ly, rx, ry] = if enabled { sample.axes } else { [0.; 4] };
-        json!({"seq":seq,"action":"drive","forward":-ly,"turn":-lx,"headYaw":-rx,"headPitch":-ry,"speed":0.5,"compact":true})
+        let boosted = enabled && sample.down(LT);
+        json!({"seq":seq,"action":"drive","forward":-ly,"turn":if boosted{-lx*0.5}else{-lx},"headYaw":-rx,"headPitch":-ry,"speed":if boosted{0.4}else{0.2},"compact":true})
     }
 }
 
@@ -197,7 +239,7 @@ fn input_data(name: &str, sample: Option<&Sample>) -> serde_json::Value {
     let empty = Sample::default();
     let current = sample.unwrap_or(&empty);
     let mut buttons = serde_json::Map::new();
-    for (key, down) in ["a", "b", "x", "y", "lb", "rb", "back", "start"].iter().zip(current.keys) {
+    for (key, down) in ["a", "b", "x", "y", "lb", "rb", "lt", "rt", "back", "start"].iter().zip(current.keys) {
         buttons.insert((*key).into(), json!(down));
     }
     for (key, down) in ["up", "left", "right", "down"].iter().zip(current.dpad) {
@@ -268,6 +310,7 @@ pub fn spawn(app: App, router: Router) {
             return;
         }
     };
+    let debug = app.gamepad_debug.clone();
     tokio::spawn(async move {
         let mut motion = Motion::local(app.clone(), router);
         let mut seq = 0u64;
@@ -277,10 +320,11 @@ pub fn spawn(app: App, router: Router) {
                 let device = Arc::new(Device::open(&path, &name, axes)?);
                 let (_monitor, samples) = monitor(app.clone(), name.clone(), device)?;
                 last_error.clear();
-                report(
-                    &app,
-                    "手柄已连接；松开全部按键并回中，再按 LB+A 取得控制",
-                );
+                report(&app, if debug.load(Ordering::Acquire) {
+                    "手柄只读诊断已连接；网页显示按键和摇杆输入，实体动作已屏蔽"
+                } else {
+                    "手柄已连接；长按 Y 起身，起身就绪后回中即可直接用摇杆控制"
+                });
                 let mut input = Input::default();
                 let mut clock = tokio::time::interval(Duration::from_millis(40));
                 clock.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
@@ -299,8 +343,14 @@ pub fn spawn(app: App, router: Router) {
                     last_tick = std::time::Instant::now();
                     let (sampled_at, sample) = samples.borrow().clone().map_err(anyhow::Error::msg)?;
                     ensure!(sampled_at.elapsed() < Duration::from_millis(250), "gamepad sample expired");
+                    let diagnostic_only = debug.load(Ordering::Acquire);
+                    if diagnostic_only && motion.leased {
+                        motion.close().await;
+                        input = Input::default();
+                        report(&app, "已启用只读诊断，手柄控制权已安全释放");
+                    }
                     let ready = motion.leased && motion.status()["headReady"] == true;
-                    if let Some(action) = input.update(&sample, ready) {
+                    if let Some(action) = input.update(&sample, ready, diagnostic_only) {
                         if action == "estop" {
                             // Emergency stop is global, including when a phone owns the lease.
                             motion.request("servos/disable", Some(json!({}))).await?;
@@ -407,50 +457,110 @@ mod tests {
     fn plug_in_held_buttons_never_starts_and_requires_new_edge() {
         let mut input = Input::default();
         let start = sample(&[LB, A], [0.; 4]);
-        assert_eq!(input.update(&start, false), None);
-        input.update(&Sample::default(), false);
-        assert_eq!(input.update(&start, false), Some("stand"));
-        assert_eq!(input.update(&start, false), None);
+        assert_eq!(input.update(&start, false, false), None);
+        input.update(&Sample::default(), false, false);
+        assert_eq!(input.update(&start, false, false), Some("stand"));
+        assert_eq!(input.update(&start, false, false), None);
     }
     #[test]
-    fn start_is_reserved_and_stand_requires_centered_sticks() {
+    fn start_is_reserved_and_a_stands_without_lb_only_when_centered() {
         let mut input = Input::default();
-        input.update(&Sample::default(), false);
-        assert_eq!(input.update(&sample(&[START], [0.; 4]), false), None);
-        input.update(&Sample::default(), false);
-        assert_eq!(input.update(&sample(&[LB, START], [0.; 4]), false), None);
-        input.update(&Sample::default(), false);
-        assert_eq!(input.update(&sample(&[LB, A], [1.; 4]), false), None);
-        input.update(&Sample::default(), false);
-        assert_eq!(input.update(&sample(&[LB, A], [0.; 4]), false), Some("stand"));
+        input.update(&Sample::default(), false, false);
+        assert_eq!(input.update(&sample(&[START], [0.; 4]), false, false), None);
+        input.update(&Sample::default(), false, false);
+        assert_eq!(input.update(&sample(&[LB, START], [0.; 4]), false, false), None);
+        input.update(&Sample::default(), false, false);
+        assert_eq!(input.update(&sample(&[A], [1.; 4]), false, false), None);
+        input.update(&Sample::default(), false, false);
+        assert_eq!(input.update(&sample(&[A], [0.; 4]), false, false), Some("stand"));
     }
     #[test]
-    fn drive_requires_ready_then_release_and_deadman() {
+    fn drive_requires_ready_then_neutral_but_not_lb() {
         let mut input = Input::default();
-        let held = sample(&[LB], [0., -1., 1., -1.]);
-        input.update(&Sample::default(), false);
-        input.update(&held, true);
+        let held = sample(&[], [0., -1., 1., -1.]);
+        input.update(&Sample::default(), false, false);
+        input.update(&held, true, false);
         assert_eq!(input.drive(&held, 1)["forward"], 0.);
-        input.update(&Sample::default(), true);
-        input.update(&held, true);
+        input.update(&Sample::default(), true, false);
+        input.update(&held, true, false);
         let drive = input.drive(&held, 2);
         assert_eq!(drive["forward"], 1.);
         assert_eq!(drive["headYaw"], -1.);
-        assert_eq!(input.drive(&sample(&[], held.axes), 3)["forward"], 0.);
-        input.update(&held, false);
-        input.update(&held, true);
+        assert_eq!(drive["speed"], 0.2);
+        let turbo=input.drive(&sample(&[LT], [1.,-1.,1.,-1.]),3);
+        assert_eq!(turbo["speed"], 0.4);
+        assert_eq!(turbo["turn"], -0.5);
+        input.update(&Sample::default(), true, false);
+        assert_eq!(input.drive(&sample(&[], held.axes), 3)["forward"], 1.);
+        input.update(&held, false, false);
+        input.update(&held, true, false);
         assert_eq!(input.drive(&held, 4)["forward"], 0.);
+    }
+    #[test]
+    fn long_y_starts_getup_without_lb_and_neutral_arms_direct_stick_control() {
+        let mut input = Input::default();
+        let y = sample(&[Y], [0.; 4]);
+        input.update(&Sample::default(), false, false);
+        for _ in 0..13 {
+            assert_eq!(input.update(&y, false, false), None);
+        }
+        assert_eq!(input.update(&y, false, false), Some("getup"));
+        assert_eq!(input.update(&y, true, false), None);
+        input.update(&Sample::default(), true, false);
+        let stick = sample(&[], [0., -1., 0., 0.]);
+        input.update(&stick, true, false);
+        assert_eq!(input.drive(&stick, 1)["forward"], 1.);
     }
     #[test]
     fn emergency_and_release_work_before_neutral_and_override_skills() {
         let mut input = Input::default();
         assert_eq!(
-            input.update(&sample(&[BACK, LB, START], [1.; 4]), false),
+            input.update(&sample(&[BACK, LB, START], [1.; 4]), false, false),
             Some("estop")
         );
         assert_eq!(
-            Input::default().update(&sample(&[B], [1.; 4]), false),
+            Input::default().update(&sample(&[B], [1.; 4]), false, false),
             Some("release")
         );
+    }
+    #[test]
+    fn rt_and_rb_share_one_quack_edge_and_triggers_are_reported() {
+        let mut input = Input::default();
+        input.update(&Sample::default(), true, false);
+        let rt = sample(&[RT], [0.; 4]);
+        assert_eq!(input.update(&rt, true, false), Some("quack"));
+        assert_eq!(input.update(&rt, true, false), None);
+        input.update(&Sample::default(), true, false);
+        assert_eq!(input.update(&sample(&[RB], [0.; 4]), true, false), Some("quack"));
+        let feedback=input_data("test-pad",Some(&rt));
+        assert_eq!(feedback["buttons"]["rt"],true);
+        assert_eq!(feedback["buttons"]["lt"],false);
+    }
+    #[test]
+    fn sit_and_kicks_do_not_require_lb() {
+        let mut input = Input::default();
+        input.update(&Sample::default(), true, false);
+        assert_eq!(input.update(&sample(&[X], [0.; 4]), true, false), Some("sit"));
+        input.update(&Sample::default(), true, false);
+        let mut left = Sample::default();
+        left.dpad[1] = true;
+        assert_eq!(input.update(&left, true, false), Some("kick_left"));
+        input.update(&Sample::default(), true, false);
+        let mut right = Sample::default();
+        right.dpad[2] = true;
+        assert_eq!(input.update(&right, true, false), Some("kick_right"));
+        input.update(&Sample::default(), true, false);
+        let mut up=Sample::default();up.dpad[0]=true;
+        assert_eq!(input.update(&up,true,false),Some("dance"));
+        assert_eq!(input.update(&up,true,false),None);
+    }
+    #[test]
+    fn diagnostic_only_never_dispatches_even_estop_or_start_actions() {
+        let mut input = Input::default();
+        input.update(&Sample::default(), false, true);
+        for keys in [&[BACK][..], &[B][..], &[LB, A][..], &[LB, X][..], &[LB, Y][..]] {
+            assert_eq!(input.update(&sample(keys, [0.; 4]), true, true), None);
+            input.update(&Sample::default(), true, true);
+        }
     }
 }

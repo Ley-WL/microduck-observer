@@ -342,6 +342,7 @@ impl Motion {
                 "getup",
                 "pick",
                 "roulade",
+                "dance",
                 "kick_left",
                 "kick_right",
                 "sit",
@@ -399,7 +400,7 @@ impl Motion {
                 else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"]}))).await?;}
                 self.error.clear();
             },
-            "getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
+            "dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;
                     self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;
@@ -551,6 +552,7 @@ pub(crate) mod tests {
             input_gate: Arc::new(tokio::sync::Semaphore::new(1)),
             plans: Arc::new(Mutex::new(None)),
             shutdown: Arc::new(AtomicBool::new(false)),
+            gamepad_debug: Arc::new(AtomicBool::new(true)),
         };
         let calls = Arc::new(Mutex::new(Vec::new()));
         let capture = calls.clone();

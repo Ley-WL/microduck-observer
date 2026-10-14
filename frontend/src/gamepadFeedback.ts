@@ -1,5 +1,5 @@
 import type {Sample} from './protocol';
-export const buttonNames = ['a','b','x','y','lb','rb','back','start','up','left','right','down'] as const;
+export const buttonNames = ['a','b','x','y','lb','rb','lt','rt','back','start','up','left','right','down'] as const;
 export type GamepadFeedback = {connected:boolean;device:string;buttons:Record<string,boolean>;axes:number[]};
 export function validGamepad(data:any):data is GamepadFeedback {
   return data && typeof data.connected==='boolean' && typeof data.device==='string' &&

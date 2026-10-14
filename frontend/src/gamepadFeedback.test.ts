@@ -6,6 +6,8 @@ const sample=():Sample=>({type:'sample',protocolVersion:1,bootId:'test',topic:'g
 describe('physical gamepad feedback',()=>{
  it('shows raw inputs including reserved keys without needing a motion session',()=>{
   expect(freshGamepad(sample(),40,true)?.buttons.up).toBe(true);
+  expect(freshGamepad(sample(),40,true)?.buttons.lt).toBe(false);
+  expect(freshGamepad(sample(),40,true)?.buttons.rt).toBe(false);
   expect(freshGamepad(sample(),40,true)?.axes).toEqual([0.5,-1,0,1]);
  });
  it('clears on stale, disconnected, invalid and nonhardware samples',()=>{

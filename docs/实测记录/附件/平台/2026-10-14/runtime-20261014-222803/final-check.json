@@ -1,0 +1,77 @@
+{
+  "models": [
+    {
+      "kind": "stand",
+      "available": true
+    },
+    {
+      "kind": "walk",
+      "available": true
+    },
+    {
+      "kind": "xgoduck",
+      "available": true
+    },
+    {
+      "kind": "xgoduck_getup",
+      "available": true
+    },
+    {
+      "kind": "xgoduck_pick",
+      "available": true
+    },
+    {
+      "kind": "xgoduck_roulade",
+      "available": true
+    },
+    {
+      "kind": "kick_left",
+      "available": true
+    },
+    {
+      "kind": "kick_right",
+      "available": true
+    },
+    {
+      "kind": "dance10",
+      "available": true
+    },
+    {
+      "kind": "sitstand_sit",
+      "available": true
+    },
+    {
+      "kind": "sitstand_stand",
+      "available": true
+    }
+  ],
+  "mode": {
+    "debug": false
+  },
+  "state": "idle",
+  "torques": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "hardwareMotionAdded": false,
+  "tests": {
+    "rustPassed": 170,
+    "rustIgnored": 1,
+    "webPassed": 73,
+    "commandFramesCompared": 401,
+    "armFixtures": 4
+  }
+}

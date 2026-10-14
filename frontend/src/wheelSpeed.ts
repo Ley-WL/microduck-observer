@@ -6,3 +6,7 @@ export function wheelTwist(x:number,y:number,speed:number):Twist {
   const scale=Math.max(1,length),forward=Math.min(.4,Math.max(.02,speed));
   return [-y/scale*forward,0,-x/scale*1];
 }
+export function gamepadSpeed(base:number,boost:boolean):number {
+  if(!Number.isFinite(base))return .2;
+  return Math.min(.4,Math.max(.02,base)*(boost?2:1));
+}

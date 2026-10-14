@@ -1,5 +1,7 @@
+mod dance;
 mod head_control;
 mod gamepad;
+mod gamepad_bluetooth;
 mod calibration;
 mod control;
 mod ducklink;
@@ -56,6 +58,7 @@ struct App {
     input_gate: Arc<tokio::sync::Semaphore>,
     plans: guided::Plans,
     shutdown: Arc<AtomicBool>,
+    gamepad_debug: Arc<AtomicBool>,
 }
 fn error(status: StatusCode, message: &str) -> Response {
     (status, Json(json!({"detail":message}))).into_response()
@@ -338,12 +341,12 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
 async fn policy_info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     let meta = policy::metadata_for("stand");
-    let models: Vec<Value> = ["stand","walk","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","sitstand_sit","sitstand_stand"].iter().map(|kind| {
+    let models: Vec<Value> = ["stand","walk","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand"].iter().map(|kind| {
         let metadata=policy::metadata_for(kind);
         json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata})
     }).collect();
     Json(
-        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
 async fn model_gains_info() -> Json<Value> {
@@ -357,7 +360,7 @@ mod gain_route_tests {
     async fn quack_route_is_registered_and_requires_real_hardware() {
         let tmp=tempfile::tempdir().unwrap();
         let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
-        let app=App {telemetry:shared,cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
+        let app=App {telemetry:shared,cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false)),gamepad_debug:Arc::new(AtomicBool::new(true))};
         let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
         let response=policy_action(State(app),Path("quack".into()),headers,Bytes::from_static(b"{}" )).await;
         assert_eq!(response.status(),StatusCode::CONFLICT);
@@ -366,7 +369,7 @@ mod gain_route_tests {
     async fn active_control_cannot_save_new_gains() {
         let tmp=tempfile::tempdir().unwrap();
         let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
-        let app=App {telemetry:shared.clone(),cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false))};
+        let app=App {telemetry:shared.clone(),cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false)),gamepad_debug:Arc::new(AtomicBool::new(true))};
         let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
         for state in ["policy","moving","preflight","disabling"] {
             shared.write().unwrap().control=json!({"state":state});
@@ -653,6 +656,7 @@ async fn main() -> anyhow::Result<()> {
     )))?;
     let shared = Arc::new(RwLock::new(Telemetry::new(hardware)));
     let stop = Arc::new(AtomicBool::new(false));
+    let gamepad_debug = Arc::new(AtomicBool::new(env("MICRODUCK_GAMEPAD_DIAGNOSTIC_ONLY", "1") == "1"));
     let owner = if !port.is_empty() {
         let ids = env("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24")
             .split(',')
@@ -685,6 +689,7 @@ async fn main() -> anyhow::Result<()> {
         input_gate: Arc::new(tokio::sync::Semaphore::new(1)),
         plans: Arc::new(Mutex::new(None)),
         shutdown: stop.clone(),
+        gamepad_debug: gamepad_debug.clone(),
     };
     if hardware {observer_ota::startup_lock(a.gate.clone());}
     if hardware {
@@ -747,6 +752,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/calibration/{action}", post(guided_action))
         .route("/api/v1/debug/scenario", post(scenario))
         .route("/api/v1/stream", get(stream))
+        .merge(gamepad::mode_router())
+        .merge(gamepad_bluetooth::router())
         .fallback_service(ServeDir::new(static_dir).append_index_html_on_directories(true))
         .layer(DefaultBodyLimit::max(16384))
         .layer(cors)
