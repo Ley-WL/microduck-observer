@@ -293,10 +293,11 @@ pub fn publish(shared: &Shared, f: &Feedback, ids: &[u8], diagnostics: Value) {
             r
         })
         .collect();
+    let data=json!({"configuredIds":ids,"servos":rows,"error":"","scanMs":diagnostics["elapsedMs"],"targetHz":diagnostics["feedbackTargetHz"].as_u64().unwrap_or(50),"readMode":"sync-read","diagnostics":diagnostics});
     let mut s = shared.write().unwrap();
     // Battery EMA persists through idle, HOME and actor switches, like robotd.
     s.native_voltage.scale(f,Instant::now());
-    s.sample("joints",json!({"configuredIds":ids,"servos":rows,"error":"","scanMs":diagnostics["elapsedMs"],"targetHz":diagnostics["feedbackTargetHz"].as_u64().unwrap_or(50),"readMode":"sync-read","diagnostics":diagnostics}),true,Instant::now());
+    s.sample("joints",data,true,Instant::now());
     if let Some(v) = s.latest.get_mut("joints") {
         v["source"] = json!("hardware");
     }

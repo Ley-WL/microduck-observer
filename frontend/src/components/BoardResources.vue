@@ -6,6 +6,18 @@ const data = computed(() => state.system?.data.resources);
 const numeric = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 const percent = (v: unknown) => numeric(v) ? `${v.toFixed(1)}%` : "—";
 const temperature = computed(() => numeric(data.value?.temperature?.celsius) ? `${data.value.temperature.celsius.toFixed(1)}°C` : "—");
+const cpuFrequency = computed(() => {
+  const cores = data.value?.cpuFrequency?.cores;
+  if (!Array.isArray(cores) || !cores.length) return "—";
+  return cores.map((core: any) => numeric(core?.mhz) ? `${core.mhz.toFixed(0)}` : "—").join(" / ") + " MHz";
+});
+const cpuFrequencyTitle = computed(() => {
+  const frequency = data.value?.cpuFrequency;
+  const governor = typeof frequency?.governor === "string" ? frequency.governor : "未知";
+  const cores = Array.isArray(frequency?.cores) ? frequency.cores : [];
+  const max = cores.find((core: any) => numeric(core?.maxMHz))?.maxMHz;
+  return `各核当前频率；策略 ${governor}${numeric(max) ? `；系统上限 ${max.toFixed(0)} MHz` : ""}`;
+});
 const memory = computed(() => {
   const m = data.value?.memory;
   if (!numeric(m?.usedBytes) || !numeric(m?.totalBytes)) return "—";
@@ -17,6 +29,7 @@ const memory = computed(() => {
     <span v-if="state.connection !== '在线'" class="resource-heading">已断开 · 最后读数</span>
     <span>温度 <strong>{{ temperature }}</strong></span>
     <span title="所有CPU核心的平均利用率">CPU <strong>{{ percent(data?.cpuUsagePercent) }}</strong></span>
+    <span :title="cpuFrequencyTitle">频率 <strong>{{ cpuFrequency }}</strong></span>
     <span title="已用内存按总内存减可用内存计算，可回收缓存计入可用内存">内存 <strong>{{ memory }}</strong><small>{{ percent(data?.memory?.usagePercent) }}</small></span>
   </section>
 </template>

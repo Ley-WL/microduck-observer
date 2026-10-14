@@ -6,14 +6,9 @@ use std::{path::PathBuf, sync::{Mutex, OnceLock}};
 pub struct Gains { pub p: u8, pub d: u8 }
 impl Default for Gains { fn default() -> Self { Self { p: 6, d: 20 } } }
 static CURRENT: OnceLock<Mutex<Gains>> = OnceLock::new();
-static WALK: OnceLock<Mutex<Option<Gains>>> = OnceLock::new();
-fn walk_path() -> PathBuf { path().with_file_name("walk-model-gains.json") }
-pub fn walking(default:Gains)->Gains { WALK.get_or_init(||Mutex::new(None)).lock().unwrap().unwrap_or(default) }
-pub fn ui_current()->Gains { walking(current()) }
-pub fn save_ui(value:Gains)->Result<()> {
-    let mut walk=WALK.get_or_init(||Mutex::new(None)).lock().unwrap();
-    if walk.is_some() {write(&walk_path(),value)?;*walk=Some(value);Ok(())} else {drop(walk);save(value)}
-}
+// One saved setting applies to every policy. Legacy walk overrides are ignored.
+pub fn ui_current()->Gains { current() }
+pub fn save_ui(value:Gains)->Result<()> { save(value) }
 fn path() -> PathBuf {
     std::env::var_os("MICRODUCK_GAINS_FILE").map(PathBuf::from).unwrap_or_else(|| {
         PathBuf::from(std::env::var("MICRODUCK_CALIBRATION_FILE").unwrap_or("./state/calibration.json".into()))
@@ -24,9 +19,6 @@ pub fn init() -> Result<()> {
     let file = path();
     let value = if file.exists() { parse(&serde_json::from_slice(&std::fs::read(file)?)?).context("模型增益配置无效")? } else { Gains::default() };
     CURRENT.get_or_init(|| Mutex::new(value));
-    let file=walk_path();
-    let walk=if file.exists(){Some(parse(&serde_json::from_slice(&std::fs::read(file)?)?)?)}else{None};
-    WALK.get_or_init(||Mutex::new(walk));
     Ok(())
 }
 pub fn current() -> Gains { *CURRENT.get_or_init(|| Mutex::new(Gains::default())).lock().unwrap() }

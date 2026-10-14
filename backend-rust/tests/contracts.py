@@ -98,7 +98,7 @@ def main():
                 env = dict(os.environ, MICRODUCK_SOURCE='simulation', MICRODUCK_BLE_ENABLED='0', MICRODUCK_SERVO_PORT='',
                            MICRODUCK_TOF_SOCKET='', MICRODUCK_CALIBRATION_FILE=f'{directory}/{port}.json',
                            MICRODUCK_BIND=f'127.0.0.1:{port}', MICRODUCK_STATIC_DIR=f'{directory}/static',
-                           MICRODUCK_POLICY_PATH=str(root.parent / 'models/hd1910-head-v5.onnx'))
+                           MICRODUCK_POLICY_PATH=str(root.parent / 'models/xgoduck_walk.onnx'))
                 log = open(f'{directory}/{port}.log', 'w+')
                 logs.append(log)
                 process = subprocess.Popen(command, cwd=cwd, env=env, stdout=log, stderr=log)

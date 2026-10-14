@@ -44,6 +44,22 @@ fn temperature(root: &Path) -> Option<Value> {
     sensors.sort_by(|a,b|a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
     sensors.first().map(|(_,kind,c)|json!({"celsius":c,"sensor":kind}))
 }
+fn cpu_frequency(root: &Path) -> Option<Value> {
+    let mut cores: Vec<_> = fs::read_dir(root).ok()?.filter_map(Result::ok).filter_map(|entry| {
+        let name = entry.file_name().to_string_lossy().into_owned();
+        let index: u32 = name.strip_prefix("cpu")?.parse().ok()?;
+        let dir = entry.path().join("cpufreq");
+        let khz: u64 = fs::read_to_string(dir.join("scaling_cur_freq")).ok()?.trim().parse().ok()?;
+        if khz == 0 { return None; }
+        let governor = fs::read_to_string(dir.join("scaling_governor")).ok().map(|s| s.trim().to_owned());
+        let max_khz = fs::read_to_string(dir.join("scaling_max_freq")).ok().and_then(|s| s.trim().parse::<u64>().ok());
+        Some((index, json!({"core":index,"mhz":khz as f64/1000.,"governor":governor,"maxMHz":max_khz.map(|v|v as f64/1000.)})))
+    }).collect();
+    cores.sort_by_key(|(index,_)| *index);
+    if cores.is_empty() { return None; }
+    let governor = cores.first().and_then(|(_,v)| v["governor"].as_str()).map(str::to_owned);
+    Some(json!({"cores":cores.into_iter().map(|(_,v)|v).collect::<Vec<_>>(),"governor":governor}))
+}
 pub fn spawn(shared: Shared, stop: Arc<AtomicBool>) {
     std::thread::Builder::new().name("board-resources".into()).spawn(move || {
         let board = board_info();
@@ -55,8 +71,9 @@ pub fn spawn(shared: Shared, stop: Arc<AtomicBool>) {
             previous = ticks;
             let mem = fs::read_to_string("/proc/meminfo").ok().and_then(|s|memory(&s));
             let temp = temperature(Path::new("/sys/class/thermal"));
+            let frequency = cpu_frequency(Path::new("/sys/devices/system/cpu"));
             let uptime = fs::read_to_string("/proc/uptime").ok().and_then(|v|v.split_whitespace().next()?.parse::<f64>().ok());
-            shared.write().unwrap().resources = json!({"cpuUsagePercent":usage,"memory":mem,
+            shared.write().unwrap().resources = json!({"cpuUsagePercent":usage,"cpuFrequency":frequency,"memory":mem,
                 "temperature":temp,"sampleMonoMs":monotonic()*1000.,"intervalMs":2000,
                 "board":board,"boardUptimeSeconds":uptime});
             std::thread::sleep(Duration::from_secs(2));
@@ -93,5 +110,22 @@ mod tests {
         assert_eq!(m["usagePercent"],30.);
         assert!(memory("MemTotal: 100 kB\nMemAvailable: 200 kB").is_none());
         assert!(memory("MemTotal: 100 kB").is_none());
+    }
+    #[test]
+    fn reads_each_cpu_frequency_and_governor_from_sysfs() {
+        let root=std::env::temp_dir().join(format!("microduck-cpufreq-{}",std::process::id()));
+        let _=fs::remove_dir_all(&root);
+        for (cpu,freq) in [(0,"816000"),(1,"408000")] {
+            let dir=root.join(format!("cpu{cpu}/cpufreq")); fs::create_dir_all(&dir).unwrap();
+            fs::write(dir.join("scaling_cur_freq"),freq).unwrap();
+            fs::write(dir.join("scaling_governor"),"ondemand\n").unwrap();
+            fs::write(dir.join("scaling_max_freq"),"1608000\n").unwrap();
+        }
+        let value=cpu_frequency(&root).unwrap();
+        assert_eq!(value["governor"],"ondemand");
+        assert_eq!(value["cores"][0]["mhz"],816.);
+        assert_eq!(value["cores"][1]["mhz"],408.);
+        assert_eq!(value["cores"][0]["maxMHz"],1608.);
+        fs::remove_dir_all(root).unwrap();
     }
 }

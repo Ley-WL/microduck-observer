@@ -1,0 +1,50 @@
+[
+  {
+    "phase": "busWrite",
+    "meanMs": 0.30080825961538527
+  },
+  {
+    "phase": "directSharedLockWaitSubset",
+    "meanMs": 5.01730274807694
+  },
+  {
+    "phase": "historyAndAccounting",
+    "meanMs": 0.0038369644230768544
+  },
+  {
+    "phase": "infer",
+    "meanMs": 1.018503577884613
+  },
+  {
+    "phase": "observe",
+    "meanMs": 0.7654261298076932
+  },
+  {
+    "phase": "publishAndAccounting",
+    "meanMs": 11.355556283653847
+  },
+  {
+    "phase": "readAndSensors",
+    "meanMs": 10.038357792307652
+  },
+  {
+    "phase": "skillAndCommand",
+    "meanMs": 3.265558270192318
+  },
+  {
+    "phase": "status",
+    "meanMs": 2.1737022605769285
+  },
+  {
+    "phase": "targetsAndIntents",
+    "meanMs": 1.3845026076923068
+  },
+  {
+    "phase": "totalBeforeWait",
+    "meanMs": 32.75932661057695
+  },
+  {
+    "phase": "trace",
+    "meanMs": 2.453074464423076
+  }
+]

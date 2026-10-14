@@ -1,6 +1,7 @@
 # 当前工具
 
 - `deploy-new-board.cmd` / `.ps1` / `.py`：纯净新主板一键部署，输入IP和sudo密码，安装验证过的Rust服务包，生成独立BLE/App身份，配置UART和自启并重启验证。已有身份/标定拒绝覆盖，`--check`只读。安装包版本和边界见 [NEW-BOARD.md](../deploy/NEW-BOARD.md)。
+- `check-uart-loopback.py`：用户确认HAT/TTL拔除并Pin8/10跳线后，115200/1Mbps六轮外部回环、逐字节验收和证据保存；测试前后维护空闲服务生命周期，无舵机指令。完整配置阶段及边界见 [BOARD-SETUP.md](../deploy/BOARD-SETUP.md)。
 
 旧版本专用部署、已完成的试验/记录脚本以及附件中的旧Python源码副本已删除，不在此目录另建归档。实测原始数据、结果和当前供体Rust源码仍作为核查依据保留。
 

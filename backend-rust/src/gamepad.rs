@@ -22,6 +22,39 @@ const BACK: usize = 314;
 const START: usize = 315;
 const BUTTONS: [usize; 10] = [A, B, X, Y, LB, RB, LT, RT, BACK, START];
 
+static MODE_WRITE: std::sync::Mutex<()> = std::sync::Mutex::new(());
+fn mode_path() -> std::path::PathBuf {
+    std::path::PathBuf::from(std::env::var("MICRODUCK_CALIBRATION_FILE")
+        .unwrap_or("./state/calibration.json".into())).with_file_name("gamepad-mode.json")
+}
+fn read_mode(path: &std::path::Path, default: bool) -> Result<bool> {
+    match std::fs::read(path) {
+        Ok(bytes) => serde_json::from_slice::<Value>(&bytes)?["debug"].as_bool()
+            .context("saved gamepad mode must contain boolean debug"),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(default),
+        Err(e) => Err(e.into()),
+    }
+}
+pub fn initial_debug() -> bool {
+    let default = std::env::var("MICRODUCK_GAMEPAD_DIAGNOSTIC_ONLY").unwrap_or("1".into()) == "1";
+    read_mode(&mode_path(), default).unwrap_or_else(|e| {
+        eprintln!("无法读取已保存手柄模式，使用只读诊断：{e}");
+        true
+    })
+}
+fn persist_mode(path: &std::path::Path, enabled: bool) -> Result<()> {
+    use std::io::Write;
+    let parent = path.parent().context("gamepad mode parent missing")?;
+    std::fs::create_dir_all(parent)?;
+    let tmp = path.with_extension("tmp");
+    let mut file = File::create(&tmp)?;
+    file.write_all(&serde_json::to_vec(&json!({"debug":enabled}))?)?;
+    file.sync_all()?;
+    std::fs::rename(&tmp, path)?;
+    File::open(parent)?.sync_all()?;
+    Ok(())
+}
+
 pub fn mode_router() -> Router<App> {
     Router::new().route("/api/v1/gamepad/mode", get(get_mode)).route("/api/v1/gamepad/mode", post(set_mode))
 }
@@ -33,6 +66,10 @@ async fn set_mode(State(app): State<App>, headers: HeaderMap, body: Bytes) -> Re
     let Some(enabled) = value["debug"].as_bool() else {
         return crate::error(StatusCode::UNPROCESSABLE_ENTITY, "debug must be boolean");
     };
+    let _guard = MODE_WRITE.lock().unwrap();
+    if let Err(e) = persist_mode(&mode_path(), enabled) {
+        return crate::error(StatusCode::INTERNAL_SERVER_ERROR, &format!("手柄模式保存失败：{e}"));
+    }
     app.gamepad_debug.store(enabled, Ordering::Release);
     Json(json!({"debug":enabled,"message":if enabled{"调试模式已开启：输入只显示在网页，不发送实体控制指令"}else{"调试模式已关闭：实体手柄控制已允许，请先确认机器人周围安全"}})).into_response()
 }
@@ -406,6 +443,18 @@ pub fn spawn(app: App, router: Router) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn saved_mode_survives_restart_and_overrides_environment_default() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("gamepad-mode.json");
+        assert!(read_mode(&path, true).unwrap());
+        persist_mode(&path, false).unwrap();
+        assert!(!read_mode(&path, true).unwrap());
+        persist_mode(&path, true).unwrap();
+        assert!(read_mode(&path, false).unwrap());
+        std::fs::write(&path, b"{\"debug\":\"false\"}").unwrap();
+        assert!(read_mode(&path, false).is_err());
+    }
     fn sample(keys: &[usize], axes: [f64; 4]) -> Sample {
         Sample {
             axes,

@@ -71,7 +71,7 @@ env = dict(os.environ, MICRODUCK_SOURCE='hardware', MICRODUCK_BIND='127.0.0.1:88
            MICRODUCK_SERVO_PORT='/dev/ttyS2',
            MICRODUCK_SERVO_IDS='10,11,12,13,14,20,21,22,23,24,30,31,32,33,34',
            MICRODUCK_CALIBRATION_FILE=str(clone), MICRODUCK_STATIC_DIR=str(release/'frontend/dist'),
-           MICRODUCK_POLICY_PATH=str(release/'models/hd1910-head-v5.onnx'),
+           MICRODUCK_POLICY_PATH=str(release/'models/xgoduck_walk.onnx'),
            ORT_DYLIB_PATH=str(release/'lib/libonnxruntime.so'))
 candidate = None
 log = open(workspace/'candidate.log', 'w')

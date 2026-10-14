@@ -175,13 +175,25 @@ impl Motion {
     }
     pub fn status(&mut self) -> Value {
         self.sync();
-        let s = self.app.telemetry.read().unwrap();
-        let ctrl = s.control.clone();
+        // Local evdev only consumes readiness/errors, never the App telemetry payload.
+        if self.source == "gamepad" {
+            let s=self.app.telemetry.read().unwrap();
+            return json!({"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
+                "motionError":self.error,"controlOwned":self.input_permit.is_some(),
+                "controlBusy":self.input_permit.is_none() && self.app.input_gate.available_permits()==0});
+        }
+        // Copy the small snapshot under the lock; formatting, calibration and disk I/O
+        // must not hold up the servo/IMU writers.
+        let (ctrl, samples, boot, resources, uptime) = {
+            let s=self.app.telemetry.read().unwrap();
+            (s.control.clone(), ["joints","imu.orientation"].map(|topic|
+                s.latest.get(topic).map(|v|s.stamp(v))),
+                s.boot.clone(),s.resources.clone(),s.started.elapsed().as_secs_f64())
+        };
         let mut observer = json!({"control":ctrl});
         observer["control"]["ageMs"] = json!(0);
-        for (topic, target) in [("joints", "joints"), ("imu.orientation", "orientation")] {
-            if let Some(sample) = s.latest.get(topic) {
-                let v = s.stamp(sample);
+        for (sample, target) in samples.into_iter().zip(["joints", "orientation"]) {
+            if let Some(v) = sample {
                 if v["source"] != "hardware" || v["valid"] != true {
                     continue;
                 }
@@ -222,10 +234,10 @@ impl Motion {
         }
         observer["modelGains"] = json!({"p":crate::gains::ui_current().p,"d":crate::gains::ui_current().d,"supported":true,"appliesOn":"next-model-start"});
         observer["observerOta"]=crate::observer_ota::status();observer["observerOta"]["supported"]=json!(crate::observer_ota::enabled());
-        observer["calibration"] = self.app.cal.lock().unwrap().read(&s.boot);
-        observer["system"] = json!({"bootId":s.boot,"source":if self.app.hardware {"hardware"} else {"simulation"},
-            "resources":s.resources,"resourceAgeMs":s.resources["sampleMonoMs"].as_f64().map(|at|(crate::telemetry::monotonic()*1000.-at).max(0.)),
-            "serviceUptimeSeconds":s.started.elapsed().as_secs_f64(),"powerControl":self.app.hardware && crate::power::enabled()});
+        observer["calibration"] = self.app.cal.lock().unwrap().read(&boot);
+        observer["system"] = json!({"bootId":boot,"source":if self.app.hardware {"hardware"} else {"simulation"},
+            "resources":resources,"resourceAgeMs":resources["sampleMonoMs"].as_f64().map(|at|(crate::telemetry::monotonic()*1000.-at).max(0.)),
+            "serviceUptimeSeconds":uptime,"powerControl":self.app.hardware && crate::power::enabled()});
         observer["system"]["wifiStatusReadOnly"]=json!(true);
         observer["kickModels"]=json!({"left":self.kick_models[0],"right":self.kick_models[1]});
         let skill = ctrl["activeSkill"].as_str().unwrap_or("xgoduck");
@@ -570,6 +582,23 @@ pub(crate) mod tests {
     }
     fn drive(seq: u64) -> Value {
         json!({"seq":seq,"action":"drive","forward":1,"turn":0,"speed":0.5})
+    }
+    #[test]
+    fn local_status_avoids_calibration_lock_and_preserves_readiness_gates() {
+        let (phone,_,_tmp)=fixture();
+        let mut pad=Motion::local(phone.app.clone(),phone.router.clone());
+        let _cal_guard=phone.app.cal.lock().unwrap();
+        // Holding calibration cannot block the controller's internal status path.
+        pad.open().unwrap();
+        pad.drive=Some("ble-session".into());pad.phase="active".into();
+        pad.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1"});
+        assert_eq!(pad.status()["headReady"],true);
+        assert!(pad.status().get("observer").is_none());
+        pad.pending=true;assert_eq!(pad.status()["headReady"],false);
+        pad.pending=false;pad.stopped=true;assert_eq!(pad.status()["headReady"],false);
+        pad.stopped=false;
+        pad.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(true);
+        assert_eq!(pad.status()["headReady"],false);
     }
     #[tokio::test]
     async fn simultaneous_connections_do_not_steal_or_clear_input_and_handoff_needs_no_reconnect() {

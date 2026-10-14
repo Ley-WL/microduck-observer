@@ -340,18 +340,19 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
 }
 async fn policy_info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
-    let meta = policy::metadata_for("stand");
-    let models: Vec<Value> = ["stand","walk","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand"].iter().map(|kind| {
+    let meta = policy::metadata_for("xgoduck");
+    let models: Vec<Value> = ["xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand"].iter().map(|kind| {
         let metadata=policy::metadata_for(kind);
-        json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata})
+        let gains=gains::current();
+        json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata,"runtimeGains":{"p":gains.p,"d":gains.d,"source":"model-gains.json","appliesOn":"next-model-start"}})
     }).collect();
     Json(
-        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"hd1910-head-v5","kind":"stand","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
 async fn model_gains_info() -> Json<Value> {
     let value=gains::ui_current();
-    Json(json!({"supported":true,"p":value.p,"d":value.d,"appliesOn":"next-model-start"}))
+    Json(json!({"supported":true,"p":value.p,"d":value.d,"appliesOn":"next-model-start","scope":"all-models","source":"model-gains.json"}))
 }
 #[cfg(test)]
 mod gain_route_tests {
@@ -388,13 +389,14 @@ async fn model_gains(State(a): State<App>, headers: HeaderMap, body: Bytes) -> R
     let state = a.telemetry.read().unwrap().control["state"].as_str().unwrap_or("").to_owned();
     if matches!(state.as_str(), "policy"|"moving"|"preflight"|"disabling") { return error(StatusCode::CONFLICT, "请先停止模型，再保存增益"); }
     match gains::save_ui(value) {
-        Ok(()) => Json(json!({"saved":true,"gains":{"p":value.p,"d":value.d},"appliesOn":"next-model-start"})).into_response(),
+        Ok(()) => Json(json!({"saved":true,"gains":{"p":value.p,"d":value.d},"appliesOn":"next-model-start","scope":"all-models","source":"model-gains.json"})).into_response(),
         Err(e) => error(StatusCode::INTERNAL_SERVER_ERROR, &format!("保存失败：{e}")),
     }
 }
 fn policy_home_command(kind:&str,cal:Value)->anyhow::Result<Value> {
     let targets=policy::home_targets_for(kind)?;
-    Ok(json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind,"requireUpright":true}))
+    let gains=gains::current();
+    Ok(json!({"action":"stand","calibration":cal,"standTargets":targets,"policy":policy::model_id(kind),"kind":kind,"requireUpright":true,"nativePolicyGains":[gains.p,gains.d]}))
 }
 fn policy_drive_command(shared: &mut Telemetry, body: &Value) -> Response {
         let twist=match policy::drive_twist(&body) { Ok(v)=>v, Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string()) };
@@ -624,6 +626,9 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
     gains::init()?;
+    if args.get(1).is_some_and(|s|s=="--verify-model-bank") {
+        println!("{}",policy::verify_model_bank()?);return Ok(());
+    }
     if args.get(1).is_some_and(|s| s == "--verify-policy-fixture") {
         let path = args
             .get(2)
@@ -656,7 +661,7 @@ async fn main() -> anyhow::Result<()> {
     )))?;
     let shared = Arc::new(RwLock::new(Telemetry::new(hardware)));
     let stop = Arc::new(AtomicBool::new(false));
-    let gamepad_debug = Arc::new(AtomicBool::new(env("MICRODUCK_GAMEPAD_DIAGNOSTIC_ONLY", "1") == "1"));
+    let gamepad_debug = Arc::new(AtomicBool::new(gamepad::initial_debug()));
     let owner = if !port.is_empty() {
         let ids = env("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24")
             .split(',')

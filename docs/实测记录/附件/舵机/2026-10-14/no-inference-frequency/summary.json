@@ -1,0 +1,10 @@
+{
+  "seconds": 60.14041423200001,
+  "beforeState": "holding",
+  "afterState": "holding",
+  "beforeInferences": 4597,
+  "afterInferences": 4597,
+  "imuQuaternionHz": 199.03421273129348,
+  "imuAccelGyroHz": 199.01758497751476,
+  "lastServoReadMs": 4.388098
+}

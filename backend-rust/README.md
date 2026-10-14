@@ -1,3 +1,5 @@
+> 2026-10-14：全部9个现役模型（行走、起身、拾取、翻滚、左右踢球、舞蹈、坐下/站起）统一继承界面保存的 `model-gains.json`，下次启动生效；旧独立行走增益文件不再读取。模型metadata中的历史增益仅作来源记录，不覆盖通用设置。普通站立和旧版行走策略及其模型文件已删除，API默认模型为 `xgoduck`；手动HOME/关节控制和坐站技能保留。
+
 # Rust 后端
 
 2026-10-09 新增walk/XgoDuck walk跌倒停止：共享机身倾角≥60°持续150ms或≥90°立即，在接受异步结果/写目标前终止模型、清命令并卸力，不自动恢复。零速平衡也检测；起身/拾取/翻滚/坐站豁免，正常行走启动倾角≥60°拒绝。详见03最新记录，当前待主板开机部署。
@@ -51,8 +53,8 @@ IMU独立读取线程；舵机只有一个串口拥有者，采集、角度、�
 ```bash
 cargo test --locked
 python tests/contracts.py
-MICRODUCK_POLICY_PARITY_FIXTURE=tests/fixtures/policy-v5.json \
-MICRODUCK_POLICY_PATH=../models/hd1910-head-v5.onnx \
+MICRODUCK_POLICY_PARITY_FIXTURE=tests/fixtures/policy-xgoduck.json \
+MICRODUCK_POLICY_PATH=../models/xgoduck_walk.onnx \
 ORT_DYLIB_PATH=/path/libonnxruntime.so \
 cargo test policy::tests::python_parity -- --ignored
 ```
@@ -90,3 +92,11 @@ as the identity of every new device. Cached audio remains outside release
 folders and is reproducible from the hardware identity and bank version.
 
 主板直连 GameSir T4 Nova Lite 手柄开发入口、按键和只读识别见 [GAMEPAD.md](../docs/GAMEPAD.md)。默认关闭，尚待实物映射和断连验收。
+
+### 2026-10-14 原生控制循环耗时诊断
+
+`cycleCosts.nativePhases` 对完成推理发令的原生轮次分段统计 samples/meanMs/maxMs/lastMs：readAndSensors、observe、publishAndAccounting、skillAndCommand、infer、targetsAndIntents、busWrite、trace、historyAndAccounting、status。totalBeforeWait 包含状态构造和发布，结束于统计自身更新之前，不含调度休眠；旧 cycleBusy 在状态发布前截止，不能当完整周期。各阶段为墙钟耗时，包含被调度暂停。
+
+directSharedLockWaitSubset 是原生循环内直接共享锁获取等待，已包含在上述各段中，不应再相加；不包含被调用函数内部锁等待。当前统计仅覆盖完成的原生推理轮次，反馈保持/退出/故障中断轮次及 Worker100 不计入这些分段。状态响应展示上一轮累计统计，故障保存包含最近已完成轮次。计时不改变控制周期、目标、增益、模型和保护逻辑。
+
+2026-10-14 控制效率优化：实体 gamepad 的 Motion.status 仅返回 headReady/motionError/控制权，不构造 App observer、不读 OTA 文件、不重复读取行走模型计算 SHA256。BLE/App 状态在短锁内复制所需快照，然后锁外处理 JSON、标定和模型可用性校验。模型实际启动仍校验完整性；关节发布的 JSON 数据在获取写锁前构造。保留 nativePhases 计时用于同场实测，不将单元测试当作 50Hz 实物验收。

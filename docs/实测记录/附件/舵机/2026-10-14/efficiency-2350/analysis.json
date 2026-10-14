@@ -1,0 +1,9 @@
+{
+  "kind": "xgoduck_getup",
+  "frames": 246,
+  "durationSeconds": 4.909951980000002,
+  "actualHz": 49.898655016988556,
+  "meanInferenceMs": 1.2688266991869914,
+  "maxGapMs": 30.241622000005464,
+  "nonzeroCommandFrames": 0
+}

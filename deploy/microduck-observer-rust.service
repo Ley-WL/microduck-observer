@@ -16,7 +16,7 @@ Environment=MICRODUCK_IMU_DRIVER=ms901m
 Environment=MICRODUCK_IMU_PORT=/dev/ttyS9
 Environment=MICRODUCK_SERVO_PORT=/dev/ttyS2
 Environment=MICRODUCK_SERVO_IDS=10,11,12,13,14,20,21,22,23,24,30,31,32,33,34
-Environment=MICRODUCK_POLICY_PATH=/home/radxa/microduck-observer/current/models/hd1910-head-v5.onnx
+Environment=MICRODUCK_POLICY_PATH=/home/radxa/microduck-observer/current/models/xgoduck_walk.onnx
 Environment=ORT_DYLIB_PATH=/home/radxa/microduck-observer/current/lib/libonnxruntime.so
 StateDirectory=microduck-observer
 StateDirectoryMode=0700
