@@ -243,6 +243,11 @@ impl Input {
             Some("kick_left")
         } else if ready && sample.centered() && sample.dpad[2] && !self.previous.dpad[2] {
             Some("kick_right")
+        } else if ready && sample.centered() && edge(LB)
+            && sample.keys.iter().zip(BUTTONS).all(|(down, key)| key == LB || !down)
+            && !sample.dpad.iter().any(|down| *down)
+        {
+            Some("pick")
         } else {
             None
         };
@@ -522,6 +527,30 @@ mod tests {
         assert_eq!(input.update(&sample(&[A], [1.; 4]), false, false), None);
         input.update(&Sample::default(), false, false);
         assert_eq!(input.update(&sample(&[A], [0.; 4]), false, false), Some("stand"));
+    }
+    #[test]
+    fn lb_pick_requires_ready_centered_fresh_single_press() {
+        let mut input = Input::default();
+        let lb = sample(&[LB], [0.; 4]);
+        assert_eq!(input.update(&lb, true, false), None);
+        input.update(&Sample::default(), true, false);
+        assert_eq!(input.update(&lb, false, false), None);
+        assert_eq!(input.update(&lb, true, false), None);
+        input.update(&Sample::default(), true, false);
+        assert_eq!(input.update(&sample(&[LB], [1.; 4]), true, false), None);
+        input.update(&Sample::default(), true, false);
+        assert_eq!(input.update(&lb, true, false), Some("pick"));
+        assert_eq!(input.update(&lb, true, false), None);
+        input.update(&Sample::default(), true, false);
+        assert_eq!(input.update(&lb, true, true), None);
+    }
+    #[test]
+    fn lb_combinations_do_not_trigger_pick() {
+        for other in [A, B, X, Y, RB, RT, LT, START, BACK] {
+            let mut input = Input::default();
+            input.update(&Sample::default(), true, false);
+            assert_ne!(input.update(&sample(&[LB, other], [0.; 4]), true, false), Some("pick"));
+        }
     }
     #[test]
     fn drive_requires_ready_then_neutral_but_not_lb() {

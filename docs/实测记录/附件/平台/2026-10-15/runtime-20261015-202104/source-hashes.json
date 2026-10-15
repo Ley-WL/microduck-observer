@@ -1,0 +1,6 @@
+{
+  "backend-rust/src/gamepad.rs": "5c91264f19306d3d03a3205eebf7e795f56d8883cdf97d3bb72b28572dcf4081",
+  "frontend/src/components/ModelRuntime.vue": "77853dad361aa621821d146355c06efe31e52edb4b4fef953582d1c90545824a",
+  "backend-rust/Cargo.lock": "23956a6cc4b7974d3630fee87f6f2ffb42efd383177c423fdf02069041d1da9d",
+  "tools/deploy-runtime.py": "952194277b69bb626491fda52ce3729c9c6e4b6eedca36e81d5f05b43e20dc6a"
+}
