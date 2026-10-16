@@ -259,6 +259,9 @@ impl SkillProfile {
             _ => skill_complete(kind,progress,upright),
         }
     }
+    fn update_upright(self, seconds: &mut f64, obs: &[f32]) {
+        *seconds=if self.upright(obs) {*seconds+0.02} else {0.};
+    }
     fn upright(self, obs: &[f32]) -> bool {
         if tilt(obs)>=15. { return false; }
         if !self.retrained { return true; }
@@ -1182,6 +1185,7 @@ fn native_policy_loop(
             let old_home=model.home;
             let old=std::mem::replace(model,selected);bank.insert(old.kind.clone(),old);
             pause_drive_for_switch(shared);
+            head_offset=[0.;2];
             // Rebase the one current sensor sample; only q-HOME and raw history
             // change. Never advance the native one-sample delay a second time.
             for n in 0..14 {obs[6+n]+=old_home[n]-model.home[n];obs[34+n]=model.last_action[n];}
@@ -1205,12 +1209,12 @@ fn native_policy_loop(
         let adjusted=action.map(|v|v*scale);
         let filtered=model.filter_action(&adjusted);
         *goals=model.targets(filtered,feedback,cal,limits)?;
-        if model.kind=="xgoduck" {
+        if model.kind=="xgoduck" || (model.kind=="sitstand_sit" && model.progress>=model.skill_profile.sit_settle()) {
             let input=read_shared().head_intent.current(Instant::now());
-            crate::head_control::step(&mut head_offset,input);
+            crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]]);
             for (axis,n) in [6usize,7].iter().enumerate(){
                 if head_offset[axis].abs()<1e-9 {continue;}
-                let id=ORDER[*n];let raw=(model.sent[*n]+head_offset[axis]).to_radians();
+                let id=ORDER[*n];let (lo,hi)=limit(id).unwrap();let raw=(model.sent[*n]+head_offset[axis]).clamp(lo,hi).to_radians();
                 let (goal,sent,saturated)=skill_target(id,raw,cal,limits[&id],true)?;
                 goals.insert(id,goal);model.sent[*n]=sent.to_degrees();if saturated && !model.saturated.contains(&id){model.saturated.push(id);}
             }
@@ -1232,7 +1236,10 @@ fn native_policy_loop(
             "headOffsetDegrees":head_offset,"mouthTargetDegrees":read_shared().mouth_degrees,"mouthControlSource":if quacking {"quack"} else if model.kind=="xgoduck_pick" {"pickup-choreography"} else {"independent-intent"},"skillProgressSeconds":model.progress,"inferenceMs":ms,"resultAgeMs":0.,"voltageScale":scale,"filteredVoltage":filtered_voltage,"execution":"kissqy-sync50-v1"}));
         let trace_done=Instant::now();
         model.last_action=action;model.filtered_action=filtered;model.target_initialized=true;
-        if model.kind!="xgoduck" {model.progress+=0.02;}
+        if model.kind!="xgoduck" {
+            model.progress+=0.02;
+            model.skill_profile.update_upright(&mut model.upright,&obs);
+        }
         {let mut c=costs.lock().unwrap();c.writes+=1;c.inferred(Instant::now());c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
         let status_at=Instant::now();
         let mut v=stats(model,timing,ms);v["state"]=json!("policy");v["action"]=json!("policy");v["policyPhase"]=json!("running");v["feedbackHolding"]=json!(false);
@@ -1244,7 +1251,8 @@ fn native_policy_loop(
             v["rollExitRevision"]=json!("rotation-stable-bounded-v1");v["rollRotationDegrees"]=json!(roll_exit.rotation_degrees);
             v["rollTimeoutSeconds"]=json!(crate::roll_exit::RollExit::TIMEOUT);
         }
-        v["message"]=json!(if model.kind=="xgoduck_getup" {"kissqy倒地起身，同步50Hz，6秒窗口"} else {"kissqy同步50Hz控制"});control::status(shared,v);
+        v["uprightStableSeconds"]=json!(model.upright);
+        v["message"]=json!(if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup {"kissqy倒地起身，同步50Hz，6秒窗口"} else {"起身中，等待连续稳定站立1秒"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
         let status_done=Instant::now();
         {
             let mut c=costs.lock().unwrap();
@@ -1510,7 +1518,7 @@ pub fn execute(
                         let (action,ms)=result?;infer_ms=ms;last_obs=Some(result_obs);
                         let filtered=model.filter_action(&action);
                         if model.kind=="xgoduck_getup" || (model.skill_profile.retrained && model.kind=="sitstand_stand") {
-                            model.upright=if model.skill_profile.upright(last_obs.as_ref().unwrap()) {model.upright+0.02} else {0.};
+                            model.skill_profile.update_upright(&mut model.upright,last_obs.as_ref().unwrap());
                         }
                         goals=model.targets(filtered,&feedback,cal,&limits)?;
                         if policy_trace.skill_frames<600 {
@@ -2122,6 +2130,12 @@ mod tests {
         assert!(profile.complete("xgoduck_getup",3.,1.));
         let mut obs=vec![0f32;61];obs[5]=-1.;
         assert!(profile.upright(&obs));
+        let mut stable=0.;
+        for _ in 0..49 {profile.update_upright(&mut stable,&obs);}
+        assert!(!profile.complete("xgoduck_getup",4.,stable));
+        obs[0]=3.;profile.update_upright(&mut stable,&obs);assert_eq!(stable,0.);
+        obs[0]=0.;for _ in 0..50 {profile.update_upright(&mut stable,&obs);}
+        assert!(profile.complete("xgoduck_getup",4.,stable));
         for n in (0..5).chain(9..14) {obs[6+n]=0.6;}
         assert!(!profile.upright(&obs),"upright torso with folded legs is not standing");
         for n in 6..20 {obs[n]=0.;}obs[0]=3.;

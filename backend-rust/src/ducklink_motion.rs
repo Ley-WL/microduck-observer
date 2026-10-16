@@ -103,8 +103,9 @@ impl Motion {
         motion
     }
     fn zero(&mut self) {
-        if self.input_permit.is_some() {
-            self.app.telemetry.write().unwrap().head_intent.clear();
+        if self.input_permit.is_some() || self.source=="gamepad" {
+            let mut s=self.app.telemetry.write().unwrap();
+            if s.drive.as_ref().is_none_or(|d|self.drive.as_deref()==Some(d.session.as_str())) {s.head_intent.clear();}
         }
         self.zero_drive();
     }
@@ -114,20 +115,23 @@ impl Motion {
         self.lateral = 0.;
     }
     fn quack_input(&mut self, head: [f64; 2]) {
-        self.zero_drive();
-        if self.input_permit.is_none() { return; }
+        if self.input_permit.is_none() && self.source!="gamepad" { return; }
         let ctrl = self.control();
         let ready = self.phase == "active" && !self.stopped && !self.pending
             && self.drive.as_deref().is_some_and(|session| ctrl["driveSession"] == session)
             && crate::head_control::ready(&ctrl);
         let mut telemetry = self.app.telemetry.write().unwrap();
         if ready { telemetry.head_intent.set(head); }
-        else { telemetry.head_intent.clear(); }
+        else { telemetry.head_intent.clear(); drop(telemetry); self.zero_drive(); }
     }
     fn control(&self) -> Value {
         self.app.telemetry.read().unwrap().control.clone()
     }
     fn sync(&mut self) {
+        // A physical takeover rotates the session. Revoke the old controller before
+        // consulting status, which may still be an earlier worker snapshot.
+        let replaced={let s=self.app.telemetry.read().unwrap();self.drive.as_ref().is_some_and(|id|s.drive.as_ref().is_some_and(|d|d.session!=*id))};
+        if replaced {self.drive=None;self.input_permit=None;self.phase="idle".into();self.pending=false;self.zero_drive();}
         let ctrl = self.control();
         if let Some(session) = &self.drive {
             // A newly accepted start can precede the worker's first status.
@@ -141,13 +145,14 @@ impl Motion {
                 self.zero();
             } else if ctrl["state"] == "policy" && ctrl["driveSession"] == session.as_str() {
                 self.phase = "active".into();
-                if ctrl["feedbackHolding"] == true || ctrl["activeSkill"] != "xgoduck" {
+                if ctrl["feedbackHolding"] == true || (ctrl["activeSkill"] != "xgoduck" && !crate::head_control::ready(&ctrl)) {
                     self.zero();
-                }
+                } else if ctrl["activeSkill"] != "xgoduck" {self.zero_drive();}
                 if ctrl["activeSkill"] != "xgoduck" {
                     self.pending = false;
                 }
-            } else if self.phase == "active"
+            } else if (self.phase == "active"
+                && !self.app.telemetry.read().unwrap().drive.as_ref().is_some_and(|d| d.session == *session))
                 || (self.phase == "starting"
                     && !self
                         .app
@@ -167,11 +172,34 @@ impl Motion {
         if self.drive.is_none() { self.input_permit = None; }
     }
     fn acquire_input(&mut self) -> Result<()> {
+        {
+            let s=self.app.telemetry.read().unwrap();
+            if s.drive.as_ref().is_some_and(|d|s.gamepad_session.as_ref()==Some(&d.session)) {
+                ensure!(self.source=="gamepad" && self.drive.as_ref()==s.gamepad_session.as_ref(),"实体手柄正在控制，请先按 B 停止保持再切换控制端");
+                if self.input_permit.is_none() {self.input_permit=self.app.input_gate.clone().try_acquire_owned().ok();}
+                return Ok(());
+            }
+        }
         if self.input_permit.is_none() {
             self.input_permit = Some(self.app.input_gate.clone().try_acquire_owned()
                 .map_err(|_| anyhow::anyhow!("另一端正在控制，请先在该端停止保持再操作"))?);
         }
         Ok(())
+    }
+    pub fn take_over_policy(&mut self) -> bool {
+        if self.source!="gamepad" || self.stopped {return false;}
+        let mut s=self.app.telemetry.write().unwrap();
+        if s.control["state"]!="policy" || s.control["kind"]!="xgoduck" || s.control["feedbackHolding"]==true {return false;}
+        let Some(current)=s.drive.as_ref() else {return false;};
+        if self.drive.as_ref()==Some(&current.session) {return false;}
+        let session=uuid::Uuid::new_v4().to_string();
+        s.drive=Some(crate::telemetry::DriveCommand{session:session.clone(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        s.gamepad_session=Some(session.clone());s.control["driveSession"]=json!(session);
+        s.head_intent.clear();s.pending_skill=None;s.pending_mouth=None;s.pending_quack=false;
+        s.log("INFO","gamepad","实体手柄已接管运行模型，旧控制会话失效");
+        drop(s);
+        self.drive=Some(session);self.drive_seq=0;self.leased=true;self.phase="active".into();self.pending=false;
+        self.error.clear();self.last=Instant::now();self.zero_drive();true
     }
     pub fn status(&mut self) -> Value {
         self.sync();
@@ -179,8 +207,8 @@ impl Motion {
         if self.source == "gamepad" {
             let s=self.app.telemetry.read().unwrap();
             return json!({"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
-                "motionError":self.error,"controlOwned":self.input_permit.is_some(),
-                "controlBusy":self.input_permit.is_none() && self.app.input_gate.available_permits()==0});
+                "motionError":self.error,"controlOwned":self.input_permit.is_some() || (self.drive.is_some() && self.drive==s.gamepad_session),
+                "controlBusy":self.drive.is_none() && self.app.input_gate.available_permits()==0});
         }
         // Copy the small snapshot under the lock; formatting, calibration and disk I/O
         // must not hold up the servo/IMU writers.
@@ -380,11 +408,17 @@ impl Motion {
             (-1. ..=1.).contains(&f) && (-1. ..=1.).contains(&t) && (0. ..=1.0).contains(&speed),
             "控制量超出范围"
         );
-        let head=crate::head_control::parse(&body)?;
+        let head=if action=="quack" && body.get("headPitch").is_none() && body.get("headYaw").is_none() {
+            self.app.telemetry.read().unwrap().head_intent.current(Instant::now())
+        } else {crate::head_control::parse(&body)?};
         self.sequence = Some(seq);
         self.last = Instant::now();
         self.sync();
         let execution:Result<()> = async {
+            if self.drive.is_none() && self.control()["state"] == "policy"
+                && !matches!(action,"estop"|"release"|"reset"|"idle"|"drive"|"strafe_left"|"strafe_right") {
+                anyhow::bail!("另一端或其他会话正在运行模型，请先在原控制端停止保持，再用手柄或 App 启动");
+            }
             // Connections/heartbeats never reserve motion. Only an explicit action
             // (or input for an existing owned drive session) may take the permit.
             if !self.stopped && !matches!(action, "estop"|"release"|"reset"|"idle")
@@ -421,9 +455,12 @@ impl Motion {
             },
             "drive"|"strafe_left"|"strafe_right"=>{
                 let ctrl=self.control();
-                if self.phase=="active" && ctrl["feedbackHolding"]!=true && ctrl["activeSkill"]=="xgoduck" && !self.pending {
+                if self.phase=="active" && !self.stopped && ctrl["feedbackHolding"]!=true && (ctrl["activeSkill"]=="xgoduck" || crate::head_control::ready(&ctrl)) && !self.pending {
                     ensure!(head==[0.;2] || crate::head_control::ready(&ctrl),"当前模型不支持头部控制");
-                    self.app.telemetry.write().unwrap().head_intent.set(head);
+                    {let mut s=self.app.telemetry.write().unwrap();
+                    ensure!(s.drive.as_ref().is_some_and(|d|self.drive.as_ref()==Some(&d.session)),"控制会话已变更");
+                    s.head_intent.set(head);}
+                    if ctrl["activeSkill"]!="xgoduck" {self.zero_drive();self.error.clear();return Ok(());}
                     self.error.clear();self.forward=f*speed;self.turn=(t*speed).clamp(-1.0,1.0);self.lateral=if action=="strafe_left"{0.3*speed}else if action=="strafe_right"{-0.3*speed}else{0.};
                 }else{self.zero();}
             },_=>{}
@@ -459,7 +496,7 @@ impl Motion {
         }
         let ctrl = self.control();
         if ctrl["activeSkill"] != "xgoduck" || ctrl["feedbackHolding"] == true {
-            self.zero();
+            if crate::head_control::ready(&ctrl) {self.zero_drive();} else {self.zero();}
             return;
         }
         let Some(session) = self.drive.clone() else {
@@ -583,6 +620,22 @@ pub(crate) mod tests {
     fn drive(seq: u64) -> Value {
         json!({"seq":seq,"action":"drive","forward":1,"turn":0,"speed":0.5})
     }
+    #[tokio::test]
+    async fn seated_sticks_and_quack_preserve_head_without_walking() {
+        let (mut m,_,_tmp)=fixture();m.open().unwrap();m.drive=Some("ble-session".into());m.phase="active".into();
+        {let mut s=m.app.telemetry.write().unwrap();
+        s.drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        s.control=json!({"state":"policy","kind":"xgoduck","driveSession":"ble-session","activeSkill":"sitstand_sit","runtimeProfile":"kissqy-sync50-v1","skillProgressSeconds":4.,"sitSettleSeconds":4.});}
+        m.command(json!({"seq":1,"action":"drive","forward":1,"speed":1,"headPitch":0.6,"headYaw":-0.4})).await.unwrap();
+        m.tick().await;
+        assert_eq!(m.status()["headReady"],true);
+        assert_eq!((m.forward,m.turn,m.lateral),(0.,0.,0.));
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.6,-0.4]);
+        m.command(json!({"seq":2,"action":"quack"})).await.unwrap();m.tick().await;
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.6,-0.4]);
+        m.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(true);m.tick().await;
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,0.]);
+    }
     #[test]
     fn local_status_avoids_calibration_lock_and_preserves_readiness_gates() {
         let (phone,_,_tmp)=fixture();
@@ -599,6 +652,57 @@ pub(crate) mod tests {
         pad.stopped=false;
         pad.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(true);
         assert_eq!(pad.status()["headReady"],false);
+    }
+    #[tokio::test]
+    async fn physical_takeover_revokes_phone_without_stopping_or_restarting_policy() {
+        let (mut phone,calls,_tmp)=fixture();phone.open().unwrap();phone.acquire_input().unwrap();
+        phone.drive=Some("phone".into());phone.phase="active".into();
+        let mut pad=Motion::local(phone.app.clone(),phone.router.clone());
+        {
+            let mut s=phone.app.telemetry.write().unwrap();
+            s.drive=Some(crate::telemetry::DriveCommand{session:"phone".into(),sequence:12,twist:[0.2,0.,0.],updated:Instant::now()});
+            s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"sitstand_sit","driveSession":"phone"});
+            s.pending_skill=Some("xgoduck_getup".into());
+        }
+        assert!(pad.take_over_policy());assert!(!pad.take_over_policy());pad.acquire_input().unwrap();
+        let session=pad.drive.clone().unwrap();
+        {
+            let mut s=pad.app.telemetry.write().unwrap();
+            assert_eq!(s.control["activeSkill"],"sitstand_sit");assert!(s.pending_skill.is_none());
+            assert!(!s.drive.as_mut().unwrap().update("phone",13,[1.,0.,0.]));
+            s.head_intent.set([0.3,0.]);
+        }
+        phone.close().await;
+        assert_eq!(pad.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.3,0.]);
+        assert!(calls.lock().unwrap().is_empty());
+        phone.open().unwrap();assert!(phone.acquire_input().is_err());
+        assert_eq!(pad.app.telemetry.read().unwrap().drive.as_ref().unwrap().session,session);
+        pad.app.telemetry.write().unwrap().control["state"]=json!("disabled");
+        let mut other=Motion::local(pad.app.clone(),pad.router.clone());assert!(!other.take_over_policy());
+    }
+    #[tokio::test]
+    async fn quack_without_standing_only_requests_the_mouth_action() {
+        let (mut m,calls,_tmp)=fixture();m.open().unwrap();
+        m.app.telemetry.write().unwrap().control=json!({"state":"holding","posture":"seated"});
+        let result=m.command(json!({"seq":1,"action":"quack"})).await.unwrap();
+        assert_eq!(result["motionError"],"");
+        let requests=calls.lock().unwrap();
+        assert_eq!(requests.iter().map(|r|r.0.as_str()).collect::<Vec<_>>(),vec!["/api/v1/calibration","/api/v1/servos/quack"]);
+        assert!(m.drive.is_none());
+    }
+    #[tokio::test]
+    async fn transient_status_preserves_owned_session_but_never_adopts_another() {
+        let (mut m,calls,_tmp)=fixture();m.open().unwrap();m.acquire_input().unwrap();
+        m.drive=Some("owned".into());m.phase="active".into();
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand {session:"owned".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        m.app.telemetry.write().unwrap().control=json!({"state":"moving"});
+        m.sync();assert_eq!(m.drive.as_deref(),Some("owned"));assert!(m.input_permit.is_some());
+        m.app.telemetry.write().unwrap().drive=None;
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"other"});
+        m.sync();assert!(m.drive.is_none());
+        let status=m.command(json!({"seq":1,"action":"quack"})).await.unwrap();
+        assert!(status["motionError"].as_str().unwrap().contains("另一端"));
+        assert!(calls.lock().unwrap().is_empty());
     }
     #[tokio::test]
     async fn simultaneous_connections_do_not_steal_or_clear_input_and_handoff_needs_no_reconnect() {
@@ -626,6 +730,8 @@ pub(crate) mod tests {
         phone.open().unwrap();
         pad.command(json!({"seq":1,"action":"idle"})).await.unwrap();
         assert!(pad.leased && phone.leased);
+        // The mock route does not run the worker that publishes stop completion.
+        phone.app.telemetry.write().unwrap().control=json!({"state":"holding"});
         phone.app.telemetry.write().unwrap().drive = Some(crate::telemetry::DriveCommand {session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
         phone.command(json!({"seq":1,"action":"stand"})).await.unwrap();
         assert!(phone.input_permit.is_some());
@@ -694,6 +800,7 @@ pub(crate) mod tests {
     #[tokio::test]
     async fn backward_drive_reaches_policy_with_negative_velocity_and_release_zeroes_it() {
         let (mut m, calls, _tmp) = fixture();
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
         m.open().unwrap();
         m.drive = Some("ble-session".into());
         m.phase = "active".into();
@@ -724,6 +831,7 @@ pub(crate) mod tests {
     #[tokio::test]
     async fn pure_yaw_preserves_both_signs_without_forward_motion() {
         let (mut m,calls,_tmp)=fixture();
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
         m.open().unwrap();m.drive=Some("ble-session".into());m.phase="active".into();
         m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","feedbackHolding":false});
         for (seq,turn) in [(1,1.),(2,-1.)] {
@@ -735,6 +843,7 @@ pub(crate) mod tests {
     #[tokio::test]
     async fn full_speed_preserves_other_axis_limits() {
         let (mut m,calls,_tmp)=fixture();
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
         m.open().unwrap();m.drive=Some("ble-session".into());m.phase="active".into();
         m.app.telemetry.write().unwrap().control=json!({"state":"policy","driveSession":"ble-session","activeSkill":"xgoduck","feedbackHolding":false});
         for (seq,speed,forward,action,expected) in [
@@ -792,6 +901,7 @@ pub(crate) mod tests {
     #[tokio::test]
     async fn paused_feedback_cancels_intent_and_disconnect_halts_only_owned_policy() {
         let (mut m, calls, _tmp) = fixture();
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
         m.open().unwrap();
         m.drive = Some("ble-session".into());
         m.phase = "active".into();
@@ -852,7 +962,7 @@ pub(crate) mod tests {
         m.forward=0.5;m.turn=0.5;
         m.command(json!({"seq":1,"action":"quack","headPitch":0.6,"headYaw":-0.7})).await.unwrap();
         assert_eq!(calls.lock().unwrap().last().unwrap().0,"/api/v1/policy/quack");
-        assert_eq!((m.forward,m.turn,m.lateral),(0.,0.,0.));
+        assert_eq!((m.forward,m.turn,m.lateral),(0.5,0.5,0.));
         assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.6,-0.7]);
         m.router=Router::new().fallback(||async{(axum::http::StatusCode::CONFLICT,axum::Json(json!({"detail":"mouth busy"})))});
         m.command(json!({"seq":2,"action":"quack","headPitch":-0.4,"headYaw":0.8})).await.unwrap();
@@ -860,7 +970,7 @@ pub(crate) mod tests {
         assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[-0.4,0.8]);
         assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()+Duration::from_millis(251)),[0.,0.]);
         m.command(json!({"seq":3,"action":"quack"})).await.unwrap();
-        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,0.]);
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[-0.4,0.8]);
         m.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(true);
         m.command(json!({"seq":4,"action":"quack","headPitch":1})).await.unwrap();
         assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,0.]);

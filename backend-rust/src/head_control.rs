@@ -4,7 +4,8 @@ use serde_json::Value;
 #[derive(Default)]
 pub struct HeadIntent { input:[f64;2], updated:Option<Instant> }
 pub fn ready(control:&Value)->bool {
-    control["state"]=="policy" && control["activeSkill"]=="xgoduck"
+    control["state"]=="policy" && (control["activeSkill"]=="xgoduck" ||
+        (control["activeSkill"]=="sitstand_sit" && control["skillProgressSeconds"].as_f64().zip(control["sitSettleSeconds"].as_f64()).is_some_and(|(p,s)|p>=s)))
         && control["runtimeProfile"]=="kissqy-sync50-v1" && control["feedbackHolding"]!=true
 }
 pub fn parse(body:&Value)->anyhow::Result<[f64;2]> {
@@ -21,8 +22,12 @@ impl HeadIntent {
 }
 // Positive UI pitch means look up (negative mechanical pitch); yaw is positive left.
 // Offset transitions run at the existing 50Hz inference cadence, 60 degrees/second.
-pub fn step(offset:&mut [f64;2],input:[f64;2]) {
-    for (i,target) in [-input[0]*25.,input[1]*35.].iter().enumerate(){offset[i]+=(*target-offset[i]).clamp(-1.2,1.2);}
+pub fn step(offset:&mut [f64;2],input:[f64;2],base:[f64;2]) {
+    for (i,value) in [-input[0],input[1]].iter().enumerate(){
+        let (lo,hi)=crate::telemetry::limit([31,32][i]).unwrap();
+        let target=if *value<0. {value.abs()*(lo-base[i])} else {value*(hi-base[i])};
+        offset[i]+=(target-offset[i]).clamp(-1.2,1.2);
+    }
 }
 #[cfg(test)] mod tests {
     use super::*;use serde_json::json;
@@ -33,9 +38,19 @@ pub fn step(offset:&mut [f64;2],input:[f64;2]) {
     #[test] fn timeout_release_and_ramp(){
         let mut intent=HeadIntent::default();intent.set([1.,-1.]);let now=Instant::now();
         assert_eq!(intent.current(now),[1.,-1.]);assert_eq!(intent.current(now+Duration::from_millis(251)),[0.;2]);
-        let mut offset=[0.;2];for _ in 0..100{step(&mut offset,[1.,-1.]);}assert_eq!(offset,[-25.,-35.]);
-        step(&mut offset,[0.;2]);assert!((offset[0]+23.8).abs()<1e-8);
-        for _ in 0..100{step(&mut offset,[0.;2]);}assert_eq!(offset,[0.;2]);intent.clear();assert_eq!(intent.current(now),[0.;2]);
+        let mut offset=[0.;2];for _ in 0..100{step(&mut offset,[1.,-1.],[0.;2]);}assert_eq!(offset[0],-90.);
+        for _ in 0..100{step(&mut offset,[1.,-1.],[0.;2]);}assert_eq!(offset,[-90.,-170.]);
+        step(&mut offset,[0.;2],[0.;2]);assert!((offset[0]+88.8).abs()<1e-8);
+        for _ in 0..200{step(&mut offset,[0.;2],[0.;2]);}assert_eq!(offset,[0.;2]);intent.clear();assert_eq!(intent.current(now),[0.;2]);
+    }
+    #[test] fn full_stick_reaches_limits_from_nonzero_model_pose(){
+        let base=[12.,-18.];
+        for input in [[1.,-1.],[-1.,1.]] {
+            let mut offset=[0.;2];
+            for _ in 0..400 {step(&mut offset,input,base);}
+            assert!((base[0]+offset[0]+input[0]*90.).abs()<1e-8);
+            assert!((base[1]+offset[1]-input[1]*170.).abs()<1e-8);
+        }
     }
     #[test] fn only_ready_native_walk_accepts_head(){
         let mut c=json!({"state":"policy","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1"});assert!(ready(&c));

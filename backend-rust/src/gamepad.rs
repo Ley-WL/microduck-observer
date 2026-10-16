@@ -111,6 +111,13 @@ fn axis(raw: AbsInfo) -> Result<f64> {
     })
 }
 
+fn trigger(raw: AbsInfo) -> Result<bool> {
+    ensure!(raw.max > raw.min && (raw.min..=raw.max).contains(&raw.value),
+        "invalid gamepad trigger range");
+    let span = f64::from(raw.max) - f64::from(raw.min);
+    Ok(f64::from(raw.value) - f64::from(raw.min) > (span * 0.25).max(f64::from(raw.flat)))
+}
+
 #[derive(Default, Clone)]
 struct Sample {
     axes: [f64; 4],
@@ -133,6 +140,7 @@ struct Device {
     file: File,
     axes: [u32; 4],
     hats: [bool; 2],
+    triggers: [bool; 2], // ABS_BRAKE (LT), ABS_GAS (RT); never reuse stick axes.
 }
 impl Device {
     fn open(path: &str, expected_name: &str, axes: [u32; 4]) -> Result<Self> {
@@ -148,16 +156,18 @@ impl Device {
         ensure!(name == expected_name, "gamepad name mismatch: {name}");
         let mut key_bits = [0u8; 96];
         read_ioctl(&file, 0x21, &mut key_bits)?; // EVIOCGBIT(EV_KEY)
+        let mut abs_bits = [0u8; 8];
+        read_ioctl(&file, 0x23, &mut abs_bits)?; // EVIOCGBIT(EV_ABS)
+        let triggers = [10usize, 9].map(|code| !axes.contains(&(code as u32)) && abs_bits[code / 8] & (1 << (code % 8)) != 0);
         ensure!(
             BUTTONS
                 .iter()
-                .all(|k| key_bits[k / 8] & (1 << (k % 8)) != 0),
+                .all(|k| key_bits[k / 8] & (1 << (k % 8)) != 0
+                    || (*k == LT && triggers[0]) || (*k == RT && triggers[1])),
             "gamepad lacks Xbox-layout buttons"
         );
-        let mut abs_bits = [0u8; 8];
-        read_ioctl(&file, 0x23, &mut abs_bits)?; // EVIOCGBIT(EV_ABS)
         let hats = [16usize, 17].map(|code| abs_bits[code / 8] & (1 << (code % 8)) != 0);
-        let device = Self { file, axes, hats };
+        let device = Self { file, axes, hats, triggers };
         device.sample()?;
         Ok(device)
     }
@@ -169,6 +179,13 @@ impl Device {
         let mut sample = Sample::default();
         for (i, code) in BUTTONS.iter().enumerate() {
             sample.keys[i] = keys[code / 8] & (1 << (code % 8)) != 0;
+        }
+        for (i, code) in [10u32, 9].iter().enumerate() {
+            if self.triggers[i] {
+                let mut abs = AbsInfo::default();
+                read_ioctl(&self.file, 0x40 + code, &mut abs)?;
+                sample.keys[6 + i] |= trigger(abs)?;
+            }
         }
         for (i, code) in self.axes.iter().enumerate() {
             let mut abs = AbsInfo::default();
@@ -254,7 +271,7 @@ impl Input {
         if sample.neutral() {
             self.neutral_seen = true;
         }
-        if !ready || action.is_some() {
+        if !ready || action.is_some_and(|action|action!="quack") {
             self.drive_armed = false;
         } else if sample.neutral() {
             self.drive_armed = true;
@@ -266,7 +283,11 @@ impl Input {
         let enabled = self.drive_armed;
         let [lx, ly, rx, ry] = if enabled { sample.axes } else { [0.; 4] };
         let boosted = enabled && sample.down(LT);
-        json!({"seq":seq,"action":"drive","forward":-ly,"turn":if boosted{-lx*0.5}else{-lx},"headYaw":-rx,"headPitch":-ry,"speed":if boosted{0.4}else{0.2},"compact":true})
+        // Encode axes independently: Motion multiplies both by speed, then vx by 0.4.
+        // A gentle center retains fine control; full stick reaches 0.6 rad/s yaw.
+        let forward = -ly * if boosted { 1.0 } else { 0.5 };
+        let turn = -0.6 * lx * (0.5 + 0.5 * lx.abs());
+        json!({"seq":seq,"action":"drive","forward":forward,"turn":turn,"headYaw":-rx,"headPitch":-ry,"speed":1.0,"compact":true})
     }
 }
 
@@ -391,6 +412,11 @@ pub fn spawn(app: App, router: Router) {
                         input = Input::default();
                         report(&app, "已启用只读诊断，手柄控制权已安全释放");
                     }
+                    // Require a fresh deliberate input after neutral; merely connecting
+                    // or holding a key through reconnect must not steal control.
+                    if !diagnostic_only && input.neutral_seen && !sample.neutral() {
+                        if motion.take_over_policy() {input.drive_armed=true;}
+                    }
                     let ready = motion.leased && motion.status()["headReady"] == true;
                     if let Some(action) = input.update(&sample, ready, diagnostic_only) {
                         if action == "estop" {
@@ -405,13 +431,17 @@ pub fn spawn(app: App, router: Router) {
                             report(&app, "手柄已停止保持并释放控制");
                         } else {
                             if !motion.leased {
-                                if !matches!(action, "stand" | "getup") {
+                                if !matches!(action, "stand" | "getup" | "quack") {
                                     continue;
                                 }
                                 if let Err(e) = motion.open() {
                                     report(&app, &e.to_string());
                                     continue;
                                 }
+                            }
+                            if action == "quack" && ready {
+                                seq += 1;
+                                motion.command(input.drive(&sample, seq)).await?;
                             }
                             seq += 1;
                             let status = motion
@@ -466,6 +496,20 @@ mod tests {
             keys: BUTTONS.map(|key| keys.contains(&key)),
             dpad: [false; 4],
         }
+    }
+    #[test]
+    fn analog_lt_capture_boosts_and_releases_without_digital_key() {
+        let mut input = Input::default();
+        input.drive_armed = true;
+        for (value, expected) in [(0, 0.2), (63, 0.2), (255, 0.2), (1023, 0.4), (0, 0.2)] {
+            let mut raw = sample(&[], [0., -1., 0., 0.]);
+            raw.keys[6] = trigger(AbsInfo {value, min:0, max:1023, flat:63, ..Default::default()}).unwrap();
+            let command = input.drive(&raw, 1);
+            assert!((command["forward"].as_f64().unwrap()*0.4-expected).abs()<1e-9);
+            assert_eq!(input_data("test-pad", Some(&raw))["buttons"]["lt"], expected == 0.4);
+        }
+        assert!(trigger(AbsInfo::default()).is_err());
+        assert!(trigger(AbsInfo {value:1024, min:0, max:1023, ..Default::default()}).is_err());
     }
     #[test]
     fn input_feedback_preserves_raw_keys_and_clears_on_disconnect() {
@@ -562,14 +606,22 @@ mod tests {
         input.update(&Sample::default(), true, false);
         input.update(&held, true, false);
         let drive = input.drive(&held, 2);
-        assert_eq!(drive["forward"], 1.);
+        assert_eq!(drive["forward"], 0.5);
         assert_eq!(drive["headYaw"], -1.);
-        assert_eq!(drive["speed"], 0.2);
+        assert_eq!(drive["speed"], 1.0);
         let turbo=input.drive(&sample(&[LT], [1.,-1.,1.,-1.]),3);
-        assert_eq!(turbo["speed"], 0.4);
-        assert_eq!(turbo["turn"], -0.5);
+        assert_eq!(turbo["speed"], 1.0);
+        assert_eq!(turbo["turn"], -0.6);
+        for (buttons, expected) in [(vec![], 0.2), (vec![LT], 0.4)] {
+            for axis in [-1., 0., 1.] {
+                let command = input.drive(&sample(&buttons, [1., axis, 0., 0.]), 4);
+                let speed = command["speed"].as_f64().unwrap();
+                assert!((command["forward"].as_f64().unwrap()*speed*0.4 + axis*expected).abs()<1e-9);
+                assert!((command["turn"].as_f64().unwrap()*speed + 0.6).abs()<1e-9);
+            }
+        }
         input.update(&Sample::default(), true, false);
-        assert_eq!(input.drive(&sample(&[], held.axes), 3)["forward"], 1.);
+        assert_eq!(input.drive(&sample(&[], held.axes), 3)["forward"], 0.5);
         input.update(&held, false, false);
         input.update(&held, true, false);
         assert_eq!(input.drive(&held, 4)["forward"], 0.);
@@ -587,7 +639,29 @@ mod tests {
         input.update(&Sample::default(), true, false);
         let stick = sample(&[], [0., -1., 0., 0.]);
         input.update(&stick, true, false);
-        assert_eq!(input.drive(&stick, 1)["forward"], 1.);
+        assert_eq!(input.drive(&stick, 1)["forward"], 0.5);
+    }
+    #[test]
+    fn yaw_curve_is_symmetric_monotonic_and_independent_of_boost() {
+        let mut input=Input::default();
+        input.update(&Sample::default(),true,false);
+        let mut previous=1.;
+        for n in -100..=100 {
+            let axis=n as f64/100.;
+            let command=input.drive(&sample(&[],[axis,0.,0.,0.]),1);
+            let boosted=input.drive(&sample(&[LT],[axis,0.,0.,0.]),2);
+            let yaw=command["turn"].as_f64().unwrap();
+            assert!(yaw<=previous && yaw.abs()<=0.6);
+            assert_eq!(command["turn"],boosted["turn"]);
+            assert_eq!(command["forward"],0.);
+            let opposite=input.drive(&sample(&[],[-axis,0.,0.,0.]),3);
+            assert!((yaw+opposite["turn"].as_f64().unwrap()).abs()<1e-9);
+            previous=yaw;
+        }
+        assert_eq!(input.drive(&Sample::default(),4)["turn"],0.);
+        assert!((input.drive(&sample(&[],[0.5,0.,0.,0.]),5)["turn"].as_f64().unwrap()+0.225).abs()<1e-9);
+        input.drive_armed=false;
+        assert_eq!(input.drive(&sample(&[LT],[1.,-1.,0.,0.]),6)["turn"],0.);
     }
     #[test]
     fn emergency_and_release_work_before_neutral_and_override_skills() {
@@ -602,14 +676,31 @@ mod tests {
         );
     }
     #[test]
+    fn quack_keeps_both_sticks_armed_until_release() {
+        for key in [RB,RT] {
+            let mut input=Input::default();
+            input.update(&Sample::default(),true,false);
+            let sticks=sample(&[],[0.4,-0.8,0.6,-0.5]);
+            input.update(&sticks,true,false);
+            let before=input.drive(&sticks,1);
+            let pressed=sample(&[key],sticks.axes);
+            assert_eq!(input.update(&pressed,true,false),Some("quack"));
+            let during=input.drive(&pressed,2);
+            for field in ["forward","turn","headYaw","headPitch"] {assert_eq!(before[field],during[field]);assert_ne!(during[field],0.);}
+            assert_eq!(input.update(&pressed,true,false),None);
+            input.update(&sample(&[B],sticks.axes),true,false);
+            assert_eq!(input.drive(&sticks,3)["forward"],0.);
+        }
+    }
+    #[test]
     fn rt_and_rb_share_one_quack_edge_and_triggers_are_reported() {
         let mut input = Input::default();
-        input.update(&Sample::default(), true, false);
+        input.update(&Sample::default(), false, false);
         let rt = sample(&[RT], [0.; 4]);
-        assert_eq!(input.update(&rt, true, false), Some("quack"));
-        assert_eq!(input.update(&rt, true, false), None);
-        input.update(&Sample::default(), true, false);
-        assert_eq!(input.update(&sample(&[RB], [0.; 4]), true, false), Some("quack"));
+        assert_eq!(input.update(&rt, false, false), Some("quack"));
+        assert_eq!(input.update(&rt, false, false), None);
+        input.update(&Sample::default(), false, false);
+        assert_eq!(input.update(&sample(&[RB], [0.; 4]), false, false), Some("quack"));
         let feedback=input_data("test-pad",Some(&rt));
         assert_eq!(feedback["buttons"]["rt"],true);
         assert_eq!(feedback["buttons"]["lt"],false);

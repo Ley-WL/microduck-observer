@@ -414,10 +414,11 @@ fn policy_drive_command(shared: &mut Telemetry, body: &Value) -> Response {
             };
             return error(StatusCode::CONFLICT,message);
         }
-        if shared.control["activeSkill"]=="sitstand_sit" {
+        let seated_head=shared.control["activeSkill"]=="sitstand_sit" && head_control::ready(&shared.control) && twist==[0.;3];
+        if shared.control["activeSkill"]=="sitstand_sit" && !seated_head {
             return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
         }
-        if shared.pending_skill.is_some() || shared.control["activeSkill"].as_str().is_some_and(|kind|kind!="xgoduck") {
+        if shared.pending_skill.is_some() || shared.control["activeSkill"].as_str().is_some_and(|kind|kind!="xgoduck" && !seated_head) {
             return error(StatusCode::CONFLICT,"动作执行中，方向指令暂不可用");
         }
         if has_head && head != [0.;2] && !head_control::ready(&shared.control) {
@@ -805,6 +806,23 @@ mod web_gamepad_tests {
         assert_eq!(s.head_intent.current(Instant::now()),[0.4,-0.3]);
         assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":3,"twist":[0,0,0],"headPitch":0,"headYaw":0})).status(),StatusCode::OK);
         assert_eq!(s.head_intent.current(Instant::now()),[0.,0.]);
+    }
+    #[test]
+    fn seated_head_accepts_only_zero_body_after_settling() {
+        let mut s=ready();s.control["activeSkill"]=json!("sitstand_sit");
+        s.control["skillProgressSeconds"]=json!(3.9);s.control["sitSettleSeconds"]=json!(4.);
+        let mut body=json!({"session":"web","sequence":1,"twist":[0,0,0],"headPitch":0.7,"headYaw":-0.5});
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+        s.control["skillProgressSeconds"]=json!(4.);
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::OK);
+        assert_eq!(s.head_intent.current(Instant::now()),[0.7,-0.5]);
+        body["sequence"]=json!(2);body["twist"]=json!([0.1,0,0]);
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+        assert_eq!(s.drive.as_ref().unwrap().sequence,1);
+        body["twist"]=json!([0,0,0]);s.control["feedbackHolding"]=json!(true);
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+        s.control["feedbackHolding"]=json!(false);s.control["activeSkill"]=json!("sitstand_stand");
+        assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
     }
     #[test]
     fn invalid_or_unready_head_does_not_advance_body_sequence() {
