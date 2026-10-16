@@ -4,7 +4,12 @@ use std::{path::PathBuf, sync::{Mutex, OnceLock}};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Gains { pub p: u8, pub d: u8 }
-impl Default for Gains { fn default() -> Self { Self { p: 6, d: 20 } } }
+impl Default for Gains {
+    fn default() -> Self {
+        parse(&serde_json::from_str(include_str!("../../deploy/model-gains.default.json"))
+            .expect("valid bundled model gains JSON")).expect("valid bundled model gains")
+    }
+}
 static CURRENT: OnceLock<Mutex<Gains>> = OnceLock::new();
 // One saved setting applies to every policy. Legacy walk overrides are ignored.
 pub fn ui_current()->Gains { current() }
@@ -47,6 +52,9 @@ fn write(file: &std::path::Path, value: Gains) -> Result<()> {
 }
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn fresh_device_defaults_match_platform_template() {
+        assert_eq!(Gains::default(), Gains {p:5,d:0});
+    }
     #[test] fn malformed_gains_cannot_wrap_or_truncate() {
         for v in [serde_json::json!({"p":256,"d":20}),serde_json::json!({"p":-1,"d":20}),serde_json::json!({"p":6.5,"d":20}),serde_json::json!({"p":6})] { assert!(parse(&v).is_err()); }
         assert_eq!(parse(&serde_json::json!({"p":255,"d":0})).unwrap(), Gains {p:255,d:0});

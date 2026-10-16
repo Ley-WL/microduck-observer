@@ -1,5 +1,7 @@
 # 新主板一键部署
 
+通用模型默认 PD 由 `deploy/model-gains.default.json` 统一为 P5/D0。新板工具上传该模板，启动前创建 `/var/lib/microduck-observer/model-gains.json`；已有保存文件不覆盖，启动后核验 API 与保存值一致。Rust 缺配置时使用编译内嵌的同一模板。平台保存设置优先，下次模型启动生效；嘴部独立参数不属于此配置。新安装脚本可为冻结安装包初始化默认值，不代表包内二进制已重新构建。
+
 适用于已刷好 Armbian 26.2.1 / Radxa ZERO 3W、已联网并允许电脑SSH公钥登录的**新设备**。不负责刷卡或Wi-Fi首次配置。现有设备更新使用 `tools/deploy-runtime.py`，不可用此流程覆盖身份和标定。
 
 Windows双击 `tools/deploy-new-board.cmd`，输入新主板IP及sudo密码。也可运行：

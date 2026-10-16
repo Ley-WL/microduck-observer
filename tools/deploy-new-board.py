@@ -64,7 +64,7 @@ def main():
     release = 'bootstrap-' + datetime.now().strftime('%Y%m%d-%H%M%S')
     remote_dir = '/home/radxa/' + release + '-upload'
     remote('mkdir ' + shlex.quote(remote_dir))
-    for path in [bundle, root / 'deploy/bootstrap_board.py']:
+    for path in [bundle, root / 'deploy/bootstrap_board.py', root / 'deploy/model-gains.default.json']:
         subprocess.run(['scp', *options, '-P', str(args.port), str(path),
                         target + ':' + remote_dir + '/' + path.name], check=True)
     command = 'sudo -S -p \'\' python3 ' + shlex.quote(remote_dir + '/bootstrap_board.py')
@@ -86,6 +86,9 @@ def main():
             outcome = remote("python3 -c " + shlex.quote(
                 "import json,subprocess,pathlib,urllib.request; "
                 "h=json.load(urllib.request.urlopen('http://127.0.0.1:8877/api/v1/health',timeout=4)); "
+                "g=json.load(urllib.request.urlopen('http://127.0.0.1:8877/api/v1/model-gains',timeout=4)); "
+                "saved=json.loads(pathlib.Path('/var/lib/microduck-observer/model-gains.json').read_text()); "
+                "assert (g['p'],g['d'])==(saved['p'],saved['d']); "
                 "boot=pathlib.Path('/proc/sys/kernel/random/boot_id').read_text().strip(); "
                 "services={x:subprocess.check_output(['systemctl','is-active',x],text=True).strip() "
                 "for x in ['microduck-observer','ducklink-wifi','bluetooth']}; "
@@ -94,7 +97,7 @@ def main():
                 "adv=subprocess.check_output(['busctl','get-property','org.bluez','/org/bluez/hci0',"
                 "'org.bluez.LEAdvertisingManager1','ActiveInstances'],text=True).strip(); "
                 "assert int(adv.split()[-1])>0; "
-                "print(json.dumps({'services':services,'advertising':adv,'health':h,'bootId':boot}))"))
+                "print(json.dumps({'services':services,'advertising':adv,'health':h,'bootId':boot,'modelGains':g}))"))
             verified = json.loads(outcome.stdout)
             if verified['bootId'] == board['bootId']:
                 raise RuntimeError('Reboot has not completed')

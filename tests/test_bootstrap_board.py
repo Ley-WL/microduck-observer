@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import json
 from pathlib import Path
 import tarfile
 import tempfile
@@ -11,6 +12,17 @@ spec.loader.exec_module(bootstrap)
 
 
 class BootstrapTests(unittest.TestCase):
+    def test_model_defaults_and_saved_settings(self):
+        defaults = Path(__file__).parents[1] / 'deploy/model-gains.default.json'
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            target = bootstrap.seed_model_gains(state, defaults)
+            self.assertEqual(json.loads(target.read_text()), {'p': 5, 'd': 0})
+            saved = '{"p":7,"d":9}\n'
+            target.write_text(saved)
+            bootstrap.seed_model_gains(state, defaults)
+            self.assertEqual(target.read_text(), saved)
+
     def test_boot_configuration_keeps_uuid_and_user_overlays(self):
         text = ('fdtfile=rockchip/rk3566-radxa-zero3.dtb\nrootdev=UUID=keep-me\n'
                 'console=both\noverlay_prefix=rk35xx\noverlays=spi3 uart2-m0\nuser_overlays=custom\n')

@@ -14,6 +14,19 @@ def run(*args):
     return subprocess.run(args, check=True, capture_output=True, text=True).stdout
 
 
+def seed_model_gains(state, defaults):
+    value = json.loads(defaults.read_text())
+    if set(value) != {'p', 'd'} or any(type(v) is not int or not 0 <= v <= 255 for v in value.values()):
+        raise ValueError('Invalid default model gains')
+    target = state / 'model-gains.json'
+    try:
+        with target.open('x') as output:
+            json.dump(value, output)
+    except FileExistsError:
+        pass  # Never replace a saved platform setting.
+    return target
+
+
 def boot_configuration(text):
     values = dict(line.split('=', 1) for line in text.splitlines() if '=' in line and not line.startswith('#'))
     if values.get('fdtfile') != 'rockchip/rk3566-radxa-zero3.dtb':
@@ -54,6 +67,9 @@ def install(bundle, digest, release_name):
     if os.geteuid() != 0 or run('uname', '-m').strip() != 'aarch64':
         raise RuntimeError('Requires root on ARM64')
     require_fresh(Path('/'))
+    defaults = Path(__file__).with_name('model-gains.default.json')
+    if json.loads(defaults.read_text()) != {'p': 5, 'd': 0}:
+        raise RuntimeError('New-board defaults must be P5/D0')
     if hashlib.file_digest(Path(bundle).open('rb'), 'sha256').hexdigest() != digest:
         raise RuntimeError('Transferred bundle checksum mismatch')
     env = Path('/boot/armbianEnv.txt')
@@ -103,6 +119,8 @@ def install(bundle, digest, release_name):
     run('chown', '-R', 'radxa:ducklink', str(identity.parent))
     state = Path('/var/lib/microduck-observer')
     state.mkdir(exist_ok=True)
+    gains_file = seed_model_gains(state, defaults)
+    run('chown', 'radxa:radxa', str(gains_file))
     run('chown', 'radxa:radxa', str(state))
     run('hostnamectl', 'set-hostname', hostname)
     env.write_text(updated)
@@ -115,6 +133,7 @@ def install(bundle, digest, release_name):
               'robotId': robot, 'release': str(release), 'rebootRequired': True,
               'binarySha256': hashlib.sha256((release / 'bin/microduck-observer').read_bytes()).hexdigest(),
               'motionSent': False}
+    result['modelGains'] = json.loads(gains_file.read_text())
     (marker / 'installed.json').write_text(json.dumps(result, indent=2))
     return result
 
