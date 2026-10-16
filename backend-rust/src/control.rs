@@ -202,6 +202,23 @@ pub fn angle_request(id: &Value, degree: &Value) -> Result<(u8, f64)> {
         .ok_or_else(|| anyhow::anyhow!("#{id} 角度须在配置范围 {low}°–{high}°"))?;
     Ok((id, degree))
 }
+/// Shared manual/remote bounds: configured mechanical limits intersect calibrated encoder/EEPROM travel.
+pub fn effective_angle_limits(id:u8,cal:&Value,hardware:(i32,i32))->Result<(f64,f64)> {
+    let key=id.to_string();
+    let reference=cal["joints"]["references"][&key].as_f64().filter(|v|v.is_finite())
+        .ok_or_else(||anyhow::anyhow!("#{id} 请先完成位置标定"))?;
+    let direction=cal["joints"]["directions"].get(&key).and_then(Value::as_f64).unwrap_or(-1.);
+    if ![-1.,1.].contains(&direction){bail!("#{id} 无效标定方向");}
+    let (mut low,mut high)=(0,4095);
+    if hardware.1>hardware.0 {low=low.max(hardware.0);high=high.min(hardware.1);}
+    if low>high {bail!("#{id} 硬件限位与编码范围不相交");}
+    let a=(low as f64-reference)*360./4096.*direction;
+    let b=(high as f64-reference)*360./4096.*direction;
+    let (lo,hi)=limit(id).ok_or_else(||anyhow::anyhow!("Unknown ID"))?;
+    let result=(lo.max(a.min(b)),hi.min(a.max(b)));
+    if result.0>result.1 {bail!("#{id} 无有效关节范围");}
+    Ok(result)
+}
 pub fn target(
     id: u8,
     _start: i32,
@@ -226,6 +243,10 @@ pub fn target(
         || ![-1., 1.].contains(&direction)
     {
         bail!("#{id} 目标超出关节角度范围 {a}°–{b}°")
+    }
+    let (effective_low,effective_high)=effective_angle_limits(id,cal,(low,high))?;
+    if angle<effective_low.to_radians()-1e-12 || angle>effective_high.to_radians()+1e-12 {
+        bail!("#{id} 目标超出编码范围或舵机硬件限位");
     }
     // Single-turn HD1910: no nearest-turn wrapping or encoder saturation.
     let goal = (reference + angle * 4096. / std::f64::consts::TAU * direction).round();

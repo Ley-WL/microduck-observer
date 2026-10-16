@@ -1,0 +1,22 @@
+{
+  "eventTime": "2026-10-16 16:11:32.506 +08:00",
+  "error": "#32 目标超出单圈编码范围或舵机硬件限位",
+  "cause": "遥控扩大到配置±170°但没有与标定后单圈/EEPROM可达角度取交集；donor_target越界拒绝触发全卸力",
+  "reference32": 2300,
+  "direction32": -1,
+  "encoderLowerAngleDegrees": -157.763671875,
+  "lastWrittenGoal32": 4093,
+  "lastSentDegrees32": -157.587890625,
+  "failureFeedbackPosition32": 4005,
+  "faultCodes": 0,
+  "missingIds": [],
+  "checksumErrors": 0,
+  "voltageRange": [
+    7.4,
+    7.5
+  ],
+  "tiltDegrees": 3.0287958055853683,
+  "allTorqueOffAfter": true,
+  "hardwareMotionAdded": false,
+  "codeChanged": false
+}

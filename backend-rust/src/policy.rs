@@ -1211,10 +1211,11 @@ fn native_policy_loop(
         *goals=model.targets(filtered,feedback,cal,limits)?;
         if model.kind=="xgoduck" || (model.kind=="sitstand_sit" && model.progress>=model.skill_profile.sit_settle()) {
             let input=read_shared().head_intent.current(Instant::now());
-            crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]]);
+            let bounds=[control::effective_angle_limits(31,cal,limits[&31])?,control::effective_angle_limits(32,cal,limits[&32])?];
+            crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]],bounds);
             for (axis,n) in [6usize,7].iter().enumerate(){
                 if head_offset[axis].abs()<1e-9 {continue;}
-                let id=ORDER[*n];let (lo,hi)=limit(id).unwrap();let raw=(model.sent[*n]+head_offset[axis]).clamp(lo,hi).to_radians();
+                let id=ORDER[*n];let (lo,hi)=bounds[axis];let raw=(model.sent[*n]+head_offset[axis]).clamp(lo,hi).to_radians();
                 let (goal,sent,saturated)=skill_target(id,raw,cal,limits[&id],true)?;
                 goals.insert(id,goal);model.sent[*n]=sent.to_degrees();if saturated && !model.saturated.contains(&id){model.saturated.push(id);}
             }
