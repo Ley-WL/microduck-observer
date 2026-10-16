@@ -214,12 +214,19 @@ struct Input {
     previous: Sample,
     neutral_seen: bool,
     drive_armed: bool,
+    start_since: Option<std::time::Instant>,
+    start_triggered: bool,
     y_hold_ticks: u8,
     y_hold_triggered: bool,
 }
 impl Input {
     fn update(&mut self, sample: &Sample, ready: bool, diagnostic_only: bool) -> Option<&'static str> {
+        self.update_at(sample, ready, diagnostic_only, std::time::Instant::now())
+    }
+    fn update_at(&mut self, sample: &Sample, ready: bool, diagnostic_only: bool, now: std::time::Instant) -> Option<&'static str> {
         if diagnostic_only {
+            self.start_since = None;
+            self.start_triggered = false;
             self.previous = sample.clone();
             self.neutral_seen = sample.neutral();
             self.drive_armed = false;
@@ -227,6 +234,15 @@ impl Input {
             self.y_hold_triggered = false;
             return None;
         }
+        if !sample.down(START) {
+            self.start_since = None;
+            self.start_triggered = false;
+        } else if self.neutral_seen && !self.previous.down(START) {
+            self.start_since = Some(now);
+        }
+        let long_start = !self.start_triggered && self.start_since
+            .is_some_and(|since| now.duration_since(since) >= Duration::from_secs(2));
+        if long_start { self.start_triggered = true; }
         let edge = |key| sample.down(key) && !self.previous.down(key);
         if sample.down(Y) && sample.centered() {
             self.y_hold_ticks = self.y_hold_ticks.saturating_add(1);
@@ -244,6 +260,8 @@ impl Input {
             Some("release")
         } else if !self.neutral_seen {
             None
+        } else if long_start {
+            Some("poweroff")
         } else if long_y {
             Some("getup")
         } else if sample.centered() && edge(A) {
@@ -289,6 +307,31 @@ impl Input {
         let turn = -0.6 * lx * (0.5 + 0.5 * lx.abs());
         json!({"seq":seq,"action":"drive","forward":forward,"turn":turn,"headYaw":-rx,"headPitch":-ry,"speed":1.0,"compact":true})
     }
+}
+
+// Cancel any owner first, then hold the shared motion gate across a second
+// confirmed unload and power scheduling so no client can re-enable the servos.
+fn unload_confirmed(value: &Value) -> bool {
+    value["state"] == "disabled" && value["unconfirmedIds"] == json!([])
+}
+async fn shutdown_board(app: &App, motion: &mut Motion) -> Result<()> {
+    ensure!(app.hardware && crate::power::enabled(), "当前设备未启用电源控制");
+    motion.request("servos/disable", Some(json!({}))).await?;
+    motion.close().await;
+    let permit = tokio::time::timeout(Duration::from_secs(3), app.gate.clone().acquire_owned()).await??;
+    let unloaded = motion.request("servos/disable", Some(json!({}))).await?;
+    ensure!(unload_confirmed(&unloaded),
+        "卸力未全部确认，取消关机：{unloaded}");
+    let boot = app.telemetry.read().unwrap().boot.clone();
+    // A timeout can mean the helper already scheduled shutdown. Keep motion
+    // locked in that case as well; restarting the service restores the gate.
+    let result = motion.request("system/poweroff", Some(json!({"confirm":true,"bootId":boot}))).await;
+    tokio::spawn(async move {
+        let _permit = permit;
+        std::future::pending::<()>().await;
+    });
+    result.context("电源请求已发出；运动已锁定，若主板未关机请检查电源服务，重启Observer服务可解除锁定")?;
+    Ok(())
 }
 
 fn report(app: &App, message: &str) {
@@ -426,6 +469,14 @@ pub fn spawn(app: App, router: Router) {
                             motion.close().await;
                             input = Input::default();
                             report(&app, "手柄急停卸力");
+                        } else if action == "poweroff" {
+                            report(&app, "Start 长按2秒：正在卸力并确认关机");
+                            let result = shutdown_board(&app, &mut motion).await;
+                            input = Input::default();
+                            match result {
+                                Ok(()) => report(&app, "15颗舵机卸力已确认，主板即将关机"),
+                                Err(e) => report(&app, &format!("关机未完成：{e}")),
+                            }
                         } else if action == "release" {
                             motion.close().await;
                             input = Input::default();
@@ -479,6 +530,34 @@ pub fn spawn(app: App, router: Router) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn poweroff_requires_explicit_complete_unload_confirmation() {
+        assert!(unload_confirmed(&json!({"state":"disabled","unconfirmedIds":[]})));
+        for value in [json!({"state":"failed","unconfirmedIds":[31]}),
+            json!({"state":"disabled","unconfirmedIds":[31]}),
+            json!({"state":"disabled"}), json!({"state":"policy","unconfirmedIds":[]})] {
+            assert!(!unload_confirmed(&value));
+        }
+    }
+    #[test]
+    fn start_requires_fresh_two_second_hold_and_rearms_on_release() {
+        let now = std::time::Instant::now();
+        let neutral = Sample::default();
+        let mut held = neutral.clone(); held.keys[9] = true;
+        let mut input = Input::default();
+        assert_eq!(input.update_at(&held, false, false, now), None);
+        assert_eq!(input.update_at(&held, false, false, now+Duration::from_secs(3)), None);
+        input.update_at(&neutral, false, false, now);
+        assert_eq!(input.update_at(&held, false, false, now), None);
+        assert_eq!(input.update_at(&held, false, false, now+Duration::from_millis(1999)), None);
+        assert_eq!(input.update_at(&held, false, false, now+Duration::from_secs(2)), Some("poweroff"));
+        assert_eq!(input.update_at(&held, false, false, now+Duration::from_secs(3)), None);
+        input.update_at(&neutral, false, false, now+Duration::from_secs(4));
+        input.update_at(&held, false, false, now+Duration::from_secs(4));
+        assert_eq!(input.update_at(&held, false, false, now+Duration::from_secs(6)), Some("poweroff"));
+        input.update_at(&held, false, true, now+Duration::from_secs(7));
+        assert_eq!(input.update_at(&held, false, false, now+Duration::from_secs(10)), None);
+    }
     #[test]
     fn saved_mode_survives_restart_and_overrides_environment_default() {
         let dir = tempfile::tempdir().unwrap();
