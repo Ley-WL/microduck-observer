@@ -64,7 +64,7 @@ def main():
     release = 'bootstrap-' + datetime.now().strftime('%Y%m%d-%H%M%S')
     remote_dir = '/home/radxa/' + release + '-upload'
     remote('mkdir ' + shlex.quote(remote_dir))
-    for path in [bundle, root / 'deploy/bootstrap_board.py', root / 'deploy/model-gains.default.json']:
+    for path in [bundle, root / 'deploy/bootstrap_board.py', root / 'deploy/model-gains.default.json', root / 'deploy/imu-installation.default.json']:
         subprocess.run(['scp', *options, '-P', str(args.port), str(path),
                         target + ':' + remote_dir + '/' + path.name], check=True)
     command = 'sudo -S -p \'\' python3 ' + shlex.quote(remote_dir + '/bootstrap_board.py')

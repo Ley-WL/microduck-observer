@@ -8,6 +8,7 @@ import secrets
 import shutil
 import subprocess
 import tarfile
+import uuid
 
 
 def run(*args):
@@ -24,6 +25,22 @@ def seed_model_gains(state, defaults):
             json.dump(value, output)
     except FileExistsError:
         pass  # Never replace a saved platform setting.
+    return target
+
+
+def seed_imu_installation(state):
+    defaults = json.loads(Path(__file__).with_name('imu-installation.default.json').read_text())
+    value = {'schema': 1, 'deviceId': str(uuid.uuid4()), 'revision': 0, 'updatedAt': 0,
+             'joints': {'initialized': False, 'references': {}, 'directions': {}},
+             'mounting': defaults['mounting'],
+             'imu': {**defaults['imu'], 'initialized': False, 'quaternion': None, 'bootId': '', 'time': ''}}
+    target = state / 'calibration.json'
+    try:
+        with target.open('x') as output:
+            json.dump(value, output)
+        target.chmod(0o600)
+    except FileExistsError:
+        pass
     return target
 
 
@@ -120,6 +137,8 @@ def install(bundle, digest, release_name):
     state = Path('/var/lib/microduck-observer')
     state.mkdir(exist_ok=True)
     gains_file = seed_model_gains(state, defaults)
+    calibration_file = seed_imu_installation(state)
+    run('chown', 'radxa:radxa', str(calibration_file))
     run('chown', 'radxa:radxa', str(gains_file))
     run('chown', 'radxa:radxa', str(state))
     run('hostnamectl', 'set-hostname', hostname)

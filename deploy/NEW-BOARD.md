@@ -1,3 +1,5 @@
+> **2026-10-16 默认IMU安装配置（用户授权，项目默认）：** 从8.133.210.70:5723只读取得当前安装四元数、mounting.yaw与positionMm，保存deploy/imu-installation.default.json。新板安装器及Rust首次创建标定读取同一默认值，已有calibration.json不覆盖；新设备initialized=false，quaternion=null、bootId/time空，必须自行归零，不克隆来源机的关节零点或设备身份。完整来源IMU段留存附件/IMU/2026-10-16/default-installation/source.json，仅作备份，不作新板参考。187 Rust通过/1忽略，Linux安装脚本7测试通过；未部署或改来源机配置，未实机动作验收。
+
 # 新主板一键部署
 
 通用模型默认 PD 由 `deploy/model-gains.default.json` 统一为 P5/D0。新板工具上传该模板，启动前创建 `/var/lib/microduck-observer/model-gains.json`；已有保存文件不覆盖，启动后核验 API 与保存值一致。Rust 缺配置时使用编译内嵌的同一模板。平台保存设置优先，下次模型启动生效；嘴部独立参数不属于此配置。新安装脚本可为冻结安装包初始化默认值，不代表包内二进制已重新构建。

@@ -136,7 +136,15 @@ impl Calibration {
             }
             v
         } else {
-            json!({"schema":1,"deviceId":uuid::Uuid::new_v4().to_string(),"revision":0,"updatedAt":0,"joints":{"initialized":false,"references":{},"directions":{}},"imu":{"initialized":false,"quaternion":null,"bootId":"","time":""}})
+            {
+                let defaults:Value=serde_json::from_str(include_str!("../../deploy/imu-installation.default.json"))?;
+                let mut fresh=json!({"schema":1,"deviceId":uuid::Uuid::new_v4().to_string(),"revision":0,"updatedAt":0,"joints":{"initialized":false,"references":{},"directions":{}},"imu":{"initialized":false,"quaternion":null,"bootId":"","time":""}});
+                fresh["mounting"]=defaults["mounting"].clone();
+                fresh["imu"]["mountingQuaternion"]=defaults["imu"]["mountingQuaternion"].clone();
+                fresh["imu"]["mountingSamples"]=json!({});
+                validate(&json!({"mounting":fresh["mounting"],"imu":fresh["imu"]}))?;
+                fresh
+            }
         };
         let s = Self { path, state };
         if !s.path.exists() {
@@ -235,6 +243,18 @@ mod tests {
             Calibration::open(p).unwrap().state["joints"]["references"]["34"],
             2048
         );
+    }
+    #[test]
+    fn default_installation_is_persisted_without_copying_reference_or_overwriting_existing() {
+        let d=tempfile::tempdir().unwrap();let p=d.path().join("calibration.json");
+        let c=Calibration::open(p.clone()).unwrap();
+        let defaults:Value=serde_json::from_str(include_str!("../../deploy/imu-installation.default.json")).unwrap();
+        assert_eq!(c.state["imu"]["mountingQuaternion"],defaults["imu"]["mountingQuaternion"]);
+        assert_eq!(c.state["mounting"],defaults["mounting"]);
+        assert_eq!(c.state["imu"]["initialized"],false);assert!(c.state["imu"]["quaternion"].is_null());
+        let mut custom=c.state.clone();custom["imu"]["mountingQuaternion"]=json!([0,0,0,1]);
+        fs::write(&p,serde_json::to_vec(&custom).unwrap()).unwrap();
+        assert_eq!(Calibration::open(p).unwrap().state,custom);
     }
     #[test]
     fn bad_vectors() {
