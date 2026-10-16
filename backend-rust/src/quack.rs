@@ -2,50 +2,75 @@
 use anyhow::{ensure, Context, Result};
 use microduck_sounds::{hardware_seed, Personality, BANK_VERSION};
 use sha2::{Digest, Sha256};
-use std::{io::{Cursor, Write}, path::Path, process::{Child, Command, Stdio}, sync::{atomic::{AtomicUsize, Ordering}, OnceLock}, time::{Duration, Instant}};
+use rand::Rng;
+use std::{io::{Cursor, Write}, path::Path, process::{Child, Command, Stdio}, sync::OnceLock, time::{Duration, Instant}};
 
 struct Clip { bytes: Vec<u8>, duration: Duration }
-struct Voice { clips: Vec<Clip> }
+struct Voice { groups: Vec<Vec<Clip>> }
 static VOICE: OnceLock<Voice> = OnceLock::new();
-static NEXT: AtomicUsize = AtomicUsize::new(0);
 fn hash(bytes: &[u8]) -> String { format!("{:x}", Sha256::digest(bytes)) }
 fn clip(bytes: Vec<u8>) -> Result<Clip> {
     let wav = hound::WavReader::new(Cursor::new(&bytes))?;
     let spec = wav.spec();
     ensure!(spec.channels == 1 && spec.sample_rate == microduck_sounds::SR && spec.bits_per_sample == 16 && spec.sample_format == hound::SampleFormat::Int, "Invalid generated voice format");
     let duration = Duration::from_secs_f64(wav.duration() as f64 / spec.sample_rate as f64);
-    ensure!(duration > Duration::ZERO && duration < Duration::from_secs(5), "Invalid voice length");
+    ensure!(duration > Duration::ZERO && duration < Duration::from_secs(20), "Invalid voice length");
     Ok(Clip { bytes, duration })
 }
 fn load(dir: &Path, seed: u32) -> Result<Voice> {
     let manifest: serde_json::Value = serde_json::from_slice(&std::fs::read(dir.join("manifest.json"))?)?;
-    ensure!(manifest["bankVersion"] == BANK_VERSION && manifest["seed"] == seed, "Voice identity/version changed");
-    let mut clips = Vec::new();
-    for i in 0..microduck_sounds::variant_count("greet") {
-        let bytes = std::fs::read(dir.join(format!("greet_{i}.wav")))?;
-        ensure!(manifest["sha256"][i as usize].as_str() == Some(hash(&bytes).as_str()), "Voice cache checksum mismatch");
-        clips.push(clip(bytes)?);
+    ensure!(manifest["bankVersion"] == BANK_VERSION && manifest["seed"] == seed && manifest["schema"] == 2, "Voice identity/version changed");
+    let mut groups=Vec::new();
+    for (tag,_) in microduck_sounds::TAGS {
+        let mut clips=Vec::new();
+        for i in 0..microduck_sounds::variant_count(tag) {
+            let name=format!("{tag}_{i}.wav");
+            let bytes=std::fs::read(dir.join(&name))?;
+            ensure!(manifest["sha256"][&name].as_str()==Some(hash(&bytes).as_str()),"Voice cache checksum mismatch");
+            clips.push(clip(bytes)?);
+        }
+        groups.push(clips);
     }
-    Ok(Voice { clips })
+    Ok(Voice{groups})
 }
+// Repair only missing/invalid clips; migrate the legacy greet-only cache without changing its voice.
 pub fn generate(dir: &Path, seed: u32) -> Result<serde_json::Value> {
     std::fs::create_dir_all(dir)?;
-    let personality = Personality::from_seed(seed);
-    let mut hashes = Vec::new();
-    for i in 0..microduck_sounds::variant_count("greet") {
-        let samples = microduck_sounds::render("greet", &personality, i)?;
-        let temp = dir.join(format!("greet_{i}.wav.tmp"));
-        microduck_sounds::to_wav(&samples, &temp)?;
-        let bytes = std::fs::read(&temp)?;
-        clip(bytes.clone())?;
-        hashes.push(hash(&bytes));
-        std::fs::rename(temp, dir.join(format!("greet_{i}.wav")))?;
+    let old:serde_json::Value=std::fs::read(dir.join("manifest.json")).ok()
+        .and_then(|b|serde_json::from_slice(&b).ok()).unwrap_or_default();
+    let same=old["bankVersion"]==BANK_VERSION && old["seed"]==seed;
+    let personality=Personality::from_seed(seed);
+    let mut hashes=serde_json::Map::new();
+    let mut variants=serde_json::Map::new();
+    for (tag,_) in microduck_sounds::TAGS {
+        variants.insert(tag.into(),serde_json::json!(microduck_sounds::variant_count(tag)));
+        for i in 0..microduck_sounds::variant_count(tag) {
+            let name=format!("{tag}_{i}.wav");
+            let expected=if old["schema"]==2 {old["sha256"][&name].as_str()}
+                else if tag=="greet" && old["tag"]=="greet" {old["sha256"][i as usize].as_str()} else {None};
+            let cached=std::fs::read(dir.join(&name)).ok().filter(|b|
+                same && expected==Some(hash(b).as_str()) && clip(b.clone()).is_ok());
+            let bytes=if let Some(bytes)=cached {bytes} else {
+                let samples=microduck_sounds::render(tag,&personality,i)?;
+                let temp=dir.join(format!("{name}.tmp"));
+                microduck_sounds::to_wav(&samples,&temp)?;
+                let bytes=std::fs::read(&temp)?;clip(bytes.clone())?;
+                std::fs::rename(temp,dir.join(&name))?;bytes
+            };
+            hashes.insert(name,serde_json::json!(hash(&bytes)));
+        }
     }
-    let manifest = serde_json::json!({"bankVersion":BANK_VERSION,"seed":seed,"tag":"greet","sampleRate":microduck_sounds::SR,"variants":hashes.len(),"sha256":hashes,"upstreamCommit":"46a380b70e70c5eb859107f4a4b529a0cb9548fc"});
-    let temp = dir.join("manifest.json.tmp");
-    std::fs::write(&temp, serde_json::to_vec_pretty(&manifest)?)?;
-    std::fs::rename(temp, dir.join("manifest.json"))?;
+    let manifest=serde_json::json!({"schema":2,"bankVersion":BANK_VERSION,"seed":seed,
+        "sampleRate":microduck_sounds::SR,"variants":variants,"sha256":hashes,
+        "upstreamCommit":"46a380b70e70c5eb859107f4a4b529a0cb9548fc"});
+    let temp=dir.join("manifest.json.tmp");
+    std::fs::write(&temp,serde_json::to_vec_pretty(&manifest)?)?;
+    std::fs::rename(temp,dir.join("manifest.json"))?;
     Ok(manifest)
+}
+fn choose(voice:&Voice,rng:&mut impl Rng)->(usize,usize) {
+    let group=rng.gen_range(0..voice.groups.len());
+    (group,rng.gen_range(0..voice.groups[group].len()))
 }
 pub fn init(dir: &Path) -> Result<()> {
     let seed = hardware_seed()?;
@@ -63,7 +88,8 @@ impl Playback {
     pub fn start() -> Result<Self> {
         ready()?;
         let voice = VOICE.get().unwrap();
-        let selected = &voice.clips[NEXT.fetch_add(1, Ordering::Relaxed) % voice.clips.len()];
+        let (group,variant)=choose(voice,&mut rand::thread_rng());
+        let selected = &voice.groups[group][variant];
         let mut child = Command::new("/usr/bin/aplay").args(["-q", "-D", "plughw:CARD=aic3104,DEV=0"])
             .stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::null()).spawn()?;
         let mut input = child.stdin.take().unwrap();
@@ -90,11 +116,31 @@ impl Drop for Playback { fn drop(&mut self) { let _ = self.child.kill(); let _ =
         let seed = microduck_sounds::seed_from_id("test-serial");
         let first = generate(a.path(), seed).unwrap();
         assert_eq!(first, generate(b.path(), seed).unwrap());
-        assert_eq!(load(a.path(), seed).unwrap().clips.len(), 12);
+        assert_eq!(load(a.path(), seed).unwrap().groups.iter().map(Vec::len).sum::<usize>(), 70);
         assert!(load(a.path(), seed + 1).is_err());
         assert_ne!(first["sha256"], generate(b.path(), seed + 1).unwrap()["sha256"]);
         std::fs::write(a.path().join("greet_0.wav"), b"corrupt").unwrap();
         assert!(load(a.path(), seed).is_err());
+    }
+    #[test] fn legacy_cache_migrates_and_repairs_only_missing_or_corrupt_clips(){
+        let dir=tempfile::tempdir().unwrap();let seed=42;
+        let original=generate(dir.path(),seed).unwrap();
+        let keep=dir.path().join("greet_0.wav");let modified=std::fs::metadata(&keep).unwrap().modified().unwrap();
+        let hashes:Vec<_>=(0..12).map(|i|original["sha256"][format!("greet_{i}.wav")].clone()).collect();
+        std::fs::write(dir.path().join("manifest.json"),serde_json::to_vec(&serde_json::json!({"tag":"greet","bankVersion":BANK_VERSION,"seed":seed,"sha256":hashes})).unwrap()).unwrap();
+        std::fs::remove_file(dir.path().join("chirp_0.wav")).unwrap();
+        assert!(load(dir.path(),seed).is_err());
+        assert_eq!(generate(dir.path(),seed).unwrap(),original);
+        assert_eq!(std::fs::metadata(&keep).unwrap().modified().unwrap(),modified);
+        std::fs::write(dir.path().join("coo_2.wav"),b"broken").unwrap();
+        assert_eq!(generate(dir.path(),seed).unwrap(),original);
+        assert_eq!(std::fs::metadata(&keep).unwrap().modified().unwrap(),modified);
+        let voice=load(dir.path(),seed).unwrap();
+        use rand::SeedableRng;
+        let mut rng=rand::rngs::StdRng::seed_from_u64(123);
+        let mut seen=std::collections::BTreeSet::new();
+        for _ in 0..10000 {seen.insert(choose(&voice,&mut rng));}
+        assert_eq!(seen.len(),70);
     }
     #[test] fn generated_durations_include_the_complete_double_call() {
         for seed in 0..20 { for i in 0..12 {
