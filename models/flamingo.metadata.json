@@ -1,0 +1,236 @@
+{
+  "artifactType": "training-policy",
+  "controlHz": 50,
+  "actorObservationDim": 61,
+  "actionDim": 14,
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "homeRadians": [
+    0.0,
+    -0.0873,
+    -0.4579,
+    -0.0049,
+    0.453,
+    0.3491,
+    0.3491,
+    0.0,
+    0.0,
+    0.0,
+    0.0873,
+    0.4579,
+    0.0049,
+    -0.453
+  ],
+  "runtimeKind": "hd1910_flamingo",
+  "task": "Mjlab-FlamingoCycleGentle-Flat-MicroDuck",
+  "policySha256": "31efbe2f67c67bcfde6586fbceee2396818263e228df2524b87af0c237dd963d",
+  "actionEmaOldWeight": 0,
+  "actionEmaNewWeight": 1,
+  "actionScale": 1,
+  "commandEncoding": "flamingo_flag_side",
+  "lowerMinSeconds": 1.5,
+  "hardwareValidated": false,
+  "observationNormalization": "embedded_in_onnx_once",
+  "sourceManifest": {
+    "schema_version": 2,
+    "model_api": 1,
+    "obs_len": 61,
+    "action_len": 14,
+    "robot": {
+      "model": "microduck",
+      "hw_rev": 1,
+      "servos": "hd1910",
+      "control_hz": 50
+    },
+    "name": "flamingo",
+    "kind": "perpetual",
+    "description": "官方flamingo分支：移重心、左右任选单脚保持、按指令落脚；同一网络学习两侧。渐进课程 / Gentle。",
+    "entry_pose": "standing",
+    "command": {
+      "encoding": "flamingo_flag_side",
+      "idle": [
+        0,
+        0,
+        0
+      ],
+      "twist": "[flag, stance_side, 0]; not walking velocity",
+      "flag": {
+        "0": "two-foot stand / lower",
+        "1": "one-foot stand / hold until lowered"
+      },
+      "stance_side": {
+        "+1": "right foot supports, left foot lifts",
+        "-1": "left foot supports, right foot lifts"
+      },
+      "head": "zeros",
+      "body": "zeros",
+      "ramp_s": 1.5,
+      "side_change": "lower first; switch only after the blend reaches standing",
+      "action_filter": "none; HOME + trained_scale * raw action",
+      "source": {
+        "repository": "https://github.com/pollen-robotics/microduck_rl",
+        "branch": "flamingo",
+        "commit": "4757d6aed51ff059232a66cdb8a4ee3a77fa2ce8",
+        "model_card": "https://huggingface.co/RemiFabre/microduck-flamingo-cycle",
+        "license": "Apache-2.0",
+        "adapter": "studio-flamingo-v1"
+      }
+    },
+    "action_scale": 1.0,
+    "trained_action_scale": 1.0,
+    "action_filter": {
+      "enabled": false,
+      "head_alpha": 1.0,
+      "legs_alpha": 1.0,
+      "version": 1,
+      "control_hz": 50.0,
+      "stage": "joint_position_target_after_home_and_scale",
+      "formula": "filtered = alpha * target + (1 - alpha) * previous_filtered",
+      "head_joints": [
+        "neck_pitch",
+        "head_pitch",
+        "head_yaw",
+        "head_roll"
+      ],
+      "leg_joints": [
+        "left_hip_yaw",
+        "left_hip_roll",
+        "left_hip_pitch",
+        "left_knee",
+        "left_ankle",
+        "right_hip_yaw",
+        "right_hip_roll",
+        "right_hip_pitch",
+        "right_knee",
+        "right_ankle"
+      ],
+      "update": "once_per_policy_step",
+      "reset": "first_target_passthrough_per_environment",
+      "previous_action_observation": "raw_policy_output",
+      "onnx": "external_filter_not_baked_into_graph"
+    },
+    "required_policy_settings": {},
+    "required_skill_settings": null,
+    "runtime_compatibility": {
+      "native_runtime": {
+        "version": "0.15.1",
+        "revision": "1fa84386f07884e27866411bc1ba166977bced95",
+        "route": "flamingo_posture_controller",
+        "support": "training_and_simulation_only",
+        "limitations": [
+          "火烈鸟需要姿态开关和支撑侧控制，不能把twist解释为行走速度；实机动作入口尚未接入，本包不自动替换walk槽。"
+        ]
+      },
+      "r148_importer": {
+        "task_allowlisted": false,
+        "direct_import_verified": false,
+        "note": "按随包 R148 接口审计，该版本的任务白名单不接收此任务；其他实机中控版本需核对其导入合同。"
+      },
+      "requires_passive_roller_hardware": false,
+      "official_finished_weights": false,
+      "automatic_deployment": false
+    },
+    "runtime_only_settings": {
+      "voltage_adapt": {
+        "export_behavior": "inherit_existing_runtime_configuration",
+        "training_action_compensation": "not_present_in_training_action_term",
+        "note": "供电随机化/负载掉压属于BAM训练物理；不等于运行端动态动作倍率补偿。导出不强制开启或关闭。"
+      },
+      "gain_and_gain_ratios": {
+        "keys": [
+          "gain",
+          "standing_gain_ratio",
+          "ground_pick_gain_ratio",
+          "skill[].params.gain_ratio"
+        ],
+        "export_behavior": "inherit_existing_runtime_configuration",
+        "note": "训练BAM的实际kp_fw见hardware_command和training_physics；不能凭空推导固件增益或翻译层寄存器映射。"
+      }
+    },
+    "normalization": "embedded_in_onnx_once",
+    "export_contract_revision": 3,
+    "training_snapshot_sha256": "6a9dc1ed3c5be5359a1d967f03cc70b6ef4a55aa03e88fe0ce16abc8fbf5be23",
+    "training": {
+      "task_id": "Mjlab-FlamingoCycleGentle-Flat-MicroDuck",
+      "repo": "pollen-robotics/microduck_rl",
+      "commit": "b02fdea4902c2b93b7d34a83a6f05da4ececb7d3",
+      "checkpoint": 2999,
+      "source_file": "/home/radxa/microduck-training-studio/engines/official_v8/logs/rsl_rl/studio_flamingo_cycle_gentle/2026-10-16_10-09-16_console_20261016_100902_c7ff90/model_2999.pt"
+    },
+    "target_firmware": "0.15.1",
+    "teacher_only": false,
+    "source_revision": "b02fdea4902c2b93b7d34a83a6f05da4ececb7d3",
+    "task": "Mjlab-FlamingoCycleGentle-Flat-MicroDuck",
+    "checkpoint": "/home/radxa/microduck-training-studio/engines/official_v8/logs/rsl_rl/studio_flamingo_cycle_gentle/2026-10-16_10-09-16_console_20261016_100902_c7ff90/model_2999.pt",
+    "model_origin": {
+      "engine": "official_v8",
+      "task": "Mjlab-FlamingoCycleGentle-Flat-MicroDuck",
+      "baseline_pin": {
+        "revision": "b02fdea4902c2b93b7d34a83a6f05da4ececb7d3"
+      },
+      "training_adapter_revision": "R1.5.28-v8-feetech-bam",
+      "friction_randomization": "official"
+    },
+    "export_source_revision": "b02fdea4902c2b93b7d34a83a6f05da4ececb7d3",
+    "onnx_sha256": "31efbe2f67c67bcfde6586fbceee2396818263e228df2524b87af0c237dd963d",
+    "deployment_verified": false,
+    "gear_backlash": {
+      "enabled": false,
+      "joint_count": 0,
+      "ranges_rad": {},
+      "encoder_position": "motor",
+      "motor_velocity": "motor-side for friction and back-EMF",
+      "policy_joint_velocity": "motor"
+    },
+    "duration_s": null
+  },
+  "requiredPostureSettings": {
+    "action_scale": 1.0,
+    "head_lowpass": 1.0,
+    "legs_lowpass": 1.0,
+    "command": {
+      "encoding": "flamingo_flag_side",
+      "idle": [
+        0,
+        0,
+        0
+      ],
+      "twist": "[flag, stance_side, 0]; not walking velocity",
+      "flag": {
+        "0": "two-foot stand / lower",
+        "1": "one-foot stand / hold until lowered"
+      },
+      "stance_side": {
+        "+1": "right foot supports, left foot lifts",
+        "-1": "left foot supports, right foot lifts"
+      },
+      "head": "zeros",
+      "body": "zeros",
+      "ramp_s": 1.5,
+      "side_change": "lower first; switch only after the blend reaches standing",
+      "action_filter": "none; HOME + trained_scale * raw action",
+      "source": {
+        "repository": "https://github.com/pollen-robotics/microduck_rl",
+        "branch": "flamingo",
+        "commit": "4757d6aed51ff059232a66cdb8a4ee3a77fa2ce8",
+        "model_card": "https://huggingface.co/RemiFabre/microduck-flamingo-cycle",
+        "license": "Apache-2.0",
+        "adapter": "studio-flamingo-v1"
+      }
+    }
+  }
+}

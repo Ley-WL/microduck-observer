@@ -206,7 +206,7 @@ impl Motion {
         // Local evdev only consumes readiness/errors, never the App telemetry payload.
         if self.source == "gamepad" {
             let s=self.app.telemetry.read().unwrap();
-            return json!({"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
+            return json!({"flamingoReady":self.phase=="active" && !self.stopped && !self.pending && s.control["activeSkill"]=="flamingo_hold" && s.control["feedbackHolding"]!=true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
                 "motionError":self.error,"controlOwned":self.input_permit.is_some() || (self.drive.is_some() && self.drive==s.gamepad_session),
                 "controlBusy":self.drive.is_none() && self.app.input_gate.available_permits()==0});
         }
@@ -383,6 +383,7 @@ impl Motion {
                 "pick",
                 "roulade",
                 "dance",
+                "flamingo",
                 "kick_left",
                 "kick_right",
                 "sit",
@@ -446,7 +447,7 @@ impl Motion {
                 else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"]}))).await?;}
                 self.error.clear();
             },
-            "dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
+            "flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;
                     self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;

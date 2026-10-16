@@ -1,0 +1,8 @@
+{
+  "archive": "火烈鸟_3000_直通.zip",
+  "archiveSha256": "8cb1cff05ad9ab49c892c3142bb8622286da36eb5125ffe53bf22ff861f4c3c9",
+  "modelSha256": "31efbe2f67c67bcfde6586fbceee2396818263e228df2524b87af0c237dd963d",
+  "behavior": "D-pad left toggles left leg lift (right support) and lower; flags [1,1,0] / [0,1,0]; no output EMA; retain platform gains and voltage adaptation",
+  "upstreamCommandAudit": "https://github.com/pollen-robotics/microduck_rl/blob/4757d6aed51ff059232a66cdb8a4ee3a77fa2ce8/src/mjlab_microduck/tasks/microduck_flamingo_cycle_env_cfg.py",
+  "validation": "191 Rust passed/1 ignored; 73 frontend tests; CPU and ARM ONNX parity; no physical action acceptance"
+}

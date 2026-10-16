@@ -35,14 +35,14 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
     </div>
     <div class="dpad" aria-label="策略动作">
       <button :class="{physical:held('up')}" :disabled="!allowed.dance" @click="emit('action','dance')" title="十拍鸭子舞：8秒后返回平衡" aria-label="十字键上 舞蹈">♫<small>舞蹈</small></button>
-      <button :class="{physical:held('left')}" :disabled="!allowed.kick_left" @click="emit('action','kick_left')" title="左脚踢球" aria-label="十字键左 左脚踢球"><small>左脚<br>踢球</small></button>
+      <button :class="{physical:held('left')}" :disabled="!allowed.flamingo" @click="emit('action','flamingo')" title="火烈鸟：按一次抬左脚保持，再按落脚" aria-label="十字键左 火烈鸟"><small>火烈鸟<br>抬脚/落脚</small></button>
       <span/>
       <button :class="{physical:held('right')}" :disabled="!allowed.kick_right" @click="emit('action','kick_right')" title="右脚踢球" aria-label="十字键右 右脚踢球"><small>右脚<br>踢球</small></button>
       <button :class="{physical:held('down')}" disabled title="自主行动：预留入口，后续接入自主策略" aria-label="十字键下 自主行动，待接入"><small>自主<br>行动</small></button>
     </div>
     <span class="grip left-grip">按住拖动</span><span class="grip right-grip">松开回中</span>
   </div>
-  <div class="pad-footer"><span><i/> 舞蹈 / 左右踢球已接入 · 自主行动预留</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
+  <div class="pad-footer"><span><i/> 舞蹈 / 火烈鸟 / 右脚踢球已接入 · 自主行动预留</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
 </div>
 </template>
 <style scoped>

@@ -11,6 +11,8 @@ parser.add_argument('--host-key-alias',help='Verified SSH host identity; default
 parser.add_argument('--known-hosts',type=Path,help='Known-hosts file containing the verified target host key')
 parser.add_argument('--package-only',action='store_true')
 parser.add_argument('--binary-only',action='store_true',help='Retain the current board frontend without overlaying local assets')
+parser.add_argument('--align-walk-scale',action='store_true',help='Apply only the verified walk metadata action scale 0.9 -> 1.0 update')
+parser.add_argument('--flamingo-model',action='store_true',help='Add flamingo actor and verify hold/lower ARM fixtures')
 parser.add_argument('--dance-model',action='store_true',help='Add the dance10 model and verify ARM inference before activation')
 parser.add_argument('--retire-legacy-models',action='store_true',help='Remove retired stand/walk files from the new release and verify common gains')
 args=parser.parse_args()
@@ -22,9 +24,16 @@ binary=root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-obs
 assert binary.read_bytes()[:4]==b'\x7fELF' and int.from_bytes(binary.read_bytes()[18:20],'little')==183
 with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
     archive.add(binary,arcname='bin/microduck-observer')
+    if args.align_walk_scale:
+        archive.add(root/'models/xgoduck_walk.metadata.json',arcname='walk-scale-update.json')
     if args.retire_legacy_models:
         marker=stage/'common-gains-migration.json';marker.write_text('{}')
         archive.add(marker,arcname=marker.name)
+    if args.flamingo_model:
+        for suffix in ['onnx','metadata.json']:
+            archive.add(root/('models/flamingo.'+suffix),arcname='models/flamingo.'+suffix)
+        for mode in ['hold','lower']:
+            archive.add(root/f'backend-rust/tests/fixtures/policy-flamingo_{mode}.json',arcname=f'policy-flamingo_{mode}.json')
     if args.dance_model:
         for suffix in ['onnx','metadata.json']:
             archive.add(root/('models/dance10.'+suffix),arcname='models/dance10.'+suffix)
@@ -46,6 +55,7 @@ def idle(s):return s['system']['data']['servoControl']['state'] not in ['preflig
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 before=get('snapshot');assert idle(before),'Active robot; leave production unchanged'
 gamepad_mode=get('gamepad/mode')['debug']
+(stage/'gains-before.json').write_text(json.dumps(get('model-gains')))
 old=(root/'current').resolve();new=root/'releases'/name;assert not new.exists()
 preserved={str(p):sha(p) for base in [old/'models',Path('/var/lib/ducklink')] for p in base.rglob('*') if p.is_file()}
 for p in Path('/var/lib/microduck-observer').glob('*.json'):preserved[str(p)]=sha(p)
@@ -56,6 +66,21 @@ with tarfile.open(stage/'payload.tar.gz') as archive:
     archive.extractall(new)
 os.chmod(new/'bin/microduck-observer',0o755)
 assert all(sha(Path(p))==v for p,v in preserved.items())
+walk_update=None
+marker=new/'walk-scale-update.json'
+if marker.exists():
+    filename='xgoduck_walk.metadata.json'
+    prior_meta=json.loads((old/'models'/filename).read_text())
+    expected=json.loads(json.dumps(prior_meta))
+    assert expected['policySha256']=='1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f'
+    assert expected['walkExecution']['actionScale']==0.9
+    expected['walkExecution']['actionScale']=1.0
+    expected['actionSemantics']='HOME + 1.0 * raw policy action; head/leg target filter new weights 0.5/0.7; first target passthrough'
+    assert json.loads(marker.read_text())==expected,'Unexpected walk metadata change'
+    assert sha(new/'models/xgoduck_walk.onnx')==expected['policySha256']
+    assert (new/'models'/filename).resolve().is_relative_to(new.resolve())
+    shutil.copy2(marker,new/'models'/filename);marker.unlink()
+    walk_update={'file':filename,'before':0.9,'after':1.0,'metadataSha256':sha(new/'models'/filename)}
 retired=[];bank_reports=[]
 if (new/'common-gains-migration.json').exists():
     for stem in ['hd1910-head-v5','hd1910-walk-v6-symmetry500']:
@@ -76,7 +101,7 @@ if (new/'common-gains-migration.json').exists():
         bank_reports.append(report)
     (stage/'common-gains-arm.json').write_text(json.dumps(bank_reports,indent=2))
 for p in (old/'models').rglob('*'):
-    if p.is_file() and p.name not in retired:assert sha(new/'models'/p.relative_to(old/'models'))==sha(p),'Existing model changed'
+    if p.is_file() and p.name not in retired and not (walk_update and p.name==walk_update['file']):assert sha(new/'models'/p.relative_to(old/'models'))==sha(p),'Existing model changed'
 fixture_reports=[]
 if (new/'policy-dance-0.json').exists():
     env=dict(os.environ,MICRODUCK_POLICY_PATH=str(new/'models/xgoduck_walk.onnx'),ORT_DYLIB_PATH=str(new/'lib/libonnxruntime.so'))
@@ -85,6 +110,14 @@ if (new/'policy-dance-0.json').exists():
         result=subprocess.run([str(new/'bin/microduck-observer'),'--verify-policy-fixture',str(fixture)],env=env,capture_output=True,text=True,check=True)
         fixture_reports.append(json.loads(result.stdout.splitlines()[-1]));fixture.unlink()
     (stage/'dance-arm-fixtures.json').write_text(json.dumps(fixture_reports,indent=2))
+flamingo_reports=[]
+if (new/'policy-flamingo_hold.json').exists():
+    env=dict(os.environ,MICRODUCK_POLICY_PATH=str(new/'models/xgoduck_walk.onnx'),ORT_DYLIB_PATH=str(new/'lib/libonnxruntime.so'))
+    for mode in ['hold','lower']:
+        fixture=new/f'policy-flamingo_{mode}.json'
+        result=subprocess.run([str(new/'bin/microduck-observer'),'--verify-policy-fixture',str(fixture)],env=env,capture_output=True,text=True,check=True)
+        flamingo_reports.append(json.loads(result.stdout.splitlines()[-1]));fixture.unlink()
+    (stage/'flamingo-arm-fixtures.json').write_text(json.dumps(flamingo_reports,indent=2))
 shutil.copy2(new/'measure_runtime.py',stage/'measure_runtime.py')
 shutil.copy2(new/'ws_reader.py',stage/'ws_reader.py')
 subprocess.run([sys.executable,str(new/'verify_rust_hardware.py'),'--release',str(new),'--workspace',str(stage)],check=True)
@@ -114,12 +147,19 @@ try:
     assert all(sha(Path(p))==v for p,v in preserved.items())
     for p,v in preserved.items():
         p=Path(p)
-        if p.is_relative_to(old) and not (p.parent==old/'models' and p.name in retired):assert sha(new/p.relative_to(old))==v
+        if p.is_relative_to(old) and not (p.parent==old/'models' and (p.name in retired or (walk_update and p.name==walk_update['file']))):assert sha(new/p.relative_to(old))==v
+    if walk_update:
+        assert sha(new/'models'/walk_update['file'])==walk_update['metadataSha256']
+        policy=get('policy')
+        assert policy['metadata']['walkExecution']['actionScale']==1.0
+        assert get('model-gains')==json.loads((stage/'gains-before.json').read_text())
     assets={p.relative_to(new/'frontend/dist').as_posix():sha(p) for p in (new/'frontend/dist').rglob('*') if p.is_file()}
     for p,v in assets.items():assert hashlib.sha256(urllib.request.urlopen('http://127.0.0.1:8877/'+p,timeout=8).read()).hexdigest()==v
     snapshots=[get('snapshot') for _ in range(20)];assert all(idle(s) for s in snapshots)
     if fixture_reports:
         model=get('policy');assert any(m['kind']=='dance10' and m['available'] for m in model['models'])
+    if flamingo_reports:
+        model=get('policy');assert all(any(m['kind']==kind and m['available'] for m in model['models']) for kind in ['flamingo_hold','flamingo_lower'])
     if bank_reports:
         model=get('policy');expected=get('model-gains')
         assert len(model['models'])==9 and all(m['available'] and m['runtimeGains']['p']==expected['p'] and m['runtimeGains']['d']==expected['d'] for m in model['models'])
@@ -127,6 +167,8 @@ try:
     with urllib.request.urlopen(request,timeout=5) as response:assert json.load(response)['debug']==gamepad_mode
     assert {svc:subprocess.run(['systemctl','is-enabled',svc],capture_output=True,text=True).stdout.strip() for svc in ['tofd','rsyslog']}==service_states
     result={'installed':True,'release':str(new),'previousRelease':str(old),'calibrationModelsGainsIdentityUnchanged':True,'assetsHttpVerified':True,'readonlySnapshots':20,'hardwareMotion':False,'audioPermissionsConfigured':True,'inputPermissionsConfigured':True,'serviceEnableStatesPreserved':service_states,'binarySha256':sha(new/'bin/microduck-observer')}
+    if walk_update:result.update(walkScaleUpdate=walk_update,calibrationModelsGainsIdentityUnchanged=False,calibrationWeightsGainsIdentityUnchanged=True)
+    if flamingo_reports:result.update(flamingoModelSha256=sha(new/'models/flamingo.onnx'),flamingoArmFixtures=flamingo_reports,flamingoAvailable=True)
     if fixture_reports:result.update(danceModelSha256=sha(new/'models/dance10.onnx'),danceArmFixtures=fixture_reports,danceAvailable=True)
     if bank_reports:result.update(retiredModels=retired,commonGainsArm=bank_reports,remainingModelsUnchanged=True)
     (stage/'deployment.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))

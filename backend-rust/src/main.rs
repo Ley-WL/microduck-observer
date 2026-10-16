@@ -341,13 +341,13 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
 async fn policy_info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     let meta = policy::metadata_for("xgoduck");
-    let models: Vec<Value> = ["xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand"].iter().map(|kind| {
+    let models: Vec<Value> = ["xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"].iter().map(|kind| {
         let metadata=policy::metadata_for(kind);
         let gains=gains::current();
         json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata,"runtimeGains":{"p":gains.p,"d":gains.d,"source":"model-gains.json","appliesOn":"next-model-start"}})
     }).collect();
     Json(
-        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance","flamingo"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
 async fn model_gains_info() -> Json<Value> {
@@ -456,7 +456,8 @@ async fn policy_action(
             .into_response();
     }
     if action=="skill" {
-        let kind=match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())};
+        let mut kind=match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())};
+        if body["skill"]=="flamingo" && a.telemetry.read().unwrap().control["activeSkill"]=="flamingo_hold" {kind="flamingo_lower";}
         if policy::metadata_for(kind).is_none() {return error(StatusCode::CONFLICT,"动作模型不可用");}
         let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少动作序号");};
         let mut shared=a.telemetry.write().unwrap();

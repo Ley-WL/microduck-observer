@@ -130,6 +130,7 @@ pub fn path() -> PathBuf {
 }
 pub fn path_for(kind: &str) -> Result<PathBuf> {
     match kind {
+        "flamingo_hold" | "flamingo_lower" => Ok(path().with_file_name("flamingo.onnx")),
         "sitstand_sit" | "sitstand_stand" => Ok(path().with_file_name("alpha_sitstand.onnx")),
         "xgoduck" => Ok(path().with_file_name("xgoduck_walk.onnx")),
         "dance10" | "kick_left" | "kick_right" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" => Ok(path().with_file_name(format!("{kind}.onnx"))),
@@ -137,14 +138,28 @@ pub fn path_for(kind: &str) -> Result<PathBuf> {
     }
 }
 pub fn model_id(kind: &str) -> &'static str {
-    match kind { "dance10" => "dance10", "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "xgoduck" => "xgoduck_walk",
+    match kind { "flamingo_hold" | "flamingo_lower" => "flamingo", "dance10" => "dance10", "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "xgoduck" => "xgoduck_walk",
         "xgoduck_getup" => "xgoduck_getup", "xgoduck_pick" => "xgoduck_pick",
         "xgoduck_roulade" => "xgoduck_roulade", "kick_left" => "kick_left", "kick_right" => "kick_right", _ => "unknown" }
 }
-pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "dance10" | "kick_left" | "kick_right" | "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
+pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "flamingo_hold" | "flamingo_lower" | "dance10" | "kick_left" | "kick_right" | "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
 #[cfg(test)]
 mod kick_tests {
     use super::*;
+    #[test]
+    fn flamingo_contract_holds_until_lowered_and_keeps_training_flags() {
+        let mut meta:Value=serde_json::from_str(include_str!("../../models/flamingo.metadata.json")).unwrap();
+        for kind in ["flamingo_hold","flamingo_lower"] {validate_skill_metadata(kind,&meta).unwrap();assert!(walking_policy(kind));}
+        let p=SkillProfile::from_metadata(&meta);assert!(p.donor());assert!(p.voltage_adapt());
+        assert_eq!(skill_twist("flamingo_hold",99.),[1.,1.,0.]);
+        assert_eq!(skill_twist("flamingo_lower",0.),[0.,1.,0.]);
+        assert!(!p.complete("flamingo_hold",999.,999.));
+        assert!(!p.complete("flamingo_lower",1.49,1.));assert!(!p.complete("flamingo_lower",2.,0.9));
+        assert!(p.complete("flamingo_lower",2.,1.));
+        assert_eq!(native_handoff("flamingo_hold",false,false,false,"xgoduck",Some("flamingo_lower".into())),NativeHandoff::Skill("flamingo_lower".into()));
+        assert_eq!(native_handoff("flamingo_lower",true,false,false,"xgoduck",None),NativeHandoff::Skill("xgoduck".into()));
+        meta["actionEmaOldWeight"]=json!(0.45);assert!(validate_skill_metadata("flamingo_hold",&meta).is_err());
+    }
     #[test]
     fn dance_contract_full_phrase_and_filtered_actions() {
         let mut meta:Value=serde_json::from_str(include_str!("../../models/dance10.metadata.json")).unwrap();
@@ -179,13 +194,13 @@ mod kick_tests {
 }
 pub fn skill_kind(value: &Value) -> Result<&str> {
     match value.as_str() {
-        Some("dance") => Ok("dance10"), Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
+        Some("flamingo") => Ok("flamingo_hold"), Some("flamingo_lower") => Ok("flamingo_lower"), Some("dance") => Ok("dance10"), Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
         Some("sit") => Ok("sitstand_sit"), Some("standup") => Ok("sitstand_stand"),
         Some("kick_left") => Ok("kick_left"), Some("kick_right") => Ok("kick_right"), Some("roulade") => Ok("xgoduck_roulade"), _ => bail!("动作须为getup/pick/roulade/sit/standup/kick_left/kick_right"),
     }
 }
 fn skill_twist(kind: &str, progress: f64) -> [f32;3] {
-    if kind == "sitstand_sit" { [1.,0.,0.] } else if kind == "xgoduck_pick" {
+    if kind == "flamingo_hold" {[1.,1.,0.]} else if kind == "flamingo_lower" {[0.,1.,0.]} else if kind == "sitstand_sit" { [1.,0.,0.] } else if kind == "xgoduck_pick" {
         let phase = std::f64::consts::TAU * (progress / 4.).clamp(0., 1.);
         [phase.cos() as f32, phase.sin() as f32, 0.]
     } else { [0.;3] }
@@ -231,13 +246,13 @@ impl NativeRecoveryPosture {
     }
 }
 #[derive(Clone, Copy, Default)]
-struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool }
+struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool }
 impl SkillProfile {
     fn from_metadata(meta: &Value) -> Self {
-        Self { dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
+        Self { flamingo:meta["runtimeKind"]=="hd1910_flamingo", dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
             kissqy: meta["runtimeKind"]=="kissqy_sitstand", bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
     }
-    fn donor(self)->bool {self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
+    fn donor(self)->bool {self.flamingo || self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
     // Roulade HD1910 deployment contract explicitly disables voltage adaptation.
     fn voltage_adapt(self)->bool {!self.donor_roll && !self.donor_kick && !self.dance}
     fn voltage_scale(self,voltage:&mut NativeVoltage,feedback:&Feedback,now:Instant)->f32 {
@@ -247,6 +262,7 @@ impl SkillProfile {
     // Donor sit_toggle allows Sitting -> Rising without a dwell timer.
     fn stand_request_delay(self)->f64 {if self.kissqy {0.} else {self.sit_settle()}}
     fn complete(self, kind: &str, progress: f64, upright: f64) -> bool {
+        if self.flamingo {return kind=="flamingo_lower" && progress>=1.5 && upright>=1.;}
         if self.dance {return kind=="dance10" && progress>=8.-1e-9;}
         if self.donor_kick {return matches!(kind,"kick_left"|"kick_right") && progress>=0.5-1e-9;}
         if self.donor_pick {return kind=="xgoduck_pick" && progress>=2.8;}
@@ -264,7 +280,7 @@ impl SkillProfile {
     }
     fn upright(self, obs: &[f32]) -> bool {
         if tilt(obs)>=15. { return false; }
-        if !self.retrained { return true; }
+        if !self.retrained && !self.flamingo { return true; }
         let gyro=obs[..3].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
         let legs=(0..5).chain(9..14).map(|n|obs[6+n].abs() as f64).sum::<f64>()/10.;
         gyro<2. && legs<0.25
@@ -274,7 +290,9 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
     let profile=SkillProfile::from_metadata(meta);
     let mechanical_getup=meta["skillPhysicsRevision"]=="getup-kissqy-mechanical-v1";
     if mechanical_getup && (kind!="xgoduck_getup" || !valid_mechanical_getup_contract(meta)) {bail!("起身机械限位合同不匹配");}
-    if kind=="dance10" {
+    if kind.starts_with("flamingo_") {
+        if !profile.flamingo || meta["task"]!="Mjlab-FlamingoCycleGentle-Flat-MicroDuck" || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0 || meta["actionEmaNewWeight"]!=1 || meta["commandEncoding"]!="flamingo_flag_side" || meta["lowerMinSeconds"]!=1.5 {bail!("火烈鸟执行合同不匹配");}
+    } else if kind=="dance10" {
         if !profile.dance || meta["task"]!="Mjlab-Dance10Resilient-Flat-MicroDuck-HD1910" || meta["actionEmaOldWeight"]!=0.45 || meta["actionEmaNewWeight"]!=0.55 || meta["durationSeconds"]!=8 || meta["commandGains"]!=json!([2.,2.,2.,2.5,1.,2.,2.5,2.,1.,1.]) {bail!("舞蹈执行合同不匹配");}
     } else if profile.donor_pick || profile.donor_getup || profile.donor_roll || profile.donor_kick {
         let e=&meta["skillExecution"];
@@ -348,7 +366,7 @@ fn tilt(obs: &[f32]) -> f64 {
 const FALL_TILT_DEG: f64 = 60.;
 const FALL_IMMEDIATE_DEG: f64 = 90.;
 const FALL_CONFIRM: Duration = Duration::from_millis(150);
-fn walking_policy(kind: &str) -> bool { kind=="xgoduck" }
+fn walking_policy(kind: &str) -> bool { kind=="xgoduck" || kind.starts_with("flamingo_") }
 fn body_gravity(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<Vector3<f64>> {
     let imu=&cal["imu"];
     if imu["initialized"]!=true || imu["mountingQuaternion"].is_null() {
@@ -416,7 +434,8 @@ pub fn metadata_for(kind: &str) -> Option<Value> {
 pub fn verify_model_bank() -> Result<Value> {
     let expected=crate::gains::current();
     let mut rows=Vec::new();
-    for kind in ["xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand"] {
+    for kind in ["xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"] {
+        if kind.starts_with("flamingo_") && metadata_for(kind).is_none() {continue;}
         let model=Model::open_for(kind,0.)?;
         if model.gains!=expected {bail!("{kind} 未继承通用增益");}
         rows.push(json!({"kind":kind,"p":model.gains.p,"d":model.gains.d,"sha256":model.sha}));
@@ -795,7 +814,7 @@ impl Model {
             kind: kind.to_owned(),
             progress: 0., upright: 0.,
             session: std::sync::Arc::new(std::sync::Mutex::new(session)),
-            command_twist: if SkillProfile::from_metadata(&meta).donor_pick {skill_twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
+            command_twist: if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {skill_twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
             skill_profile: SkillProfile::from_metadata(&meta),
             walk_profile, target_initialized:false,
             home,
@@ -1138,6 +1157,7 @@ fn native_policy_loop(
             pause_drive(shared);
             bail!("倒地起身6秒窗口结束但机身仍倒地（{:.1}°），停止推理并卸力；未发HOME目标",tilt(&obs));
         }
+        if model.kind=="flamingo_lower" && model.progress>=6. && !finished {bail!("火烈鸟落脚6秒内未确认稳定双脚姿态，停止并卸力");}
         if model.skill_profile.dance && tilt(&obs)>=45. {bail!("舞蹈倾倒，停止推理并卸力");}
         let handoff=native_handoff(&model.kind,finished,model.skill_profile.donor_getup,return_home,recovery_resume,requested);
         if handoff==NativeHandoff::Home {
@@ -1158,7 +1178,7 @@ fn native_policy_loop(
                 }
             } else {false};
             let mut selected=bank.remove(&next).ok_or_else(||anyhow::anyhow!("动作模型未预加载"))?;
-            let retain=!reset && !model.skill_profile.dance && !selected.skill_profile.dance && ((model.donor_sensors() && selected.donor_sensors() && model.home==selected.home)
+            let retain=!reset && model.skill_profile.flamingo==selected.skill_profile.flamingo && !model.skill_profile.dance && !selected.skill_profile.dance && ((model.donor_sensors() && selected.donor_sensors() && model.home==selected.home)
                 || same_sit_actor(&model.kind,&selected.kind,&model.sha,&selected.sha,&model.home,&selected.home));
             // Sensor delay belongs to the hardware sample, not the actor.
             // reset_for_home clears actor history without sampling velocity twice.
@@ -1253,6 +1273,7 @@ fn native_policy_loop(
             v["rollTimeoutSeconds"]=json!(crate::roll_exit::RollExit::TIMEOUT);
         }
         v["uprightStableSeconds"]=json!(model.upright);
+        if model.skill_profile.flamingo {v["flamingoFlag"]=json!(model.command_twist[0]);v["flamingoSupportSide"]=json!("right");}
         v["message"]=json!(if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup {"kissqy倒地起身，同步50Hz，6秒窗口"} else {"起身中，等待连续稳定站立1秒"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
         let status_done=Instant::now();
         {
@@ -1292,8 +1313,8 @@ pub fn execute(
     // Load and warm before any enable/goal write; transitions never load a graph on UART.
     let mut bank = BTreeMap::new();
     if is_xgoduck(kind) && command["shadow"] != true {
-        for next in ["xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand", "kick_left", "kick_right", "dance10"] {
-            if next != kind && (next!="dance10" || metadata_for(next).is_some()) { bank.insert(next.to_owned(), Model::open_for(next, 0.)?); }
+        for next in ["xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand", "kick_left", "kick_right", "dance10", "flamingo_hold", "flamingo_lower"] {
+            if next != kind && (!matches!(next,"dance10"|"flamingo_hold"|"flamingo_lower") || metadata_for(next).is_some()) { bank.insert(next.to_owned(), Model::open_for(next, 0.)?); }
         }
     }
     let cal = &command["calibration"];

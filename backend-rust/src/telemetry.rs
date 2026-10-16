@@ -98,7 +98,7 @@ impl Telemetry {
         let recovery_allowed=kind=="xgoduck_getup" && (matches!(self.control["activeSkill"].as_str(),Some("sitstand_sit"|"sitstand_stand"|"xgoduck_getup"))
             || (self.control["recoveryFallen"]==true && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"kick_left"|"kick_right"))));
         if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
-            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || recovery_allowed || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["standAllowed"].as_bool().unwrap_or_else(||self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.))))
+            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || recovery_allowed || (kind=="flamingo_lower" && self.control["activeSkill"]=="flamingo_hold") || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["standAllowed"].as_bool().unwrap_or_else(||self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.))))
             || self.pending_skill.is_some() { return false; }
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
@@ -117,6 +117,18 @@ impl DriveCommand {
 #[cfg(test)]
 mod drive_tests {
     use super::*;
+    #[test]
+    fn flamingo_accepts_one_lower_edge_and_rejects_other_skills_and_replays() {
+        let mut s=Telemetry::new(true);
+        s.drive=Some(DriveCommand{session:"s".into(),sequence:1,twist:[0.;3],updated:Instant::now()});
+        s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"flamingo_hold"});
+        assert!(!s.queue_skill("s",2,"kick_right"));assert!(!s.queue_skill("s",2,"flamingo_hold"));
+        assert!(!s.queue_skill("foreign",2,"flamingo_lower"));
+        assert!(s.queue_skill("s",2,"flamingo_lower"));
+        assert!(!s.queue_skill("s",3,"flamingo_lower"));s.pending_skill=None;
+        assert!(!s.queue_skill("s",2,"flamingo_lower"));s.control["feedbackHolding"]=json!(true);
+        assert!(!s.queue_skill("s",3,"flamingo_lower"));
+    }
     #[test]
     fn replica_sit_window_blocks_early_stand() {
         let mut state=Telemetry::new(true);

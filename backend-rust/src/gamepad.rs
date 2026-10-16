@@ -257,7 +257,7 @@ impl Input {
         } else if ready && sample.centered() && sample.dpad[0] && !self.previous.dpad[0] {
             Some("dance")
         } else if ready && sample.centered() && sample.dpad[1] && !self.previous.dpad[1] {
-            Some("kick_left")
+            Some("flamingo")
         } else if ready && sample.centered() && sample.dpad[2] && !self.previous.dpad[2] {
             Some("kick_right")
         } else if ready && sample.centered() && edge(LB)
@@ -417,7 +417,8 @@ pub fn spawn(app: App, router: Router) {
                     if !diagnostic_only && input.neutral_seen && !sample.neutral() {
                         if motion.take_over_policy() {input.drive_armed=true;}
                     }
-                    let ready = motion.leased && motion.status()["headReady"] == true;
+                    let status=motion.status();
+                    let ready = motion.leased && (status["headReady"] == true || status["flamingoReady"] == true);
                     if let Some(action) = input.update(&sample, ready, diagnostic_only) {
                         if action == "estop" {
                             // Emergency stop is global, including when a phone owns the lease.
@@ -713,7 +714,7 @@ mod tests {
         input.update(&Sample::default(), true, false);
         let mut left = Sample::default();
         left.dpad[1] = true;
-        assert_eq!(input.update(&left, true, false), Some("kick_left"));
+        assert_eq!(input.update(&left, true, false), Some("flamingo"));
         input.update(&Sample::default(), true, false);
         let mut right = Sample::default();
         right.dpad[2] = true;
