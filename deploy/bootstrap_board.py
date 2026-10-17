@@ -67,7 +67,9 @@ def require_fresh(root):
 def unpack(bundle, destination):
     allowed = ['release/', 'system/etc/systemd/system/', 'system/etc/dbus-1/system.d/',
                'system/usr/local/lib/microduck-services/',
-               'system/usr/local/lib/microduck-observer-ota-helper/']
+               'system/usr/local/lib/microduck-observer-ota-helper/',
+               'system/boot/dtb/rockchip/overlay/rk3568-i2c3-pihat.dtbo/',
+               'system/boot/dtb/rockchip/overlay/rk3568-aic3104-i2c3.dtbo/']
     with tarfile.open(bundle) as archive:
         for member in archive.getmembers():
             name = member.name.rstrip('/')
@@ -92,13 +94,17 @@ def install(bundle, digest, release_name):
     env = Path('/boot/armbianEnv.txt')
     original = env.read_text()
     updated = boot_configuration(original)
-    for name in ['uart2-m0', 'uart9-m1', 'i2c3-pihat', 'aic3104-i2c3']:
-        if not Path('/boot/dtb/rockchip/overlay/rk3568-' + name + '.dtbo').is_file():
-            raise RuntimeError('Missing overlay: ' + name)
     work = Path('/home/radxa') / release_name
     work.mkdir(exist_ok=False)
     unpack(bundle, work)
+    for name in ['uart2-m0', 'uart9-m1', 'i2c3-pihat', 'aic3104-i2c3']:
+        path = Path('/boot/dtb/rockchip/overlay/rk3568-' + name + '.dtbo')
+        if not path.is_file() and not (work / 'system' / str(path).lstrip('/')).is_file():
+            raise RuntimeError('Missing overlay: ' + name)
     binary = work / 'release/bin/microduck-observer'
+    for executable in (work / 'release/bin').iterdir():
+        if executable.is_file():
+            os.chmod(executable, 0o755)
     header = binary.read_bytes()[:20]
     if header[:4] != b'\x7fELF' or int.from_bytes(header[18:20], 'little') != 183:
         raise RuntimeError('Not an ARM64 service')
@@ -109,12 +115,12 @@ def install(bundle, digest, release_name):
     marker.mkdir(parents=True, exist_ok=False)
     (marker / 'armbianEnv.before').write_text(original)
     (marker / 'hostname.before').write_text(Path('/etc/hostname').read_text())
-    for group in ['robot', 'ducklink', 'i2c']:
+    for group in ['robot', 'ducklink', 'i2c', 'input']:
         run('groupadd', '-f', group)
     if subprocess.run(['id', 'ducklink'], capture_output=True).returncode:
         run('useradd', '--system', '--gid', 'ducklink', '--no-create-home',
             '--shell', '/usr/sbin/nologin', 'ducklink')
-    run('usermod', '-aG', 'dialout,bluetooth,ducklink,robot,audio,i2c', 'radxa')
+    run('usermod', '-aG', 'dialout,bluetooth,ducklink,robot,audio,i2c,input', 'radxa')
     root = Path('/home/radxa/microduck-observer')
     release = root / 'releases' / release_name
     release.parent.mkdir(parents=True, exist_ok=True)
@@ -125,6 +131,9 @@ def install(bundle, digest, release_name):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
     (root / 'current').symlink_to(release)
+    gamepad_drop = Path('/etc/systemd/system/microduck-observer.service.d/gamepad-input.conf')
+    gamepad_drop.parent.mkdir(parents=True, exist_ok=True)
+    gamepad_drop.write_text('[Service]\nSupplementaryGroups=input\nDeviceAllow=char-input r\n')
     run('chown', '-R', 'radxa:radxa', str(root))
     robot = secrets.token_hex(8)
     hostname = 'microduck-' + robot[10:]

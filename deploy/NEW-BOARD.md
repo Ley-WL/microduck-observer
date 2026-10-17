@@ -22,8 +22,10 @@ python tools/deploy-new-board.py --host 192.168.31.87
 python tools/deploy-new-board.py --host 192.168.31.87 --check
 ```
 
-`bootstrap-package.json`记录当前已在87验证的引导包位置和SHA。包保存在本项目 `deploy/staging/bootstrap/payload.tar.gz`，约24MB，不含密码/身份/标定；此本地包不入Git，保留它才能离线重复部署。这是原SD备份时 `runtime-20261013-085643` 的**冻结版本**，不会自动冒充最新源码构建。新版本须另制并验证相同结构的服务包，显式指定 `--bundle <路径> --sha256 <值>`。包包含 `release/{bin,models,frontend,lib}` 和白名单内的 `system/` 服务模板；不接受软硬链接或任意系统路径。
+`bootstrap-package.json` 固定当前本地安装包 `deploy/staging/bootstrap/payload-gamepad-auto-20261017.tar.gz` 和 SHA256。2026-10-17 包在原 2026-10-14 包基础上更新 ARM64 主服务和手柄 input 只读权限，其余模型、网页、库及辅助程序逐字节保持。194 项 Rust 测试、6 项安装器测试、归档白名单/内容校验与87板只读手柄自动识别通过；新版包尚未执行完整新板安装/重启验收，不沿用旧包的验收结论。包不含密码/身份/标定，不入Git，须保留以离线重复部署。可显式指定 `--bundle <路径> --sha256 <值>`；包仅接受 `release/` 和白名单 `system/` 文件，不接受软硬链接。
+
+新板安装自动加入 input 组并安装 `SupplementaryGroups=input`、`DeviceAllow=char-input r`。服务启动即可等待兼容手柄，连接后自动识别按键和摇杆，断连/设备编号变化后重扫，无需手写 eventN、名称或轴配置。自动识别不自动配对、不启动模型；首次控制许可仍为只读诊断，网页保存后跨重启恢复。
 
 远程sudo密码从隐藏输入读取，或显式 `--password-file` 读取本地Password文件，只经stdin传输，不写到包、证据、CLI参数或技能。每台SSH主机密钥保存在 `deploy/staging/new-board-known-hosts`，密钥变更必须人工核验，不自动绕过。
 
-实际安装案例：192.168.31.87 / DuckLink-4152e0，见实测记录2026-10-13/new-board87。本次通用脚本验证为本地测试、包解压检查和87只读检查；未用通用脚本重复覆盖该设备。
+实际通用脚本安装案例：192.168.31.87 / DuckLink-1c15e7，见实测记录2026-10-14/bootstrap-20261014-224027。重启后bootId、UART2/9、服务和广播验证通过。纯净系统缺自定义I²C/音频overlay时，当前包已携带这两份经过230使用的dtbo，安装器白名单检查后安装。

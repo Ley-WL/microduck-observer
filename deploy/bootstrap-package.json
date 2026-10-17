@@ -1,6 +1,6 @@
 {
-  "localPath": "deploy/staging/bootstrap/payload.tar.gz",
-  "sha256": "a42d52b18249d6f58296f6fcdaa5d68e4347fa0d79bc304f35e338d31ae4fbb0",
-  "provenance": "Original SD backup current runtime-20261013-085643; validated on board87 2026-10-13",
-  "note": "Frozen verified bootstrap bundle. For newer builds provide a newly validated bundle and explicit SHA256."
+  "localPath": "deploy/staging/bootstrap/payload-gamepad-auto-20261017.tar.gz",
+  "sha256": "a88b60998912f468ed272d58aee3ed26bafae0dbb3b060baca36eb35fc779e0e",
+  "provenance": "2026-10-17 ARM64 main binary with automatic gamepad discovery; based on 2026-10-14 bundle, other assets unchanged",
+  "note": "194 Rust tests and 6 bootstrap tests passed; archive validated; board87 read-only gamepad recognition passed. Fresh-board installation of this revised bundle remains unverified."
 }

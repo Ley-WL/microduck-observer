@@ -628,6 +628,9 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
     gains::init()?;
+    if args.get(1).is_some_and(|s|s=="--verify-gamepad") {
+        println!("{}",gamepad::verify_input()?);return Ok(());
+    }
     if args.get(1).is_some_and(|s|s=="--verify-model-bank") {
         println!("{}",policy::verify_model_bank()?);return Ok(());
     }

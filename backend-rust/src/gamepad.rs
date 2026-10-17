@@ -138,12 +138,13 @@ impl Sample {
 
 struct Device {
     file: File,
+    name: String,
     axes: [u32; 4],
     hats: [bool; 2],
     triggers: [bool; 2], // ABS_BRAKE (LT), ABS_GAS (RT); never reuse stick axes.
 }
 impl Device {
-    fn open(path: &str, expected_name: &str, axes: [u32; 4]) -> Result<Self> {
+    fn open(path: &str, expected_name: &str, requested_axes: Option<[u32; 4]>) -> Result<Self> {
         let file = OpenOptions::new()
             .read(true)
             .open(path)
@@ -153,11 +154,12 @@ impl Device {
         let name = String::from_utf8_lossy(
             &name[..name.iter().position(|b| *b == 0).unwrap_or(name.len())],
         );
-        ensure!(name == expected_name, "gamepad name mismatch: {name}");
+        ensure!(expected_name.is_empty() || name == expected_name, "gamepad name mismatch: {name}");
         let mut key_bits = [0u8; 96];
         read_ioctl(&file, 0x21, &mut key_bits)?; // EVIOCGBIT(EV_KEY)
         let mut abs_bits = [0u8; 8];
         read_ioctl(&file, 0x23, &mut abs_bits)?; // EVIOCGBIT(EV_ABS)
+        let axes = select_axes(&abs_bits, requested_axes)?;
         let triggers = [10usize, 9].map(|code| !axes.contains(&(code as u32)) && abs_bits[code / 8] & (1 << (code % 8)) != 0);
         ensure!(
             BUTTONS
@@ -167,7 +169,7 @@ impl Device {
             "gamepad lacks Xbox-layout buttons"
         );
         let hats = [16usize, 17].map(|code| abs_bits[code / 8] & (1 << (code % 8)) != 0);
-        let device = Self { file, axes, hats, triggers };
+        let device = Self { file, name:name.into_owned(), axes, hats, triggers };
         device.sample()?;
         Ok(device)
     }
@@ -207,6 +209,32 @@ impl Device {
         }
         Ok(sample)
     }
+}
+
+fn select_axes(bits: &[u8;8], requested: Option<[u32;4]>) -> Result<[u32;4]> {
+    let supported=|axes:&[u32;4]| axes.iter().all(|c| bits[*c as usize/8] & (1<<(*c as usize%8)) != 0);
+    if let Some(axes)=requested {ensure!(supported(&axes),"configured stick axes unavailable");return Ok(axes);}
+    for axes in [[0,1,3,4],[0,1,2,5]] {if supported(&axes) {return Ok(axes);}}
+    anyhow::bail!("device lacks supported dual-stick axes")
+}
+
+fn discover_device(path: Option<&str>, name: &str, axes: Option<[u32;4]>) -> Result<Device> {
+    if let Some(path)=path {return Device::open(path,name,axes);}
+    let mut devices=Vec::new();
+    for entry in std::fs::read_dir("/dev/input").context("scan gamepad inputs")? {
+        let entry=entry?;
+        let filename=entry.file_name();let filename=filename.to_string_lossy();
+        if !filename.strip_prefix("event").is_some_and(|s| !s.is_empty() && s.bytes().all(|b|b.is_ascii_digit())) {continue;}
+        if let Ok(device)=Device::open(&entry.path().to_string_lossy(),name,axes) {devices.push(device);}
+    }
+    ensure!(devices.len()==1,if devices.is_empty(){"未发现可读取的兼容手柄，等待连接（请检查input权限）"}else{"发现多个兼容手柄，请只连接一个或指定设备"});
+    Ok(devices.pop().unwrap())
+}
+
+pub fn verify_input() -> Result<Value> {
+    let device=discover_device(None,"",None)?;
+    let sample=device.sample()?;
+    Ok(json!({"name":device.name,"axes":device.axes,"triggers":device.triggers,"neutral":sample.neutral(),"hardwareMotion":false}))
 }
 
 #[derive(Default)]
@@ -394,11 +422,10 @@ fn monitor(app: App, name: String, device: Arc<Device>) -> Result<(InputMonitor,
 
 pub fn spawn(app: App, router: Router) {
     publish_input(&app, "", None);
-    let Ok(path) = std::env::var("MICRODUCK_GAMEPAD_DEVICE") else {
-        return;
-    };
+    let path = std::env::var("MICRODUCK_GAMEPAD_DEVICE").ok().filter(|s| !s.trim().is_empty());
     let name = std::env::var("MICRODUCK_GAMEPAD_NAME").unwrap_or_default();
-    if !app.hardware || name.trim().is_empty() || !path.starts_with("/dev/input/") {
+    if !app.hardware {return;}
+    if path.as_ref().is_some_and(|p| !p.starts_with("/dev/input/")) {
         report(
             &app,
             "手柄未启用：需实机模式、/dev/input/路径及精确设备名称",
@@ -407,10 +434,11 @@ pub fn spawn(app: App, router: Router) {
     }
     let axes = match std::env::var("MICRODUCK_GAMEPAD_RIGHT_AXES")
         .as_deref()
-        .unwrap_or("3,4")
+        .unwrap_or("auto")
     {
-        "3,4" => [0, 1, 3, 4],
-        "2,5" => [0, 1, 2, 5],
+        "auto" => None,
+        "3,4" => Some([0, 1, 3, 4]),
+        "2,5" => Some([0, 1, 2, 5]),
         _ => {
             report(&app, "手柄右摇杆轴配置无效，仅支持3,4或2,5");
             return;
@@ -423,8 +451,8 @@ pub fn spawn(app: App, router: Router) {
         let mut last_error = String::new();
         while !app.shutdown.load(std::sync::atomic::Ordering::Acquire) {
             let result = async {
-                let device = Arc::new(Device::open(&path, &name, axes)?);
-                let (_monitor, samples) = monitor(app.clone(), name.clone(), device)?;
+                let device = Arc::new(discover_device(path.as_deref(), &name, axes)?);
+                let (_monitor, samples) = monitor(app.clone(), device.name.clone(), device)?;
                 last_error.clear();
                 report(&app, if debug.load(Ordering::Acquire) {
                     "手柄只读诊断已连接；网页显示按键和摇杆输入，实体动作已屏蔽"
@@ -811,5 +839,16 @@ mod tests {
             assert_eq!(input.update(&sample(keys, [0.; 4]), true, true), None);
             input.update(&Sample::default(), true, true);
         }
+    }
+    #[test]
+    fn detects_both_stick_layouts_without_assuming_event_number() {
+        let mut bits=[0u8;8];
+        for code in [0,1,2,5,9,10,16,17] {bits[code/8]|=1<<(code%8);}
+        assert_eq!(select_axes(&bits,None).unwrap(),[0,1,2,5]);
+        assert!(select_axes(&bits,Some([0,1,3,4])).is_err());
+        bits[0]|=(1<<3)|(1<<4);
+        assert_eq!(select_axes(&bits,None).unwrap(),[0,1,3,4]);
+        assert_eq!(select_axes(&bits,Some([0,1,2,5])).unwrap(),[0,1,2,5]);
+        assert!(select_axes(&[0;8],None).is_err());
     }
 }
