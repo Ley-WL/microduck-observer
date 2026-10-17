@@ -53,26 +53,28 @@ impl Identity {
                 "Invalid owner"
             );
         }
+        if let Some(owners) = data.get("owners") {
+            let owners = owners.as_object().ok_or_else(|| anyhow::anyhow!("Invalid owners"))?;
+            for (client, key) in owners {
+                ensure!(valid_hex(client,32) && valid_hex(key.as_str().unwrap_or(""),64),"Invalid owner");
+                ensure!(data["owner"]["client"] != client.as_str(),"Duplicate legacy owner");
+            }
+        }
         Ok(Self { path, data })
     }
     pub fn robot_id(&self) -> &str {
         self.data["robotId"].as_str().unwrap()
     }
+    fn stored_key(&self, client: &str) -> Option<&str> {
+        if self.data["owner"]["client"] == client { self.data["owner"]["key"].as_str() }
+        else { self.data.get("owners").and_then(|owners| owners.get(client)).and_then(Value::as_str) }
+    }
     pub fn owner_key(&self, client: &str) -> Result<[u8; 32]> {
         ensure!(valid_hex(client, 32), "INVALID_HELLO");
-        if !self.data["owner"].is_null() {
-            ensure!(
-                self.data["owner"]["client"] == client,
-                "OWNED_BY_ANOTHER_PHONE"
-            );
-            Ok(hex::decode(self.data["owner"]["key"].as_str().unwrap())?
-                .try_into()
-                .unwrap())
+        if let Some(key) = self.stored_key(client) {
+            Ok(hex::decode(key)?.try_into().unwrap())
         } else {
-            Ok(derive(
-                &hex::decode(AUTO_CODE)?,
-                &format!("owner|{client}"),
-            ))
+            Ok(derive(&hex::decode(AUTO_CODE)?, &format!("owner|{client}")))
         }
     }
     fn save(&self, value: &Value) -> Result<()> {
@@ -99,27 +101,28 @@ impl Identity {
         result
     }
     pub fn bind(&mut self, client: &str, key: &[u8; 32]) -> Result<()> {
-        if !self.data["owner"].is_null() {
-            ensure!(
-                self.data["owner"]["client"] == client,
-                "OWNED_BY_ANOTHER_PHONE"
-            );
+        ensure!(valid_hex(client,32),"INVALID_HELLO");
+        if let Some(saved) = self.stored_key(client) {
+            ensure!(saved == hex::encode(key),"OWNER_KEY_MISMATCH");
             return Ok(());
         }
         let mut next = self.data.clone();
-        next["owner"] = json!({"client":client,"key":hex::encode(key)});
+        if next.get("owners").is_none() { next["owners"] = json!({}); }
+        next["owners"][client] = json!(hex::encode(key));
         self.save(&next)?;
         self.data = next;
         Ok(())
     }
     pub fn unbind(&mut self, client: &str) -> Result<()> {
-        ensure!(self.data["owner"]["client"] == client, "OWNER_REQUIRED");
+        ensure!(self.stored_key(client).is_some(), "OWNER_REQUIRED");
         let mut next = self.data.clone();
-        next["owner"] = Value::Null;
+        if next["owner"]["client"] == client { next["owner"] = Value::Null; }
+        if let Some(owners) = next.get_mut("owners").and_then(Value::as_object_mut) { owners.remove(client); }
         self.save(&next)?;
         self.data = next;
         Ok(())
     }
+
 }
 #[derive(Default)]
 pub struct Framer {
@@ -223,7 +226,7 @@ impl Session {
         self.key = Some(key);
         self.started = Instant::now();
         let mut reply = vec![0];
-        reply.extend(serde_json::to_vec(&json!({"v":1,"robotId":identity.robot_id(),"nonce":nonce,"bound":!identity.data["owner"].is_null()}))?);
+        reply.extend(serde_json::to_vec(&json!({"v":1,"robotId":identity.robot_id(),"nonce":nonce,"bound":identity.stored_key(client).is_some()}))?);
         Ok(reply)
     }
     pub fn decrypt(&mut self, frame: &[u8], identity: &Identity) -> Result<(u64, Value)> {
@@ -323,7 +326,7 @@ mod tests {
         assert!(fragments(&vec![0; 8193], 20).is_err());
     }
     #[test]
-    fn identity_binding_survives_restart_and_rejects_other_phone() {
+    fn multiple_phone_bindings_survive_restart_and_unbind_independently() {
         let tmp = tempfile::tempdir().unwrap();
         let path = tmp.path().join("identity.json");
         std::fs::write(&path,json!({"robotId":"1234567890abcdef","setupCode":"000102030405060708090a0b0c0d0e0f","owner":null}).to_string()).unwrap();
@@ -334,9 +337,16 @@ mod tests {
         identity.bind(&client, &key).unwrap();
         let mut reloaded = Identity::load(path).unwrap();
         assert_eq!(reloaded.owner_key(&client).unwrap(), key);
-        assert!(reloaded.owner_key(&"b".repeat(32)).is_err());
+        let second="b".repeat(32);let second_key=reloaded.owner_key(&second).unwrap();
+        assert_ne!(second_key,key);
         assert!(reloaded.unbind(&"b".repeat(32)).is_err());
+        reloaded.bind(&second,&second_key).unwrap();
+        reloaded=Identity::load(reloaded.path.clone()).unwrap();
+        assert_eq!(reloaded.owner_key(&client).unwrap(),key);
+        assert_eq!(reloaded.owner_key(&second).unwrap(),second_key);
         reloaded.unbind(&client).unwrap();
+        assert!(reloaded.stored_key(&client).is_none());
+        assert_eq!(reloaded.stored_key(&second),Some(hex::encode(second_key).as_str()));
         assert!(reloaded.data["owner"].is_null());
         assert!(reloaded.owner_key(&"b".repeat(32)).is_ok());
     }
@@ -344,9 +354,18 @@ mod tests {
     fn existing_owner_key_is_not_replaced_by_auto_code() {
         let tmp=tempfile::tempdir().unwrap();let path=tmp.path().join("identity.json");let client="a".repeat(32);let old=[17u8;32];
         std::fs::write(&path,json!({"robotId":"1234567890abcdef","setupCode":"000102030405060708090a0b0c0d0e0f","owner":{"client":client,"key":hex::encode(old)}}).to_string()).unwrap();
-        let identity=Identity::load(path).unwrap();assert_eq!(identity.owner_key(&client).unwrap(),old);
+        let mut identity=Identity::load(path.clone()).unwrap();assert_eq!(identity.owner_key(&client).unwrap(),old);
         assert_ne!(old,derive(&hex::decode(AUTO_CODE).unwrap(),&format!("owner|{client}")));
-        assert!(identity.owner_key(&"b".repeat(32)).is_err());
+        let second="b".repeat(32);let second_key=identity.owner_key(&second).unwrap();
+        identity.bind(&second,&second_key).unwrap();
+        let mut reloaded=Identity::load(path).unwrap();assert_eq!(reloaded.owner_key(&client).unwrap(),old);
+        assert_eq!(reloaded.owner_key(&second).unwrap(),second_key);
+        assert!(reloaded.bind(&client,&[99;32]).is_err());
+        reloaded.unbind(&second).unwrap();assert_eq!(reloaded.owner_key(&client).unwrap(),old);
+        reloaded.bind(&second,&second_key).unwrap();reloaded.unbind(&client).unwrap();
+        let reloaded=Identity::load(reloaded.path.clone()).unwrap();
+        assert!(reloaded.stored_key(&client).is_none());assert_eq!(reloaded.owner_key(&second).unwrap(),second_key);
+        assert_eq!(reloaded.robot_id(),"1234567890abcdef");
     }
     #[test]
     fn android_vector_crypto_and_replay() {

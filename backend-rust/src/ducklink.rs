@@ -37,6 +37,14 @@ struct State {
     notify_generation: u64,
 }
 impl State {
+    async fn begin_notifications(&mut self, tx: mpsc::Sender<Vec<Vec<u8>>>) -> Option<u64> {
+        // A second subscription must not evict the current phone or redirect its replies.
+        if self.notify.as_ref().is_some_and(|active| !active.is_closed()) { return None; }
+        self.drop_peer().await;
+        self.notify_generation=self.notify_generation.wrapping_add(1);
+        self.notify=Some(tx);
+        Some(self.notify_generation)
+    }
     async fn end_notifications(&mut self, generation: u64) -> Option<bluer::Address> {
         // A late callback from the previous subscription must not tear down its replacement.
         if generation != self.notify_generation { return None; }
@@ -227,7 +235,7 @@ pub async fn run(app: App, router: Router, stop: Arc<AtomicBool>) -> Result<()> 
                             let adapter = notify_adapter.clone();
                             async move{
                 let (tx,mut rx)=mpsc::channel::<Vec<Vec<u8>>>(1);
-                let generation={let mut s=state.lock().await;s.drop_peer().await;s.notify_generation=s.notify_generation.wrapping_add(1);s.notify=Some(tx);s.notify_generation};
+                let generation={let mut s=state.lock().await;let Some(generation)=s.begin_notifications(tx).await else { return; };generation};
                 tokio::spawn(async move{
                     loop {
                         tokio::select! {
@@ -351,6 +359,11 @@ mod notification_tests {
         assert_eq!(state.end_notifications(1).await,None);
         assert!(state.peer.is_some()&&state.notify.is_some()&&state.motion.leased);
         assert!(state.end_notifications(2).await.is_some());
+        let (tx,_rx)=mpsc::channel(1);
+        assert_eq!(state.begin_notifications(tx).await,Some(3));
+        assert!(state.peer.is_none());
+        assert_eq!(state.end_notifications(2).await,None);
+        assert!(state.notify.is_some());
     }
 }
 pub fn spawn(app: App, router: Router, stop: Arc<AtomicBool>) {
@@ -504,5 +517,22 @@ mod tests {
         assert_eq!(status["stopped"], false);
         assert_eq!(s.identity.owner_key(&client).unwrap(), key);
         assert!(calls.lock().unwrap().is_empty());
+        for client in ["b".repeat(32),"c".repeat(32),client.clone()] {
+            s.drop_peer().await;
+            let hello=[vec![0],serde_json::to_vec(&json!({"v":1,"type":"hello","client":client})).unwrap()].concat();
+            let greeting=exchange(&mut s,address,hello.clone()).await.unwrap();
+            let greeting:Value=serde_json::from_slice(&greeting[1..]).unwrap();
+            let key=s.identity.owner_key(&client).unwrap();
+            let context=format!("1234567890abcdef|{}",greeting["nonce"].as_str().unwrap());
+            let writer=Aes256Gcm::new_from_slice(&derive(&key,&format!("c2s|{context}"))).unwrap();
+            exchange(&mut s,address,seal(&writer,1,json!({"type":"auth","client":client}))).await.unwrap();
+            assert!(s.peer.as_ref().unwrap().session.authenticated);
+            let (new_tx,_new_rx)=mpsc::channel(1);let generation=s.notify_generation;
+            assert!(s.begin_notifications(new_tx).await.is_none());
+            assert_eq!(s.notify_generation,generation);
+            assert!(s.peer.as_ref().unwrap().session.authenticated);
+            assert!(exchange(&mut s,bluer::Address::new([9;6]),hello).await.is_err());
+            assert_eq!(s.peer.as_ref().unwrap().session.client.as_ref(),Some(&client));
+        }
     }
 }
