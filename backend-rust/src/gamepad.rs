@@ -314,7 +314,7 @@ impl Input {
         if long_y {
             self.y_hold_triggered = true;
         }
-        let quack_action=if self.neutral_seen {self.quack.update(sample.down(RB)||sample.down(RT),now)} else {None};
+        let quack_action=if self.neutral_seen {self.quack.update(sample.down(RT),now)} else {None};
         if edge(BACK)||edge(B)||long_y||long_start {self.quack=QuackGesture::default();}
         let action = if edge(BACK) {
             Some("estop")
@@ -330,6 +330,10 @@ impl Input {
             Some("stand")
         } else if edge(X) {
             Some("sit")
+        } else if ready && sample.centered() && edge(LB)
+            && sample.keys.iter().zip(BUTTONS).all(|(down,key)|key==LB || !down)
+            && !sample.dpad.iter().any(|down|*down) {
+            Some("demo")
         } else if quack_action.is_some() {
             quack_action
         } else if ready && sample.centered() && sample.dpad[0] && !self.previous.dpad[0] {
@@ -338,8 +342,8 @@ impl Input {
             Some("flamingo")
         } else if ready && sample.centered() && sample.dpad[2] && !self.previous.dpad[2] {
             Some("kick_right")
-        } else if ready && sample.centered() && edge(LB)
-            && sample.keys.iter().zip(BUTTONS).all(|(down, key)| key == LB || !down)
+        } else if ready && sample.centered() && edge(RB)
+            && sample.keys.iter().zip(BUTTONS).all(|(down, key)| key == RB || !down)
             && !sample.dpad.iter().any(|down| *down)
         {
             Some("pick")
@@ -522,7 +526,9 @@ pub fn spawn(app: App, router: Router) {
                         if motion.take_over_policy() {input.drive_armed=true;}
                     }
                     let status=motion.status();
-                    let ready = motion.leased && (status["headReady"] == true || status["flamingoReady"] == true);
+                    let demo_active=status["demoActive"]==true;
+                    if demo_active && !sample.centered() {motion.cancel_demo();input.drive_armed=true;}
+                    let ready = motion.leased && (demo_active || status["headReady"] == true || status["flamingoReady"] == true);
                     if let Some(gesture) = input.update(&sample, ready, diagnostic_only) {
                         let voice=match gesture {"quack_double"=>"double","quack_long"=>"long",_=>"single"};
                         let action=if gesture.starts_with("quack") {"quack"} else {gesture};
@@ -717,15 +723,15 @@ mod tests {
         assert_eq!(input.update(&sample(&[A], [0.; 4]), false, false), Some("stand"));
     }
     #[test]
-    fn lb_pick_requires_ready_centered_fresh_single_press() {
+    fn rb_pick_requires_ready_centered_fresh_single_press() {
         let mut input = Input::default();
-        let lb = sample(&[LB], [0.; 4]);
+        let lb = sample(&[RB], [0.; 4]);
         assert_eq!(input.update(&lb, true, false), None);
         input.update(&Sample::default(), true, false);
         assert_eq!(input.update(&lb, false, false), None);
         assert_eq!(input.update(&lb, true, false), None);
         input.update(&Sample::default(), true, false);
-        assert_eq!(input.update(&sample(&[LB], [1.; 4]), true, false), None);
+        assert_eq!(input.update(&sample(&[RB], [1.; 4]), true, false), None);
         input.update(&Sample::default(), true, false);
         assert_eq!(input.update(&lb, true, false), Some("pick"));
         assert_eq!(input.update(&lb, true, false), None);
@@ -733,11 +739,11 @@ mod tests {
         assert_eq!(input.update(&lb, true, true), None);
     }
     #[test]
-    fn lb_combinations_do_not_trigger_pick() {
-        for other in [A, B, X, Y, RB, RT, LT, START, BACK] {
+    fn rb_combinations_do_not_trigger_pick() {
+        for other in [A, B, X, Y, LB, RT, LT, START, BACK] {
             let mut input = Input::default();
             input.update(&Sample::default(), true, false);
-            assert_ne!(input.update(&sample(&[LB, other], [0.; 4]), true, false), Some("pick"));
+            assert_ne!(input.update(&sample(&[RB, other], [0.; 4]), true, false), Some("pick"));
         }
     }
     #[test]
@@ -840,14 +846,14 @@ mod tests {
         assert_eq!(g.update(false,t+Duration::from_millis(350)),None);
         assert_eq!(g.update(false,t+Duration::from_millis(630)),Some("quack"));
         let mut input=Input::default();input.update_at(&Sample::default(),true,false,t);
-        input.update_at(&sample(&[RB],[0.;4]),true,false,t+Duration::from_millis(10));
+        input.update_at(&sample(&[RT],[0.;4]),true,false,t+Duration::from_millis(10));
         input.update_at(&Sample::default(),true,false,t+Duration::from_millis(20));
         input.update_at(&Sample::default(),true,true,t+Duration::from_millis(30));
         assert_eq!(input.update_at(&Sample::default(),true,false,t+Duration::from_secs(1)),None);
     }
     #[test]
     fn quack_keeps_both_sticks_armed_until_release() {
-        for key in [RB,RT] {
+        for key in [RT] {
             let mut input=Input::default();
             input.update(&Sample::default(),true,false);
             let sticks=sample(&[],[0.4,-0.8,0.6,-0.5]);
@@ -863,14 +869,14 @@ mod tests {
         }
     }
     #[test]
-    fn rt_and_rb_share_one_quack_edge_and_triggers_are_reported() {
+    fn rt_and_lb_share_one_quack_edge_and_triggers_are_reported() {
         let mut input = Input::default();
         input.update(&Sample::default(), false, false);
         let rt = sample(&[RT], [0.; 4]);
         assert_eq!(input.update(&rt, false, false), None);
         assert_eq!(input.update(&rt, false, false), None);
         input.update(&Sample::default(), false, false);
-        assert_eq!(input.update(&sample(&[RB], [0.; 4]), false, false), None);
+        assert_eq!(input.update(&sample(&[LB], [0.; 4]), false, false), None);
         let feedback=input_data("test-pad",Some(&rt));
         assert_eq!(feedback["buttons"]["rt"],true);
         assert_eq!(feedback["buttons"]["lt"],false);
@@ -912,5 +918,14 @@ mod tests {
         assert_eq!(select_axes(&bits,None).unwrap(),[0,1,3,4]);
         assert_eq!(select_axes(&bits,Some([0,1,2,5])).unwrap(),[0,1,2,5]);
         assert!(select_axes(&[0;8],None).is_err());
+    }
+
+    #[test] fn demo_requires_ready_centered_single_edge_and_never_repeats(){
+        let mut i=Input::default();let lb=sample(&[LB],[0.;4]);
+        assert_eq!(i.update(&lb,true,false),None);i.update(&Sample::default(),true,false);
+        assert_eq!(i.update(&lb,false,false),None);i.update(&Sample::default(),true,false);
+        assert_eq!(i.update(&lb,true,false),Some("demo"));assert_eq!(i.update(&lb,true,false),None);
+        i.update(&Sample::default(),true,false);assert_eq!(i.update(&sample(&[LB],[0.5,0.,0.,0.]),true,false),None);
+        i.update(&Sample::default(),true,false);assert_eq!(i.update(&lb,true,true),None);
     }
 }

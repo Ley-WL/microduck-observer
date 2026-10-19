@@ -9,12 +9,14 @@ pub struct Clock {
     pub stage: Stage, pub progress:f32, age:u32, pub held:u32, good:u32,
     pub good_max:u32, settle:u32, pub stand_run:u32, pub aborted:bool, pub cancelled:bool,
     transfer_required:bool, transfer_run:u32, transfer_passed:bool,
+    pose_entry_required:u32, pose_entry_run:u32,
 }
 impl Clock {
     pub fn new(transfer_required:bool)->Self {Self {transfer_required,..Self::default()}}
-    pub fn trigger(&mut self) {let progress=self.progress;let required=self.transfer_required;*self=Self::new(required);self.progress=progress;self.stage=Stage::Enter;}
+    pub fn with_profile(transfer_required:bool,v62b:bool)->Self {Self {pose_entry_required:if v62b {15} else {0},..Self::new(transfer_required)}}
+    pub fn trigger(&mut self) {let progress=self.progress;let required=self.transfer_required;let v62b=self.pose_entry_required>0;*self=Self::with_profile(required,v62b);self.progress=progress;self.stage=Stage::Enter;}
     pub fn cancel(&mut self) {if self.stage!=Stage::Idle {self.stage=Stage::Exit;self.cancelled=true;}}
-    pub fn pause(&mut self) {self.good=0;self.stand_run=0;self.transfer_run=0;}
+    pub fn pause(&mut self) {self.good=0;self.stand_run=0;self.transfer_run=0;self.pose_entry_run=0;}
     pub fn command(&self)->[f32;3] {[if matches!(self.stage,Stage::Enter|Stage::Hold) {1.} else {0.},self.progress,0.035]}
     pub fn done(&self)->bool {self.stage==Stage::Settle && self.settle>=100}
     pub fn step(&mut self,pose:bool,standing:bool) {
@@ -22,6 +24,11 @@ impl Clock {
     }
     pub fn step_with_transfer(&mut self,pose:bool,standing:bool,transfer:bool) {
         let old=self.stage;
+        // v62b counts readiness at the pre-step pose, matching PoseEntryClock.
+        if self.pose_entry_required>0 {
+            self.pose_entry_run=if old==Stage::Enter && self.progress>=1.-1e-5 && pose {self.pose_entry_run+1} else {0};
+        }
+        let entry_pose=pose && (self.pose_entry_required==0 || self.pose_entry_run>=self.pose_entry_required);
         if old==Stage::Enter && self.transfer_required && !self.transfer_passed && self.progress>=0.5-1e-5 {
             self.transfer_run=if transfer {self.transfer_run+1} else {0};
             self.transfer_passed=self.transfer_run>=15;
@@ -32,15 +39,15 @@ impl Clock {
         if old==Stage::Enter && self.transfer_required && !self.transfer_passed {self.progress=self.progress.min(0.5);}
         if self.progress<1e-5 {self.progress=0.;} else if self.progress>1.-1e-5 {self.progress=1.;}
         match old {
-            Stage::Enter if self.progress==1. && pose=>self.stage=Stage::Hold,
-            Stage::Enter if self.age>=150=>{self.stage=Stage::Exit;self.aborted=true;},
+            Stage::Enter if self.progress==1. && entry_pose=>self.stage=Stage::Hold,
+            Stage::Enter if self.age>=if self.pose_entry_required>0 {225} else {150}=>{self.stage=Stage::Exit;self.aborted=true;},
             Stage::Hold=>{self.held+=1;self.good=if pose {self.good+1} else {0};self.good_max=self.good_max.max(self.good);if self.held>=150 {self.stage=Stage::Exit;}},
             Stage::Exit if self.progress==0.=>self.stage=Stage::Settle,
             Stage::Settle=>{self.settle+=1;self.stand_run=if standing {self.stand_run+1} else {0};},
             _=>{},
         }
     }
-    pub fn status(&self)->Value {json!({"stage":format!("{:?}",self.stage),"progress":self.progress,"holdSeconds":self.held as f64*0.02,"longestPoseProxySeconds":self.good_max as f64*0.02,"standingProxySeconds":self.stand_run as f64*0.02,"transferSettleRequired":self.transfer_required,"transferQuietTicks":self.transfer_run,"transferReady":self.transfer_passed,"entryTimedOut":self.aborted,"cancelled":self.cancelled,"physicalAccepted":false,"measurement":"imu-joint-fk-proxy-v1; no contact/root velocity sensor"})}
+    pub fn status(&self)->Value {json!({"stage":format!("{:?}",self.stage),"progress":self.progress,"holdSeconds":self.held as f64*0.02,"longestPoseProxySeconds":self.good_max as f64*0.02,"standingProxySeconds":self.stand_run as f64*0.02,"transferSettleRequired":self.transfer_required,"transferQuietTicks":self.transfer_run,"transferReady":self.transfer_passed,"poseEntryReadyTicks":self.pose_entry_run,"poseEntryRequiredTicks":self.pose_entry_required,"entryTimeoutSeconds":if self.pose_entry_required>0 {4.5} else {3.},"entryTimedOut":self.aborted,"cancelled":self.cancelled,"physicalAccepted":false,"measurement":"imu-joint-fk-proxy-v1; no contact/root velocity sensor"})}
 }
 fn vec(v:&Value)->Vector3<f64> {Vector3::new(v[0].as_f64().unwrap(),v[1].as_f64().unwrap(),v[2].as_f64().unwrap())}
 fn rot(v:&Value)->Matrix3<f64> {UnitQuaternion::new_normalize(Quaternion::new(v[0].as_f64().unwrap(),v[1].as_f64().unwrap(),v[2].as_f64().unwrap(),v[3].as_f64().unwrap())).to_rotation_matrix().into_inner()}
@@ -133,6 +140,39 @@ pub fn benchmark_fixture(path:&std::path::Path)->anyhow::Result<Value> {
 }
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn v62b_matches_published_python_clock_on_every_operation() {
+        let traces:Value=serde_json::from_str(include_str!("../tests/fixtures/rear-v62b-clock.json")).unwrap();
+        for trace in traces.as_array().unwrap() {
+            let mut c=Clock::with_profile(true,true);c.trigger();
+            for (tick,row) in trace["rows"].as_array().unwrap().iter().enumerate() {
+                match row[0].as_str().unwrap() {
+                    "pause"=>c.pause(),"cancel"=>c.cancel(),"trigger"=>c.trigger(),
+                    "step"=>c.step_with_transfer(row[1].as_bool().unwrap(),row[2].as_bool().unwrap(),row[3].as_bool().unwrap()),
+                    other=>panic!("Unknown operation {other}"),
+                }
+                let stage=match c.stage {Stage::Idle=>0,Stage::Enter=>1,Stage::Hold=>2,Stage::Exit=>3,Stage::Settle=>4};
+                assert_eq!(stage,row[4].as_u64().unwrap(),"{} tick {tick}",trace["scenario"]);
+                assert!((c.progress as f64-row[5].as_f64().unwrap()).abs()<1e-6,"{} tick {tick}",trace["scenario"]);
+                for (actual,index) in [(c.held,6),(c.good_max,7),(c.stand_run,8),(c.pose_entry_run,11)] {
+                    assert_eq!(actual as u64,row[index].as_u64().unwrap(),"{} tick {tick} field {index}",trace["scenario"]);
+                }
+                assert_eq!(c.aborted,row[9].as_bool().unwrap());assert_eq!(c.cancelled,row[10].as_bool().unwrap());
+            }
+        }
+    }
+    #[test] fn v62b_requires_fifteen_fresh_pose_samples_and_preserves_full_hold() {
+        let mut c=Clock::with_profile(true,true);c.trigger();c.progress=1.;c.transfer_passed=true;
+        for _ in 0..14 {c.step(true,false);assert_eq!(c.stage,Stage::Enter);}
+        c.pause();assert_eq!(c.pose_entry_run,0);
+        for _ in 0..14 {c.step(true,false);assert_eq!(c.stage,Stage::Enter);}
+        c.step(false,false);assert_eq!(c.pose_entry_run,0);
+        for _ in 0..15 {c.step(true,false);}
+        assert_eq!(c.stage,Stage::Hold);assert_eq!(c.held,0);
+        for _ in 0..149 {c.step(true,false);assert_eq!(c.stage,Stage::Hold);}
+        c.step(true,false);assert_eq!(c.stage,Stage::Exit);assert_eq!(c.good_max,150);
+        let mut c=Clock::with_profile(true,true);c.trigger();for _ in 0..224 {c.step(false,false);}
+        assert_eq!(c.stage,Stage::Enter);c.step(false,false);assert!(c.aborted);
+    }
     #[test] fn gated_entry_waits_for_fifteen_quiet_samples_before_lifting() {
         let mut c=Clock::new(true);c.trigger();
         for _ in 0..60 {c.step_with_transfer(false,false,false);}

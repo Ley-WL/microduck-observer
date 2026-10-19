@@ -1,0 +1,2090 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261019-flamingo-official",
+  "previous": "/home/radxa/microduck-observer/releases/runtime-20261019-rear-v62b",
+  "modelSha256": "df77929c39d7695092bdaf810c2075e20a9ba91abd8192b4073d3de593d56904",
+  "gainsPreserved": true,
+  "calibrationJointsPreserved": true,
+  "allModelsAvailable": true,
+  "safeSnapshots": 20,
+  "physicalMotionTested": false,
+  "snapshot": {
+    "calibration": {
+      "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+      "deviceId": "8b836c70-67ce-415f-85f1-0988457c970c",
+      "imu": {
+        "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+        "initialized": true,
+        "mountingQuaternion": [
+          -0.003495033130494902,
+          -0.6972485273439862,
+          0.006515681407895303,
+          0.7167913376679786
+        ],
+        "quaternion": [
+          0.0008674709975407531,
+          -0.022806439320914963,
+          -0.3594184511969562,
+          0.9328973634643583
+        ],
+        "targetQuaternion": [
+          0,
+          -0.7071067811865476,
+          0,
+          0.7071067811865476
+        ],
+        "time": "2026/10/18 18:18:47",
+        "validForBoot": true
+      },
+      "joints": {
+        "directions": {},
+        "initialized": true,
+        "references": {
+          "10": 2048,
+          "11": 2021,
+          "12": 2071,
+          "13": 1957,
+          "14": 1958,
+          "20": 2064,
+          "21": 2064,
+          "22": 2019,
+          "23": 2108,
+          "24": 2078,
+          "30": 2048,
+          "31": 2084,
+          "32": 2048,
+          "33": 2048,
+          "34": 2048
+        }
+      },
+      "mounting": {
+        "positionMm": [
+          -25.324151149883384,
+          -0.6453469003598195,
+          -15.100708759810178
+        ],
+        "yaw": 0
+      },
+      "revision": 34,
+      "schema": 1,
+      "updatedAt": 1792393825522
+    },
+    "gamepad": {
+      "ageMs": 6.224166999999852,
+      "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+      "data": {
+        "axes": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "buttons": {
+          "a": false,
+          "b": false,
+          "back": false,
+          "down": false,
+          "lb": false,
+          "left": false,
+          "lt": false,
+          "rb": false,
+          "right": false,
+          "rt": false,
+          "start": false,
+          "up": false,
+          "x": false,
+          "y": false
+        },
+        "connected": true,
+        "device": "Xbox Wireless Controller"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2593.786094,
+      "seq": 64,
+      "source": "hardware",
+      "topic": "gamepad",
+      "type": "sample",
+      "valid": true
+    },
+    "imu.orientation": {
+      "ageMs": 37.776378999999906,
+      "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+      "data": {
+        "accuracy": null,
+        "calibrationId": null,
+        "device": "MS901M",
+        "frame": "sensor",
+        "mountingCalibrated": false,
+        "quaternion": [
+          -0.0084228515625,
+          0.0003662109375,
+          0.894287109375,
+          0.447357177734375
+        ],
+        "timestampBasis": "host_receive"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2562.268007,
+      "seq": 38,
+      "source": "hardware",
+      "topic": "imu.orientation",
+      "type": "sample",
+      "valid": true
+    },
+    "imu.raw": {
+      "ageMs": 37.80233700000008,
+      "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+      "data": {
+        "accel": [
+          -0.16639701538085935,
+          -0.07541735229492187,
+          9.79946739501953
+        ],
+        "accelAccuracy": null,
+        "accelUnit": "m/s\u00b2",
+        "device": "MS901M",
+        "frame": "sensor",
+        "gyro": [
+          0.0010652644360316954,
+          -0.0021305288720633907,
+          0.0010652644360316954
+        ],
+        "gyroAccuracy": null,
+        "gyroUnit": "rad/s",
+        "timestampBasis": "host_receive"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2562.268007,
+      "seq": 8,
+      "source": "hardware",
+      "topic": "imu.raw",
+      "type": "sample",
+      "valid": true
+    },
+    "joints": {
+      "ageMs": 28.456169000000045,
+      "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+      "data": {
+        "configuredIds": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "diagnostics": {
+          "checksumErrors": 0,
+          "discardedBeforeRead": 0,
+          "discardedBeforeReadHex": "",
+          "discardedBytes": 0,
+          "elapsedMs": 4.541542,
+          "feedbackTargetHz": 15,
+          "kind": "read",
+          "missingIds": [],
+          "mono": 2.568288008,
+          "observedScanHz": 14.432179971836794,
+          "pendingHex": "",
+          "profileMissingIds": [],
+          "readAddress": 56,
+          "readLength": 15,
+          "receivedIds": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            20,
+            21,
+            22,
+            23,
+            24,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          "rejectedFrames": [],
+          "replyBudgetMs": 30.0,
+          "requestedIds": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            20,
+            21,
+            22,
+            23,
+            24,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          "rxBytes": 315,
+          "rxHex": "ffff0a11002c080000000049230000002c0803000dffff0b1100cd06000000004a22000000cd060400cdffff0c11006308000000004a23000000630803009cffff0d11001409000000004a220000001409020039ffff0e1100e20a000000004a22000000e20a02009affff141100cd07000000004a23000000cd070400c1ffff15110095080000000049220000009508040030ffff1611008807000000004922000000880704004bffff171100ec06000000004922000000ec06040084ffff181100d904000000004922000000d9040300aeffff1e1100d206000000004924000000d2060500aeffff1f11005406000000004a2300000054060400aaffff2011001708000000004a2900000017083b8062ffff21110003080000000049250000000308030046ffff2211000f08000000004a2b0000000f08040025",
+          "txDrainMs": 0.0,
+          "txHex": "fffffe1382380f0a0b0c0d0e14151617181e1f202122db"
+        },
+        "error": "",
+        "readMode": "sync-read",
+        "scanMs": 4.541542,
+        "servos": [
+          {
+            "accelerationRaw": 0,
+            "ageMs": 4.534833000000127,
+            "angle": null,
+            "currentRaw": 3,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 1964,
+            "id": 10,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 2092,
+            "profileAgeMs": 472.44521399999996,
+            "profileFresh": false,
+            "readMs": 0.8779159999999999,
+            "speedLimitRaw": 0,
+            "target": 2092,
+            "temperature": 35,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.3
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 4.375000000000018,
+            "angle": null,
+            "currentRaw": 4,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 1808,
+            "id": 11,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 1741,
+            "profileAgeMs": 471.9514220000001,
+            "profileFresh": false,
+            "readMs": 1.03775,
+            "speedLimitRaw": 0,
+            "target": 1741,
+            "temperature": 34,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 3.9937920000001625,
+            "angle": null,
+            "currentRaw": 3,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 1835,
+            "id": 12,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 2147,
+            "profileAgeMs": 471.52792199999993,
+            "profileFresh": false,
+            "readMs": 1.41925,
+            "speedLimitRaw": 0,
+            "target": 2147,
+            "temperature": 35,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 3.7499580000002197,
+            "angle": null,
+            "currentRaw": 2,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 1974,
+            "id": 13,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 2324,
+            "profileAgeMs": 471.11258900000007,
+            "profileFresh": false,
+            "readMs": 1.6627910000000001,
+            "speedLimitRaw": 0,
+            "target": 2324,
+            "temperature": 34,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 3.5600829999999917,
+            "angle": null,
+            "currentRaw": 2,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2374,
+            "id": 14,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 2786,
+            "profileAgeMs": 470.62783799999994,
+            "profileFresh": false,
+            "readMs": 1.852958,
+            "speedLimitRaw": 0,
+            "target": 2786,
+            "temperature": 34,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 3.2800829999999337,
+            "angle": null,
+            "currentRaw": 4,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2050,
+            "id": 20,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 1997,
+            "profileAgeMs": 470.22796300000016,
+            "profileFresh": false,
+            "readMs": 2.132666,
+            "speedLimitRaw": 0,
+            "target": 1997,
+            "temperature": 35,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 3.0522909999999293,
+            "angle": null,
+            "currentRaw": 4,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2046,
+            "id": 21,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 2197,
+            "profileAgeMs": 469.8382969999999,
+            "profileFresh": false,
+            "readMs": 2.3604580000000004,
+            "speedLimitRaw": 0,
+            "target": 2197,
+            "temperature": 34,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.3
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 2.7559579999998363,
+            "angle": null,
+            "currentRaw": 4,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2336,
+            "id": 22,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 1928,
+            "profileAgeMs": 469.51833799999986,
+            "profileFresh": false,
+            "readMs": 2.656792,
+            "speedLimitRaw": 0,
+            "target": 1928,
+            "temperature": 34,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.3
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 2.496958000000049,
+            "angle": null,
+            "currentRaw": 4,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2201,
+            "id": 23,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 1772,
+            "profileAgeMs": 469.0178380000001,
+            "profileFresh": false,
+            "readMs": 2.915792,
+            "speedLimitRaw": 0,
+            "target": 1772,
+            "temperature": 34,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.3
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 2.221625000000227,
+            "angle": null,
+            "currentRaw": 3,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 1231,
+            "id": 24,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 1241,
+            "profileAgeMs": 468.633713,
+            "profileFresh": false,
+            "readMs": 3.191125,
+            "speedLimitRaw": 0,
+            "target": 1241,
+            "temperature": 34,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.3
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 1.8838749999998683,
+            "angle": null,
+            "currentRaw": 5,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2108,
+            "id": 30,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 1746,
+            "profileAgeMs": 468.07517200000024,
+            "profileFresh": false,
+            "readMs": 3.5288749999999998,
+            "speedLimitRaw": 0,
+            "target": 1746,
+            "temperature": 36,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.3
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 1.6269160000002003,
+            "angle": null,
+            "currentRaw": 4,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 1883,
+            "id": 31,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 1620,
+            "profileAgeMs": 467.57058800000004,
+            "profileFresh": false,
+            "readMs": 3.7858330000000002,
+            "speedLimitRaw": 0,
+            "target": 1620,
+            "temperature": 35,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 1.353625000000136,
+            "angle": null,
+            "currentRaw": -59,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 1693,
+            "id": 32,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 2071,
+            "profileAgeMs": 467.30983800000024,
+            "profileFresh": false,
+            "readMs": 4.059125,
+            "speedLimitRaw": 0,
+            "target": 2071,
+            "temperature": 41,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 1.1509160000002794,
+            "angle": null,
+            "currentRaw": 3,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2049,
+            "id": 33,
+            "kdRaw": 0,
+            "kiRaw": 0,
+            "kpRaw": 5,
+            "load": 0,
+            "online": true,
+            "position": 2051,
+            "profileAgeMs": 466.64454599999993,
+            "profileFresh": false,
+            "readMs": 4.261832999999999,
+            "speedLimitRaw": 0,
+            "target": 2051,
+            "temperature": 37,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.3
+          },
+          {
+            "accelerationRaw": 0,
+            "ageMs": 0.8986250000000418,
+            "angle": null,
+            "currentRaw": 4,
+            "fault": 0,
+            "goalCurrentRaw": 0,
+            "goalPositionRaw": 2105,
+            "id": 34,
+            "kdRaw": 20,
+            "kiRaw": 0,
+            "kpRaw": 10,
+            "load": 0,
+            "online": true,
+            "position": 2063,
+            "profileAgeMs": 466.4077130000002,
+            "profileFresh": false,
+            "readMs": 4.514125,
+            "speedLimitRaw": 0,
+            "target": 2063,
+            "temperature": 43,
+            "torque": 0,
+            "torqueLimitRaw": 1000,
+            "velocityRaw": 0,
+            "voltage": 7.4
+          }
+        ],
+        "targetHz": 15
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2572.0193,
+      "seq": 38,
+      "source": "hardware",
+      "topic": "joints",
+      "type": "sample",
+      "valid": true
+    },
+    "logs": {
+      "ageMs": 2488.614292,
+      "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+      "data": {
+        "eventTimeMs": 1792393825348,
+        "level": "INFO",
+        "message": "\u624b\u67c4\u5df2\u8fde\u63a5\uff1b\u957f\u6309 Y \u8d77\u8eab\uff0c\u8d77\u8eab\u5c31\u7eea\u540e\u56de\u4e2d\u5373\u53ef\u76f4\u63a5\u7528\u6447\u6746\u63a7\u5236",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 111.881886,
+      "seq": 2,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    "system": {
+      "ageMs": 576.8053080000002,
+      "bootId": "365ae858-bbe1-46f4-8a4b-a9fcdfd51704",
+      "data": {
+        "imu": {
+          "address": null,
+          "baud": 115200,
+          "checksumErrors": 0,
+          "counts": {
+            "accel": 0,
+            "gyro": 0,
+            "quaternion": 24
+          },
+          "device": "/dev/ttyS9",
+          "droppedEvents": 0,
+          "frames": {
+            "01": 325,
+            "02": 24,
+            "03": 24,
+            "06": 324
+          },
+          "ioErrors": 0,
+          "model": "MS901M",
+          "mountingCalibrated": false,
+          "observedHz": {
+            "accel": 0.0,
+            "gyro": 0.0,
+            "quaternion": 14.767099799486411
+          },
+          "processingTargetHz": 15,
+          "productId": null,
+          "rangeState": "unknown",
+          "ranges": {
+            "accelG": null,
+            "gyroDps": null
+          },
+          "rateMode": "idle",
+          "readerTiming": {
+            "lastSerialReadMs": 0.064167,
+            "maxPublishLockWaitMs": 88.950467,
+            "maxReadGapMs": 89.19313399999999,
+            "maxSerialReadMs": 0.753083,
+            "receivedBytes": 17552,
+            "timestampBasis": "host_receive"
+          },
+          "sampleAgeMs": 62.684713999999985,
+          "sensorRateChanged": false,
+          "state": "streaming",
+          "unparsedReports": 0
+        },
+        "resources": {
+          "board": {
+            "architecture": "aarch64",
+            "hostname": "microduck-e6fc56",
+            "kernel": "6.1.115-vendor-rk35xx",
+            "model": "Radxa ZERO 3",
+            "os": "Armbian 26.2.1 trixie",
+            "release": "runtime-20261019-flamingo-official",
+            "serviceVersion": "0.9.1"
+          },
+          "boardUptimeSeconds": 8912.74,
+          "cpuFrequency": {
+            "cores": [
+              {
+                "core": 0,
+                "governor": "ondemand",
+                "maxMHz": 1800.0,
+                "mhz": 816.0
+              },
+              {
+                "core": 1,
+                "governor": "ondemand",
+                "maxMHz": 1800.0,
+                "mhz": 816.0
+              },
+              {
+                "core": 2,
+                "governor": "ondemand",
+                "maxMHz": 1800.0,
+                "mhz": 816.0
+              },
+              {
+                "core": 3,
+                "governor": "ondemand",
+                "maxMHz": 1800.0,
+                "mhz": 816.0
+              }
+            ],
+            "governor": "ondemand"
+          },
+          "cpuUsagePercent": 15.98984771573604,
+          "intervalMs": 2000,
+          "memory": {
+            "availableBytes": 830574592,
+            "totalBytes": 1009864704,
+            "usagePercent": 17.753874483368417,
+            "usedBytes": 179290112
+          },
+          "sampleMonoMs": 2009.33941,
+          "temperature": {
+            "celsius": 80.555,
+            "sensor": "soc-thermal"
+          }
+        },
+        "scenario": null,
+        "service": {
+          "release": "runtime-20261019-flamingo-official",
+          "version": "0.9.1"
+        },
+        "servoControl": {
+          "message": "\u7b49\u5f85\u64cd\u4f5c",
+          "state": "idle"
+        },
+        "tof": {
+          "ageMs": null,
+          "error": "No such file or directory (os error 2)",
+          "hz": 0,
+          "state": "offline"
+        },
+        "uptimeSeconds": 2.023609203
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 2023.8078279999997,
+      "seq": 3,
+      "source": "hardware",
+      "topic": "system",
+      "type": "sample",
+      "valid": true
+    }
+  },
+  "policy": {
+    "available": true,
+    "control": {
+      "message": "\u7b49\u5f85\u64cd\u4f5c",
+      "state": "idle"
+    },
+    "controlHz": 50,
+    "kind": "xgoduck",
+    "metadata": {
+      "actionDim": 14,
+      "actionSemantics": "HOME + 0.9 * raw policy action; head/leg target filter new weights 0.5/0.7; first target passthrough",
+      "actorObservationDim": 61,
+      "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+      "artifactType": "training-policy",
+      "bodyGroundContactMeshes": 68,
+      "controlHz": 50,
+      "deploymentProvenance": {
+        "commit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+        "formalAcceptancePassed": false,
+        "sourceIteration": 9599,
+        "torqueLimitTransferred": false,
+        "upstreamTorqueLimitDefault": 681,
+        "userRequested": true
+      },
+      "gainBaseline": 5,
+      "geometry": "Donor HD1910 VelStand rough backlash policy, transferred to local MicroDuck calibration",
+      "hardwareValidated": false,
+      "homeRadians": [
+        0.0,
+        -0.0873,
+        -0.4579,
+        -0.0049,
+        0.453,
+        0.3491,
+        0.3491,
+        0.0,
+        0.0,
+        0.0,
+        0.0873,
+        0.4579,
+        0.0049,
+        -0.453
+      ],
+      "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
+      "jointOrder": [
+        "left_hip_yaw",
+        "left_hip_roll",
+        "left_hip_pitch",
+        "left_knee",
+        "left_ankle",
+        "neck_pitch",
+        "head_pitch",
+        "head_yaw",
+        "head_roll",
+        "right_hip_yaw",
+        "right_hip_roll",
+        "right_hip_pitch",
+        "right_knee",
+        "right_ankle"
+      ],
+      "nominalTrunkHeightM": 0.11718236219874864,
+      "observationNormalization": "baked into ONNX by upstream exporter",
+      "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+      "runtimeActionAlpha": null,
+      "runtimeKind": "xgoduck",
+      "simulationMassKg": 0.7372431799999999,
+      "source": "https://github.com/kissqy/Microduck-kissqy/tree/94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+      "task": "Mjlab-VelStand-Rough-Backlash-MicroDuck",
+      "transferBoundary": "Local IDs/calibration and protections retained; donor P3/D0 for walk only; donor torque limit681 not imported; not validated in hardware.",
+      "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions",
+      "walkExecution": {
+        "actionScale": 0.9,
+        "gainSource": "R17 management defaults; upstream may be overridden by saved servo-test-parameters.json",
+        "gains": {
+          "d": 0,
+          "p": 3
+        },
+        "headNewWeight": 0.5,
+        "legsNewWeight": 0.7,
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "schema": "kissqy-r17-v1"
+      }
+    },
+    "models": [
+      {
+        "available": true,
+        "kind": "xgoduck",
+        "metadata": {
+          "actionDim": 14,
+          "actionSemantics": "HOME + 0.9 * raw policy action; head/leg target filter new weights 0.5/0.7; first target passthrough",
+          "actorObservationDim": 61,
+          "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+          "artifactType": "training-policy",
+          "bodyGroundContactMeshes": 68,
+          "controlHz": 50,
+          "deploymentProvenance": {
+            "commit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+            "formalAcceptancePassed": false,
+            "sourceIteration": 9599,
+            "torqueLimitTransferred": false,
+            "upstreamTorqueLimitDefault": 681,
+            "userRequested": true
+          },
+          "gainBaseline": 5,
+          "geometry": "Donor HD1910 VelStand rough backlash policy, transferred to local MicroDuck calibration",
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "nominalTrunkHeightM": 0.11718236219874864,
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+          "runtimeActionAlpha": null,
+          "runtimeKind": "xgoduck",
+          "simulationMassKg": 0.7372431799999999,
+          "source": "https://github.com/kissqy/Microduck-kissqy/tree/94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+          "task": "Mjlab-VelStand-Rough-Backlash-MicroDuck",
+          "transferBoundary": "Local IDs/calibration and protections retained; donor P3/D0 for walk only; donor torque limit681 not imported; not validated in hardware.",
+          "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions",
+          "walkExecution": {
+            "actionScale": 0.9,
+            "gainSource": "R17 management defaults; upstream may be overridden by saved servo-test-parameters.json",
+            "gains": {
+              "d": 0,
+              "p": 3
+            },
+            "headNewWeight": 0.5,
+            "legsNewWeight": 0.7,
+            "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+            "schema": "kissqy-r17-v1"
+          }
+        },
+        "policy": "xgoduck_walk",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "xgoduck_getup",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 0.55,
+          "actionEmaOldWeight": 0.45,
+          "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
+          "actorObservationDim": 61,
+          "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+          "artifactType": "training-policy",
+          "assembledBodyGroundContactMeshes": 68,
+          "bodyGroundContactMeshes": 68,
+          "controlHz": 50,
+          "formalAcceptance": false,
+          "gainBaseline": 5,
+          "geometry": "replica STL, body-floor contacts, current kissqy mechanical stops",
+          "getupMinSeconds": 3,
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "identifiedCommandDelaySeconds": 0.006005265953265889,
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "lastActionObservation": "raw policy output before EMA, clipping and encoding",
+          "mechanicalExecutionContract": "kissqy-mechanical-ema045-rawhistory-encoder4096-v1",
+          "mechanicalPhysicalJointLimitsRadians": {
+            "head_pitch": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "head_roll": [
+              -0.3490658503988659,
+              0.3490658503988659
+            ],
+            "head_yaw": [
+              -2.9670597283903604,
+              2.9670597283903604
+            ],
+            "left_ankle": [
+              -1.2217304763960306,
+              1.2217304763960306
+            ],
+            "left_hip_pitch": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "left_hip_roll": [
+              -0.3839724354387525,
+              0.3839724354387525
+            ],
+            "left_hip_yaw": [
+              -0.4363323129985824,
+              0.5235987755982988
+            ],
+            "left_knee": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "neck_pitch": [
+              -1.5707963267948966,
+              1.2217304763960306
+            ],
+            "right_ankle": [
+              -1.2217304763960306,
+              1.2217304763960306
+            ],
+            "right_hip_pitch": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "right_hip_roll": [
+              -0.3839724354387525,
+              0.3839724354387525
+            ],
+            "right_hip_yaw": [
+              -0.5235987755982988,
+              0.4363323129985824
+            ],
+            "right_knee": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ]
+          },
+          "nominalSeatedTrunkHeightM": 0.062396494608470326,
+          "nominalTrunkHeightM": 0.11504956315901835,
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "4b9c82e5bbd003a465b9bf861d4e7020014e7781d311f3780001e5257a588838",
+          "robotSourceHashes": {
+            "additional.xml": "8b9d0aae3f63f1928cd1efee63e6cc3e409e73d0c538a4a1fd71f56739d1d8ed",
+            "assets/ankle_l_v1.stl": "70ecf0629559e3edf8f194f286a5fa0bd0ef77b75429b5f24f8bae70c7aa7446",
+            "assets/ankle_left.stl": "98f14ba6e6cd138740aa822a615aaa0db34527d499c40b2379aacd13427a1379",
+            "assets/ankle_r_v1.stl": "e3f277879aa6eb24e118795f4d8d8525acab9192c202a569d1403408ec656754",
+            "assets/ankle_right.stl": "836032fdeaa4b1f47f75cb24fa4ad9ebdb09acec158a0d787b3890c6dc4d4c6e",
+            "assets/banana_pcb_locker.stl": "a176364f824248b5156b37f2fd5c6b8bdfb24cd08be7ed6b3faa10b4db14a9cb",
+            "assets/bearing_roll.stl": "2b30cbdb110c5cca7092a9b2658c9e899e294bf2df71635828858e1d1a20abfe",
+            "assets/bottom_head_shell.stl": "3ce9532854a712c93e00e0fd2bbc2ce6b1c45f9418fd29d6e82f6ad8af8fc1af",
+            "assets/elec_rpi_robot_hat_pcb.stl": "45b904bcb378161d274d313cd067d3967305db0bf22c0955530145e18cdd2cd8",
+            "assets/face_part.stl": "30eaa56fc38129ba16e2b4e247ac419b0ae9e5b0fe9e748697f4838d338b952e",
+            "assets/foot_left.stl": "5de2622a7b894e0fc9988dc6cff6579ee1dc818ffaddd0319f49cf5d5bd05587",
+            "assets/foot_right.stl": "8ffa894b29578edc78f5e982a7d89a8f5e4fa1dc27232b88c22a8a0a74cfbaa7",
+            "assets/hip_l.stl": "02bc777ce76a31b3d5c415188f8268b989f4eca57bc440a2900825ac459dec38",
+            "assets/jaw.stl": "65c300349113d3c6cd4a2cc587f76f7228115565a854492e42358ba8df71796a",
+            "assets/jaw_soft.stl": "61a426890f748713d45a9c0844149bcb0340d326f75295dcf7de2a4d768cbc85",
+            "assets/left_shell.stl": "efc16f55a4c32d21d74bf834faba27346788f154e29b40850cbcc69fda2f2396",
+            "assets/left_upper_leg.stl": "b84e46d681cb971029e421c252de85e2f31e8858abee610dc26cd18037ef0224",
+            "assets/leg.stl": "b57d55ec2504dfb90b07bfc781dbf9b4bb6560becaf1dddbadd6a3914fdc423f",
+            "assets/lens.stl": "1549b2dad784d1a4c505c1ca62bffce6ca4e9b22c9273b37d6cda1c8bf2ca127",
+            "assets/m12_lens_holder.stl": "7a9989bbe776ddd7a268013e63cdf0efc2fdae245ad2754a6b18d6bfbe21c2ed",
+            "assets/motor_support.stl": "5a741ee0dc71b349b8d6def4bffb826c4b9304c47cf0f00ffd1a3140b9205220",
+            "assets/neck.stl": "ee5d4cbc51f64c43cd9c15f82709be93b5bd3f080013726d1d39c329c85050b9",
+            "assets/neck_pitch.stl": "b9aed695e03da3819d244ecc66f1ad2d3c5c435f759403bb9e0f3b9ca2876453",
+            "assets/noenoeil.stl": "f5492d8291da053bb4cb3f6680f90507648c4cfe1ef59f92b7d8f53e980d279b",
+            "assets/np_f970.stl": "979ca81251d4ec5862b6c987b46095aa07d0534ca1ec15f3cf438bbf7189deda",
+            "assets/pcb__raspberry_pi_zero_2_w.stl": "0608b3cc7d15e479ae3a275c03096df44322ed06a8dbfc59fe790c46b3690753",
+            "assets/power_support.stl": "cb43ba9351f51559f49ffc89679478288cfe6e9682b31898397406165b520cbe",
+            "assets/right_shell.stl": "484779f2bbe856f212d96a152550bb6834fd3c69603da315b6f70d1a3766d120",
+            "assets/right_upper_leg.stl": "208f4c94a94a9c6b978030ea194440a94a0508390cf5b0ce8efc5e560f559f21",
+            "assets/rim.stl": "c2a84cd05ed8ce87bbdd64950bca415ba5945641385f5ec7cdbb161aa37281a4",
+            "assets/roller_blade.stl": "7b13447a82624d952e958d83572ed0c6e610d595db1f7f60217b6c8f059fec15",
+            "assets/seeed_bearing__configuration__22x16x4.stl": "154412afeab1875acfc8bbd437f193f02c86cdd6a556395db10bb7126c545c6e",
+            "assets/seeed_bearing__configuration_default.stl": "4d0d4c174a167e5f783b52b212a14a5bbd8a3180988c744c299c330a6b3de448",
+            "assets/soft_mouth_top.stl": "16f662c82bd3e24f0e64ee22b6b549b9a2a76f6de7b7477b9f89f5861f3e91a1",
+            "assets/sole_left.stl": "db35f3b231c075fe1f9cb5449e7a698fb8ea97362daf8432be3e9700c2067574",
+            "assets/sole_right.stl": "a4f5c114aae7137d559cacfb71d77c981588850335de5a09a14f95a4192a218f",
+            "assets/speaker.stl": "694064a99dbecd48aea6122232ff1051b085e59ccbd4c53d8c32640105b4e826",
+            "assets/tire.stl": "9f680806474bcfaa5b0a1db5b008578ccbedb33b60a39221c494cbff409033c9",
+            "assets/top_head_shell.stl": "bc64288c0d54e13ec907256c2b99535937d370af1410de498905ec3cf8d7c3df",
+            "assets/trunk_base.stl": "fabfecefb73fbdc027e0fc8fc482a3857b86682a8dac0ca2ed88ae3011c01659",
+            "assets/trunk_shell_left.stl": "508bf1436c09bb5acb27568b157477f74ccd985f5cb0911a0d0e25d178882772",
+            "assets/trunk_shell_right.stl": "d5761d6995bfc175ddf429bab8ee2fab2fa9dea1ff52da30531a3b79be1c730e",
+            "assets/upper_leg_left.stl": "b84e46d681cb971029e421c252de85e2f31e8858abee610dc26cd18037ef0224",
+            "assets/upper_leg_right.stl": "d6ed49dc77a539c65b9db1251f16b1e037f5ccf4334607e487dd624f9e12f59e",
+            "assets/upper_leg_rigidity_plate.stl": "41a4f826b5badfb75a1c0a6d26527c49761de88597d67c25ad731df2cdab7995",
+            "assets/xl330.stl": "c9f6bf7dd9d8b307a4174b40ff12517b3ea470e5535319a5b7dcce4ba52cdfe1",
+            "assets/yaw2roll.stl": "56ce1110e43c2279c6580f79a2a8c9e3f91b3bf5cdf8cf00b1caa3cab127a6a7",
+            "assets/yaw_roll_motion.stl": "41149f07f2fb4f2c62b589b3e43c17bedbc57e17d2de5d4e22c4f4e4d3e73dc7",
+            "ball.xml": "4d24770bd3383a5be0d5085e10e615ce79c681a349aacee9e867db644631e124",
+            "joints_properties.xml": "025c047a438ce66a9da0ab6ec1d406b2ca41e647eabe51ea5aaed43ae9948361",
+            "robot_allcollisions.xml": "4ebaee343406fd383b44a9e16902ffa70efa9719482a695990fce77b006620ef",
+            "robot_allcollisions_backlash.xml": "a1b0ca034007dab998f068f29f931906a511323cac1af1420cda61c4b8451b63",
+            "robot_allcollisions_rollers.xml": "ae843837e70d0e250816a3c655a7f2f94ad599876c61f2c4ae06ceec7018c022",
+            "robot_allcollisions_rollers_backlash.xml": "55f742de810665e5d0839137ae2022a0c2ba190b7eb0720acaee888bf0e69102",
+            "robot_walk.xml": "649c66cc5f8e93da68b8b616ce321b1eb731080880d04102757c6cda1612b6f7",
+            "robot_walk_backlash.xml": "9a670739398e8ff64622f70dbde360fc06be5f8d87c853b07f71ae9f0328cdc5",
+            "scene.xml": "f5dabec37b82929cd8f04d5d86399a707391b62b24bb7b44afa92eb249ad0a10",
+            "scene_backlash.xml": "e7b8806c702906dcc76f6ea2cf21bdd25ac31f528246f95e4d028c1f7a875a9b",
+            "scene_ball.xml": "b10bf4deb30469c7199baad1f28a9f15cd37a818e127fd00eae4a71e9ea9a35e",
+            "scene_rollers.xml": "675119040bd937c46deb94ee1b5ecf7adb98a51a1b9a951c3f42f1ea0ee2bd5f",
+            "scene_walk.xml": "61cc5af86fc56894ad28e6a35634f93d16dda259eedd118e2980b663037efa6d",
+            "scene_walk_backlash.xml": "28ba490055680336408c8368acdd6927dffce1a178969503b772db283f029bd2",
+            "sensors.xml": "ef2628d8eee75fcfe3a5e7db30cb5bc8f1f23c4f51cf5fd12d252815b4f67b5b"
+          },
+          "runtimeActionAlpha": 0.45,
+          "runtimeKind": "hd1910_getup",
+          "simulation": {
+            "controlTimestepSeconds": 0.02,
+            "disableflags": [],
+            "enableflags": [],
+            "integrator": "implicitfast",
+            "lineSearchIterations": 50,
+            "physicsTimestepSeconds": 0.005,
+            "solverIterations": 30
+          },
+          "simulationMassKg": 0.7372431799999999,
+          "sitJointOverrides": {
+            "1": 0.0,
+            "10": 0.0,
+            "11": 0.4079,
+            "12": -1.35,
+            "13": 0.0,
+            "2": -0.4079,
+            "3": 1.35,
+            "4": 0.0
+          },
+          "skillKind": "getup",
+          "skillPhysicsRevision": "getup-kissqy-mechanical-v1",
+          "spawnPoseAnglesDeg": {
+            "inverted": [
+              180,
+              0
+            ],
+            "left_side": [
+              -90,
+              0
+            ],
+            "oblique": [
+              70,
+              45
+            ],
+            "prone": [
+              0,
+              90
+            ],
+            "right_side": [
+              90,
+              0
+            ],
+            "sit": [
+              0,
+              0
+            ],
+            "stand": [
+              0,
+              0
+            ],
+            "supine": [
+              0,
+              -90
+            ]
+          },
+          "targetEncoderDirections": {
+            "10": -1,
+            "11": -1,
+            "12": -1,
+            "13": -1,
+            "14": -1,
+            "20": -1,
+            "21": -1,
+            "22": -1,
+            "23": -1,
+            "24": -1,
+            "30": -1,
+            "31": -1,
+            "32": -1,
+            "33": -1
+          },
+          "targetEncoderReferences": {
+            "10": 2079,
+            "11": 2029,
+            "12": 2113,
+            "13": 2000,
+            "14": 2020,
+            "20": 2060,
+            "21": 2063,
+            "22": 2007,
+            "23": 2098,
+            "24": 2058,
+            "30": 1974,
+            "31": 1536,
+            "32": 2053,
+            "33": 2079
+          },
+          "task": "Mjlab-GetupMechanical-Flat-Micro[REDACTED_DEVICE_PASSWORD]",
+          "trainingTargetClipRadians": {
+            "head_pitch": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "head_roll": [
+              -0.3490658503988659,
+              0.3490658503988659
+            ],
+            "head_yaw": [
+              -2.9670597283903604,
+              2.9670597283903604
+            ],
+            "left_ankle": [
+              -1.2217304763960306,
+              1.2217304763960306
+            ],
+            "left_hip_pitch": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "left_hip_roll": [
+              -0.3839724354387525,
+              0.3839724354387525
+            ],
+            "left_hip_yaw": [
+              -0.4363323129985824,
+              0.5235987755982988
+            ],
+            "left_knee": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "neck_pitch": [
+              -1.5707963267948966,
+              1.2217304763960306
+            ],
+            "right_ankle": [
+              -1.2217304763960306,
+              1.2217304763960306
+            ],
+            "right_hip_pitch": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ],
+            "right_hip_roll": [
+              -0.3839724354387525,
+              0.3839724354387525
+            ],
+            "right_hip_yaw": [
+              -0.5235987755982988,
+              0.4363323129985824
+            ],
+            "right_knee": [
+              -1.5707963267948966,
+              1.5707963267948966
+            ]
+          },
+          "unverified": "Physical inertia/contact and HD1910 firmware P/D correspondence are not measured by this training run",
+          "uprightHoldSeconds": 1
+        },
+        "policy": "xgoduck_getup",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "xgoduck_pick",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": "phase cos/sin, period4 end0.7",
+          "controlHz": 50,
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "modelSource": "kissqy/Microduck-kissqy",
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
+          "runtimeKind": "kissqy_ground_pick",
+          "skillExecution": {
+            "actionScale": 1,
+            "durationSeconds": 2.8,
+            "gains": {
+              "d": 20,
+              "p": 5
+            },
+            "policySha256": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
+            "schema": "kissqy-skills-v1"
+          },
+          "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+          "task": "Mjlab-GroundPick-Flat-MicroDuck"
+        },
+        "policy": "xgoduck_pick",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "xgoduck_roulade",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": "all zero",
+          "controlHz": 50,
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "modelSource": "kissqy/Microduck-kissqy",
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
+          "runtimeKind": "kissqy_roulade",
+          "skillExecution": {
+            "actionScale": 1,
+            "durationSeconds": 1,
+            "gains": {
+              "d": 20,
+              "p": 5
+            },
+            "policySha256": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
+            "schema": "kissqy-skills-v1"
+          },
+          "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+          "sourceContract": "microduck-hd1910/firmware/policies/roulade/deployment-contract.json",
+          "sourceManifest": "microduck-hd1910/firmware/policies/roulade/manifest.json",
+          "task": "Mjlab-Roulade-Flat-MicroDuck"
+        },
+        "policy": "xgoduck_roulade",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "kick_left",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": "all zero",
+          "controlHz": 50,
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "kickFoot": "left",
+          "modelSource": "pollen-robotics/microduck-policies",
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "d6928284dccd3dd61e08bf2f760effa74309fbefd97b2b31afb2a60f526d196a",
+          "runtimeKind": "official_ball_kick",
+          "simulationValidated": true,
+          "skillExecution": {
+            "actionScale": 1,
+            "durationSeconds": 0.5,
+            "gains": {
+              "d": 20,
+              "p": 5
+            },
+            "policySha256": "d6928284dccd3dd61e08bf2f760effa74309fbefd97b2b31afb2a60f526d196a",
+            "schema": "kissqy-skills-v1"
+          },
+          "sourceCommit": "665ae4eb20bfe13bca1ef4ea6d4bb6b4a096e448",
+          "sourceContract": "official manifest duration=0.5; local mechanical target clamp, no EMA or voltage adaptation; hardware PD not identified",
+          "sourceManifest": "https://huggingface.co/pollen-robotics/microduck-policies/blob/main/manifest.json",
+          "task": "Mjlab-BallKick-Flat-MicroDuck"
+        },
+        "policy": "kick_left",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "kick_right",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": "all zero",
+          "controlHz": 50,
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "kickFoot": "right",
+          "modelSource": "pollen-robotics/microduck-policies",
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "147a32c388c6b19111b3ac3b550a9a6dc8b8bf267118af4d8c3712522eedb5af",
+          "runtimeKind": "official_ball_kick",
+          "simulationValidated": true,
+          "skillExecution": {
+            "actionScale": 1,
+            "durationSeconds": 0.5,
+            "gains": {
+              "d": 20,
+              "p": 5
+            },
+            "policySha256": "147a32c388c6b19111b3ac3b550a9a6dc8b8bf267118af4d8c3712522eedb5af",
+            "schema": "kissqy-skills-v1"
+          },
+          "sourceCommit": "665ae4eb20bfe13bca1ef4ea6d4bb6b4a096e448",
+          "sourceContract": "official manifest duration=0.5; local mechanical target clamp, no EMA or voltage adaptation; hardware PD not identified",
+          "sourceManifest": "https://huggingface.co/pollen-robotics/microduck-policies/blob/main/manifest.json",
+          "task": "Mjlab-BallKick-Flat-MicroDuck"
+        },
+        "policy": "kick_right",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "dance10",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 0.55,
+          "actionEmaOldWeight": 0.45,
+          "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
+          "actorObservationDim": 61,
+          "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+          "artifactType": "training-policy",
+          "bodyGroundContactMeshes": 68,
+          "commandGains": [
+            2.0,
+            2.0,
+            2.0,
+            2.5,
+            1.0,
+            2.0,
+            2.5,
+            2.0,
+            1.0,
+            1.0
+          ],
+          "controlHz": 50,
+          "durationSeconds": 8,
+          "gainBaseline": 5,
+          "gains": {
+            "d": 20,
+            "p": 5
+          },
+          "geometry": "microduck-replica robot_walk.xml snapshot in robot/replica",
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "nominalTrunkHeightM": 0.11718236219874864,
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "cd353fb203dd8edeb468476651280d9e03dcaabca53aef0fbfb91d9c66c8ee02",
+          "runtimeKind": "hd1910_dance10",
+          "simulationAcceptance": false,
+          "simulationMassKg": 0.7372431799999999,
+          "sourceRun": "dance10-resilient-v5-20261014",
+          "task": "Mjlab-Dance10Resilient-Flat-Micro[REDACTED_DEVICE_PASSWORD]",
+          "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions"
+        },
+        "policy": "dance10",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "sitstand_sit",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionSemantics": "HOME + raw action, scale 1, no target filtering",
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": {
+            "sit": 1,
+            "slot": "twist.vx",
+            "stand": 0
+          },
+          "controlHz": 50,
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "modelSource": "kissqy/Microduck-kissqy",
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+          "runtimeKind": "kissqy_sitstand",
+          "sitExecution": {
+            "gains": {
+              "d": 20,
+              "p": 5
+            },
+            "policySha256": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+            "schema": "kissqy-sitstand-v1"
+          },
+          "sitSettleSeconds": 4,
+          "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+          "standSeconds": 1,
+          "task": "Mjlab-SitStand-Flat-MicroDuck"
+        },
+        "policy": "alpha_sitstand",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "sitstand_stand",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionSemantics": "HOME + raw action, scale 1, no target filtering",
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": {
+            "sit": 1,
+            "slot": "twist.vx",
+            "stand": 0
+          },
+          "controlHz": 50,
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "modelSource": "kissqy/Microduck-kissqy",
+          "observationNormalization": "baked into ONNX by upstream exporter",
+          "policySha256": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+          "runtimeKind": "kissqy_sitstand",
+          "sitExecution": {
+            "gains": {
+              "d": 20,
+              "p": 5
+            },
+            "policySha256": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+            "schema": "kissqy-sitstand-v1"
+          },
+          "sitSettleSeconds": 4,
+          "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+          "standSeconds": 1,
+          "task": "Mjlab-SitStand-Flat-MicroDuck"
+        },
+        "policy": "alpha_sitstand",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "flamingo_hold",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionScale": 1,
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": "flamingo_flag_side",
+          "controlHz": 50,
+          "deploymentNote": "Original XL330 policy; HD1910 hardware unvalidated. Right support / left lift; press again to lower.",
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "lowerMinSeconds": 1.5,
+          "observationNormalization": "embedded_in_onnx_once",
+          "policySha256": "df77929c39d7695092bdaf810c2075e20a9ba91abd8192b4073d3de593d56904",
+          "runtimeKind": "official_flamingo",
+          "sourceManifest": {
+            "action_len": 14,
+            "action_scale": 1.0,
+            "command": {
+              "body": "unused (zeros)",
+              "head": "unused (zeros)",
+              "idle": [
+                0,
+                0,
+                0
+              ],
+              "twist": [
+                "flag: 0 = stand on two feet (HOME), 1 = stand on one foot",
+                "side: +1 = right foot down / left leg lifted, -1 = left foot down / right leg lifted; 0 allowed while flag = 0",
+                "unused (0)"
+              ]
+            },
+            "description": "Stand on one foot, either side, on command, and come back to a two-foot stand: twist = [flag, side, 0].",
+            "duration_s": null,
+            "entry_pose": "standing",
+            "eval": {
+              "battery": "10/10: right and left cycles, 0.1 m/s pushes toward either side, 0.15 m/s forward, a 0.3 m/s push toward the lifted side (brief touch-down, re-lift), lowering from a static hold, 10 s hold",
+              "known_limits": "falls on backward pushes >= 0.18 m/s; pushes toward the standing-foot side above ~0.15 m/s end in a step-down; never tested on hardware",
+              "lifted_foot_height_m": 0.09,
+              "sim_proxy": "CPU MuJoCo with the BAM XL330 servo model, allcollisions model",
+              "stress_24_random_trials": {
+                "fell": 2,
+                "held": 20,
+                "push_range_m_s": [
+                  0.05,
+                  0.25
+                ],
+                "recovered_stepped_down": 2
+              },
+              "transition_time_s": 1.5
+            },
+            "kind": "perpetual",
+            "model_api": 1,
+            "name": "flamingo-cycle",
+            "obs_len": 61,
+            "robot": {
+              "control_hz": 50,
+              "hw_rev": 1,
+              "model": "microduck",
+              "servos": "xl330"
+            },
+            "schema_version": 2,
+            "training": {
+              "commit": "0bf9897 on branch flamingo (https://github.com/pollen-robotics/microduck_rl/commit/0bf9897), not merged yet",
+              "repo": "pollen-robotics/microduck_rl",
+              "run": "pollen-robotics/flamingo-cycle-r2-hard-20260829-0245",
+              "task_id": "Mjlab-FlamingoCycleHard-Flat-MicroDuck"
+            }
+          },
+          "sourceRepository": "RemiFabre/microduck-flamingo-cycle",
+          "sourceRevision": "a69e4f6103a70e355983eb5d4e919da76778a40f",
+          "task": "Mjlab-FlamingoCycleHard-Flat-MicroDuck",
+          "voltageAdaptation": false
+        },
+        "policy": "flamingo",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      },
+      {
+        "available": true,
+        "kind": "flamingo_lower",
+        "metadata": {
+          "actionDim": 14,
+          "actionEmaNewWeight": 1,
+          "actionEmaOldWeight": 0,
+          "actionScale": 1,
+          "actorObservationDim": 61,
+          "artifactType": "training-policy",
+          "commandEncoding": "flamingo_flag_side",
+          "controlHz": 50,
+          "deploymentNote": "Original XL330 policy; HD1910 hardware unvalidated. Right support / left lift; press again to lower.",
+          "hardwareValidated": false,
+          "homeRadians": [
+            0.0,
+            -0.0873,
+            -0.4579,
+            -0.0049,
+            0.453,
+            0.3491,
+            0.3491,
+            0.0,
+            0.0,
+            0.0,
+            0.0873,
+            0.4579,
+            0.0049,
+            -0.453
+          ],
+          "jointOrder": [
+            "left_hip_yaw",
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_knee",
+            "left_ankle",
+            "neck_pitch",
+            "head_pitch",
+            "head_yaw",
+            "head_roll",
+            "right_hip_yaw",
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_knee",
+            "right_ankle"
+          ],
+          "lowerMinSeconds": 1.5,
+          "observationNormalization": "embedded_in_onnx_once",
+          "policySha256": "df77929c39d7695092bdaf810c2075e20a9ba91abd8192b4073d3de593d56904",
+          "runtimeKind": "official_flamingo",
+          "sourceManifest": {
+            "action_len": 14,
+            "action_scale": 1.0,
+            "command": {
+              "body": "unused (zeros)",
+              "head": "unused (zeros)",
+              "idle": [
+                0,
+                0,
+                0
+              ],
+              "twist": [
+                "flag: 0 = stand on two feet (HOME), 1 = stand on one foot",
+                "side: +1 = right foot down / left leg lifted, -1 = left foot down / right leg lifted; 0 allowed while flag = 0",
+                "unused (0)"
+              ]
+            },
+            "description": "Stand on one foot, either side, on command, and come back to a two-foot stand: twist = [flag, side, 0].",
+            "duration_s": null,
+            "entry_pose": "standing",
+            "eval": {
+              "battery": "10/10: right and left cycles, 0.1 m/s pushes toward either side, 0.15 m/s forward, a 0.3 m/s push toward the lifted side (brief touch-down, re-lift), lowering from a static hold, 10 s hold",
+              "known_limits": "falls on backward pushes >= 0.18 m/s; pushes toward the standing-foot side above ~0.15 m/s end in a step-down; never tested on hardware",
+              "lifted_foot_height_m": 0.09,
+              "sim_proxy": "CPU MuJoCo with the BAM XL330 servo model, allcollisions model",
+              "stress_24_random_trials": {
+                "fell": 2,
+                "held": 20,
+                "push_range_m_s": [
+                  0.05,
+                  0.25
+                ],
+                "recovered_stepped_down": 2
+              },
+              "transition_time_s": 1.5
+            },
+            "kind": "perpetual",
+            "model_api": 1,
+            "name": "flamingo-cycle",
+            "obs_len": 61,
+            "robot": {
+              "control_hz": 50,
+              "hw_rev": 1,
+              "model": "microduck",
+              "servos": "xl330"
+            },
+            "schema_version": 2,
+            "training": {
+              "commit": "0bf9897 on branch flamingo (https://github.com/pollen-robotics/microduck_rl/commit/0bf9897), not merged yet",
+              "repo": "pollen-robotics/microduck_rl",
+              "run": "pollen-robotics/flamingo-cycle-r2-hard-20260829-0245",
+              "task_id": "Mjlab-FlamingoCycleHard-Flat-MicroDuck"
+            }
+          },
+          "sourceRepository": "RemiFabre/microduck-flamingo-cycle",
+          "sourceRevision": "a69e4f6103a70e355983eb5d4e919da76778a40f",
+          "task": "Mjlab-FlamingoCycleHard-Flat-MicroDuck",
+          "voltageAdaptation": false
+        },
+        "policy": "flamingo",
+        "runtimeGains": {
+          "appliesOn": "next-model-start",
+          "d": 0,
+          "p": 5,
+          "source": "model-gains.json"
+        }
+      }
+    ],
+    "policy": "xgoduck_walk",
+    "skillActions": [
+      "getup",
+      "pick",
+      "roulade",
+      "sit",
+      "standup",
+      "kick_left",
+      "kick_right",
+      "dance",
+      "flamingo"
+    ],
+    "webHeadControl": true
+  },
+  "camera": {
+    "available": true,
+    "capturePid": 4921,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoder": "rockchip-mpp",
+    "encoderPid": 4922,
+    "error": "",
+    "height": 360,
+    "processing": "rga+fixed-wb",
+    "sequence": 24,
+    "streaming": true,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 640
+  }
+}

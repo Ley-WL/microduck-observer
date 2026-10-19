@@ -52,6 +52,8 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub demo: crate::demo::Demo,
+    pub quack_cancel: bool,
     pub imu_full_rate: Arc<std::sync::atomic::AtomicBool>,
     pub head_intent:crate::head_control::HeadIntent,
     pub(crate) native_homed: bool,
@@ -84,19 +86,32 @@ pub struct DriveCommand {
     pub updated: Instant,
 }
 impl Telemetry {
+    pub fn cancel_demo(&mut self,reason:&str,return_to_stand:bool) {
+        if !return_to_stand && !self.demo.active {self.demo.cancel(reason,false);}
+        if self.demo.active {
+            self.demo.cancel(reason,return_to_stand);
+            self.pending_skill=None;self.pending_quack=false;self.quack_running=false;self.quack_cancel=true;
+            self.head_intent.clear();self.mouth_degrees=-5.;
+            if let Some(d)=self.drive.as_mut(){d.twist=[0.;3];d.updated=Instant::now();}
+        }
+    }
+
     pub fn queue_quack(&mut self,session:&str,sequence:u64)->bool {
+        if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
         if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["feedbackHolding"]==true {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
         self.pending_mouth=None;self.pending_quack=true;true
     }
     pub fn queue_mouth(&mut self,session:&str,sequence:u64,degrees:f64)->bool {
+        if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
         if self.pending_quack || self.quack_running || !degrees.is_finite() || !(-5. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
         self.pending_mouth=Some(degrees);true
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
+        if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
         let recovery_allowed=kind=="xgoduck_getup" && (matches!(self.control["activeSkill"].as_str(),Some("sitstand_sit"|"sitstand_stand"|"xgoduck_getup"))
             || (self.control["recoveryFallen"]==true && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"kick_left"|"kick_right"))));
         if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
@@ -291,6 +306,7 @@ impl Telemetry {
     }
     pub fn new(hardware: bool) -> Self {
         let mut s = Self {
+            demo:Default::default(), quack_cancel:false,
             native_homed:false,
             native_voltage:crate::policy::NativeVoltage::default(),
             drive: None,

@@ -1,3 +1,4 @@
+mod demo;
 mod dance;
 mod camera;
 mod head_control;
@@ -432,6 +433,9 @@ fn policy_drive_command(shared: &mut Telemetry, body: &Value) -> Response {
             };
             return error(StatusCode::CONFLICT,message);
         }
+        if (twist!=[0.;3] || head!=[0.;2]) && shared.drive.as_ref().is_some_and(|d|d.session==body["session"].as_str().unwrap_or("") && sequence>d.sequence) {
+            shared.cancel_demo("人工摇杆接管",true);
+        }
         let seated_head=shared.control["activeSkill"]=="sitstand_sit" && head_control::ready(&shared.control) && twist==[0.;3];
         if shared.control["activeSkill"]=="sitstand_sit" && !seated_head {
             return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
@@ -457,7 +461,7 @@ async fn policy_action(
     h: HeaderMap,
     b: Bytes,
 ) -> Response {
-    if !["start", "stop", "shadow", "home", "command", "skill", "mouth", "quack"].contains(&action.as_str()) {
+    if !["start", "stop", "shadow", "home", "command", "skill", "mouth", "quack", "demo"].contains(&action.as_str()) {
         return error(StatusCode::NOT_FOUND, "Not Found");
     }
     let body = match check_action(&h, &b, 1024) {
@@ -469,9 +473,34 @@ async fn policy_action(
     };
     if action == "stop" {
         let mut shared=a.telemetry.write().unwrap();shared.drive=None;shared.pending_skill=None;
+        shared.cancel_demo("停止模型",false);
         owner.halt.store(true, Ordering::Release);
         return Json(json!({"state":"stopping","message":"停止模型请求已发送，保持最后目标"}))
             .into_response();
+    }
+    if action=="demo" {
+        let session=body["session"].as_str().unwrap_or("");
+        let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少演示指令序号");};
+        let mode=body["mode"].as_str().unwrap_or("toggle");
+        if !["toggle","keepalive","cancel"].contains(&mode) {return error(StatusCode::BAD_REQUEST,"无效演示指令");}
+        if mode=="toggle" && !a.telemetry.read().unwrap().demo.active {
+            for kind in ["sitstand_sit","sitstand_stand","xgoduck_pick","dance10"] {
+                if policy::metadata_for(kind).is_none() {return error(StatusCode::CONFLICT,"演示所需动作模型不可用");}
+            }
+            if let Err(e)=quack::ready() {return error(StatusCode::CONFLICT,&e.to_string());}
+        }
+        let mut state=a.telemetry.write().unwrap();
+        if !state.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {return error(StatusCode::CONFLICT,"演示会话或序号已过期");}
+        if mode=="cancel" || (mode=="toggle" && state.demo.active) {state.cancel_demo("用户取消演示",true);}
+        else if mode=="keepalive" {state.demo.renew(session,Instant::now());}
+        else {
+            if state.control["state"]!="policy" || state.control["activeSkill"]!="xgoduck" || state.control["runtimeProfile"]!="kissqy-sync50-v1" || state.control["feedbackHolding"]==true || state.pending_skill.is_some() || state.pending_quack || state.quack_running || state.drive.as_ref().unwrap().current()!=[0.;3] || state.head_intent.current(Instant::now())!=[0.;2] {
+                return error(StatusCode::CONFLICT,"请先站立并等待稳定、摇杆回中、其它动作结束");
+            }
+            if let Err(e)=state.demo.start(session,Instant::now()) {return error(StatusCode::CONFLICT,&e.to_string());}
+        }
+        state.drive.as_mut().unwrap().sequence=sequence;
+        return Json(state.demo.status()).into_response();
     }
     if action=="skill" {
         let mut kind=match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())};

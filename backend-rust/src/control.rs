@@ -324,9 +324,11 @@ pub fn publish(shared: &Shared, f: &Feedback, ids: &[u8], diagnostics: Value) {
         v["source"] = json!("hardware");
     }
 }
-pub fn status(shared: &Shared, v: Value) {
+pub fn status(shared: &Shared, mut v: Value) {
     let mut state=shared.write().unwrap();
     if v["state"]=="disabled" {state.native_homed=false;}
+    if v["state"]!="policy" {state.cancel_demo("模型已停止",false);}
+    v["demo"]=state.demo.status();
     state.control = v;
 }
 pub fn poll_tick<T: Transport>(bus: &mut T, ids: &[u8]) -> (Feedback, Value) {

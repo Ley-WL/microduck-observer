@@ -1,0 +1,460 @@
+{
+  "xgoduck": {
+    "frames": 497,
+    "hzContiguous": 49.99420431602994,
+    "maxIntervalMsContiguous": 23.635209999952167,
+    "captureGaps": [],
+    "tiltMedianMax": [
+      2.7141516428304184,
+      3.4271794239819764
+    ],
+    "minVoltage": 7.3,
+    "missingFrames": 0,
+    "checksumErrors": 0,
+    "inferenceP95Ms": 0.9690335999999999,
+    "topJoints": [
+      {
+        "id": 24,
+        "name": "left_ankle",
+        "targetStepP95Deg": 0.90087890625,
+        "trackingErrorP95Deg": 2.3730468892106913,
+        "clippedPercent": 0.0
+      },
+      {
+        "id": 14,
+        "name": "right_ankle",
+        "targetStepP95Deg": 0.7910156249999973,
+        "trackingErrorP95Deg": 3.2519531217096707,
+        "clippedPercent": 0.0
+      },
+      {
+        "id": 13,
+        "name": "right_knee",
+        "targetStepP95Deg": 0.3515625,
+        "trackingErrorP95Deg": 4.763671881181834,
+        "clippedPercent": 0.0
+      },
+      {
+        "id": 12,
+        "name": "right_hip_pitch",
+        "targetStepP95Deg": 0.3515625,
+        "trackingErrorP95Deg": 1.160156251088797,
+        "clippedPercent": 0.0
+      },
+      {
+        "id": 10,
+        "name": "right_hip_yaw",
+        "targetStepP95Deg": 0.3515625,
+        "trackingErrorP95Deg": 0.9667968723310729,
+        "clippedPercent": 0.0
+      }
+    ],
+    "clipping": []
+  },
+  "flamingo_hold": {
+    "frames": 1200,
+    "hzContiguous": 50.00121622323931,
+    "maxIntervalMsContiguous": 25.68708600000491,
+    "captureGaps": [
+      92.34078606899999
+    ],
+    "tiltMedianMax": [
+      27.951908990404153,
+      31.705764848153084
+    ],
+    "minVoltage": 6.1,
+    "missingFrames": 0,
+    "checksumErrors": 0,
+    "inferenceP95Ms": 0.9341940499999998,
+    "topJoints": [
+      {
+        "id": 14,
+        "name": "right_ankle",
+        "targetStepP95Deg": 45.039550781249964,
+        "trackingErrorP95Deg": 42.41162193032781,
+        "clippedPercent": 1.5
+      },
+      {
+        "id": 23,
+        "name": "left_knee",
+        "targetStepP95Deg": 27.711914062499975,
+        "trackingErrorP95Deg": 24.25781257894937,
+        "clippedPercent": 51.16666666666667
+      },
+      {
+        "id": 22,
+        "name": "left_hip_pitch",
+        "targetStepP95Deg": 24.635742187499975,
+        "trackingErrorP95Deg": 23.02734377864632,
+        "clippedPercent": 0.0
+      },
+      {
+        "id": 30,
+        "name": "neck_pitch",
+        "targetStepP95Deg": 19.72705078124996,
+        "trackingErrorP95Deg": 18.659179978316413,
+        "clippedPercent": 0.16666666666666669
+      },
+      {
+        "id": 21,
+        "name": "left_hip_roll",
+        "targetStepP95Deg": 18.079101562499783,
+        "trackingErrorP95Deg": 18.637206964112575,
+        "clippedPercent": 83.91666666666666
+      }
+    ],
+    "clipping": [
+      {
+        "id": 20,
+        "percent": 94.08333333333333,
+        "maxExcessDeg": 184.73052820840542
+      },
+      {
+        "id": 21,
+        "percent": 83.91666666666666,
+        "maxExcessDeg": 35.31782645138098
+      },
+      {
+        "id": 23,
+        "percent": 51.16666666666667,
+        "maxExcessDeg": 32.2077800262408
+      },
+      {
+        "id": 24,
+        "percent": 18.0,
+        "maxExcessDeg": 45.83911421677168
+      },
+      {
+        "id": 30,
+        "percent": 0.16666666666666669,
+        "maxExcessDeg": 8.271796536326761
+      },
+      {
+        "id": 33,
+        "percent": 16.75,
+        "maxExcessDeg": 101.4999873649832
+      },
+      {
+        "id": 10,
+        "percent": 98.75,
+        "maxExcessDeg": 170.41935578388274
+      },
+      {
+        "id": 11,
+        "percent": 97.83333333333334,
+        "maxExcessDeg": 156.41530117142827
+      },
+      {
+        "id": 14,
+        "percent": 1.5,
+        "maxExcessDeg": 47.278918093810375
+      }
+    ],
+    "rawVsFilteredMax": 0.0
+  },
+  "flamingo_lower": {
+    "frames": 301,
+    "hzContiguous": 49.97040243902282,
+    "maxIntervalMsContiguous": 24.297584999999344,
+    "captureGaps": [],
+    "tiltMedianMax": [
+      3.1957117791748537,
+      28.335275071879142
+    ],
+    "minVoltage": 6.0,
+    "missingFrames": 0,
+    "checksumErrors": 0,
+    "inferenceP95Ms": 0.876458,
+    "topJoints": [
+      {
+        "id": 30,
+        "name": "neck_pitch",
+        "targetStepP95Deg": 72.49218750000001,
+        "trackingErrorP95Deg": 68.46679728297013,
+        "clippedPercent": 11.960132890365449
+      },
+      {
+        "id": 14,
+        "name": "right_ankle",
+        "targetStepP95Deg": 71.87255859375001,
+        "trackingErrorP95Deg": 65.39062480680775,
+        "clippedPercent": 9.634551495016613
+      },
+      {
+        "id": 22,
+        "name": "left_hip_pitch",
+        "targetStepP95Deg": 59.52392578125001,
+        "trackingErrorP95Deg": 62.57812510582027,
+        "clippedPercent": 0.0
+      },
+      {
+        "id": 24,
+        "name": "left_ankle",
+        "targetStepP95Deg": 58.70214843750002,
+        "trackingErrorP95Deg": 45.43945317033638,
+        "clippedPercent": 9.30232558139535
+      },
+      {
+        "id": 31,
+        "name": "head_pitch",
+        "targetStepP95Deg": 49.68457031250001,
+        "trackingErrorP95Deg": 43.68164064124777,
+        "clippedPercent": 0.0
+      }
+    ],
+    "clipping": [
+      {
+        "id": 20,
+        "percent": 0.33222591362126247,
+        "maxExcessDeg": 4.6853210075219245
+      },
+      {
+        "id": 21,
+        "percent": 11.295681063122924,
+        "maxExcessDeg": 38.52512960636264
+      },
+      {
+        "id": 24,
+        "percent": 9.30232558139535,
+        "maxExcessDeg": 23.66812892561353
+      },
+      {
+        "id": 30,
+        "percent": 11.960132890365449,
+        "maxExcessDeg": 73.54106593954484
+      },
+      {
+        "id": 33,
+        "percent": 95.68106312292359,
+        "maxExcessDeg": 124.40990350168835
+      },
+      {
+        "id": 10,
+        "percent": 4.983388704318937,
+        "maxExcessDeg": 65.10602817910097
+      },
+      {
+        "id": 11,
+        "percent": 21.92691029900332,
+        "maxExcessDeg": 66.9916915008183
+      },
+      {
+        "id": 12,
+        "percent": 1.9933554817275747,
+        "maxExcessDeg": 24.617472763875668
+      },
+      {
+        "id": 13,
+        "percent": 0.6644518272425249,
+        "maxExcessDeg": 7.405785376226234
+      },
+      {
+        "id": 14,
+        "percent": 9.634551495016613,
+        "maxExcessDeg": 56.57608962976168
+      }
+    ],
+    "rawVsFilteredMax": 0.0
+  },
+  "onnxMaxError": 4.76837158203125e-07,
+  "eventTimeMs": 1792392577302,
+  "failureStats": {
+    "actionAlpha": 0,
+    "actionScale": 1,
+    "activeSkill": "flamingo_hold",
+    "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+    "commandCount": 1676,
+    "commandHz": 50.01,
+    "commandMaxGapMs": 26.45,
+    "commandTargetHz": 50,
+    "commandTwist": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "cycleCosts": {
+      "checksumErrors": 0,
+      "cycleBusy": {
+        "lastMs": 9.54,
+        "maxMs": 17.543,
+        "meanMs": 9.722
+      },
+      "feedbackActualHz": 45.876003339099796,
+      "feedbackReads": 1677,
+      "inferenceActualHz": 45.87600443786576,
+      "inferenceConcurrent": true,
+      "inferenceHzLast1s": 0,
+      "inferenceResultAgeMs": 0.0,
+      "inferenceResults": 1676,
+      "missingFrames": 0,
+      "missingResponses": 0,
+      "nativePhases": {
+        "busWrite": {
+          "lastMs": 0.198333,
+          "maxMs": 0.7735,
+          "meanMs": 0.21444776670644386,
+          "samples": 1676
+        },
+        "directSharedLockWaitSubset": {
+          "lastMs": 0.0029159999999999998,
+          "maxMs": 2.954001,
+          "meanMs": 0.028891710620525014,
+          "samples": 1676
+        },
+        "historyAndAccounting": {
+          "lastMs": 0.007875,
+          "maxMs": 0.396667,
+          "meanMs": 0.005501299522673,
+          "samples": 1676
+        },
+        "infer": {
+          "lastMs": 0.721584,
+          "maxMs": 2.643667,
+          "meanMs": 0.7429406795942727,
+          "samples": 1676
+        },
+        "observe": {
+          "lastMs": 0.157208,
+          "maxMs": 1.654916,
+          "meanMs": 0.12827539319809078,
+          "samples": 1676
+        },
+        "publishAndAccounting": {
+          "lastMs": 1.363834,
+          "maxMs": 4.379084,
+          "meanMs": 1.3820480268496418,
+          "samples": 1676
+        },
+        "readAndSensors": {
+          "lastMs": 5.7986260000000005,
+          "maxMs": 9.953126,
+          "meanMs": 5.8469094785202875,
+          "samples": 1676
+        },
+        "skillAndCommand": {
+          "lastMs": 0.520333,
+          "maxMs": 2.7988340000000003,
+          "meanMs": 0.5715485656324574,
+          "samples": 1676
+        },
+        "status": {
+          "lastMs": 0.390541,
+          "maxMs": 1.215958,
+          "meanMs": 0.4174524815035797,
+          "samples": 1676
+        },
+        "targetsAndIntents": {
+          "lastMs": 0.04725,
+          "maxMs": 1.414,
+          "meanMs": 0.06458276014319829,
+          "samples": 1676
+        },
+        "totalBeforeWait": {
+          "lastMs": 9.931251,
+          "maxMs": 18.46046,
+          "meanMs": 10.145290495823394,
+          "samples": 1676
+        },
+        "trace": {
+          "lastMs": 0.7256670000000001,
+          "maxMs": 3.436126,
+          "meanMs": 0.7715840441527443,
+          "samples": 1676
+        }
+      },
+      "observe": {
+        "lastMs": 0.173,
+        "maxMs": 1.658,
+        "meanMs": 0.13
+      },
+      "read": {
+        "lastMs": 6.014,
+        "maxMs": 9.953,
+        "meanMs": 5.847
+      },
+      "write": {
+        "lastMs": 0.931,
+        "maxMs": 3.85,
+        "meanMs": 0.991
+      }
+    },
+    "driveSession": "3a5633da-fb83-4d3b-898f-790fe6c64fec",
+    "executionOrder": "read-observe-infer-write",
+    "fallDetection": {
+      "confirmMs": 150,
+      "enabled": true,
+      "immediateTiltDegrees": 90.0,
+      "tiltDegrees": 60.0
+    },
+    "feedbackReplyBudgetMs": 6,
+    "feedbackTargetHz": 50,
+    "homeCommandTargetHz": 50,
+    "imuAgeMs": {
+      "imu.orientation": 2.63,
+      "imu.raw": 0.36
+    },
+    "inferenceMs": 0.706,
+    "inferenceTargetHz": 50,
+    "kdHome": 0,
+    "kdRun": 0,
+    "kind": "xgoduck",
+    "kpHome": 5,
+    "kpRun": 5,
+    "modelSource": "kissqy/Microduck-kissqy",
+    "nominalVoltage": 7.4,
+    "policy": "flamingo",
+    "policySha256": "df77929c39d7695092bdaf810c2075e20a9ba91abd8192b4073d3de593d56904",
+    "posture": "standing",
+    "rawTargetDegrees": [
+      -11.691666811775828,
+      82.63004397492682,
+      -44.33805688392188,
+      -11.311137336320556,
+      47.71593376814086,
+      -87.42998673490996,
+      51.054472177835144,
+      -23.431045909998783,
+      -80.2695101072029,
+      -43.80710871369636,
+      -48.313295282761004,
+      37.69168859504168,
+      -3.7924377772138387,
+      -37.48315950458661
+    ],
+    "requestedKind": "sitstand_stand",
+    "runtimeProfile": "kissqy-sync50-v1",
+    "saturatedIds": [
+      21,
+      33,
+      10,
+      11
+    ],
+    "sentTargetDegrees": [
+      -11.689453125,
+      21.97265625,
+      -44.296875,
+      -11.337890625,
+      47.724609375,
+      -87.451171875,
+      51.064453125,
+      -23.466796875,
+      -20.0390625,
+      -29.970703124999996,
+      -21.97265625,
+      37.705078125,
+      -3.779296875,
+      -37.44140625
+    ],
+    "sitSettleSeconds": 2.0,
+    "skillProgressSeconds": 10.359999999999868,
+    "standAllowed": false,
+    "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+    "velocityAlphaAt100Hz": null,
+    "velocitySource": "servo-register-one-sample-delay",
+    "voltageAdapt": false,
+    "walkSpeedMps": 1.0
+  },
+  "failureEventTimeMs": 1792392655024,
+  "failureIsDifferentSession": true,
+  "notes": "Hold trace retains first and last windows; 92.34s gap is trace truncation, not a measured inference stall. Failure file belongs to a later session; do not combine its counters with captured trace."
+}

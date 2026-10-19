@@ -1,0 +1,9 @@
+{
+  "standardExporter": true,
+  "onnxMaxError": 1.1920928955078125e-06,
+  "frozenSourceAndNormalizerExact": true,
+  "rawActionsBounded": true,
+  "checkpointSha256": "dc7b27b35145c121ec94927332ddec7c03ba2101b2359d7a05ab334e213fb6d6",
+  "onnxSha256": "21cc8fbf59d0edc5995145bea45bd4fedf8e928997ae66033dc1a21252fa48b2",
+  "adamSteps": 10600
+}

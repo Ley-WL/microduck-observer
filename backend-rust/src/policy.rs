@@ -70,6 +70,7 @@ impl ImuPause {
 }
 fn pause_drive(shared:&Shared) {
     let mut state=shared.write().unwrap();
+    state.cancel_demo("反馈暂停或模型停止",false);
     if let Some(kind)=state.pending_skill.clone() {state.log("WARN","policy-request",&format!("已排队动作因反馈暂停或阶段切换取消：{kind}"));}
     if let Some(drive)=state.drive.as_mut(){drive.twist=[0.;3];drive.updated=Instant::now();}
     state.head_intent.clear();state.pending_skill=None;state.pending_mouth=None;state.pending_quack=false;state.quack_running=false;
@@ -131,6 +132,10 @@ pub fn path() -> PathBuf {
 pub fn path_for(kind: &str) -> Result<PathBuf> {
     match kind {
         "flamingo_hold" | "flamingo_lower" => {
+            let v62b=path().with_file_name("rear_hook_v62b.onnx");
+            if v62b.exists() {return Ok(v62b);}
+            let official=path().with_file_name("flamingo_official.onnx");
+            if official.exists() {return Ok(official);}
             let gated=path().with_file_name("rear_hook_native_gated.onnx");
             let native=path().with_file_name("rear_hook_native.onnx");
             let rear=path().with_file_name("rear_hook_v27.onnx");
@@ -198,6 +203,37 @@ mod kick_tests {
         assert_eq!(native_handoff("flamingo_hold",false,false,false,"xgoduck",Some("flamingo_lower".into())),NativeHandoff::Skill("flamingo_lower".into()));
         assert_eq!(native_handoff("flamingo_lower",true,false,false,"xgoduck",None),NativeHandoff::Skill("xgoduck".into()));
         meta["actionEmaOldWeight"]=json!(0.45);assert!(validate_skill_metadata("flamingo_hold",&meta).is_err());
+    }
+    #[test]
+    fn v62b_rejects_old_clock_or_wrong_actor_contract() {
+        let meta:Value=serde_json::from_str(include_str!("../../models/rear_hook_v62b.metadata.json")).unwrap();
+        for kind in ["flamingo_hold","flamingo_lower"] {validate_skill_metadata(kind,&meta).unwrap();}
+        let p=SkillProfile::from_metadata(&meta);assert!(p.rear_hook && p.transfer_settle && p.pose_entry);assert!(!p.flamingo && !p.voltage_adapt());
+        for (key,value) in [("entryTimeoutSeconds",json!(3)),("poseEntryConsecutiveReadyTicks",json!(1)),
+            ("transferSettleTicks",json!(1)),("holdSeconds",json!(2)),("policySha256",json!("wrong")),
+            ("actionEmaOldWeight",json!(0)),("previousAction",json!("filtered"))] {
+            let mut bad=meta.clone();bad[key]=value;assert!(validate_skill_metadata("flamingo_hold",&bad).is_err(),"{key}");
+        }
+    }
+    #[test]
+    fn official_flamingo_preserves_original_contract_and_provenance() {
+        let meta:Value=serde_json::from_str(include_str!("../../models/flamingo_official.metadata.json")).unwrap();
+        for kind in ["flamingo_hold","flamingo_lower"] {validate_skill_metadata(kind,&meta).unwrap();}
+        let p=SkillProfile::from_metadata(&meta);
+        assert!(p.flamingo && p.donor() && !p.rear_hook);
+        assert!(!p.voltage_adapt());
+        assert_eq!(p.voltage_scale(&mut NativeVoltage::default(),&Feedback::new(),Instant::now()),1.);
+        assert!(!p.complete("flamingo_hold",999.,999.));
+        assert!(!p.complete("flamingo_lower",1.49,1.));
+        assert!(p.complete("flamingo_lower",1.5,1.));
+        for (key,value) in [("task",json!("Mjlab-FlamingoCycleGentle-Flat-MicroDuck")),
+            ("policySha256",json!("wrong")),("actionEmaOldWeight",json!(0.45)),
+            ("commandEncoding",json!("enabled_progress_height")),("voltageAdaptation",json!(true))] {
+            let mut bad=meta.clone();bad[key]=value;
+            assert!(validate_skill_metadata("flamingo_hold",&bad).is_err(),"{key}");
+        }
+        let mut bad=meta.clone();bad["sourceManifest"]["robot"]["servos"]=json!("hd1910");
+        assert!(validate_skill_metadata("flamingo_hold",&bad).is_err());
     }
     #[test]
     fn dance_contract_full_phrase_and_filtered_actions() {
@@ -285,15 +321,15 @@ impl NativeRecoveryPosture {
     }
 }
 #[derive(Clone, Copy, Default)]
-struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool, rear_hook:bool, transfer_settle:bool }
+struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool, official_flamingo:bool, rear_hook:bool, transfer_settle:bool, pose_entry:bool }
 impl SkillProfile {
     fn from_metadata(meta: &Value) -> Self {
-        Self { rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated")), transfer_settle:meta["runtimeKind"]=="hd1910_rear_hook_native_gated", flamingo:meta["runtimeKind"]=="hd1910_flamingo", dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
-            kissqy: meta["runtimeKind"]=="kissqy_sitstand", bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
+        Self { rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), pose_entry:meta["runtimeKind"]=="hd1910_rear_hook_v62b", transfer_settle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), flamingo:matches!(meta["runtimeKind"].as_str(),Some("hd1910_flamingo"|"official_flamingo")), dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
+            official_flamingo:meta["runtimeKind"]=="official_flamingo", kissqy: meta["runtimeKind"]=="kissqy_sitstand", bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
     }
     fn donor(self)->bool {self.flamingo || self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
     // Roulade HD1910 deployment contract explicitly disables voltage adaptation.
-    fn voltage_adapt(self)->bool {!self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook}
+    fn voltage_adapt(self)->bool {!self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook && !self.official_flamingo}
     fn voltage_scale(self,voltage:&mut NativeVoltage,feedback:&Feedback,now:Instant)->f32 {
         if self.voltage_adapt() {voltage.scale(feedback,now)} else {1.}
     }
@@ -330,16 +366,25 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
     let mechanical_getup=meta["skillPhysicsRevision"]=="getup-kissqy-mechanical-v1";
     if mechanical_getup && (kind!="xgoduck_getup" || !valid_mechanical_getup_contract(meta)) {bail!("起身机械限位合同不匹配");}
     if kind.starts_with("flamingo_") && profile.rear_hook {
-        let expected_task=if profile.transfer_settle {
+        let expected_task=if profile.pose_entry {
+            if meta["transferSettleTicks"]!=15 || meta["poseEntryConsecutiveReadyTicks"]!=15 || !valid_rear_encoder_contract(meta) || meta["policySha256"]!="21cc8fbf59d0edc5995145bea45bd4fedf8e928997ae66033dc1a21252fa48b2" {bail!("v62b连续姿态就绪合同不匹配");}
+            "RearHook-OneShot-3s-PoseEntry15-v62b"
+        } else if profile.transfer_settle {
             if meta["transferSettleTicks"]!=15 || !valid_rear_encoder_contract(meta) {bail!("后抬脚重心转移稳定合同不匹配");}
             "RearHook-OneShot-3s-NativeEncoderGated"
         } else if meta["runtimeKind"]=="hd1910_rear_hook_native" {
             if !valid_rear_encoder_contract(meta) {bail!("后抬脚编码物理合同不匹配");}
             "RearHook-OneShot-3s-NativeEncoder"
         } else {"RearHook-OneShot-3s-v27"};
-        if meta["task"]!=expected_task || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0.45 || meta["actionEmaNewWeight"]!=0.55 || meta["commandEncoding"]!="enabled_progress_height" || meta["commandHeightM"]!=0.035 || meta["holdSeconds"]!=3 || meta["entrySeconds"]!=1.5 || meta["returnSeconds"]!=1.5 || meta["entryTimeoutSeconds"]!=3 || meta["settleSeconds"]!=2 || meta["previousAction"]!="delivered_raw_before_ema" || meta["normalization"]!="embedded_once" || meta["headMapping"]!="embedded_once" || meta["targetEncoding"]!="encoder_eeprom_saturation" || meta["poseGate"]!="imu-joint-fk-proxy-v1" || meta["supportFoot"]!="left" || meta["swingFoot"]!="right" {bail!("后抬脚3秒执行合同不匹配");}
+        if meta["task"]!=expected_task || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0.45 || meta["actionEmaNewWeight"]!=0.55 || meta["commandEncoding"]!="enabled_progress_height" || meta["commandHeightM"]!=0.035 || meta["holdSeconds"]!=3 || meta["entrySeconds"]!=1.5 || meta["returnSeconds"]!=1.5 || meta["entryTimeoutSeconds"].as_f64()!=Some(if profile.pose_entry {4.5} else {3.}) || meta["settleSeconds"]!=2 || meta["previousAction"]!="delivered_raw_before_ema" || meta["normalization"]!="embedded_once" || meta["headMapping"]!="embedded_once" || meta["targetEncoding"]!="encoder_eeprom_saturation" || meta["poseGate"]!="imu-joint-fk-proxy-v1" || meta["supportFoot"]!="left" || meta["swingFoot"]!="right" {bail!("后抬脚3秒执行合同不匹配");}
     } else if kind.starts_with("flamingo_") {
-        if !profile.flamingo || meta["task"]!="Mjlab-FlamingoCycleGentle-Flat-MicroDuck" || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0 || meta["actionEmaNewWeight"]!=1 || meta["commandEncoding"]!="flamingo_flag_side" || meta["lowerMinSeconds"]!=1.5 {bail!("火烈鸟执行合同不匹配");}
+        let task_matches=if meta["runtimeKind"]=="official_flamingo" {
+            meta["task"]=="Mjlab-FlamingoCycleHard-Flat-MicroDuck"
+                && meta["policySha256"]=="df77929c39d7695092bdaf810c2075e20a9ba91abd8192b4073d3de593d56904"
+                && meta["sourceManifest"]["robot"]["servos"]=="xl330"
+                && meta["voltageAdaptation"]==false
+        } else {meta["task"]=="Mjlab-FlamingoCycleGentle-Flat-MicroDuck"};
+        if !profile.flamingo || !task_matches || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0 || meta["actionEmaNewWeight"]!=1 || meta["commandEncoding"]!="flamingo_flag_side" || meta["lowerMinSeconds"]!=1.5 {bail!("火烈鸟执行合同不匹配");}
     } else if kind=="dance10" {
         if !profile.dance || meta["task"]!="Mjlab-Dance10Resilient-Flat-MicroDuck-HD1910" || meta["actionEmaOldWeight"]!=0.45 || meta["actionEmaNewWeight"]!=0.55 || meta["durationSeconds"]!=8 || meta["commandGains"]!=json!([2.,2.,2.,2.5,1.,2.,2.5,2.,1.,1.]) {bail!("舞蹈执行合同不匹配");}
     } else if profile.donor_pick || profile.donor_getup || profile.donor_roll || profile.donor_kick {
@@ -599,7 +644,7 @@ pub fn verify_fixture(path: &std::path::Path) -> Result<Value> {
     let encoder_bounds=ORDER.into_iter().map(|id|(id,(0,4095))).collect();
     let goals=model.targets(filtered,&feedback,&fixture["calibration"],&encoder_bounds)?;
     for (n,id) in ORDER.iter().enumerate() {
-        let (lo,hi)=limit(*id).unwrap();
+        let (lo,hi)=execution_limit(*id,model.skill_profile.official_flamingo).unwrap();
         let sent=model.sent[n];
         if !model.skill_profile.rear_hook && (sent<lo-0.05 || sent>hi+0.05) {bail!("#{id} 纯推理fixture目标超机械范围");}
     }
@@ -608,7 +653,7 @@ pub fn verify_fixture(path: &std::path::Path) -> Result<Value> {
         for case in cases {
             let angles=orientation::vector::<14>(&case["targetsRadians"])?;
             for (n,id) in ORDER.iter().enumerate() {
-                let (goal,_,_)=donor_target(*id,angles[n],&fixture["targetCaseCalibration"],(0,4095))?;
+                let (goal,_,_)=if model.skill_profile.official_flamingo {donor_target_with_bounds(*id,angles[n],&fixture["targetCaseCalibration"],(0,4095),execution_limit(*id,true).unwrap())?} else {donor_target(*id,angles[n],&fixture["targetCaseCalibration"],(0,4095))?};
                 if case["expectedGoals"][id.to_string()].as_i64()!=Some(goal as i64) {bail!("#{id} 保存实机目标裁剪对照失败");}
             }
             target_cases+=1;
@@ -906,9 +951,9 @@ impl Model {
             session: std::sync::Arc::new(std::sync::Mutex::new(session)),
             command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {skill_twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
             skill_profile: SkillProfile::from_metadata(&meta),
-            encoder_contract: (matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"))).then(||meta["encoderContract"].clone()),
+            encoder_contract: (matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b"))).then(||meta["encoderContract"].clone()),
             walk_profile, target_initialized:false,
-            rear_clock: {let mut c=crate::rear_hook::Clock::new(SkillProfile::from_metadata(&meta).transfer_settle);if SkillProfile::from_metadata(&meta).rear_hook {c.trigger();if kind=="flamingo_lower" {c.cancel();}}c},
+            rear_clock: {let mut c=crate::rear_hook::Clock::with_profile(SkillProfile::from_metadata(&meta).transfer_settle,SkillProfile::from_metadata(&meta).pose_entry);if SkillProfile::from_metadata(&meta).rear_hook {c.trigger();if kind=="flamingo_lower" {c.cancel();}}c},
             home,
             sha,
             previous: None,
@@ -1050,7 +1095,7 @@ impl Model {
         for (n, id) in ORDER.iter().enumerate() {
             let raw = (self.home[n] + action[n]) as f64;
             if is_xgoduck(&self.kind) {
-                let (goal, sent, saturated) = if self.skill_profile.rear_hook {rear_target(*id,raw,cal,limits[id])?} else {skill_target(*id, raw, cal, limits[id], self.skill_profile.bounded_targets)?};
+                let (goal, sent, saturated) = if self.skill_profile.rear_hook {rear_target(*id,raw,cal,limits[id])?} else if self.skill_profile.official_flamingo {donor_target_with_bounds(*id,raw,cal,limits[id],execution_limit(*id,true).unwrap())?} else {skill_target(*id, raw, cal, limits[id], self.skill_profile.bounded_targets)?};
                 self.raw.push(raw.to_degrees());
                 self.sent.push(sent.to_degrees());
                 if saturated { self.saturated.push(*id); }
@@ -1090,6 +1135,7 @@ impl ExecutionEngine {
     }
 }
 fn advance_quack(shared:&Shared,cycle:&mut Option<(Instant,crate::quack::Playback)>)->bool {
+    if std::mem::take(&mut shared.write().unwrap().quack_cancel) {*cycle=None;}
     let requested={let mut state=shared.write().unwrap();let v=(state.pending_quack,state.quack_voice.clone());state.pending_quack=false;v};
     if requested.0 {
         match crate::quack::Playback::start_voice(&requested.1) {
@@ -1131,7 +1177,19 @@ fn rear_target(id:u8,angle:f64,cal:&Value,hardware:(i32,i32))->Result<(i32,f64,b
     let goal=raw.clamp(lo as f64,hi as f64) as i32;
     Ok((goal,(goal as f64-reference)*std::f64::consts::TAU/4096.*direction,goal as f64!=raw))
 }
+// User-selected original XML ranges apply only to official flamingo hold/lower.
+// EEPROM and single-turn encoder validation remain independent.
+fn execution_limit(id:u8, official_flamingo:bool)->Option<(f64,f64)> {
+    if official_flamingo {
+        match id {14|24=>return Some((-90.,90.)),30=>return Some((-90.,60.)),33=>return Some((-25.,25.)),_=>{}}
+    }
+    limit(id)
+}
 fn donor_target(id: u8, angle: f64, cal: &Value, hardware: (i32, i32)) -> Result<(i32, f64, bool)> {
+    let bounds=execution_limit(id,false).ok_or_else(|| anyhow::anyhow!("#{id} 缺少机械角度限位"))?;
+    donor_target_with_bounds(id,angle,cal,hardware,bounds)
+}
+fn donor_target_with_bounds(id:u8, angle:f64, cal:&Value, hardware:(i32,i32), bounds:(f64,f64))->Result<(i32,f64,bool)> {
     let key = id.to_string();
     let reference = cal["joints"]["references"][&key].as_f64()
         .filter(|v| v.is_finite()).ok_or_else(|| anyhow::anyhow!("#{id} 缺少位置标定"))?;
@@ -1140,7 +1198,7 @@ fn donor_target(id: u8, angle: f64, cal: &Value, hardware: (i32, i32)) -> Result
     let (mut low, mut high) = (0, 4095);
     if hardware.1 > hardware.0 { low = low.max(hardware.0); high = high.min(hardware.1); }
     if low > high { bail!("#{id} 舵机硬件限位与编码范围不相交"); }
-    let (min,max)=limit(id).ok_or_else(|| anyhow::anyhow!("#{id} 缺少机械角度限位"))?;
+    let (min,max)=bounds;
     let bounded=angle.clamp(min.to_radians(),max.to_radians());
     let raw = (reference + bounded * 4096. / std::f64::consts::TAU * direction).round();
     if !raw.is_finite() || raw < low as f64 || raw > high as f64 {
@@ -1241,6 +1299,17 @@ fn native_policy_loop(
             pause_drive(shared);bail!("检测到行走跌倒，停止推理并卸力");
         }
         let recovery_fallen=recovery_posture.observe(tilt(&obs),Instant::now());
+        {
+            let mut state=write_shared();
+            if state.demo.active && !state.drive.as_ref().is_some_and(|d|d.session==state.demo.session) {state.cancel_demo("控制会话变更",false);}
+            let busy=state.quack_running || state.pending_quack;
+            let stable=tilt(&obs)<15. && obs[..3].iter().all(|v|v.abs()<0.5) && model.command_twist.iter().all(|v|v.abs()<0.01);
+            let out=state.demo.tick(Instant::now(),&model.kind,model.progress,model.skill_profile.sit_settle(),stable,busy);
+            if out.stopped {state.pending_quack=false;state.quack_running=false;state.quack_cancel=true;state.head_intent.clear();}
+            if state.pending_skill.is_none() {state.pending_skill=out.skill;}
+            if let Some(voice)=out.voice {state.pending_quack=true;state.quack_voice=voice.into();}
+        }
+
         let requested=write_shared().pending_skill.take();
         let finished=if model.skill_profile.rear_hook {
             if model.rear_clock.done() && model.rear_clock.stand_run<48 {bail!("后抬脚返回窗口内未确认稳定站姿，停止并卸力");}
@@ -1293,7 +1362,7 @@ fn native_policy_loop(
             // reset_for_home clears actor history without sampling velocity twice.
             if selected.skill_profile.rear_hook {
                 if model.skill_profile.rear_hook {selected.rear_clock=model.rear_clock.clone();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
-                else {selected.rear_clock=crate::rear_hook::Clock::new(selected.skill_profile.transfer_settle);selected.rear_clock.trigger();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
+                else {selected.rear_clock=crate::rear_hook::Clock::with_profile(selected.skill_profile.transfer_settle,selected.skill_profile.pose_entry);selected.rear_clock.trigger();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
             }
             selected.previous=model.previous.take();selected.velocity=model.velocity;
             selected.filtered_gyro=model.filtered_gyro;
@@ -1325,8 +1394,8 @@ fn native_policy_loop(
         }
         model.command_twist=if model.kind=="xgoduck" {
             let state=read_shared();
-            let fresh=state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
-            let target=state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3]);
+            let fresh=state.demo.active || state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
+            let target=if state.demo.active {state.demo.output.twist}else{state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])};
             crate::walk_profile::smooth_twist(&mut walk_twist,target,fresh)
         } else {walk_twist=[0.;3];skill_twist(&model.kind,model.progress)};
         let rear_pose=model.skill_profile.rear_hook.then(||rear_geometry.sample_with_transfer(&obs,&model.home));
@@ -1347,7 +1416,7 @@ fn native_policy_loop(
         let filtered=model.filter_action(&adjusted);
         *goals=model.targets(filtered,feedback,cal,limits)?;
         if model.kind=="xgoduck" || (model.kind=="sitstand_sit" && model.progress>=model.skill_profile.sit_settle()) {
-            let input=read_shared().head_intent.current(Instant::now());
+            let input={let state=read_shared();if state.demo.active {state.demo.output.head}else{state.head_intent.current(Instant::now())}};
             let bounds=[control::effective_angle_limits(31,cal,limits[&31])?,control::effective_angle_limits(32,cal,limits[&32])?];
             crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]],bounds);
             for (axis,n) in [6usize,7].iter().enumerate(){
@@ -1454,6 +1523,10 @@ pub fn execute(
         v["commandTargetHz"]=json!(100);
         v["angleLimitsRevision"]=json!("kissqy-hd1910-saved-mechanical-v1");
         v["targetEncoding"]=json!("mechanical-clamp-single-turn-reject-v1");
+        if model.skill_profile.official_flamingo {
+            v["angleLimitsRevision"]=json!("official-flamingo-training-0bf9897-v1");
+            v["executionTargetLimitsDegrees"]=json!(ORDER.map(|id|execution_limit(id,true).unwrap()));
+        }
         if model.skill_profile.rear_hook {
             v["targetEncoding"]=json!("encoder-eeprom-saturation-v1");
             v["angleLimitsRevision"]=json!("rear-cycle-raw-overshoot-v1");
@@ -1817,7 +1890,7 @@ pub fn execute(
                     let retain_actions=(model.donor_sensors() && selected.donor_sensors() && model.home==selected.home) || same_sit_actor(&model.kind,&selected.kind,&model.sha,&selected.sha,&model.home,&selected.home);
                     if selected.skill_profile.rear_hook {
                 if model.skill_profile.rear_hook {selected.rear_clock=model.rear_clock.clone();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
-                else {selected.rear_clock=crate::rear_hook::Clock::new(selected.skill_profile.transfer_settle);selected.rear_clock.trigger();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
+                else {selected.rear_clock=crate::rear_hook::Clock::with_profile(selected.skill_profile.transfer_settle,selected.skill_profile.pose_entry);selected.rear_clock.trigger();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
             }
             selected.previous=model.previous.take();selected.velocity=model.velocity;
                     // Each banked model keeps its own runtime P/D. Confirm changes before inference.
@@ -2169,6 +2242,33 @@ mod tests {
                 assert!(skill_target(id,9.188,&cal,(2048,2049),true).is_err());
                 assert!(skill_target(id,f64::NAN,&cal,(0,4095),true).is_err());
             }
+        }
+    }
+    #[test]
+    fn official_flamingo_limits_are_scoped_and_keep_encoder_guards() {
+        let cal=json!({"joints":{"references":ORDER.into_iter().map(|id|(id.to_string(),json!(2048))).collect::<serde_json::Map<_,_>>(),"directions":{}}});
+        for id in ORDER {
+            assert_eq!(execution_limit(id,false),limit(id));
+            for sign in [-1.,1.] {
+                let mut signed=cal.clone();signed["joints"]["directions"][id.to_string()]=json!(sign);
+                let (lo,hi)=execution_limit(id,true).unwrap();
+                for (degrees,expected) in [(lo-30.,lo),(hi+30.,hi)] {
+                    let (_,sent,clipped)=donor_target_with_bounds(id,degrees.to_radians(),&signed,(0,4095),(lo,hi)).unwrap();
+                    assert!(clipped);
+                    assert!((sent.to_degrees()-expected).abs()<0.045);
+                }
+                assert!(donor_target_with_bounds(id,hi.to_radians(),&signed,(2048,2049),(lo,hi)).is_err());
+                assert!(donor_target_with_bounds(id,f64::NAN,&signed,(0,4095),(lo,hi)).is_err());
+            }
+        }
+        for (id,goal,old,new) in [(14,80f64,70f64,80f64),(24,-80.,-70.,-80.),(30,65.,65.,60.),(33,24.,20.,24.)] {
+            assert!((donor_target(id,goal.to_radians(),&cal,(0,4095)).unwrap().1.to_degrees()-old).abs()<0.045);
+            assert!((donor_target_with_bounds(id,goal.to_radians(),&cal,(0,4095),execution_limit(id,true).unwrap()).unwrap().1.to_degrees()-new).abs()<0.045);
+        }
+        let original=SkillProfile::from_metadata(&json!({"runtimeKind":"official_flamingo"}));
+        assert!(original.official_flamingo);
+        for kind in ["hd1910_flamingo","hd1910_rear_hook_v62b","kissqy_stand","official_ball_kick"] {
+            assert!(!SkillProfile::from_metadata(&json!({"runtimeKind":kind})).official_flamingo);
         }
     }
     #[test]

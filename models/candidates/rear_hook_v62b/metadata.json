@@ -1,0 +1,320 @@
+{
+  "artifactType": "policy-candidate",
+  "controlHz": 50,
+  "actorObservationDim": 61,
+  "actionDim": 14,
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "homeRadians": [
+    0.0,
+    -0.0873,
+    -0.4579,
+    -0.0049,
+    0.453,
+    0.3491,
+    0.3491,
+    0.0,
+    0.0,
+    0.0,
+    0.0873,
+    0.4579,
+    0.0049,
+    -0.453
+  ],
+  "runtimeKind": "hd1910_rear_hook_v62b_candidate",
+  "task": "RearHook-OneShot-3s-PoseEntry15-v62b",
+  "policySha256": "21cc8fbf59d0edc5995145bea45bd4fedf8e928997ae66033dc1a21252fa48b2",
+  "actionScale": 1,
+  "actionEmaOldWeight": 0.45,
+  "actionEmaNewWeight": 0.55,
+  "commandEncoding": "enabled_progress_height",
+  "commandHeightM": 0.035,
+  "entrySeconds": 1.5,
+  "entryTimeoutSeconds": 4.5,
+  "holdSeconds": 3,
+  "returnSeconds": 1.5,
+  "settleSeconds": 2,
+  "previousAction": "delivered_raw_before_ema",
+  "normalization": "embedded_once",
+  "headMapping": "embedded_once",
+  "targetEncoding": "encoder_eeprom_saturation",
+  "supportFoot": "left",
+  "swingFoot": "right",
+  "poseGate": "imu-joint-fk-proxy-v1",
+  "physicalAccepted": false,
+  "selection": {
+    "experiment": "single-leg-continuous-pose-entry-v62b-20261019",
+    "weightsFrom": "single-leg-transfer-residual-v53-20261018/main/validation-00500",
+    "checkpointSha256": "dc7b27b35145c121ec94927332ddec7c03ba2101b2359d7a05ab334e213fb6d6",
+    "newOptimizerUpdatesInV62b": 0
+  },
+  "measurementLimits": "Physical contact and root velocity are unmeasured on board. The window56 reporter is a simulation hypothesis, not a firmware change. Simulation uses whole-foot clearance truth; runtime FK is only a proxy. Development results do not constitute physical or fresh-seed acceptance.",
+  "encoderContract": {
+    "revision": "board-calibrated-eeprom-v1",
+    "servoOrder": [
+      20,
+      21,
+      22,
+      23,
+      24,
+      30,
+      31,
+      32,
+      33,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "references": [
+      2064,
+      2064,
+      2019,
+      2108,
+      2078,
+      2048,
+      2084,
+      2048,
+      2048,
+      2048,
+      2021,
+      2071,
+      1957,
+      1958
+    ],
+    "directions": [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    "minimum": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "maximum": [
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095,
+      4095
+    ],
+    "motorMarginCounts": 8,
+    "physicsBoundsRadians": [
+      [
+        -3.115514980195737,
+        3.1661363461959633
+      ],
+      [
+        -3.115514980195737,
+        3.1661363461959633
+      ],
+      [
+        -3.184544115650591,
+        3.0971072107411097
+      ],
+      [
+        -3.048019825528769,
+        3.2336315008629315
+      ],
+      [
+        -3.094039249165338,
+        3.1876120772263623
+      ],
+      [
+        -3.1400586728019073,
+        3.141592653589793
+      ],
+      [
+        -3.084835364438024,
+        3.1968159619536762
+      ],
+      [
+        -3.1400586728019073,
+        3.141592653589793
+      ],
+      [
+        -3.1400586728019073,
+        3.141592653589793
+      ],
+      [
+        -3.1400586728019073,
+        3.141592653589793
+      ],
+      [
+        -3.18147615407482,
+        3.100175172316881
+      ],
+      [
+        -3.104777114680538,
+        3.176874211711163
+      ],
+      [
+        -3.2796509244995007,
+        3.0020004018921997
+      ],
+      [
+        -3.2781169437116153,
+        3.0035343826800855
+      ]
+    ],
+    "targetBoundsRadians": [
+      [
+        -3.103243133892652,
+        3.153864499892878
+      ],
+      [
+        -3.103243133892652,
+        3.153864499892878
+      ],
+      [
+        -3.172272269347506,
+        3.084835364438024
+      ],
+      [
+        -3.035747979225684,
+        3.2213596545598464
+      ],
+      [
+        -3.081767402862253,
+        3.175340230923277
+      ],
+      [
+        -3.1277868264988222,
+        3.129320807286708
+      ],
+      [
+        -3.072563518134939,
+        3.184544115650591
+      ],
+      [
+        -3.1277868264988222,
+        3.129320807286708
+      ],
+      [
+        -3.1277868264988222,
+        3.129320807286708
+      ],
+      [
+        -3.1277868264988222,
+        3.129320807286708
+      ],
+      [
+        -3.1692043077717345,
+        3.087903326013796
+      ],
+      [
+        -3.0925052683774528,
+        3.164602365408078
+      ],
+      [
+        -3.2673790781964156,
+        2.9897285555891147
+      ],
+      [
+        -3.2658450974085302,
+        2.9912625363770005
+      ]
+    ]
+  },
+  "transferSettleTicks": 15,
+  "transferGateMeasurement": "abs FK sole gap<10mm; tilt<30deg; gyro norm<.3rad/s; sole-relative speed<.02m/s; all15 consecutive fresh samples. Contact/root velocity remain unmeasured.",
+  "poseEntryConsecutiveReadyTicks": 15,
+  "selectedForDeployment": false,
+  "runtimeCompatibility": {
+    "currentObserverSupported": false,
+    "automaticallyLoaded": false,
+    "requiredChanges": [
+      "entry timeout 225 ticks at 50Hz",
+      "15 consecutive pose-ready samples at progress 1 before HOLD; clear on pause/reset",
+      "preserve existing transfer gate 15 quiet samples at progress 0.5 and HOLD 150 ticks"
+    ],
+    "currentObserverEntryTimeoutTicks": 150,
+    "currentObserverPoseEntryConsecutiveReadyTicks": 1
+  },
+  "simulationValidation": {
+    "knownDevelopmentSeedsReused": true,
+    "freshAcceptanceScreen": false,
+    "normal": {
+      "success": 242,
+      "worlds": 256,
+      "fraction": 0.9453125,
+      "passes95percent": false
+    },
+    "entryCancel": {
+      "success": 127,
+      "worlds": 128
+    },
+    "holdCancel": {
+      "success": 123,
+      "worlds": 128,
+      "actualHoldCancels": 123
+    },
+    "walkingActionScale": 0.9,
+    "speedProfile": "window56",
+    "speedProfileIsSimulationHypothesis": true,
+    "footShellsExcludedFromBodyContactOnly": true,
+    "wholeFootClearanceIncludesVisualShell": true,
+    "physicsCollisionsUnchanged": true,
+    "truePoseRequiresContinuousHoldTicks": 150
+  },
+  "modelIdentity": {
+    "displayName": "金鸡独立 v62b（复刻结构 / HD1910）",
+    "origin": "locally trained rear-hook policy; v53 iteration 500 weights, v62b evaluation clock",
+    "hardwareProfile": "microduck-replica-hd1910-v1",
+    "actuatorModel": "HD1910 / 1910 M6",
+    "actuatorParameters": "microduck-rl/src/mjlab_microduck/robot/hd1910/1910_m6.json",
+    "trainingRobotDirectory": "microduck-rl/src/mjlab_microduck/robot/replica",
+    "stlSourceDirectory": "microduck-replica/software/training/src/mjlab_microduck/robot/microduck/assets",
+    "isHuggingFaceFlamingoCycleRelease": false,
+    "distinctFrom": "https://huggingface.co/RemiFabre/microduck-flamingo-cycle",
+    "hardwareDynamicsIdentified": false,
+    "physicalAccepted": false
+  }
+}
