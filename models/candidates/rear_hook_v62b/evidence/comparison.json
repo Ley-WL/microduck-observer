@@ -1,0 +1,70 @@
+{
+  "experiment": "single-leg-continuous-pose-entry-v62b-20261019",
+  "jobExit": 0,
+  "sourceManifestVerified": true,
+  "knownSeedsReusedForClockDevelopment": true,
+  "physicalAccepted": false,
+  "selectedForDeployment": false,
+  "totals": {
+    "cancel-entry": {
+      "success": 127,
+      "worlds": 128,
+      "fraction": 0.9921875,
+      "passes95percent": true
+    },
+    "cancel-hold": {
+      "success": 123,
+      "worlds": 128,
+      "fraction": 0.9609375,
+      "passes95percent": true
+    },
+    "normal": {
+      "success": 242,
+      "worlds": 256,
+      "fraction": 0.9453125,
+      "passes95percent": false
+    }
+  },
+  "cases": [
+    {
+      "case": "111001-cancel-entry",
+      "scenario": "cancel-entry",
+      "worlds": 128,
+      "success": 127,
+      "fullCycles": 0,
+      "returns": 127,
+      "actualHoldCancels": null,
+      "recordSha256": "a02dd13157c9cba7987304c52b124b6b63537e1f471a71dda4fedc56a363d7b8"
+    },
+    {
+      "case": "111001-cancel-hold",
+      "scenario": "cancel-hold",
+      "worlds": 128,
+      "success": 123,
+      "fullCycles": 0,
+      "returns": 123,
+      "actualHoldCancels": 123,
+      "recordSha256": "cdb9f64629edc2bffe0990cd2e4baf92bb23a10b639d08bfaf8d3ea3649be36b"
+    },
+    {
+      "case": "111001-normal",
+      "scenario": "normal",
+      "worlds": 128,
+      "success": 121,
+      "fullCycles": 121,
+      "returns": 124,
+      "actualHoldCancels": null,
+      "recordSha256": "6ac8d4b70ed90c98cfccd2097cca4b5280cdde4fe1d2d2f3fe452958201f4543"
+    },
+    {
+      "case": "111007-normal",
+      "scenario": "normal",
+      "worlds": 128,
+      "success": 121,
+      "fullCycles": 121,
+      "returns": 126,
+      "actualHoldCancels": null,
+      "recordSha256": "9f36611d53f0c43aaafc6d0432257242434c7da6142a9989c4b617215fca47ae"
+    }
+  ]
+}
