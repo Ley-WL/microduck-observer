@@ -1,0 +1,78 @@
+{
+  "initial": {
+    "available": true,
+    "capturePid": 2545,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoderPid": 2546,
+    "error": "",
+    "height": 360,
+    "sequence": 174,
+    "streaming": true,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "off": {
+    "available": true,
+    "capturePid": 0,
+    "device": "/dev/video0",
+    "enabled": false,
+    "encoderPid": 0,
+    "error": "",
+    "height": 360,
+    "sequence": 174,
+    "streaming": false,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "offAfterRestart": {
+    "available": true,
+    "capturePid": 0,
+    "device": "",
+    "enabled": false,
+    "encoderPid": 0,
+    "error": "",
+    "height": 360,
+    "sequence": 0,
+    "streaming": false,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "on": {
+    "available": true,
+    "capturePid": 2652,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoderPid": 2653,
+    "error": "",
+    "height": 360,
+    "sequence": 3,
+    "streaming": true,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "onAfterRestart": {
+    "available": true,
+    "capturePid": 2712,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoderPid": 2713,
+    "error": "",
+    "height": 360,
+    "sequence": 7,
+    "streaming": true,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "fps": 9.986866863941316,
+  "legacyUnit": "LoadState=not-found\nActiveState=inactive\n",
+  "processes": "CGroup /system.slice/microduck-observer.service:\n\u251c\u25002697 /home/radxa/microduck-observer/current/bin/microduck-observer\n\u251c\u25002712 /usr/bin/v4l2-ctl -d /dev/video0 --stream-mmap=3 --stream-to=-\n\u2514\u25002713 /usr/bin/ffmpeg -nostdin -hide_banner -loglevel error -threads 1 -f rawv\u2026\n",
+  "settings": {
+    "enabled": true
+  }
+}

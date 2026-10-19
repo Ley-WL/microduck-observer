@@ -1,0 +1,32 @@
+{
+  "enabled": true,
+  "bootId": "993c1283-662b-4b90-bd11-e4af98ec55c2",
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261019-122515",
+  "driver": "RKNPU driver: v0.9.8",
+  "load": "NPU load:  0%",
+  "deviceNodes": {
+    "/sys/class/drm/renderD128": "/sys/devices/platform/display-subsystem",
+    "/sys/class/drm/renderD130": "/sys/devices/platform/fde60000.gpu",
+    "/sys/class/drm/renderD129": "/sys/devices/platform/fde40000.npu"
+  },
+  "onlineUnloadedServos": 15,
+  "calibrationValuesUnchanged": true,
+  "changedStateFiles": [],
+  "inferenceValidated": false,
+  "camera": {
+    "available": true,
+    "capturePid": 1061,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoderPid": 1062,
+    "error": "",
+    "height": 360,
+    "sequence": 467,
+    "streaming": true,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "backup": "/boot/armbianEnv.txt.before-npu-20261019-123301",
+  "kernelLog": "[   10.854355] RKNPU fde40000.npu: Adding to iommu group 0\n[   10.855285] RKNPU fde40000.npu: RKNPU: rknpu iommu is enabled, using iommu mode\n[   10.855369] RKNPU fde40000.npu: Looking up rknpu-supply from device tree\n[   10.855719] RKNPU fde40000.npu: Looking up mem-supply from device tree\n[   10.855732] RKNPU fde40000.npu: Looking up mem-supply property in node /npu@fde40000 failed\n[   10.855822] RKNPU fde40000.npu: can't request region for resource [mem 0xfde40000-0xfde4ffff]\n[   10.855895] RKNPU fde40000.npu: error -ENXIO: IRQ npu_irq not found\n[   10.856732] [drm] Initialized rknpu 0.9.8 20240828 for fde40000.npu on minor 1\n[   10.857847] RKNPU fde40000.npu: bin=0\n[   10.857912] RKNPU fde40000.npu: leakage=3\n[   10.857949] RKNPU fde40000.npu: pvtm = 90720, from nvmem\n[   10.857966] RKNPU fde40000.npu: pvtm-volt-sel=2\n[   10.857976] RKNPU fde40000.npu: soc version=0, speed=2\n[   10.858104] RKNPU fde40000.npu: Looking up rknpu-supply from device tree\n[   10.859106] RKNPU fde40000.npu: avs=0\n[   10.859378] RKNPU fde40000.npu: l=0 h=2147483647 hyst=5000 l_limit=0 h_limit=0 h_table=0"
+}

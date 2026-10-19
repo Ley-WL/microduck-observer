@@ -1,0 +1,19 @@
+{
+  "status": {
+    "available": true,
+    "capturePid": 3221,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoderPid": 3222,
+    "error": "",
+    "height": 720,
+    "sequence": 79,
+    "streaming": true,
+    "targetFps": 10,
+    "transport": "mjpeg",
+    "width": 1280
+  },
+  "fps": 5.3915610628475665,
+  "displayWidth": 720,
+  "displayHeight": 1280
+}

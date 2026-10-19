@@ -1,4 +1,5 @@
 mod dance;
+mod camera;
 mod head_control;
 mod gamepad;
 mod gamepad_bluetooth;
@@ -113,7 +114,7 @@ fn check_action(h: &HeaderMap, b: &Bytes, max: usize) -> Result<Value, Response>
 async fn info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     Json(
-        json!({"name":if a.hardware{"MicroDuck · MS901M"}else{"MicroDuck Lab"},"imuModel":if a.hardware{json!("MS901M")}else{Value::Null},"protocolVersion":1,"bootId":s.boot,"source":s.source,"topics":a.topics,"capabilities":{"pose":!a.hardware,"imu":true,"sensorOrientation":a.hardware,"joints":a.servo,"camera":false,"tof":a.tof,"scenarios":!a.hardware}}),
+        json!({"name":if a.hardware{"MicroDuck · MS901M"}else{"MicroDuck Lab"},"imuModel":if a.hardware{json!("MS901M")}else{Value::Null},"protocolVersion":1,"bootId":s.boot,"source":s.source,"topics":a.topics,"capabilities":{"pose":!a.hardware,"imu":true,"sensorOrientation":a.hardware,"joints":a.servo,"camera":camera::available(),"tof":a.tof,"scenarios":!a.hardware}}),
     )
 }
 async fn health(State(a): State<App>) -> Json<Value> {
@@ -581,6 +582,7 @@ async fn shutdown_signal(a: App) {
         owner.cancel.store(true, Ordering::Release);
     }
     a.shutdown.store(true, Ordering::Release);
+    camera::shutdown().await;
 }
 async fn api_errors(request: axum::extract::Request, next: axum::middleware::Next) -> Response {
     let api = request.uri().path().starts_with("/api/");
@@ -659,6 +661,7 @@ async fn main() -> anyhow::Result<()> {
         anyhow::bail!("Invalid MICRODUCK_SOURCE")
     }
     let hardware = source == "hardware";
+    camera::init(hardware).await;
     if hardware {
         let voice_dir = env("MICRODUCK_VOICE_DIR", "/var/lib/microduck-observer/voice");
         if let Err(e) = quack::init(std::path::Path::new(&voice_dir)) { eprintln!("quack voice initialization failed: {e:#}"); }
@@ -776,6 +779,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/stream", get(stream))
         .merge(gamepad::mode_router())
         .merge(gamepad_bluetooth::router())
+        .merge(camera::router())
         .fallback_service(ServeDir::new(static_dir).append_index_html_on_directories(true))
         .layer(DefaultBodyLimit::max(16384))
         .layer(cors)
