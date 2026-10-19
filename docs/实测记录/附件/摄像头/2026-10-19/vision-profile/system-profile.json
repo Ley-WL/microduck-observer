@@ -1,0 +1,100 @@
+{
+  "seconds": 8.000150887000018,
+  "camera_fps": 10.124809037242327,
+  "freq_before": {
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq": "1104000",
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq": "1104000",
+    "/sys/class/devfreq/fdf80200.rkvdec/cur_freq": "0",
+    "/sys/class/devfreq/dmc/cur_freq": "1056000000",
+    "/sys/class/devfreq/fde40000.npu/cur_freq": "900000000",
+    "/sys/class/devfreq/fdf40000.rkvenc/cur_freq": "0",
+    "/sys/class/devfreq/fde60000.gpu/cur_freq": "200000000",
+    "/sys/class/thermal/thermal_zone0/temp": "85000",
+    "/sys/class/thermal/thermal_zone1/temp": "82777"
+  },
+  "freq_after": {
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq": "1104000",
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq": "1104000",
+    "/sys/class/devfreq/fdf80200.rkvdec/cur_freq": "0",
+    "/sys/class/devfreq/dmc/cur_freq": "1056000000",
+    "/sys/class/devfreq/fde40000.npu/cur_freq": "900000000",
+    "/sys/class/devfreq/fdf40000.rkvenc/cur_freq": "0",
+    "/sys/class/devfreq/fde60000.gpu/cur_freq": "200000000",
+    "/sys/class/thermal/thermal_zone0/temp": "85000",
+    "/sys/class/thermal/thermal_zone1/temp": "82777"
+  },
+  "processes": [
+    {
+      "pid": "1083",
+      "name": "ffmpeg",
+      "cpu_one_core_pct": 44.499160706892205,
+      "cmd": "/usr/bin/ffmpeg -nostdin -hide_banner -loglevel error -threads 1 -f rawvideo -pixel_format nv12 -video_size 640x360 -framerate 30 -i pipe:0 -filter_threads 1 -vf fps=10,lutrgb=r='255*pow(clip(val*1.48/255,0,1),1/1.15)':g='255*pow(val/255,1/1.15)':b='255*pow(clip(val*1.80/255,0,1),1/1.15)' -threads 1 -q:v 5 -f image2pipe -c:v mjpeg pipe:1 "
+    },
+    {
+      "pid": "1041",
+      "name": "microduck-obser",
+      "cpu_one_core_pct": 43.2491842825413,
+      "cmd": "/home/radxa/microduck-observer/current/bin/microduck-observer "
+    },
+    {
+      "pid": "1977",
+      "name": "python3",
+      "cpu_one_core_pct": 3.374936345747442,
+      "cmd": "one-shot profiling collector (not a service)"
+    },
+    {
+      "pid": "1270",
+      "name": "kworker/u8:2-events_unbound",
+      "cpu_one_core_pct": 2.8749457760070807,
+      "cmd": ""
+    },
+    {
+      "pid": "38",
+      "name": "kworker/u8:1-events_unbound",
+      "cpu_one_core_pct": 2.6249504911368997,
+      "cmd": ""
+    },
+    {
+      "pid": "1082",
+      "name": "v4l2-ctl",
+      "cpu_one_core_pct": 2.6249504911368997,
+      "cmd": "/usr/bin/v4l2-ctl -d /dev/video0 --stream-mmap=3 --stream-to=- "
+    },
+    {
+      "pid": "627",
+      "name": "dbus-daemon",
+      "cpu_one_core_pct": 1.2499764243509046,
+      "cmd": "/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only "
+    },
+    {
+      "pid": "46",
+      "name": "kworker/u8:3-events_unbound",
+      "cpu_one_core_pct": 0.9999811394807236,
+      "cmd": ""
+    },
+    {
+      "pid": "1659",
+      "name": "kworker/0:1-events",
+      "cpu_one_core_pct": 0.9999811394807236,
+      "cmd": ""
+    },
+    {
+      "pid": "327",
+      "name": "aicwf_bustx_thread",
+      "cpu_one_core_pct": 0.8749834970456332,
+      "cmd": ""
+    },
+    {
+      "pid": "328",
+      "name": "aicwf_busrx_thread",
+      "cpu_one_core_pct": 0.7499858546105428,
+      "cmd": ""
+    },
+    {
+      "pid": "619",
+      "name": "bluetoothd",
+      "cpu_one_core_pct": 0.7499858546105428,
+      "cmd": "/usr/libexec/bluetooth/bluetoothd "
+    }
+  ]
+}

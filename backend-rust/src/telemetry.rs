@@ -52,6 +52,7 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub imu_full_rate: Arc<std::sync::atomic::AtomicBool>,
     pub head_intent:crate::head_control::HeadIntent,
     pub(crate) native_homed: bool,
     pub(crate) native_voltage:crate::policy::NativeVoltage,
@@ -295,6 +296,7 @@ impl Telemetry {
             drive: None,
             gamepad_session: None,
             pending_skill: None,
+            imu_full_rate: Arc::new(std::sync::atomic::AtomicBool::new(false)),
             head_intent:Default::default(), pending_quack:false, quack_voice:String::new(), quack_running:false, pending_mouth: None, mouth_degrees: 0.,
             resources: Value::Null,
             boot: Uuid::new_v4().to_string(),

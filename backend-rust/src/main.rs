@@ -111,10 +111,23 @@ fn check_action(h: &HeaderMap, b: &Bytes, max: usize) -> Result<Value, Response>
         }
     })
 }
+// Resolve the running executable, not the mutable current symlink.
+fn service_version() -> &'static Value {
+    static VERSION: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+    VERSION.get_or_init(|| {
+        let release = std::env::current_exe().ok().and_then(|exe| {
+            let bin=exe.parent()?;
+            let dir=bin.parent()?;
+            (bin.file_name()?=="bin" && dir.parent()?.file_name()?=="releases")
+                .then(||dir.file_name()?.to_str().map(str::to_owned)).flatten()
+        });
+        json!({"version":env!("CARGO_PKG_VERSION"),"release":release})
+    })
+}
 async fn info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     Json(
-        json!({"name":if a.hardware{"MicroDuck · MS901M"}else{"MicroDuck Lab"},"imuModel":if a.hardware{json!("MS901M")}else{Value::Null},"protocolVersion":1,"bootId":s.boot,"source":s.source,"topics":a.topics,"capabilities":{"pose":!a.hardware,"imu":true,"sensorOrientation":a.hardware,"joints":a.servo,"camera":camera::available(),"tof":a.tof,"scenarios":!a.hardware}}),
+        json!({"name":if a.hardware{"MicroDuck · MS901M"}else{"MicroDuck Lab"},"imuModel":if a.hardware{json!("MS901M")}else{Value::Null},"protocolVersion":1,"service":service_version(),"bootId":s.boot,"source":s.source,"topics":a.topics,"capabilities":{"pose":!a.hardware,"imu":true,"sensorOrientation":a.hardware,"joints":a.servo,"camera":camera::available(),"tof":a.tof,"scenarios":!a.hardware}}),
     )
 }
 async fn health(State(a): State<App>) -> Json<Value> {
@@ -744,7 +757,7 @@ async fn main() -> anyhow::Result<()> {
                 s.simulate()
             }
             if system.elapsed() >= Duration::from_secs(1) {
-                let d = json!({"resources":s.resources,"uptimeSeconds":s.started.elapsed().as_secs_f64(),"servoControl":if !port.is_empty(){s.control.clone()}else{Value::Null},"tof":if !tof_path.is_empty(){s.tof_health()}else{Value::Null},"imu":s.imu_health(),"scenario":if hardware{Value::Null}else{json!(s.scenario)}});
+                let d = json!({"service":service_version(),"resources":s.resources,"uptimeSeconds":s.started.elapsed().as_secs_f64(),"servoControl":if !port.is_empty(){s.control.clone()}else{Value::Null},"tof":if !tof_path.is_empty(){s.tof_health()}else{Value::Null},"imu":s.imu_health(),"scenario":if hardware{Value::Null}else{json!(s.scenario)}});
                 s.sample("system", d, true, Instant::now());
                 system = Instant::now();
             }

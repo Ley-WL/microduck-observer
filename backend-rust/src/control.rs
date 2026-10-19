@@ -35,6 +35,7 @@ where F: FnMut(&[u8]) -> Result<(Feedback, Value)> {
     }
     Ok(!missing.is_empty())
 }
+pub const IDLE_FEEDBACK_PERIOD: Duration = Duration::from_nanos(1_000_000_000 / 15);
 const PERIOD: Duration = Duration::from_millis(20);
 /// Preserve the original 50Hz schedule; expired ticks are skipped, never replayed.
 pub struct FrameClock {
@@ -812,23 +813,26 @@ pub fn spawn(port: String, ids: Vec<u8>, shared: Shared, stop: Arc<AtomicBool>) 
         halt: halt.clone(),
     };
     std::thread::Builder::new().name("servo-owner".into()).spawn(move||{
-        let mut bus=None;let mut stamps=std::collections::VecDeque::new();let mut clock=FrameClock::with_period(Instant::now(), Duration::from_millis(10));
+        let mut bus=None;let mut stamps=std::collections::VecDeque::new();let mut next_scan=Instant::now();
         while !stop.load(Ordering::Acquire){
             if bus.is_none(){bus=Bus::open(&port).ok();}
-            match rx.try_recv(){
+            // A queued command wakes immediately instead of waiting for the idle scan.
+            match rx.recv_timeout(next_scan.saturating_duration_since(Instant::now())){
                 Ok(job)=>{
                     let result=if let Some(b)=bus.as_mut(){if job.command["action"]=="calibrate"{crate::guided::hardware(b,&job.command["plan"],std::path::Path::new(job.command["backupPath"].as_str().unwrap()),&cancel)}else if job.command["action"]=="policy"{crate::policy::execute(b,&job.command,&cancel,&halt,&shared)}else{execute(b,&job.command,&cancel,&shared)}}else{Err(anyhow::anyhow!("舵机串口不可用"))};
                     let mut state=if job.command["action"]=="calibrate"&&result.is_ok(){json!({"state":"idle","message":"硬件标定任务结束，请检查逐颗写入结果"})}else{result.as_ref().cloned().unwrap_or_else(|e|json!({"state":"failed","action":job.command["action"],"message":e.to_string()}))};
                     if let Some(session)=job.command["driveSession"].as_str(){state["driveSession"]=json!(session);}
                     status(&shared,state.clone());shared.write().unwrap().log(if result.is_ok(){"INFO"}else{"WARN"},"servo-control",state["message"].as_str().unwrap_or(""));
+                    next_scan=Instant::now();stamps.clear();
                     if !job.off{busy.store(false,Ordering::Release);}else{pending_off.fetch_sub(1,Ordering::AcqRel);}let _=job.reply.send(result);
                 },
-                Err(mpsc::TryRecvError::Disconnected)=>break,
-                Err(mpsc::TryRecvError::Empty)=>{
+                Err(mpsc::RecvTimeoutError::Disconnected)=>break,
+                Err(mpsc::RecvTimeoutError::Timeout)=>{
                     let start=Instant::now();
-                    if let Some(b)=bus.as_mut(){match b.read_tick(&ids){Ok(f)=>{stamps.push_back(start);if stamps.len()>100{stamps.pop_front();}let mut d=b.diagnostics.clone();d["feedbackTargetHz"]=json!(100);d["skippedScanTicks"]=json!(clock.skipped);d["observedScanHz"]=if stamps.len()>1{json!((stamps.len()-1) as f64/(start-*stamps.front().unwrap()).as_secs_f64())}else{Value::Null};publish(&shared,&f,&ids,d)},Err(e)=>{shared.write().unwrap().log("WARN","servos",&e.to_string());bus=None;}}}
-                    else{shared.write().unwrap().sample("joints",json!({"configuredIds":ids,"servos":ids.iter().map(|id|json!({"id":id,"online":false,"ageMs":0})).collect::<Vec<_>>(),"error":"舵机串口不可用","targetHz":50,"readMode":"sync-read"}),true,Instant::now());}
-                    if bus.is_some(){clock.wait();}else{std::thread::sleep(Duration::from_millis(200).saturating_sub(start.elapsed()));clock=FrameClock::with_period(Instant::now(),Duration::from_millis(10));}
+                    if let Some(b)=bus.as_mut(){match b.read_tick(&ids){Ok(f)=>{stamps.push_back(start);if stamps.len()>100{stamps.pop_front();}let mut d=b.diagnostics.clone();d["feedbackTargetHz"]=json!(15);d["observedScanHz"]=if stamps.len()>1{json!((stamps.len()-1) as f64/(start-*stamps.front().unwrap()).as_secs_f64())}else{Value::Null};publish(&shared,&f,&ids,d)},Err(e)=>{shared.write().unwrap().log("WARN","servos",&e.to_string());bus=None;}}}
+                    else{shared.write().unwrap().sample("joints",json!({"configuredIds":ids,"servos":ids.iter().map(|id|json!({"id":id,"online":false,"ageMs":0})).collect::<Vec<_>>(),"error":"舵机串口不可用","targetHz":15,"readMode":"sync-read"}),true,Instant::now());}
+                    next_scan=start+if bus.is_some(){IDLE_FEEDBACK_PERIOD}else{Duration::from_millis(200)};
+                    if next_scan<Instant::now(){next_scan=Instant::now()+IDLE_FEEDBACK_PERIOD;}
                 }
             }
         }

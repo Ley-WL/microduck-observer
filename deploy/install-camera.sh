@@ -6,7 +6,7 @@ set -eu
 [ "$(id -u)" = 0 ] || { echo 'Run as root' >&2; exit 1; }
 source_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 [ "$(tr -d '\000' </proc/device-tree/model)" = 'Radxa ZERO 3' ]
-for command in ffmpeg media-ctl v4l2-ctl; do command -v "$command" >/dev/null; done
+for command in media-ctl v4l2-ctl; do command -v "$command" >/dev/null; done
 overlay=radxa-zero3-rpi-camera-v2
 [ -f "/boot/dtb/rockchip/overlay/$overlay.dtbo" ]
 [ "$(grep -c '^overlays=' /boot/armbianEnv.txt)" = 1 ]
@@ -43,5 +43,11 @@ if [ -f /etc/systemd/system/microduck-observer.service.d/camera.conf ]; then
     cp -p /etc/systemd/system/microduck-observer.service.d/camera.conf "$backup/previous-camera.conf"
 fi
 install -m 644 "$source_dir/camera.conf" /etc/systemd/system/microduck-observer.service.d/camera.conf
+install -m 644 "$source_dir/70-microduck-camera-mpp.rules" /etc/udev/rules.d/70-microduck-camera-mpp.rules
+udevadm control --reload-rules
+udevadm trigger --action=change --sysname-match=rga
+udevadm trigger --action=change --sysname-match=mpp_service
+udevadm trigger --action=change --subsystem-match=dma_heap
+udevadm settle
 systemctl daemon-reload
 echo "Camera permissions and saved preference prepared; legacy backup: $backup"

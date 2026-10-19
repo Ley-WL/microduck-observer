@@ -1,0 +1,176 @@
+{
+  "before": [
+    " 34:       5280          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+    " 96:        275          0          0          0     GICv3 122 Level     rga2"
+  ],
+  "tests": [
+    {
+      "name": "cpu-stage-yolov5-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=61.961 p50_ms=60.444 p95_ms=72.663 min_ms=54.025 max_ms=75.606",
+        "BENCH rknn_run mean_ms=26.563 p50_ms=26.526 p95_ms=27.259 min_ms=25.717 max_ms=27.651",
+        "BENCH resize mean_ms=29.023 p50_ms=27.038 p95_ms=38.225 min_ms=21.799 max_ms=41.073",
+        "BENCH inputs_set mean_ms=1.065 p50_ms=1.016 p95_ms=1.527 min_ms=0.810 max_ms=1.814",
+        "BENCH outputs_get mean_ms=5.151 p50_ms=4.998 p95_ms=6.180 min_ms=4.261 max_ms=6.687",
+        "BENCH postprocess_and_other mean_ms=0.158 p50_ms=0.134 p95_ms=0.261 min_ms=0.109 max_ms=0.365",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=57.29 peak_rss_kib=28912 input=360x640"
+      ],
+      "fallback_count": 55,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       5445          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        275          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "85000"
+    },
+    {
+      "name": "cpu-stage-RetinaFace-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=17.812 p50_ms=17.790 p95_ms=19.100 min_ms=15.644 max_ms=19.513",
+        "BENCH rknn_run mean_ms=8.883 p50_ms=8.829 p95_ms=10.034 min_ms=7.719 max_ms=10.327",
+        "BENCH resize mean_ms=8.118 p50_ms=8.049 p95_ms=9.086 min_ms=6.924 max_ms=9.484",
+        "BENCH inputs_set mean_ms=0.370 p50_ms=0.356 p95_ms=0.483 min_ms=0.272 max_ms=0.824",
+        "BENCH outputs_get mean_ms=0.383 p50_ms=0.370 p95_ms=0.462 min_ms=0.313 max_ms=0.486",
+        "BENCH postprocess_and_other mean_ms=0.057 p50_ms=0.056 p95_ms=0.067 min_ms=0.047 max_ms=0.113",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=78.48 peak_rss_kib=12124 input=360x640"
+      ],
+      "fallback_count": 55,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       5940          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        275          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "85000"
+    },
+    {
+      "name": "cpu-stage-yolov5-bus",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=84.141 p50_ms=81.474 p95_ms=101.833 min_ms=74.057 max_ms=108.140",
+        "BENCH rknn_run mean_ms=26.549 p50_ms=26.508 p95_ms=27.486 min_ms=25.710 max_ms=27.783",
+        "BENCH resize mean_ms=51.161 p50_ms=48.049 p95_ms=67.334 min_ms=41.830 max_ms=73.086",
+        "BENCH inputs_set mean_ms=1.010 p50_ms=0.984 p95_ms=1.396 min_ms=0.784 max_ms=1.581",
+        "BENCH outputs_get mean_ms=5.059 p50_ms=4.941 p95_ms=5.900 min_ms=4.135 max_ms=6.573",
+        "BENCH postprocess_and_other mean_ms=0.361 p50_ms=0.332 p95_ms=0.500 min_ms=0.258 max_ms=0.528",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=68.38 peak_rss_kib=29428 input=640x640",
+        "DETECTION box=109,233,202,529 score=0.820961",
+        "DETECTION box=209,241,287,511 score=0.797109",
+        "DETECTION box=483,223,564,513 score=0.639354"
+      ],
+      "fallback_count": 55,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       6105          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        275          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "cpu-stage-RetinaFace-face",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=19.292 p50_ms=19.319 p95_ms=20.540 min_ms=17.122 max_ms=20.596",
+        "BENCH rknn_run mean_ms=9.145 p50_ms=9.003 p95_ms=9.832 min_ms=8.494 max_ms=10.510",
+        "BENCH resize mean_ms=9.293 p50_ms=9.132 p95_ms=10.220 min_ms=7.335 max_ms=10.386",
+        "BENCH inputs_set mean_ms=0.364 p50_ms=0.349 p95_ms=0.471 min_ms=0.303 max_ms=0.522",
+        "BENCH outputs_get mean_ms=0.399 p50_ms=0.381 p95_ms=0.505 min_ms=0.351 max_ms=0.684",
+        "BENCH postprocess_and_other mean_ms=0.090 p50_ms=0.078 p95_ms=0.134 min_ms=0.068 max_ms=0.484",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=79.51 peak_rss_kib=12124 input=640x427",
+        "DETECTION box=304,72,476,296 score=0.999512"
+      ],
+      "fallback_count": 55,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       6600          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        275          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "rga-stage-yolov5-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=42.624 p50_ms=40.217 p95_ms=51.017 min_ms=38.552 max_ms=56.253",
+        "BENCH rknn_run mean_ms=27.931 p50_ms=27.267 p95_ms=30.597 min_ms=26.557 max_ms=31.581",
+        "BENCH resize mean_ms=6.235 p50_ms=5.476 p95_ms=9.237 min_ms=4.743 max_ms=12.533",
+        "BENCH inputs_set mean_ms=1.436 p50_ms=1.251 p95_ms=2.148 min_ms=1.032 max_ms=2.290",
+        "BENCH outputs_get mean_ms=6.783 p50_ms=6.011 p95_ms=9.905 min_ms=5.082 max_ms=11.427",
+        "BENCH postprocess_and_other mean_ms=0.239 p50_ms=0.183 p95_ms=0.339 min_ms=0.170 max_ms=0.738",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=30.59 peak_rss_kib=29172 input=360x640"
+      ],
+      "fallback_count": 0,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       6765          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        385          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "rga-stage-RetinaFace-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=17.590 p50_ms=15.737 p95_ms=25.707 min_ms=13.675 max_ms=29.278",
+        "BENCH rknn_run mean_ms=12.791 p50_ms=11.561 p95_ms=19.478 min_ms=9.860 max_ms=20.726",
+        "BENCH resize mean_ms=3.548 p50_ms=3.190 p95_ms=5.288 min_ms=2.653 max_ms=6.169",
+        "BENCH inputs_set mean_ms=0.513 p50_ms=0.443 p95_ms=0.904 min_ms=0.367 max_ms=0.953",
+        "BENCH outputs_get mean_ms=0.627 p50_ms=0.547 p95_ms=1.067 min_ms=0.479 max_ms=1.113",
+        "BENCH postprocess_and_other mean_ms=0.111 p50_ms=0.078 p95_ms=0.156 min_ms=0.069 max_ms=1.116",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=67.93 peak_rss_kib=12384 input=360x640"
+      ],
+      "fallback_count": 0,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       7260          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        495          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "rga-stage-yolov5-bus",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=45.828 p50_ms=45.894 p95_ms=51.775 min_ms=39.135 max_ms=52.541",
+        "BENCH rknn_run mean_ms=29.293 p50_ms=29.448 p95_ms=30.936 min_ms=26.799 max_ms=33.496",
+        "BENCH resize mean_ms=5.569 p50_ms=5.843 p95_ms=6.989 min_ms=3.510 max_ms=7.587",
+        "BENCH inputs_set mean_ms=1.976 p50_ms=2.004 p95_ms=3.084 min_ms=1.106 max_ms=3.707",
+        "BENCH outputs_get mean_ms=8.237 p50_ms=8.803 p95_ms=10.445 min_ms=5.287 max_ms=12.667",
+        "BENCH postprocess_and_other mean_ms=0.753 p50_ms=0.729 p95_ms=1.177 min_ms=0.413 max_ms=1.583",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=35.93 peak_rss_kib=29692 input=640x640",
+        "DETECTION box=109,233,202,529 score=0.820961",
+        "DETECTION box=209,241,287,511 score=0.797109",
+        "DETECTION box=483,223,564,513 score=0.639354"
+      ],
+      "fallback_count": 0,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       7425          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        550          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "rga-stage-RetinaFace-face",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=18.451 p50_ms=17.024 p95_ms=26.493 min_ms=14.387 max_ms=29.136",
+        "BENCH rknn_run mean_ms=13.135 p50_ms=11.896 p95_ms=19.254 min_ms=9.958 max_ms=22.020",
+        "BENCH resize mean_ms=3.913 p50_ms=3.387 p95_ms=6.359 min_ms=2.855 max_ms=7.141",
+        "BENCH inputs_set mean_ms=0.561 p50_ms=0.464 p95_ms=1.003 min_ms=0.391 max_ms=1.366",
+        "BENCH outputs_get mean_ms=0.692 p50_ms=0.565 p95_ms=1.239 min_ms=0.476 max_ms=1.393",
+        "BENCH postprocess_and_other mean_ms=0.150 p50_ms=0.111 p95_ms=0.291 min_ms=0.097 max_ms=0.740",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=68.26 peak_rss_kib=12368 input=640x427",
+        "DETECTION box=302,72,476,296 score=0.999512"
+      ],
+      "fallback_count": 0,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       7920          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        660          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "85000"
+    }
+  ]
+}

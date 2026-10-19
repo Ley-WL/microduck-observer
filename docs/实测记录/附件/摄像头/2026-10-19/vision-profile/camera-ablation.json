@@ -1,0 +1,38 @@
+[
+  {
+    "name": "drop_only",
+    "exit": 0,
+    "frames": 100,
+    "wall_ms_per_frame": 19.050548579998576,
+    "cpu_ms_per_frame": 20.21788,
+    "stderr": "",
+    "temp": "85000"
+  },
+  {
+    "name": "rgb_conversion",
+    "exit": 0,
+    "frames": 100,
+    "wall_ms_per_frame": 36.17482821999829,
+    "cpu_ms_per_frame": 40.37483,
+    "stderr": "",
+    "temp": "85000"
+  },
+  {
+    "name": "rgb_lut",
+    "exit": 0,
+    "frames": 100,
+    "wall_ms_per_frame": 41.995812970001225,
+    "cpu_ms_per_frame": 46.339679999999994,
+    "stderr": "",
+    "temp": "85000"
+  },
+  {
+    "name": "rgb_lut_jpeg",
+    "exit": 0,
+    "frames": 100,
+    "wall_ms_per_frame": 74.67344125000182,
+    "cpu_ms_per_frame": 107.75013000000001,
+    "stderr": "",
+    "temp": "84444"
+  }
+]

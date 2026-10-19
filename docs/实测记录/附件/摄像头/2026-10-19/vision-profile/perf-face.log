@@ -1,0 +1,162 @@
+model input num: 1, output num: 3
+input tensors:
+  index=0, name=input0, n_dims=4, dims=[1, 320, 320, 3], n_elems=307200, size=307200, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-14, scale=1.074510
+output tensors:
+  index=0, name=output0, n_dims=3, dims=[1, 4200, 4, 0], n_elems=16800, size=16800, fmt=UNDEFINED, type=INT8, qnt_type=AFFINE, zp=0, scale=0.044699
+  index=1, name=572, n_dims=3, dims=[1, 4200, 2, 0], n_elems=8400, size=16800, fmt=UNDEFINED, type=FP16, qnt_type=AFFINE, zp=0, scale=1.000000
+  index=2, name=571, n_dims=3, dims=[1, 4200, 10, 0], n_elems=42000, size=42000, fmt=UNDEFINED, type=INT8, qnt_type=AFFINE, zp=-22, scale=0.086195
+model is NHWC input fmt
+model input height=320, width=320, channel=3
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+fill dst image (x y w h)=(0 0 320 320) with color=0x72727272
+rga_api version 1.10.1_[0]
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+fill dst image (x y w h)=(0 0 320 320) with color=0x72727272
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+fill dst image (x y w h)=(0 0 320 320) with color=0x72727272
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+fill dst image (x y w h)=(0 0 320 320) with color=0x72727272
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+fill dst image (x y w h)=(0 0 320 320) with color=0x72727272
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+fill dst image (x y w h)=(0 0 320 320) with color=0x72727272
+rknn_run
+BENCH pipeline mean_ms=23.393 p50_ms=23.393 p95_ms=23.393 min_ms=23.393 max_ms=23.393
+BENCH rknn_run mean_ms=19.581 p50_ms=19.581 p95_ms=19.581 min_ms=19.581 max_ms=19.581
+BENCH resize mean_ms=2.809 p50_ms=2.809 p95_ms=2.809 min_ms=2.809 max_ms=2.809
+BENCH inputs_set mean_ms=0.458 p50_ms=0.458 p95_ms=0.458 min_ms=0.458 max_ms=0.458
+BENCH outputs_get mean_ms=0.468 p50_ms=0.468 p95_ms=0.468 min_ms=0.468 max_ms=0.468
+BENCH postprocess_and_other mean_ms=0.078 p50_ms=0.078 p95_ms=0.078 min_ms=0.078 max_ms=0.078
+BENCH cpu_resize mean_ms=1.522 p50_ms=1.522 p95_ms=1.522 min_ms=1.522 max_ms=1.522
+BENCH cpu_inputs mean_ms=0.450 p50_ms=0.450 p95_ms=0.450 min_ms=0.450 max_ms=0.450
+BENCH cpu_run mean_ms=14.865 p50_ms=14.865 p95_ms=14.865 min_ms=14.865 max_ms=14.865
+BENCH cpu_outputs mean_ms=0.459 p50_ms=0.459 p95_ms=0.459 min_ms=0.459 max_ms=0.459
+BENCH cpu_other mean_ms=0.099 p50_ms=0.099 p95_ms=0.099 min_ms=0.099 max_ms=0.099
+BENCH runs=1 warmup=5 cpu_one_core_pct=74.92 peak_rss_kib=12448 input=360x640
+write_image path: perf-face.png width=360 height=640 channel=3 data=0xffffb373e010
+PERF_DETAIL
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                Network Layer Information Table                                                                  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ID   OpType             DataType Target InputShape                               OutputShape            Cycles(DDR/NPU/Total)    Time(us)     MacUsage(%)  RW(KB)       FullName        
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+0    InputOperator      UINT8    CPU    \                                        (1,3,320,320)          0/0/0                    18                        0            InputOperator:input0
+1    ConvLeakyRelu      UINT8    NPU    (1,3,320,320),(8,3,3,3),(8)              (1,8,160,160)          141362/230400/230400     473          2.54         707          Conv:Conv_0     
+2    ConvLeakyRelu      INT8     NPU    (1,8,160,160),(1,8,3,3),(8)              (1,8,160,160)          187218/230400/230400     452          0.88         1001         Conv:Conv_2     
+3    ConvLeakyRelu      INT8     NPU    (1,8,160,160),(16,8,1,1),(16)            (1,16,160,160)         156040/102400/156040     257          2.77         601          Conv:Conv_4     
+4    ConvLeakyRelu      INT8     NPU    (1,16,160,160),(1,16,3,3),(16)           (1,16,80,80)           109907/57600/109907      214          0.93         605          Conv:Conv_6     
+5    ConvLeakyRelu      INT8     NPU    (1,16,80,80),(32,16,1,1),(32)            (1,32,80,80)           78201/51200/78201        161          4.42         301          Conv:Conv_8     
+6    ConvLeakyRelu      INT8     NPU    (1,32,80,80),(1,32,3,3),(32)             (1,32,80,80)           93750/57600/93750        178          2.25         401          Conv:Conv_10    
+7    ConvLeakyRelu      INT8     NPU    (1,32,80,80),(32,32,1,1),(32)            (1,32,80,80)           93862/51200/93862        175          8.13         402          Conv:Conv_12    
+8    ConvLeakyRelu      INT8     NPU    (1,32,80,80),(1,32,3,3),(32)             (1,32,40,40)           47000/14400/47000        114          0.88         251          Conv:Conv_14    
+9    ConvLeakyRelu      INT8     NPU    (1,32,40,40),(64,32,1,1),(64)            (1,64,40,40)           39515/25600/39515        102          6.97         153          Conv:Conv_16    
+10   ConvLeakyRelu      INT8     NPU    (1,64,40,40),(1,64,3,3),(64)             (1,64,40,40)           47083/28800/47083        119          1.68         202          Conv:Conv_18    
+11   ConvLeakyRelu      INT8     NPU    (1,64,40,40),(64,64,1,1),(64)            (1,64,40,40)           47619/25600/47619        119          11.95        205          Conv:Conv_20    
+12   ConvLeakyRelu      INT8     NPU    (1,64,40,40),(1,64,3,3),(64)             (1,64,20,20)           23708/7200/23708         128          0.39         127          Conv:Conv_22    
+13   ConvLeakyRelu      INT8     NPU    (1,64,20,20),(128,64,1,1),(128)          (1,128,20,20)          21049/12800/21049        102          6.97         85           Conv:Conv_24    
+14   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(1,128,3,3),(128)          (1,128,20,20)          23873/14400/23873        98           1.02         103          Conv:Conv_26    
+15   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(128,128,1,1),(128)        (1,128,20,20)          26192/12800/26192        135          10.53        118          Conv:Conv_28    
+16   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(1,128,3,3),(128)          (1,128,20,20)          23873/14400/23873        105          0.95         103          Conv:Conv_30    
+17   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(128,128,1,1),(128)        (1,128,20,20)          26192/12800/26192        93           15.29        118          Conv:Conv_32    
+18   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(1,128,3,3),(128)          (1,128,20,20)          23873/14400/23873        96           1.04         103          Conv:Conv_34    
+19   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(128,128,1,1),(128)        (1,128,20,20)          26192/12800/26192        93           15.29        118          Conv:Conv_36    
+20   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(1,128,3,3),(128)          (1,128,20,20)          23873/14400/23873        124          0.81         103          Conv:Conv_38    
+21   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(128,128,1,1),(128)        (1,128,20,20)          26192/12800/26192        92           15.46        118          Conv:Conv_40    
+22   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(1,128,3,3),(128)          (1,128,20,20)          23873/14400/23873        97           1.03         103          Conv:Conv_42    
+23   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(128,128,1,1),(128)        (1,128,20,20)          26192/12800/26192        91           15.63        118          Conv:Conv_44    
+24   ConvLeakyRelu      INT8     NPU    (1,128,20,20),(1,128,3,3),(128)          (1,128,10,10)          12186/4032/12186         64           0.39         65           Conv:Conv_46    
+25   ConvLeakyRelu      INT8     NPU    (1,128,10,10),(256,128,1,1),(256)        (1,256,10,10)          15205/7168/15205         81           8.78         72           Conv:Conv_48    
+26   ConvLeakyRelu      INT8     NPU    (1,256,10,10),(1,256,3,3),(256)          (1,256,10,10)          12517/8064/12517         107          0.47         55           Conv:Conv_50    
+27   ConvLeakyRelu      INT8     NPU    (1,256,10,10),(256,256,1,1),(256)        (1,256,10,10)          22140/14336/22140        182          7.81         117          Conv:Conv_52    
+28   ConvLeakyRelu      INT8     NPU    (1,256,10,10),(64,256,1,1),(64)          (1,64,10,10)           8582/3584/8582           75           4.74         48           Conv:Conv_58    
+29   Conv               INT8     NPU    (1,64,10,10),(32,64,3,3),(32)            (1,32,10,10)           4959/4032/4959           143          2.80         28           Conv:Conv_98    
+30   ConvLeakyRelu      INT8     NPU    (1,64,10,10),(16,64,3,3),(16)            (1,16,10,10)           3050/2016/3050           105          1.90         18           Conv:Conv_99    
+31   Conv               INT8     NPU    (1,16,10,10),(16,16,3,3),(16)            (1,16,10,10)           1268/1008/1268           42           1.19         6            Conv:Conv_101   
+32   ConvLeakyRelu      INT8     NPU    (1,16,10,10),(16,16,3,3),(16)            (1,16,10,10)           1268/1008/1268           37           1.35         6            Conv:Conv_102   
+33   Conv               INT8     NPU    (1,16,10,10),(16,16,3,3),(16)            (1,16,10,10)           1268/1008/1268           41           1.22         6            Conv:Conv_104   
+34   Concat             INT8     NPU    (1,32,10,10),(1,16,10,10),...            (1,64,10,10)           0/0/0                    69                        13           Concat:Concat_105
+35   Relu               INT8     NPU    (1,64,10,10)                             (1,64,10,10)           0/0/0                    67                        13           Relu:Relu_106   
+36   Conv               INT8     NPU    (1,64,10,10),(8,64,1,1),(8)              (1,8,10,10)            1604/448/1604            75           0.15         9            Conv:Conv_123   
+37   Reshape            INT8     NPU    (1,8,10,10),(4)                          (1,8,5,20)             0/0/0                    1                         0            Reshape:onnx::Concat_500_rs
+38   Conv               INT8     NPU    (1,64,10,10),(4,64,1,1),(4)              (1,4,10,10)            1565/448/1565            76           0.07         9            Conv:Conv_143   
+39   Transpose          INT8     CPU    (1,4,10,10)                              (1,10,10,4)            0/0/0                    69                        0            Transpose:Transpose_144
+40   Reshape            INT8     CPU    (1,10,10,4),(4)                          (1,200,1,2)            0/0/0                    34                        0            Reshape:onnx::Concat_535_rs
+41   Conv               INT8     NPU    (1,64,10,10),(20,64,1,1),(20)            (1,20,10,10)           2227/896/2227            77           0.36         11           Conv:Conv_163   
+42   Reshape            INT8     CPU    (1,20,10,10),(4)                         (1,20,5,20)            0/0/0                    57                        2            Reshape:onnx::Concat_570_rs
+43   Resize             INT8     NPU    (1,64,10,10),(0),(4)                     (1,64,20,20)           0/0/0                    94                        32           Resize:Upsample_66
+44   ConvLeakyReluAdd   INT8     NPU    (1,128,20,20),(64,128,1,1),(64),...      (1,64,20,20)           20971/6400/20971         132          5.39         109          Conv:Conv_56    
+45   ConvLeakyRelu      INT8     NPU    (1,64,20,20),(64,64,3,3),(64)            (1,64,20,20)           17543/28800/28800        129          24.81        87           Conv:Conv_68    
+46   Conv               INT8     NPU    (1,64,20,20),(32,64,3,3),(32)            (1,32,20,20)           10803/14400/14400        84           19.05        56           Conv:Conv_89    
+47   ConvLeakyRelu      INT8     NPU    (1,64,20,20),(16,64,3,3),(16)            (1,16,20,20)           7433/7200/7433           75           10.67        41           Conv:Conv_90    
+48   Conv               INT8     NPU    (1,16,20,20),(16,16,3,3),(16)            (1,16,20,20)           3459/3600/3600           75           2.67         15           Conv:Conv_92    
+49   ConvLeakyRelu      INT8     NPU    (1,16,20,20),(16,16,3,3),(16)            (1,16,20,20)           3459/3600/3600           73           2.74         15           Conv:Conv_93    
+50   Conv               INT8     NPU    (1,16,20,20),(16,16,3,3),(16)            (1,16,20,20)           3459/3600/3600           104          1.92         15           Conv:Conv_95    
+51   Concat             INT8     NPU    (1,32,20,20),(1,16,20,20),...            (1,64,20,20)           0/0/0                    105                       51           Concat:Concat_96
+52   Relu               INT8     NPU    (1,64,20,20)                             (1,64,20,20)           0/0/0                    77                        50           Relu:Relu_97    
+53   Conv               INT8     NPU    (1,64,20,20),(8,64,1,1),(8)              (1,8,20,20)            5621/1600/5621           74           0.60         32           Conv:Conv_115   
+54   Conv               INT8     NPU    (1,64,20,20),(4,64,1,1),(4)              (1,4,20,20)            5583/1600/5583           74           0.30         32           Conv:Conv_135   
+55   Transpose          INT8     CPU    (1,4,20,20)                              (1,20,20,4)            0/0/0                    104                       3            Transpose:Transpose_136
+56   Reshape            INT8     CPU    (1,20,20,4),(4)                          (1,800,1,2)            0/0/0                    40                        1            Reshape:onnx::Concat_525_rs
+57   Conv               INT8     NPU    (1,64,20,20),(20,64,1,1),(20)            (1,20,20,20)           7706/3200/7706           204          0.54         40           Conv:Conv_155   
+58   Resize             INT8     NPU    (1,64,20,20),(0),(4)                     (1,64,40,40)           0/0/0                    117                       126          Resize:Upsample_76
+59   ConvLeakyReluAdd   INT8     NPU    (1,64,40,40),(64,64,1,1),(64),...        (1,64,40,40)           63202/25600/63202        249          5.71         305          Conv:Conv_54    
+60   ConvLeakyRelu      INT8     NPU    (1,64,40,40),(64,64,3,3),(64)            (1,64,40,40)           52605/115200/115200      261          49.04        237          Conv:Conv_78    
+61   Conv               INT8     NPU    (1,64,40,40),(32,64,3,3),(32)            (1,32,40,40)           34178/57600/57600        212          30.19        169          Conv:Conv_80    
+62   ConvLeakyRelu      INT8     NPU    (1,64,40,40),(16,64,3,3),(16)            (1,16,40,40)           24964/28800/28800        179          17.88        135          Conv:Conv_81    
+63   Conv               INT8     NPU    (1,16,40,40),(16,16,3,3),(16)            (1,16,40,40)           12225/14400/14400        108          7.41         53           Conv:Conv_83    
+64   ConvLeakyRelu      INT8     NPU    (1,16,40,40),(16,16,3,3),(16)            (1,16,40,40)           12225/14400/14400        102          7.84         53           Conv:Conv_84    
+65   Conv               INT8     NPU    (1,16,40,40),(16,16,3,3),(16)            (1,16,40,40)           12225/14400/14400        103          7.77         53           Conv:Conv_86    
+66   Concat             INT8     NPU    (1,32,40,40),(1,16,40,40),...            (1,64,40,40)           0/0/0                    161                       201          Concat:Concat_87
+67   Relu               INT8     NPU    (1,64,40,40)                             (1,64,40,40)           0/0/0                    96                        200          Relu:Relu_88    
+68   Conv               INT8     NPU    (1,64,40,40),(8,64,1,1),(8)              (1,8,40,40)            21692/6400/21692         90           1.98         126          Conv:Conv_107   
+69   Reshape            INT8     NPU    (1,8,40,40),(4)                          (1,8,80,20)            0/0/0                    2                         12           Reshape:onnx::Concat_478_rs
+70   Conv               INT8     NPU    (1,64,40,40),(4,64,1,1),(4)              (1,4,40,40)            21653/6400/21653         91           0.98         126          Conv:Conv_127   
+71   Transpose          INT8     CPU    (1,4,40,40)                              (1,40,40,4)            0/0/0                    263                       12           Transpose:Transpose_128
+72   Reshape            INT8     CPU    (1,40,40,4),(4)                          (1,3200,1,2)           0/0/0                    71                        6            Reshape:onnx::Concat_513_rs
+73   Conv               INT8     NPU    (1,64,40,40),(20,64,1,1),(20)            (1,20,40,40)           29620/12800/29620        96           4.63         152          Conv:Conv_147   
+74   Reshape            INT8     CPU    (1,20,40,40),(4)                         (1,20,80,20)           0/0/0                    184                       37           Reshape:onnx::Concat_548_rs
+75   Concat             INT8     NPU    (1,8,80,20),(1,8,20,20),(1,8,5,20)       (1,8,105,20)           0/0/0                    79                        34           Concat:Concat_126
+76   Transpose          INT8     CPU    (1,8,105,20)                             (1,105,20,8)           0/0/0                    497                       16           Transpose:output0-rs_tp
+77   Reshape            INT8     NPU    (1,105,20,8),(3)                         (1,4200,4)             0/0/0                    76                        33           Reshape:output0-rs
+78   Concat             INT8     NPU    (1,3200,1,2),(1,800,1,2),(1,200,1,2)     (1,4200,1,2)           0/0/0                    74                        17           Concat:Concat_146
+79   exDataConvert      INT8     NPU    (1,4200,1,2)                             (1,4200,1,2)           0/0/0                    140                       58           exDataConvert:classifications-rs__cvt_int8_float16
+80   exSoftmax13        FLOAT16  CPU    (1,4200,1,2)                             (1,4200,1,2)           0/0/0                    1252                      16           exSoftmax13:Softmax_167
+81   Reshape            FLOAT16  NPU    (1,4200,1,2),(3)                         (1,4200,2)             0/0/0                    82                        33           Reshape:572-rs  
+82   Concat             INT8     NPU    (1,20,80,20),(1,20,20,20),...            (1,20,105,20)          0/0/0                    162                       99           Concat:Concat_166
+83   Transpose          INT8     CPU    (1,20,105,20)                            (1,105,20,20)          0/0/0                    1185                      49           Transpose:571-rs_tp
+84   Reshape            INT8     NPU    (1,105,20,20),(3)                        (1,4200,10)            0/0/0                    146                       82           Reshape:571-rs  
+85   OutputOperator     INT8     CPU    (1,4200,4)                               \                      0/0/0                    18                        16           OutputOperator:output0
+86   OutputOperator     FLOAT16  CPU    (1,4200,2)                               \                      0/0/0                    14                        16           OutputOperator:572
+87   OutputOperator     INT8     CPU    (1,4200,10)                              \                      0/0/0                    14                        41           OutputOperator:571
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total Operator Elapsed Per Frame Time(us): 12606
+Total Internal Memory Read/Write Per Frame Size(KB): 9110.73
+Total Weight Memory Read/Write Per Frame Size(KB): 410.34
+Total Memory Read/Write Per Frame Size(KB): 9521.07
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+                                 Operator Time Consuming Ranking Table            
+---------------------------------------------------------------------------------------------------
+OpType             CallNumber   CPUTime(us)  GPUTime(us)  NPUTime(us)  TotalTime(us)  TimeRatio(%)  
+---------------------------------------------------------------------------------------------------
+ConvLeakyRelu      36           0            0            5088         5088           40.36%        
+Transpose          5            2118         0            0            2118           16.80%        
+Conv               18           0            0            1769         1769           14.03%        
+exSoftmax13        1            1252         0            0            1252           9.93%         
+Reshape            10           386          0            307          693            5.50%         
+Concat             6            0            0            650          650            5.16%         
+ConvLeakyReluAdd   2            0            0            381          381            3.02%         
+Relu               3            0            0            240          240            1.90%         
+Resize             2            0            0            211          211            1.67%         
+exDataConvert      1            0            0            140          140            1.11%         
+OutputOperator     3            46           0            0            46             0.36%         
+InputOperator      1            18           0            0            18             0.14%         
+---------------------------------------------------------------------------------------------------
+Total                           3820         0            8786         12606         
+---------------------------------------------------------------------------------------------------
+

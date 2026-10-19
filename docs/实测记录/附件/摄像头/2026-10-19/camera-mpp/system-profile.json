@@ -1,0 +1,100 @@
+{
+  "seconds": 8.000147679000293,
+  "camera_fps": 10.124813097215457,
+  "freq_before": {
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq": "1104000",
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq": "1104000",
+    "/sys/class/devfreq/fdf80200.rkvdec/cur_freq": "0",
+    "/sys/class/devfreq/dmc/cur_freq": "1056000000",
+    "/sys/class/devfreq/fde40000.npu/cur_freq": "900000000",
+    "/sys/class/devfreq/fdf40000.rkvenc/cur_freq": "0",
+    "/sys/class/devfreq/fde60000.gpu/cur_freq": "200000000",
+    "/sys/class/thermal/thermal_zone0/temp": "85000",
+    "/sys/class/thermal/thermal_zone1/temp": "82777"
+  },
+  "freq_after": {
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq": "1416000",
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq": "1416000",
+    "/sys/class/devfreq/fdf80200.rkvdec/cur_freq": "0",
+    "/sys/class/devfreq/dmc/cur_freq": "1056000000",
+    "/sys/class/devfreq/fde40000.npu/cur_freq": "900000000",
+    "/sys/class/devfreq/fdf40000.rkvenc/cur_freq": "0",
+    "/sys/class/devfreq/fde60000.gpu/cur_freq": "200000000",
+    "/sys/class/thermal/thermal_zone0/temp": "85000",
+    "/sys/class/thermal/thermal_zone1/temp": "82777"
+  },
+  "processes": [
+    {
+      "pid": "3329",
+      "name": "microduck-obser",
+      "cpu_one_core_pct": 41.374236236769335,
+      "cmd": "/home/radxa/microduck-observer/current/bin/microduck-observer "
+    },
+    {
+      "pid": "3345",
+      "name": "microduck-camer",
+      "cpu_one_core_pct": 6.249884627910776,
+      "cmd": "/home/radxa/microduck-observer/releases/runtime-20261019-camera-mpp/bin/microduck-camera-mpp "
+    },
+    {
+      "pid": "3382",
+      "name": "python3",
+      "cpu_one_core_pct": 3.62493308418825,
+      "cmd": "one-shot profiling collector"
+    },
+    {
+      "pid": "2333",
+      "name": "kworker/u8:0-events_unbound",
+      "cpu_one_core_pct": 2.624951543722526,
+      "cmd": ""
+    },
+    {
+      "pid": "3344",
+      "name": "v4l2-ctl",
+      "cpu_one_core_pct": 2.374956158606095,
+      "cmd": "/usr/bin/v4l2-ctl -d /dev/video0 --stream-mmap=3 --stream-to=- "
+    },
+    {
+      "pid": "2689",
+      "name": "kworker/u8:4-events_unbound",
+      "cpu_one_core_pct": 1.8749653883732327,
+      "cmd": ""
+    },
+    {
+      "pid": "2480",
+      "name": "kworker/u8:3-events_unbound",
+      "cpu_one_core_pct": 1.7499676958150172,
+      "cmd": ""
+    },
+    {
+      "pid": "627",
+      "name": "dbus-daemon",
+      "cpu_one_core_pct": 1.2499769255821551,
+      "cmd": "/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only "
+    },
+    {
+      "pid": "619",
+      "name": "bluetoothd",
+      "cpu_one_core_pct": 0.7499861553492931,
+      "cmd": "/usr/libexec/bluetooth/bluetoothd "
+    },
+    {
+      "pid": "327",
+      "name": "aicwf_bustx_thread",
+      "cpu_one_core_pct": 0.6249884627910776,
+      "cmd": ""
+    },
+    {
+      "pid": "328",
+      "name": "aicwf_busrx_thread",
+      "cpu_one_core_pct": 0.6249884627910776,
+      "cmd": ""
+    },
+    {
+      "pid": "97",
+      "name": "kworker/u9:0-hci0",
+      "cpu_one_core_pct": 0.49999077023286204,
+      "cmd": ""
+    }
+  ]
+}

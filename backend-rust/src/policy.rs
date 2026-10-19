@@ -1427,6 +1427,7 @@ pub fn execute(
     halt: &AtomicBool,
     shared: &Shared,
 ) -> Result<Value> {
+    let _imu_rate = crate::imu::FullRateGuard::enter(shared);
     let (kind, speed) = request_profile(command)?;
     let mut model = Model::open_for(kind, speed)?;
     // Load and warm before any enable/goal write; transitions never load a graph on UART.

@@ -9,9 +9,6 @@ use tokio::{io::AsyncReadExt, process::{Child, ChildStdout, Command},
 use crate::{App, check_write, error};
 
 const MAX_FRAME: usize = 1024 * 1024;
-// A 256-entry lookup per RGB channel replaces per-pixel matrix arithmetic and
-// the separate tone filter. Keep the measured fixed WB gains, not automatic 3A.
-const IMAGE_FILTER: &str = "fps=10,lutrgb=r='255*pow(clip(val*1.48/255,0,1),1/1.15)':g='255*pow(val/255,1/1.15)':b='255*pow(clip(val*1.80/255,0,1),1/1.15)'";
 static CAMERA: OnceLock<Arc<Camera>> = OnceLock::new();
 
 #[derive(Clone)]
@@ -80,7 +77,8 @@ impl Camera {
         json!({"available":self.available,"enabled":f.enabled,
             "streaming":!f.jpeg.is_empty() && f.at.elapsed()<Duration::from_secs(5),
             "error":f.error,"device":f.device,"transport":"mjpeg","width":640,"height":360,
-            "targetFps":10,"sequence":f.seq,"capturePid":f.capture_pid,"encoderPid":f.encoder_pid})
+            "targetFps":10,"sequence":f.seq,"capturePid":f.capture_pid,"encoderPid":f.encoder_pid,
+            "encoder":"rockchip-mpp","processing":"rga+fixed-wb"})
     }
     async fn stop_worker(worker: &mut Option<Worker>) {
         if let Some(w)=worker.take() {
@@ -211,14 +209,15 @@ struct Pipeline { capture:Child, encoder:Child, output:ChildStdout,
     capture_log:JoinHandle<String>, encoder_log:JoinHandle<String> }
 impl Pipeline {
     fn spawn(device:&str) -> anyhow::Result<Self> {
+        let executable=std::env::current_exe()?;
+        let encoder_path=executable.parent().ok_or_else(||anyhow::anyhow!("Invalid executable directory"))?
+            .join("microduck-camera-mpp");
+        anyhow::ensure!(encoder_path.is_file(),"MPP camera helper is missing: {}",encoder_path.display());
         let mut capture=Command::new("/usr/bin/v4l2-ctl")
             .args(["-d",device,"--stream-mmap=3","--stream-to=-"])
             .stdout(Stdio::piped()).stderr(Stdio::piped()).kill_on_drop(true).spawn()?;
         let input:Stdio=capture.stdout.take().unwrap().try_into()?;
-        let mut encoder=Command::new("/usr/bin/ffmpeg").args([
-            "-nostdin","-hide_banner","-loglevel","error","-threads","1",
-            "-f","rawvideo","-pixel_format","nv12","-video_size","640x360","-framerate","30","-i","pipe:0",
-            "-filter_threads","1","-vf",IMAGE_FILTER,"-threads","1","-q:v","5","-f","image2pipe","-c:v","mjpeg","pipe:1"])
+        let mut encoder=Command::new(encoder_path)
             .stdin(input).stdout(Stdio::piped()).stderr(Stdio::piped()).kill_on_drop(true).spawn()?;
         let output=encoder.stdout.take().unwrap();
         let capture_log=tokio::spawn(stderr_tail(capture.stderr.take().unwrap()));

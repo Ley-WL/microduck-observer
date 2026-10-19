@@ -1,0 +1,88 @@
+{
+  "before": [
+    " 34:       7920          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+    " 96:        660          0          0          0     GICv3 122 Level     rga2"
+  ],
+  "tests": [
+    {
+      "name": "paired-cpu-stage-yolov5-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=67.096 p50_ms=60.186 p95_ms=104.239 min_ms=56.587 max_ms=117.092",
+        "BENCH rknn_run mean_ms=26.691 p50_ms=26.494 p95_ms=28.982 min_ms=25.906 max_ms=29.282",
+        "BENCH resize mean_ms=33.612 p50_ms=27.210 p95_ms=65.425 min_ms=24.619 max_ms=76.125",
+        "BENCH inputs_set mean_ms=1.120 p50_ms=1.021 p95_ms=1.987 min_ms=0.816 max_ms=2.250",
+        "BENCH outputs_get mean_ms=5.506 p50_ms=5.031 p95_ms=8.383 min_ms=4.423 max_ms=10.177",
+        "BENCH postprocess_and_other mean_ms=0.167 p50_ms=0.135 p95_ms=0.328 min_ms=0.120 max_ms=0.331",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=60.46 peak_rss_kib=28916 input=360x640"
+      ],
+      "fallback_count": 55,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       8085          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        660          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "paired-rga-stage-yolov5-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=46.396 p50_ms=49.466 p95_ms=53.971 min_ms=38.325 max_ms=54.529",
+        "BENCH rknn_run mean_ms=28.972 p50_ms=29.654 p95_ms=30.906 min_ms=26.622 max_ms=32.216",
+        "BENCH resize mean_ms=7.557 p50_ms=8.227 p95_ms=10.881 min_ms=4.808 max_ms=11.999",
+        "BENCH inputs_set mean_ms=1.740 p50_ms=1.935 p95_ms=2.334 min_ms=1.042 max_ms=2.651",
+        "BENCH outputs_get mean_ms=7.827 p50_ms=8.576 p95_ms=10.532 min_ms=5.288 max_ms=13.685",
+        "BENCH postprocess_and_other mean_ms=0.299 p50_ms=0.332 p95_ms=0.483 min_ms=0.172 max_ms=0.661",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=34.69 peak_rss_kib=29176 input=360x640"
+      ],
+      "fallback_count": 0,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       8250          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        770          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "paired-cpu-stage-RetinaFace-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=22.507 p50_ms=22.906 p95_ms=25.260 min_ms=17.325 max_ms=25.603",
+        "BENCH rknn_run mean_ms=10.772 p50_ms=10.860 p95_ms=12.232 min_ms=8.428 max_ms=12.629",
+        "BENCH resize mean_ms=10.745 p50_ms=11.098 p95_ms=12.424 min_ms=7.513 max_ms=13.480",
+        "BENCH inputs_set mean_ms=0.406 p50_ms=0.405 p95_ms=0.499 min_ms=0.310 max_ms=0.566",
+        "BENCH outputs_get mean_ms=0.506 p50_ms=0.489 p95_ms=0.610 min_ms=0.351 max_ms=0.989",
+        "BENCH postprocess_and_other mean_ms=0.078 p50_ms=0.074 p95_ms=0.140 min_ms=0.055 max_ms=0.149",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=81.62 peak_rss_kib=12132 input=360x640"
+      ],
+      "fallback_count": 55,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       8745          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        770          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    },
+    {
+      "name": "paired-rga-stage-RetinaFace-live",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=15.030 p50_ms=14.925 p95_ms=16.557 min_ms=13.549 max_ms=16.720",
+        "BENCH rknn_run mean_ms=10.843 p50_ms=10.765 p95_ms=11.875 min_ms=9.842 max_ms=12.223",
+        "BENCH resize mean_ms=3.107 p50_ms=3.112 p95_ms=3.887 min_ms=2.334 max_ms=4.142",
+        "BENCH inputs_set mean_ms=0.453 p50_ms=0.431 p95_ms=0.639 min_ms=0.342 max_ms=0.787",
+        "BENCH outputs_get mean_ms=0.536 p50_ms=0.506 p95_ms=0.719 min_ms=0.457 max_ms=0.818",
+        "BENCH postprocess_and_other mean_ms=0.091 p50_ms=0.074 p95_ms=0.138 min_ms=0.055 max_ms=0.762",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=65.17 peak_rss_kib=12384 input=360x640"
+      ],
+      "fallback_count": 0,
+      "rga_error_count": 0,
+      "irq": [
+        " 34:       9240          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu",
+        " 96:        880          0          0          0     GICv3 122 Level     rga2"
+      ],
+      "temp_mC": "84444"
+    }
+  ]
+}

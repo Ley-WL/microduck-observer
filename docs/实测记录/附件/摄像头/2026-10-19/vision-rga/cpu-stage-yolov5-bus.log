@@ -1,0 +1,241 @@
+load lable ./model/coco_80_labels_list.txt
+model input num: 1, output num: 3
+input tensors:
+  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+output tensors:
+  index=0, name=output0, n_dims=4, dims=[1, 255, 80, 80], n_elems=1632000, size=1632000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003917
+  index=1, name=343, n_dims=4, dims=[1, 255, 40, 40], n_elems=408000, size=408000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+  index=2, name=345, n_dims=4, dims=[1, 255, 20, 20], n_elems=102000, size=102000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+model is NHWC input fmt
+model input height=640, width=640, channel=3
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(0 0 639 639) allow_slight_change=1 _left_offset=0 _top_offset=0 padding_w=0 padding_h=0
+convert image use cpu
+finish
+rknn_run
+BENCH pipeline mean_ms=84.141 p50_ms=81.474 p95_ms=101.833 min_ms=74.057 max_ms=108.140
+BENCH rknn_run mean_ms=26.549 p50_ms=26.508 p95_ms=27.486 min_ms=25.710 max_ms=27.783
+BENCH resize mean_ms=51.161 p50_ms=48.049 p95_ms=67.334 min_ms=41.830 max_ms=73.086
+BENCH inputs_set mean_ms=1.010 p50_ms=0.984 p95_ms=1.396 min_ms=0.784 max_ms=1.581
+BENCH outputs_get mean_ms=5.059 p50_ms=4.941 p95_ms=5.900 min_ms=4.135 max_ms=6.573
+BENCH postprocess_and_other mean_ms=0.361 p50_ms=0.332 p95_ms=0.500 min_ms=0.258 max_ms=0.528
+BENCH runs=50 warmup=5 cpu_one_core_pct=68.38 peak_rss_kib=29428 input=640x640
+DETECTION box=109,233,202,529 score=0.820961
+DETECTION box=209,241,287,511 score=0.797109
+DETECTION box=483,223,564,513 score=0.639354
+write_image path: /home/radxa/vision-bench/cpu-stage-yolov5-bus.png width=640 height=640 channel=3 data=0xaaaacff750e0

@@ -1,0 +1,14 @@
+mpp[2470]: kmpp_obj: dump obj MppEncArgs   - 0xaaab07f5b9e8 at mpi_enc_test:
+mpp[2470]: mpp_log: cmd parse result:
+mpp[2470]: mpp_log: input  file name: /home/radxa/mpp-test/input.nv12
+mpp[2470]: mpp_log: output file name: /home/radxa/mpp-test/mpp.mjpg
+mpp[2470]: mpp_log: width      : 640
+mpp[2470]: mpp_log: height     : 360
+mpp[2470]: mpp_log: format     : 0
+mpp[2470]: mpp_log: type       : 8
+mpp[2470]: mpp_info: mpp version: unknown mpp version for missing VCS info
+mpp[2470]: mpp_enc: set prep cfg w:h [640:360] stride [640:360] fmt 0 rotate 0 mirror 0
+mpp[2470]: mpp_enc: set rc fixqp bps [864000:0:0] fps [30:1:fix] - [30:1:fix] gop 60
+mpp[2470]: mpp_enc: set jpeg qfactor [80:1:99]
+mpp[2470]: mpi_enc_test: chn 0 encode 100 frames time 466 ms delay   3 ms fps 214.21 bps 1490880
+mpp[2470]: mpi_enc_test: /home/radxa/mpp-test/mpi_enc_test average frame rate 214.21

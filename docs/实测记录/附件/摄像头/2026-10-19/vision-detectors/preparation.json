@@ -1,0 +1,34 @@
+{
+  "status": "board_native_smoke_and_latency_tested_live_detection_failed",
+  "date": "2026-10-19",
+  "target": "rk3566",
+  "toolkit": "2.3.2",
+  "zoo_commit": "bad6c7334531becaf90a561988519b7bec34d0ab",
+  "quantization": "INT8",
+  "calibration": {
+    "yolov5n": "official COCO subset, 20 images",
+    "RetinaFace_mobile320": "official test.jpg, one image (not independent accuracy evaluation)"
+  },
+  "files": {
+    "yolov5n.onnx": {
+      "bytes": 7510065,
+      "sha256": "b3237d0f59a5d90ff6ecec3dca220e0ada8abd929f8a158b08b12e1a3bad7232"
+    },
+    "yolov5n.rknn": {
+      "bytes": 3046136,
+      "sha256": "decacfb0d94c0a0698a8dbcc64df7d3e7737d000d80886ff5b8cc51cb6f03295"
+    },
+    "RetinaFace_mobile320.onnx": {
+      "bytes": 1715779,
+      "sha256": "1061ac88e7c833cf058c3e8eb50367dc5e3daadcc14967b5dede8ac4409b86fa"
+    },
+    "RetinaFace_mobile320.rknn": {
+      "bytes": 643811,
+      "sha256": "ed18d5a0902a17cb592ac5cf2ced014a3f1e011d9fff5d69c627d1fe975aa463"
+    }
+  },
+  "blocker": null,
+  "compiler_diagnostic": "RetinaFace emitted Unkown op target: 0, but build/export returned success; actual runtime must validate",
+  "board_ip": "192.168.137.224",
+  "result_boundary": "Official samples detected; two dark camera snapshots and gamma=3 comparison had zero detections. Repeated single-image timing is not video FPS or dataset accuracy."
+}

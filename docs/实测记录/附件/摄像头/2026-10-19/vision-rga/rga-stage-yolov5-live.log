@@ -1,0 +1,184 @@
+load lable ./model/coco_80_labels_list.txt
+model input num: 1, output num: 3
+input tensors:
+  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+output tensors:
+  index=0, name=output0, n_dims=4, dims=[1, 255, 80, 80], n_elems=1632000, size=1632000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003917
+  index=1, name=343, n_dims=4, dims=[1, 255, 40, 40], n_elems=408000, size=408000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+  index=2, name=345, n_dims=4, dims=[1, 255, 20, 20], n_elems=102000, size=102000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+model is NHWC input fmt
+model input height=640, width=640, channel=3
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rga_api version 1.10.1_[0]
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+BENCH pipeline mean_ms=42.624 p50_ms=40.217 p95_ms=51.017 min_ms=38.552 max_ms=56.253
+BENCH rknn_run mean_ms=27.931 p50_ms=27.267 p95_ms=30.597 min_ms=26.557 max_ms=31.581
+BENCH resize mean_ms=6.235 p50_ms=5.476 p95_ms=9.237 min_ms=4.743 max_ms=12.533
+BENCH inputs_set mean_ms=1.436 p50_ms=1.251 p95_ms=2.148 min_ms=1.032 max_ms=2.290
+BENCH outputs_get mean_ms=6.783 p50_ms=6.011 p95_ms=9.905 min_ms=5.082 max_ms=11.427
+BENCH postprocess_and_other mean_ms=0.239 p50_ms=0.183 p95_ms=0.339 min_ms=0.170 max_ms=0.738
+BENCH runs=50 warmup=5 cpu_one_core_pct=30.59 peak_rss_kib=29172 input=360x640
+write_image path: /home/radxa/vision-bench/rga-stage-yolov5-live.png width=360 height=640 channel=3 data=0xaaaac63c9230

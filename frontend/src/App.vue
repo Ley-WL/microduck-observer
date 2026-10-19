@@ -12,6 +12,10 @@ import { bodyRelativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
 const state = useTelemetry();
 const board = useBoardCalibration();
+const serviceVersion = computed(() => {
+  const service = state.system?.data?.service ?? state.info?.service;
+  return service?.release || (service?.version ? `v${service.version}` : "待获取");
+});
 // Display-only mounting selection; shared servo/IMU references stay on the board.
 const mountingYaw = computed(() => board.data?.mounting?.yaw ?? -90);
 const calibrationSaveError = computed(() => !!board.error);
@@ -144,7 +148,7 @@ onMounted(() => state.connect());
           state.info?.source === "hardware" ? "主控实机观测" : "独立调试环境"
         }}
         <p>连接数据，理解每一次运动。</p>
-        <small>OBSERVER / v0.8.0</small>
+        <small>MICRODUCK OBSERVER</small>
       </div>
     </aside>
     <div class="main-shell">
@@ -154,7 +158,13 @@ onMounted(() => state.connect());
         </div>
         <BoardResources />
         <div class="header-right">
-          <PowerControls />
+          <div class="version-power-group">
+            <div class="service-version" role="status" :title="`服务版本：${serviceVersion}${state.connection === '在线' ? '' : '（离线，待确认）'}`">
+              <span>服务版本<span v-if="state.connection !== '在线'"> · 待确认</span></span>
+              <strong>{{ serviceVersion }}</strong>
+            </div>
+            <PowerControls />
+          </div>
           <span class="source-badge">{{ state.source }}</span
           ><span class="status" :class="{ online: state.connection === '在线' }"
             ><i></i>{{ state.connection }}</span
