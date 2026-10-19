@@ -303,5 +303,18 @@
     "wholeFootClearanceIncludesVisualShell": true,
     "physicsCollisionsUnchanged": true,
     "truePoseRequiresContinuousHoldTicks": 150
+  },
+  "modelIdentity": {
+    "displayName": "金鸡独立 v62b（复刻结构 / HD1910）",
+    "origin": "locally trained rear-hook policy; v53 iteration 500 weights, v62b evaluation clock",
+    "hardwareProfile": "microduck-replica-hd1910-v1",
+    "actuatorModel": "HD1910 / 1910 M6",
+    "actuatorParameters": "microduck-rl/src/mjlab_microduck/robot/hd1910/1910_m6.json",
+    "trainingRobotDirectory": "microduck-rl/src/mjlab_microduck/robot/replica",
+    "stlSourceDirectory": "microduck-replica/software/training/src/mjlab_microduck/robot/microduck/assets",
+    "isHuggingFaceFlamingoCycleRelease": false,
+    "distinctFrom": "https://huggingface.co/RemiFabre/microduck-flamingo-cycle",
+    "hardwareDynamicsIdentified": false,
+    "physicalAccepted": false
   }
 }

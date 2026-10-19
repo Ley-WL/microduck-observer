@@ -1,4 +1,8 @@
-# 金鸡独立 v62b 候选
+# 金鸡独立 v62b 候选（复刻结构 / HD1910）
+
+**模型身份：本项目自行训练的后抬右脚策略，采用 microduck-replica 的 STL/MJCF 与 HD1910（1910 M6）执行器参数。** 它不是 Hugging Face `RemiFabre/microduck-flamingo-cycle` 发布的 XL330 模型，也不是仅把上游模型的舵机名称改成 HD1910。
+
+训练机器人入口为 `microduck-rl/src/mjlab_microduck/robot/replica/`，STL 源于 `microduck-replica/software/training/src/mjlab_microduck/robot/microduck/assets/`；执行器参数为 `robot/hd1910/1910_m6.json`，硬件配置名 `microduck-replica-hd1910-v1`。采用 HD1910 参数不代表实机动力学已辨识或动作已验收。
 
 v62b 使用 v53 第 500 轮权重，没有新增优化器训练。`policy.onnx` 是原始已导出文件，SHA256 为 `21cc8fbf59d0edc5995145bea45bd4fedf8e928997ae66033dc1a21252fa48b2`。
 
