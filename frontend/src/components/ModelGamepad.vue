@@ -4,7 +4,7 @@ import PadStick from './PadStick.vue';
 import {gamepadSpeed,wheelTwist} from '../wheelSpeed';
 import {computed,ref,watch} from 'vue';
 import type {Twist} from '../holdToWalk';
-const props=defineProps<{drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
+const props=defineProps<{rearHook?:boolean;drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
 const emit=defineEmits<{action:[key:string];body:[value:Twist|null];head:[value:[number,number]|null]}>();
 function held(key:string){return !!props.feedback?.buttons[key];}
 const turboHeld=ref(false),boosted=computed(()=>turboHeld.value);
@@ -35,7 +35,7 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
     </div>
     <div class="dpad" aria-label="策略动作">
       <button :class="{physical:held('up')}" :disabled="!allowed.dance" @click="emit('action','dance')" title="十拍鸭子舞：8秒后返回平衡" aria-label="十字键上 舞蹈">♫<small>舞蹈</small></button>
-      <button :class="{physical:held('left')}" :disabled="!allowed.flamingo" @click="emit('action','flamingo')" title="火烈鸟：按一次抬左脚保持，再按落脚" aria-label="十字键左 火烈鸟"><small>火烈鸟<br>抬脚/落脚</small></button>
+      <button :class="{physical:held('left')}" :disabled="!allowed.flamingo" @click="emit('action','flamingo')" :title="rearHook?'金鸡独立：右脚后抬，到位保持3秒后自动回正；再按提前返回':'火烈鸟：按一次抬左脚保持，再按落脚'" :aria-label="rearHook?'十字键左 金鸡独立':'十字键左 火烈鸟'"><small>{{rearHook?'金鸡独立':'火烈鸟'}}<br>{{rearHook?'后抬3秒':'抬脚/落脚'}}</small></button>
       <span/>
       <button :class="{physical:held('right')}" :disabled="!allowed.kick_right" @click="emit('action','kick_right')" title="右脚踢球" aria-label="十字键右 右脚踢球"><small>右脚<br>踢球</small></button>
       <button :class="{physical:held('down')}" disabled title="自主行动：预留入口，后续接入自主策略" aria-label="十字键下 自主行动，待接入"><small>自主<br>行动</small></button>

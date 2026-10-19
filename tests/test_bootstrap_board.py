@@ -37,6 +37,15 @@ class BootstrapTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             bootstrap.boot_configuration('fdtfile=another-board.dtb\n')
 
+    def test_rescue_console_releases_uart2_and_preserves_other_args(self):
+        text = ('fdtfile=rockchip/rk3566-radxa-zero3.dtb\n'
+                'extraargs=cma=256M earlycon=uart8250,mmio32,0xfe660000 '
+                'console=ttyFIQ0,1500000 ignore_loglevel custom=keep\n')
+        result = bootstrap.boot_configuration(text)
+        self.assertIn('extraargs=cma=256M custom=keep\n', result)
+        self.assertNotIn('ttyFIQ0', result)
+        self.assertEqual(bootstrap.boot_configuration(result), result)
+
     def test_existing_calibration_identity_and_broken_current_are_protected(self):
         for name in ['var/lib/ducklink/identity.json', 'var/lib/microduck-observer/calibration.json',
                      'home/radxa/microduck-observer/current']:

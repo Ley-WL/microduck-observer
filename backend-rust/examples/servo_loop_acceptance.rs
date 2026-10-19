@@ -7,6 +7,7 @@
 #[path="../src/imu.rs"] mod imu;
 #[path="../src/orientation.rs"] mod orientation;
 #[path="../src/policy.rs"] mod policy;
+#[path="../src/rear_hook.rs"] mod rear_hook;
 #[path="../src/gains.rs"] mod gains;
 #[path="../src/servos.rs"] mod servos;
 #[path="../src/telemetry.rs"] mod telemetry;
@@ -120,3 +121,9 @@ fn main()->Result<()> {
     if report["disable"]["state"]!="disabled" {bail!("Final disable not confirmed");}
     Ok(())
 }
+
+#[path="../src/dance.rs"] mod dance;
+
+#[path="../src/roll_exit.rs"] mod roll_exit;
+
+#[path="../src/head_control.rs"] mod head_control;

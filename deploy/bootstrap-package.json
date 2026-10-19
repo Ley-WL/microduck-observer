@@ -1,6 +1,6 @@
 {
-  "localPath": "deploy/staging/bootstrap/payload-gamepad-auto-20261017.tar.gz",
-  "sha256": "a88b60998912f468ed272d58aee3ed26bafae0dbb3b060baca36eb35fc779e0e",
-  "provenance": "2026-10-17 ARM64 main binary with automatic gamepad discovery; based on 2026-10-14 bundle, other assets unchanged",
-  "note": "194 Rust tests and 6 bootstrap tests passed; archive validated; board87 read-only gamepad recognition passed. Fresh-board installation of this revised bundle remains unverified."
+  "localPath": "deploy/staging/bootstrap/payload-quack-gestures-20261018.tar.gz",
+  "sha256": "4e6be533f90b387c1f53fbf687895875ceea84929f66be84858bce859fcde3a2",
+  "provenance": "2026-10-17 RB/RT single/double/hold voice gestures plus automatic preparation service",
+  "note": "198 Rust passed/1 ignored; ARM binary unchanged. 2026-10-18 audio depmod install timeout120s and UART2 rescue console cleanup. Board43 reboot/startup/BLE/UART nodes/7 HTTP assets verified; hardware calibration and real motion pending."
 }

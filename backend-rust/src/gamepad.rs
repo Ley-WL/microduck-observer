@@ -238,7 +238,38 @@ pub fn verify_input() -> Result<Value> {
 }
 
 #[derive(Default)]
+struct QuackGesture { since:Option<std::time::Instant>, pending:Option<std::time::Instant>, second:bool, fired:bool }
+impl QuackGesture {
+    fn update(&mut self, down:bool, now:std::time::Instant)->Option<&'static str> {
+        if self.pending.is_some_and(|t|now.duration_since(t)>=Duration::from_millis(280)) {
+            self.pending=None;
+            if down && self.since.is_none() {self.since=Some(now);self.second=false;self.fired=false;}
+            return Some("quack");
+        }
+        if down && self.since.is_none() {
+            self.second=self.pending.is_some_and(|t|now.duration_since(t)<Duration::from_millis(280));
+            if self.second {self.pending=None;}
+            self.since=Some(now);self.fired=false;
+        }
+        if down && !self.fired && self.since.is_some_and(|t|now.duration_since(t)>=Duration::from_millis(650)) {
+            self.fired=true;self.pending=None;return Some("quack_long");
+        }
+        if !down && self.since.take().is_some() {
+            if !self.fired {
+                if self.second {self.second=false;return Some("quack_double");}
+                self.pending=Some(now);
+            }
+            self.fired=false;
+        }
+        if !down && self.pending.is_some_and(|t|now.duration_since(t)>=Duration::from_millis(280)) {
+            self.pending=None;return Some("quack");
+        }
+        None
+    }
+}
+#[derive(Default)]
 struct Input {
+    quack:QuackGesture,
     previous: Sample,
     neutral_seen: bool,
     drive_armed: bool,
@@ -253,6 +284,7 @@ impl Input {
     }
     fn update_at(&mut self, sample: &Sample, ready: bool, diagnostic_only: bool, now: std::time::Instant) -> Option<&'static str> {
         if diagnostic_only {
+            self.quack=QuackGesture::default();
             self.start_since = None;
             self.start_triggered = false;
             self.previous = sample.clone();
@@ -282,6 +314,8 @@ impl Input {
         if long_y {
             self.y_hold_triggered = true;
         }
+        let quack_action=if self.neutral_seen {self.quack.update(sample.down(RB)||sample.down(RT),now)} else {None};
+        if edge(BACK)||edge(B)||long_y||long_start {self.quack=QuackGesture::default();}
         let action = if edge(BACK) {
             Some("estop")
         } else if edge(B) {
@@ -296,10 +330,8 @@ impl Input {
             Some("stand")
         } else if edge(X) {
             Some("sit")
-        } else if (sample.down(RB) && !self.previous.down(RB))
-            || (sample.down(RT) && !self.previous.down(RT))
-        {
-            Some("quack")
+        } else if quack_action.is_some() {
+            quack_action
         } else if ready && sample.centered() && sample.dpad[0] && !self.previous.dpad[0] {
             Some("dance")
         } else if ready && sample.centered() && sample.dpad[1] && !self.previous.dpad[1] {
@@ -317,11 +349,12 @@ impl Input {
         if sample.neutral() {
             self.neutral_seen = true;
         }
-        if !ready || action.is_some_and(|action|action!="quack") {
+        if !ready || action.is_some_and(|action|!action.starts_with("quack")) {
             self.drive_armed = false;
         } else if sample.neutral() {
             self.drive_armed = true;
         }
+        if action.is_some_and(|a|!a.starts_with("quack")) {self.quack=QuackGesture::default();}
         self.previous = sample.clone();
         action
     }
@@ -490,7 +523,9 @@ pub fn spawn(app: App, router: Router) {
                     }
                     let status=motion.status();
                     let ready = motion.leased && (status["headReady"] == true || status["flamingoReady"] == true);
-                    if let Some(action) = input.update(&sample, ready, diagnostic_only) {
+                    if let Some(gesture) = input.update(&sample, ready, diagnostic_only) {
+                        let voice=match gesture {"quack_double"=>"double","quack_long"=>"long",_=>"single"};
+                        let action=if gesture.starts_with("quack") {"quack"} else {gesture};
                         if action == "estop" {
                             // Emergency stop is global, including when a phone owns the lease.
                             motion.request("servos/disable", Some(json!({}))).await?;
@@ -512,6 +547,7 @@ pub fn spawn(app: App, router: Router) {
                         } else {
                             if !motion.leased {
                                 if !matches!(action, "stand" | "getup" | "quack") {
+                                    report(&app, "手柄尚未取得模型控制权，请先回中并长按Y起身；若由网页/App启动，请先在原端停止保持");
                                     continue;
                                 }
                                 if let Err(e) = motion.open() {
@@ -525,7 +561,7 @@ pub fn spawn(app: App, router: Router) {
                             }
                             seq += 1;
                             let status = motion
-                                .command(json!({"seq":seq,"action":action,"compact":true}))
+                                .command(json!({"seq":seq,"action":action,"voice":voice,"compact":true}))
                                 .await?;
                             if let Some(error) =
                                 status["motionError"].as_str().filter(|s| !s.is_empty())
@@ -784,6 +820,32 @@ mod tests {
         );
     }
     #[test]
+    fn quack_gestures_are_exclusive_and_long_hold_never_repeats() {
+        let t=std::time::Instant::now();let mut g=QuackGesture::default();
+        assert_eq!(g.update(true,t),None);assert_eq!(g.update(false,t+Duration::from_millis(50)),None);
+        assert_eq!(g.update(false,t+Duration::from_millis(329)),None);
+        assert_eq!(g.update(false,t+Duration::from_millis(330)),Some("quack"));
+        assert_eq!(g.update(false,t+Duration::from_secs(1)),None);
+        let mut g=QuackGesture::default();g.update(true,t);g.update(false,t+Duration::from_millis(50));
+        g.update(true,t+Duration::from_millis(150));assert_eq!(g.update(false,t+Duration::from_millis(200)),Some("quack_double"));
+        assert_eq!(g.update(false,t+Duration::from_secs(1)),None);
+        let mut g=QuackGesture::default();g.update(true,t);
+        assert_eq!(g.update(true,t+Duration::from_millis(650)),Some("quack_long"));
+        assert_eq!(g.update(true,t+Duration::from_secs(3)),None);assert_eq!(g.update(false,t+Duration::from_secs(4)),None);
+    }
+    #[test]
+    fn quack_late_second_press_and_diagnostic_cancel() {
+        let t=std::time::Instant::now();let mut g=QuackGesture::default();g.update(true,t);g.update(false,t+Duration::from_millis(20));
+        assert_eq!(g.update(true,t+Duration::from_millis(300)),Some("quack"));
+        assert_eq!(g.update(false,t+Duration::from_millis(350)),None);
+        assert_eq!(g.update(false,t+Duration::from_millis(630)),Some("quack"));
+        let mut input=Input::default();input.update_at(&Sample::default(),true,false,t);
+        input.update_at(&sample(&[RB],[0.;4]),true,false,t+Duration::from_millis(10));
+        input.update_at(&Sample::default(),true,false,t+Duration::from_millis(20));
+        input.update_at(&Sample::default(),true,true,t+Duration::from_millis(30));
+        assert_eq!(input.update_at(&Sample::default(),true,false,t+Duration::from_secs(1)),None);
+    }
+    #[test]
     fn quack_keeps_both_sticks_armed_until_release() {
         for key in [RB,RT] {
             let mut input=Input::default();
@@ -792,7 +854,7 @@ mod tests {
             input.update(&sticks,true,false);
             let before=input.drive(&sticks,1);
             let pressed=sample(&[key],sticks.axes);
-            assert_eq!(input.update(&pressed,true,false),Some("quack"));
+            assert_eq!(input.update(&pressed,true,false),None);
             let during=input.drive(&pressed,2);
             for field in ["forward","turn","headYaw","headPitch"] {assert_eq!(before[field],during[field]);assert_ne!(during[field],0.);}
             assert_eq!(input.update(&pressed,true,false),None);
@@ -805,10 +867,10 @@ mod tests {
         let mut input = Input::default();
         input.update(&Sample::default(), false, false);
         let rt = sample(&[RT], [0.; 4]);
-        assert_eq!(input.update(&rt, false, false), Some("quack"));
+        assert_eq!(input.update(&rt, false, false), None);
         assert_eq!(input.update(&rt, false, false), None);
         input.update(&Sample::default(), false, false);
-        assert_eq!(input.update(&sample(&[RB], [0.; 4]), false, false), Some("quack"));
+        assert_eq!(input.update(&sample(&[RB], [0.; 4]), false, false), None);
         let feedback=input_data("test-pad",Some(&rt));
         assert_eq!(feedback["buttons"]["rt"],true);
         assert_eq!(feedback["buttons"]["lt"],false);

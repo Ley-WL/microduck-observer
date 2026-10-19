@@ -127,7 +127,7 @@ pub fn validate(p: &Value) -> Result<()> {
 }
 impl Calibration {
     pub fn open(path: PathBuf) -> Result<Self> {
-        let state = if path.exists() {
+        let mut state = if path.exists() {
             let v: Value = serde_json::from_slice(&fs::read(&path)?)?;
             let p = json!({"joints":v["joints"],"imu":v["imu"]});
             validate(&p)?;
@@ -146,8 +146,21 @@ impl Calibration {
                 fresh
             }
         };
+        // Legacy images stored only yaw. Fill the missing installation once;
+        // never replace an explicit installation or this device's zero reference.
+        let migrated = path.exists() && state["imu"]["mountingQuaternion"].is_null();
+        if migrated {
+            let defaults:Value=serde_json::from_str(include_str!("../../deploy/imu-installation.default.json"))?;
+            state["imu"]["mountingQuaternion"]=defaults["imu"]["mountingQuaternion"].clone();
+            state["imu"]["mountingSamples"]=json!({});
+            let position=state["mounting"]["positionMm"].clone();
+            state["mounting"]=defaults["mounting"].clone();
+            if !position.is_null() {state["mounting"]["positionMm"]=position;}
+            state["revision"]=json!(state["revision"].as_u64().unwrap_or(0)+1);
+            state["updatedAt"]=json!(epoch_ms());
+        }
         let s = Self { path, state };
-        if !s.path.exists() {
+        if !s.path.exists() || migrated {
             s.persist(&s.state)?
         }
         Ok(s)
@@ -255,6 +268,21 @@ mod tests {
         let mut custom=c.state.clone();custom["imu"]["mountingQuaternion"]=json!([0,0,0,1]);
         fs::write(&p,serde_json::to_vec(&custom).unwrap()).unwrap();
         assert_eq!(Calibration::open(p).unwrap().state,custom);
+    }
+    #[test]
+    fn legacy_installation_migration_preserves_reference_and_runs_once() {
+        let p=std::env::temp_dir().join(format!("microduck-cal-{}.json",uuid::Uuid::new_v4()));let c=Calibration::open(p.clone()).unwrap();let mut v=c.state.clone();
+        v["imu"].as_object_mut().unwrap().remove("mountingQuaternion");
+        v["imu"]["quaternion"]=json!([0.,0.,0.,1.]);v["imu"]["bootId"]=json!("old");
+        v["joints"]["references"]=json!({"10":2100});v["mounting"]=json!({"yaw":-90,"positionMm":[1,2,3]});
+        fs::write(&p,serde_json::to_vec(&v).unwrap()).unwrap();
+        let migrated=Calibration::open(p.clone()).unwrap().state;
+        assert_eq!(migrated["joints"],v["joints"]);
+        for k in ["quaternion","targetQuaternion","bootId","time","initialized"] {assert_eq!(migrated["imu"][k],v["imu"][k]);}
+        assert_eq!(migrated["mounting"]["yaw"],0);assert_eq!(migrated["mounting"]["positionMm"],json!([1,2,3]));
+        assert_eq!(migrated["revision"],v["revision"].as_u64().unwrap()+1);
+        assert_eq!(Calibration::open(p.clone()).unwrap().state,migrated);
+        assert_eq!(serde_json::from_slice::<Value>(&fs::read(p.with_extension("previous.json")).unwrap()).unwrap(),v);
     }
     #[test]
     fn bad_vectors() {

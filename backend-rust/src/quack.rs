@@ -80,16 +80,40 @@ pub fn init(dir: &Path) -> Result<()> {
 pub fn ready() -> Result<()> {
     ensure!(VOICE.get().is_some(), "鸭叫音色尚未生成，请检查服务启动日志");
     ensure!(Path::new("/usr/bin/aplay").is_file(), "主板音频播放器不可用");
-    std::fs::OpenOptions::new().read(true).write(true).open("/dev/snd/controlC1").context("主板扬声器不可用或缺少音频权限")?;
+    std::fs::OpenOptions::new().read(true).write(true).open("/dev/snd/controlC1").map_err(|e| {
+        match e.kind() {
+            std::io::ErrorKind::NotFound => anyhow::anyhow!("HAT声卡尚未就绪，请检查音频驱动、HAT连接及microduck-audio-prepare服务"),
+            std::io::ErrorKind::PermissionDenied => anyhow::anyhow!("HAT声卡访问被拒绝，请检查audio组和ALSA设备权限"),
+            _ => anyhow::anyhow!("HAT声卡不可用：{e}"),
+        }
+    })?;
     Ok(())
+}
+fn double_clip(source:&Clip)->Result<Clip> {
+    let mut reader=hound::WavReader::new(Cursor::new(&source.bytes))?;
+    let spec=reader.spec();let samples=reader.samples::<i16>().collect::<std::result::Result<Vec<_>,_>>()?;
+    let mut out=Cursor::new(Vec::new());
+    {let mut writer=hound::WavWriter::new(&mut out,spec)?;
+     for v in &samples {writer.write_sample(*v)?;}
+     for _ in 0..spec.sample_rate/8 {writer.write_sample(0i16)?;}
+     for v in &samples {writer.write_sample(*v)?;}writer.finalize()?;}
+    clip(out.into_inner())
 }
 pub struct Playback { child: Child, started: Instant, duration: Duration }
 impl Playback {
-    pub fn start() -> Result<Self> {
+    pub fn start() -> Result<Self> {Self::start_voice("random")}
+    pub fn start_voice(mode:&str) -> Result<Self> {
         ready()?;
         let voice = VOICE.get().unwrap();
-        let (group,variant)=choose(voice,&mut rand::thread_rng());
+        let mut rng=rand::thread_rng();
+        let tag=match mode {"single"|"double"=>Some("chirp"),"long"=>Some("wheee"),_=>None};
+        let (group,variant)=if let Some(tag)=tag {
+            let group=microduck_sounds::TAGS.iter().position(|(t,_)|*t==tag).unwrap();
+            (group,rng.gen_range(0..voice.groups[group].len()))
+        } else {choose(voice,&mut rng)};
         let selected = &voice.groups[group][variant];
+        let repeated=if mode=="double" {Some(double_clip(selected)?)} else {None};
+        let selected=repeated.as_ref().unwrap_or(selected);
         let mut child = Command::new("/usr/bin/aplay").args(["-q", "-D", "plughw:CARD=aic3104,DEV=0"])
             .stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::null()).spawn()?;
         let mut input = child.stdin.take().unwrap();
@@ -111,6 +135,12 @@ impl Playback {
 impl Drop for Playback { fn drop(&mut self) { let _ = self.child.kill(); let _ = self.child.wait(); } }
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn double_voice_has_two_complete_calls_and_gap() {
+        let p=microduck_sounds::Personality::from_seed(42);let samples=microduck_sounds::render("chirp",&p,0).unwrap();
+        let dir=tempfile::tempdir().unwrap();let path=dir.path().join("chirp.wav");microduck_sounds::to_wav(&samples,&path).unwrap();
+        let source=clip(std::fs::read(path).unwrap()).unwrap();let twice=double_clip(&source).unwrap();
+        assert!((twice.duration.as_secs_f64()-source.duration.as_secs_f64()*2.-0.125).abs()<0.001);
+    }
     #[test] fn device_voice_is_repeatable_and_cache_rejects_another_device_or_damage() {
         let a = tempfile::tempdir().unwrap(); let b = tempfile::tempdir().unwrap();
         let seed = microduck_sounds::seed_from_id("test-serial");

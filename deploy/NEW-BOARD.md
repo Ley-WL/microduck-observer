@@ -1,3 +1,7 @@
+> 2026-10-17 自动准备包：包含已校验的6.1.115 HAT codec模块及`hardware/audio/audio_prepare.py`。新板/普通runtime安装器均安装root拥有的音频准备服务，在Observer前执行有限等待；失败写`/run/microduck-audio.json`而不重启机器人。ALSA权限使用`char-alsa`允许晚注册设备；首次初始化默认PCM0dB/Line0dB，以后保留音量，仅纠正DAC/Bypass路由。模块kernel/vermagic/SHA不符拒绝安装，不在线下载任意驱动。冻结包已更新但新板整板重启验收待做。
+>
+> 服务首次读到旧标定缺少mountingQuaternion时，自动补项目默认安装方向、yaw及缺失位置，保留已有位置/关节零点/IMU归零与target，revision加1并保留previous备份；已有明确安装四元数不覆盖。普通runtime验证仅放行这项精确迁移，不能忽略其它标定变化。手柄自动发现/重连已有，明确输入接管运行中的兼容模型采用现有控制权保护；未取得会话的X/技能请求现在给明确提示，不再静默忽略，不自动启动或退出保护。
+
 > **2026-10-16 默认IMU安装配置（用户授权，项目默认）：** 从8.133.210.70:5723只读取得当前安装四元数、mounting.yaw与positionMm，保存deploy/imu-installation.default.json。新板安装器及Rust首次创建标定读取同一默认值，已有calibration.json不覆盖；新设备initialized=false，quaternion=null、bootId/time空，必须自行归零，不克隆来源机的关节零点或设备身份。完整来源IMU段留存附件/IMU/2026-10-16/default-installation/source.json，仅作备份，不作新板参考。187 Rust通过/1忽略，Linux安装脚本7测试通过；未部署或改来源机配置，未实机动作验收。
 
 # 新主板一键部署

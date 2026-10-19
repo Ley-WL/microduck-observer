@@ -443,8 +443,8 @@ impl Motion {
             "prepare"=>anyhow::bail!("请先停止模型，再进入坐下预备"),
             "quack"=>{
                 self.quack_input(head);
-                if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/quack",Some(json!({"session":session,"sequence":self.drive_seq}))).await?;}
-                else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"]}))).await?;}
+                if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/quack",Some(json!({"session":session,"sequence":self.drive_seq,"voice":body["voice"]}))).await?;}
+                else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"],"voice":body["voice"]}))).await?;}
                 self.error.clear();
             },
             "flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{

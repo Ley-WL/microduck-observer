@@ -92,13 +92,26 @@ try:
     assert result['receivedHz']['joints'] > 40
     assert result['receivedHz']['imu.raw'] > 40
     assert result['completeSampledJointFrames']/result['sampledJointFrames'] >= .99
-    assert hashlib.sha256(clone.read_bytes()).hexdigest() == checksum
+    clone_state=json.loads(clone.read_text())
+    if before['calibration']['imu'].get('mountingQuaternion') is not None:
+        assert hashlib.sha256(clone.read_bytes()).hexdigest() == checksum
+    else:
+        assert clone_state['joints']==before['calibration']['joints']
+        for key in ['quaternion','targetQuaternion','bootId','time','initialized']:
+            assert clone_state['imu'].get(key)==before['calibration']['imu'].get(key)
+        defaults=json.loads((release/'imu-installation.default.json').read_text())
+        assert clone_state['imu']['mountingQuaternion']==defaults['imu']['mountingQuaternion']
     native = get(8878, 'snapshot')['calibration']
+    if before['calibration']['imu'].get('mountingQuaternion') is None:
+        defaults=json.loads((release/'imu-installation.default.json').read_text())
+        pos=before['calibration'].get('mounting',{}).get('positionMm')
+        before['calibration']['mounting']=defaults['mounting']
+        if pos is not None:before['calibration']['mounting']['positionMm']=pos
     for section in ('joints', 'mounting'):
         assert native[section] == before['calibration'][section]
     for key in ('quaternion', 'mountingQuaternion', 'targetQuaternion'):
         assert native['imu'].get(key) == before['calibration']['imu'].get(key)
-    report = {'ok': True, 'candidateCalibrationSha256': checksum, 'hardwareWrites': False,
+    report = {'ok': True, 'candidateCalibrationSha256': hashlib.sha256(clone.read_bytes()).hexdigest(), 'hardwareWrites': False,
               'frontendReused': True, 'benchmark': result}
     (workspace/'candidate-verification.json').write_text(json.dumps(report, indent=2))
     print('PASS: hardware read-only, unchanged torque/reference, >40Hz WS, >=99% complete sampled frames')

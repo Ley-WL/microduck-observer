@@ -12,6 +12,7 @@ const physicalResult=computed(()=>{
   return '';
 });
 const modelAvailable=ref(false),headAvailable=ref(false),wheelSpeed=ref(0.2);
+const rearHook=ref(false);
 const lease=driveLease(sessionStorage,state.endpoint);
 const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), commandState=ref('');
 const skills=[{key:'flamingo',name:'火烈鸟'},{key:'dance',name:'十拍鸭子舞'},{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'},{key:'kick_left',name:'左脚踢球'},{key:'kick_right',name:'右脚踢球'}];
@@ -72,7 +73,7 @@ async function extra(action:string,angleDeg?:number){
     const result=await response.json();if(!response.ok)throw new Error(result.detail || '操作未接受');
     if(start){session.value=result.driveSession || '';lease.remember(session.value);}
     if(angleDeg==null && action!=='quack')skillQueued.value=control.value?.state==='policy' && control.value?.activeSkill==='xgoduck';
-    message.value=action==='flamingo'?'火烈鸟切换已请求：首次抬左脚保持，再按落脚':action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
+    message.value=action==='flamingo'?(rearHook.value?'后抬脚已请求：右脚向后抬起，到位保持3秒后自动回正；再按提前返回':'火烈鸟切换已请求：首次抬左脚保持，再按落脚'):action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
   }catch(e){failed.value=true;message.value=String(e);}finally{if(independent)quackPending.value=false;else pending.value=false;}
 }
 const driveReason=computed(()=>{
@@ -100,6 +101,7 @@ onUnmounted(()=>{release();window.removeEventListener('blur',release);window.rem
 onMounted(async()=>{
   try { const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy');
     const result=await response.json();headAvailable.value=response.ok && result.webHeadControl===true;modelAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='xgoduck')?.available;
+    rearHook.value=['hd1910_rear_hook_v27','hd1910_rear_hook_native','hd1910_rear_hook_native_gated'].includes(result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.runtimeKind);
     for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='flamingo'?'flamingo_hold':skill.key==='dance'?'dance10':skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':skill.key.startsWith('kick_')?skill.key:'xgoduck_'+skill.key))?.available;
     }
   catch { modelAvailable.value=false; }
@@ -123,7 +125,7 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <div v-if="control?.state==='policy'" class="runtime-metrics" role="status"><span>近 1 秒实际推理 <b>{{ Number.isFinite(control?.cycleCosts?.inferenceHzLast1s) ? control.cycleCosts.inferenceHzLast1s.toFixed(1)+' Hz' : '—' }}</b></span></div>
     <details class="bluetooth-setup"><summary>连接实物蓝牙手柄</summary><p>手柄关机时同时短按 <b>B + Home</b> 进入蓝牙配对，再扫描。确认名称和设备后点“配对并连接”。</p><div class="bluetooth-actions"><button :disabled="bluetoothBusy" @click="scanBluetooth">{{ bluetoothBusy?'请稍候…':'扫描主板附近设备' }}</button><span role="status">{{ bluetoothMessage }}</span></div><div class="bluetooth-devices"><div v-for="device in visibleBluetoothDevices" :key="device.address" class="bluetooth-device"><span><b>{{ device.name }}</b> · {{ device.address }}<small>疑似 Xbox / GameSir 手柄</small></span><button :disabled="bluetoothBusy" @click="pairBluetooth(device.address)">配对并连接</button></div></div><small>仅列出名称包含 Xbox、Wireless Controller 或 GameSir 的设备。扫描和配对由主板执行，不要求登录后台。配对后若网页未显示实物输入，还需主板内核提供手柄输入设备。</small></details>
     <p class="drive-result" role="status">{{ state.gamepadFeedback ? (physicalResult || '实物手柄已连接 · 橙色表示输入，不代表动作执行') : (driveReason || commandState || '手柄已就绪 · 左行走，右转头') }}</p>
-    <ModelGamepad :feedback="state.gamepadFeedback" :drive="canDrive" :head="canHead" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
+    <ModelGamepad :rear-hook="rearHook" :feedback="state.gamepadFeedback" :drive="canDrive" :head="canHead" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
     <div class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
     <details class="runtime-help"><summary>按键说明与诊断</summary><p>A 站立 · Start 预留 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · LB 拾取 · LT 加速×2（0.2→0.4m/s）· RB / RT 嘎一下（无需先站起）；十字键上舞蹈、左键火烈鸟（首次抬左脚保持，再按落脚）、右键右脚踢球、下自主行动；左右踢球执行 0.5 秒后返回平衡；舞蹈执行8秒后返回平衡，自主行动暂为预留入口。实物手柄：A 站立、长按 Y 倒地起身、模型就绪并回中后摇杆直接控制；单按 LB 拾取（模型就绪且摇杆回中）、RB / RT 嘎一下；LT按住走行速度0.4m/s（默认0.2m/s）；网页高亮仅显示实物输入，松键或超过 500ms 无新输入自动清除。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
 </details>

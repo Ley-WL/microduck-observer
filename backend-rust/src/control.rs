@@ -391,7 +391,7 @@ pub fn execute<T: Transport>(
         let (low,high,_)=configuration(bus,34)?;
         for angle in [30f64,-5.] {target(34,position(&initial[&34])?,&cal,low,high,angle.to_radians(),false)?;}
         execute(bus,&json!({"action":"angle","id":34,"angleDeg":30,"calibration":cal}),cancel,shared)?;
-        let audio=crate::quack::Playback::start();
+        let audio=crate::quack::Playback::start_voice(command["voice"].as_str().unwrap_or("random"));
         let open_duration=audio.as_ref().map(|p|p.open_duration()).unwrap_or(Duration::from_millis(550));
         let began=Instant::now();let mut clock=FrameClock::new(began);
         while began.elapsed()<open_duration {

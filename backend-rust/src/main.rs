@@ -14,6 +14,7 @@ mod orientation;
 mod policy;
 mod observer_ota;
 mod roll_exit;
+mod rear_hook;
 mod walk_profile;
 mod power;
 mod quack;
@@ -270,7 +271,10 @@ async fn servo_action(
             return error(StatusCode::CONFLICT, &e.to_string());
         }
     }
-    let command = json!({"action":action,"calibration":cal,"id":v["id"],"angleDeg":v["angleDeg"]});
+    if action=="quack" && !["random","single","double","long"].contains(&v["voice"].as_str().unwrap_or("random")) {
+        return error(StatusCode::BAD_REQUEST,"无效叫声类型");
+    }
+    let command = json!({"action":action,"calibration":cal,"id":v["id"],"angleDeg":v["angleDeg"],"voice":v["voice"]});
     let rx = match owner.submit(command, permit) {
         Ok(rx) => rx,
         Err(e) => return error(StatusCode::CONFLICT, &e.to_string()),
@@ -471,7 +475,11 @@ async fn policy_action(
     if action=="quack" {
         if let Err(e)=quack::ready() {return error(StatusCode::CONFLICT,&e.to_string());}
         let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少指令序号");};
-        if !a.telemetry.write().unwrap().queue_quack(body["session"].as_str().unwrap_or(""),sequence) {return error(StatusCode::CONFLICT,"嘴部动作正在执行，或会话/反馈尚未就绪");}
+        let voice=body["voice"].as_str().unwrap_or("random");
+        if !["random","single","double","long"].contains(&voice) {return error(StatusCode::BAD_REQUEST,"无效叫声类型");}
+        let mut shared=a.telemetry.write().unwrap();
+        if !shared.queue_quack(body["session"].as_str().unwrap_or(""),sequence) {return error(StatusCode::CONFLICT,"嘴部动作正在执行，或会话/反馈尚未就绪");}
+        shared.quack_voice=voice.into();
         return Json(json!({"state":"queued","message":"嘎一下已请求"})).into_response();
     }
     if action=="mouth" {
@@ -621,6 +629,10 @@ async fn client(mut ws: WebSocket, a: App) {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args: Vec<_> = std::env::args().collect();
+    if args.get(1).is_some_and(|s|s=="--benchmark-rear-fk") {
+        let path=args.get(2).ok_or_else(||anyhow::anyhow!("Fixture path required"))?;
+        println!("{}",rear_hook::benchmark_fixture(std::path::Path::new(path))?);return Ok(());
+    }
     if args.get(1).is_some_and(|s| s == "--generate-quack") {
         let dir = args.get(2).ok_or_else(||anyhow::anyhow!("Output directory required"))?;
         let seed = match args.get(3) { Some(s) => s.parse::<u32>()?, None => microduck_sounds::hardware_seed()? };

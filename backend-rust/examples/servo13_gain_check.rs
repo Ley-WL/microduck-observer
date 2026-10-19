@@ -7,6 +7,7 @@
 #[path="../src/imu.rs"] mod imu;
 #[path="../src/orientation.rs"] mod orientation;
 #[path="../src/policy.rs"] mod policy;
+#[path="../src/rear_hook.rs"] mod rear_hook;
 #[path="../src/gains.rs"] mod gains;
 #[path="../src/servos.rs"] mod servos;
 #[path="../src/telemetry.rs"] mod telemetry;
@@ -76,3 +77,9 @@ fn main()->Result<()> {
     if let Err(e)=&result {report["error"]=json!(e.to_string());let _=bus.sync_write(40,&BTreeMap::from([(13,vec![0])]));}
     report["traceTail"]=json!(bus.trace);std::fs::write(output,serde_json::to_vec(&report)?)?;result
 }
+
+#[path="../src/dance.rs"] mod dance;
+
+#[path="../src/roll_exit.rs"] mod roll_exit;
+
+#[path="../src/head_control.rs"] mod head_control;

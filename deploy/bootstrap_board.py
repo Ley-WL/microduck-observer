@@ -52,6 +52,16 @@ def boot_configuration(text):
                                  ['uart2-m0', 'uart9-m1', 'i2c3-pihat', 'aic3104-i2c3']))
     preserved = [line for line in text.splitlines()
                  if not line.startswith(('console=', 'overlay_prefix=', 'overlays='))]
+    # Release UART2 from the temporary rescue console before enabling servo IO.
+    for index, line in enumerate(preserved):
+        if line.startswith('extraargs='):
+            args = line.split('=', 1)[1].split()
+            rescue = any(arg.startswith('console=ttyFIQ0') for arg in args)
+            args = [arg for arg in args
+                    if not arg.startswith(('console=ttyFIQ0', 'console=ttyS2',
+                                           'earlycon=uart8250,mmio32,0xfe660000'))
+                    and not (rescue and arg == 'ignore_loglevel')]
+            preserved[index] = 'extraargs=' + ' '.join(args)
     return '\n'.join(preserved + ['console=display', 'overlay_prefix=rk3568',
                                   'overlays=' + ' '.join(overlays)]) + '\n'
 
@@ -110,6 +120,8 @@ def install(bundle, digest, release_name):
         raise RuntimeError('Not an ARM64 service')
     if 'not found' in run('ldd', str(binary)):
         raise RuntimeError('Missing runtime libraries; nothing installed')
+    if not (work / 'release/hardware/audio/audio_prepare.py').is_file():
+        raise RuntimeError('Bundle lacks automatic audio preparation; rebuild bundle')
     # Marker and staged files are retained for diagnosis if installation fails.
     marker = Path('/var/lib/microduck-bootstrap') / release_name
     marker.mkdir(parents=True, exist_ok=False)
@@ -152,6 +164,10 @@ def install(bundle, digest, release_name):
     run('chown', 'radxa:radxa', str(state))
     run('hostnamectl', 'set-hostname', hostname)
     env.write_text(updated)
+    audio = release / 'hardware/audio'
+    if not (audio / 'audio_prepare.py').is_file():
+        raise RuntimeError('Bundle lacks required automatic audio preparation; rebuild bundle')
+    run('/usr/bin/python3', str(audio / 'audio_prepare.py'), '--install', str(audio))
     run('systemctl', 'daemon-reload')
     run('systemctl', 'enable', 'microduck-observer', 'ducklink-wifi',
         'microduck-power.socket', 'bluetooth')

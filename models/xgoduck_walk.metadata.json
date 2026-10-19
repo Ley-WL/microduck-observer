@@ -8,7 +8,7 @@
   "actorObservationDim": 61,
   "actionDim": 14,
   "observationNormalization": "baked into ONNX by upstream exporter",
-  "actionSemantics": "HOME + 0.9 * raw policy action; head/leg target filter new weights 0.5/0.7; first target passthrough",
+  "actionSemantics": "HOME + 1.0 * raw policy action; head/leg target filter new weights 0.5/0.7; first target passthrough",
   "jointOrder": [
     "left_hip_yaw",
     "left_hip_roll",
@@ -55,7 +55,7 @@
   "walkExecution": {
     "schema": "kissqy-r17-v1",
     "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
-    "actionScale": 0.9,
+    "actionScale": 1.0,
     "headNewWeight": 0.5,
     "legsNewWeight": 0.7,
     "gains": {
