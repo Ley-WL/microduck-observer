@@ -1,0 +1,27 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261020-camera-color-v2",
+  "rollback": "/home/radxa/microduck-observer/releases/runtime-20261020-camera-color",
+  "onlyChanged": "bin/microduck-camera-mpp",
+  "helperSha256": "ef1b5428c39660cb7123266622cd21bd5df2ffd47927d0df7f9a2ab793f90f02",
+  "otherReleaseFilesUnchanged": true,
+  "settingsUnchanged": true,
+  "safeSnapshots": 20,
+  "camera": {
+    "autonomousUse": false,
+    "available": true,
+    "captureEnabled": true,
+    "capturePid": 1573,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoder": "rockchip-mpp",
+    "encoderPid": 1574,
+    "error": "",
+    "height": 480,
+    "processing": "rga+fixed-wb",
+    "sequence": 1,
+    "streaming": true,
+    "targetFps": 10.5,
+    "transport": "mjpeg",
+    "width": 640
+  }
+}

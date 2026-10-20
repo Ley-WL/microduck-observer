@@ -80,9 +80,10 @@ int main(int argc,char**) {
     mpp_frame_set_hor_stride(r.frame,W);mpp_frame_set_ver_stride(r.frame,STRIDE_H);
     mpp_frame_set_fmt(r.frame,MPP_FMT_YUV420SP);mpp_frame_set_buffer(r.frame,r.yuv);
     std::array<std::array<unsigned char,256>,3> lut{};
-    const double gain[]={1.48,1.0,1.80};
+    // Neutral-paper center calibration; fixed gains do not correct color shading.
+    const double gain[]={1.46,1.0,1.57};
     for(int ch=0;ch<3;ch++) for(int i=0;i<256;i++)
-        lut[ch][i]=static_cast<unsigned char>(255*pow(fmin(i*gain[ch]/255,1.0),1/1.15));
+        lut[ch][i]=static_cast<unsigned char>(255*pow(fmin(i*gain[ch]/255,1.0),1/1.30));
     std::array<unsigned char,RAW> input{};
     unsigned frame=0;
     fprintf(stderr,"camera: RGA DMA + MPP JPEG, fixed WB/gamma, no software codec\n");
@@ -99,7 +100,7 @@ int main(int argc,char**) {
         CHECK(mpp_buffer_sync_begin(r.raw));
         memcpy(mpp_buffer_get_ptr(r.raw),input.data(),RAW);
         CHECK(mpp_buffer_sync_end(r.raw));
-        IM_STATUS rc=imcvtcolor(raw,rgb,RK_FORMAT_YCbCr_420_SP,RK_FORMAT_RGB_888);
+        IM_STATUS rc=imcvtcolor(raw,rgb,RK_FORMAT_YCbCr_420_SP,RK_FORMAT_RGB_888,IM_YUV_TO_RGB_BT601_FULL);
         if(rc!=IM_STATUS_SUCCESS) {fprintf(stderr,"RGA NV12->RGB: %s\n",imStrError(rc));return 1;}
         CHECK(mpp_buffer_sync_begin(r.rgb));
         auto pixels=static_cast<unsigned char*>(mpp_buffer_get_ptr(r.rgb));
@@ -109,7 +110,7 @@ int main(int argc,char**) {
         }
         if(!vision_publish(pixels,frame)) {fprintf(stderr,"vision latest-frame write failed\n");}
         CHECK(mpp_buffer_sync_end(r.rgb));
-        rc=imcvtcolor(rgb,yuv,RK_FORMAT_RGB_888,RK_FORMAT_YCbCr_420_SP);
+        rc=imcvtcolor(rgb,yuv,RK_FORMAT_RGB_888,RK_FORMAT_YCbCr_420_SP,IM_RGB_TO_YUV_BT601_FULL);
         if(rc!=IM_STATUS_SUCCESS) {fprintf(stderr,"RGA RGB->NV12: %s\n",imStrError(rc));return 1;}
         mpp_frame_set_pts(r.frame,static_cast<int64_t>(frame/2)*95238);
         CHECK(r.api->encode_put_frame(r.ctx,r.frame));

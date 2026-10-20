@@ -1,0 +1,27 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261020-camera-paper-v4",
+  "rollback": "/home/radxa/microduck-observer/releases/runtime-20261020-camera-tone-v3",
+  "onlyChanged": "bin/microduck-camera-mpp",
+  "helperSha256": "454bb1dfdda9f82ff957f67fe3bcbade8c3ca292d7c57ac9f774cafbecd4d1c8",
+  "otherReleaseFilesUnchanged": true,
+  "settingsUnchanged": true,
+  "safeSnapshots": 20,
+  "camera": {
+    "autonomousUse": false,
+    "available": true,
+    "captureEnabled": true,
+    "capturePid": 2431,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoder": "rockchip-mpp",
+    "encoderPid": 2432,
+    "error": "",
+    "height": 480,
+    "processing": "rga+fixed-wb",
+    "sequence": 1,
+    "streaming": true,
+    "targetFps": 10.5,
+    "transport": "mjpeg",
+    "width": 640
+  }
+}

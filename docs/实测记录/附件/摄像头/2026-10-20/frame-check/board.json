@@ -1,0 +1,60 @@
+{
+  "durationSeconds": 30.058887395000056,
+  "cameraBefore": {
+    "autonomousUse": false,
+    "available": true,
+    "captureEnabled": true,
+    "capturePid": 2707,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoder": "rockchip-mpp",
+    "encoderPid": 2708,
+    "error": "",
+    "height": 480,
+    "processing": "rga+fixed-wb",
+    "sequence": 1689,
+    "streaming": true,
+    "targetFps": 10.5,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "cameraAfter": {
+    "autonomousUse": false,
+    "available": true,
+    "captureEnabled": true,
+    "capturePid": 2707,
+    "device": "/dev/video0",
+    "enabled": true,
+    "encoder": "rockchip-mpp",
+    "encoderPid": 2708,
+    "error": "",
+    "height": 480,
+    "processing": "rga+fixed-wb",
+    "sequence": 2009,
+    "streaming": true,
+    "targetFps": 10.5,
+    "transport": "mjpeg",
+    "width": 640
+  },
+  "publishedFps": 10.645769944672944,
+  "localHttpFrames": 318,
+  "localHttpFps": 10.578676501987008,
+  "intervalMs": {
+    "min": 2.072292000093512,
+    "median": 94.51984299994365,
+    "p95": 115.90105300001596,
+    "max": 192.07243599998947,
+    "over200": 0,
+    "over500": 0
+  },
+  "jpegMeanBytes": 22076.751572327044,
+  "cpuPercentOneCore": {
+    "capture": 2.062617926780383,
+    "encoder": 6.9197504640374135,
+    "observer": 12.17609937421969
+  },
+  "thermal": [
+    "74444",
+    "73333"
+  ]
+}

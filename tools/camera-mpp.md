@@ -13,11 +13,14 @@ The full sensor and ISP crop rectangles are retained; the ~0.16% aspect mismatch
 is accepted to preserve the entire field of view. CPU buffers never contain the
 full-resolution RAW image.
 
-Pipeline: cached DMA buffers -> RGA NV12/RGB conversion -> fixed RGB lookup
-tables (gains 1.48/1/1.80, gamma 1.15) -> RGA RGB/NV12 -> MPP JPEG quality 80.
+Pipeline: cached DMA buffers -> RGA full-range BT.601 NV12/RGB conversion -> fixed RGB lookup
+tables (gains 1.46/1/1.57, gamma 1.30) -> RGA full-range BT.601 RGB/NV12 -> MPP JPEG quality 80.
 DMA handles and frame buffers are reused. CPU access is bracketed by DMA
 cache synchronization. The web UI retains clockwise 90-degree display rotation.
 The fixed color correction is not automatic exposure or white balance.
+The 2026-10-20 neutral-paper center calibration reduced the red deficit from
+5.21% to 0.74% in that scene; edge color shading remains. This is not a
+full-frame lens-shading or color-chart calibration.
 
 Dependencies tested on Radxa ZERO 3 / RK3566, vendor kernel 6.1.115:
 

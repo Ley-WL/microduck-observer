@@ -1,0 +1,56 @@
+[
+  {
+    "version": "old",
+    "inputY": 0,
+    "rgbMean": [
+      16.0,
+      16.0,
+      16.0
+    ]
+  },
+  {
+    "version": "old",
+    "inputY": 128,
+    "rgbMean": [
+      188.0,
+      136.0,
+      219.0
+    ]
+  },
+  {
+    "version": "old",
+    "inputY": 255,
+    "rgbMean": [
+      235.0,
+      235.0,
+      235.0
+    ]
+  },
+  {
+    "version": "new",
+    "inputY": 0,
+    "rgbMean": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "version": "new",
+    "inputY": 128,
+    "rgbMean": [
+      192.0,
+      132.0,
+      230.0
+    ]
+  },
+  {
+    "version": "new",
+    "inputY": 255,
+    "rgbMean": [
+      255.0,
+      255.0,
+      255.0
+    ]
+  }
+]
