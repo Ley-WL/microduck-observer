@@ -1,4 +1,4 @@
-// Fixed 640x360 NV12 stdin -> corrected hardware MJPEG stdout.
+// Fixed 640x480 NV12 stdin -> corrected hardware MJPEG stdout.
 // Observer owns this process; no software encoder or fallback is provided.
 #include <array>
 #include <cmath>
@@ -13,8 +13,9 @@
 #include "mpp_packet.h"
 #include "rk_venc_cfg.h"
 #include "im2d.h"
+#include "vision-frame.h"
 
-constexpr int W=640,H=360,STRIDE_H=368;
+constexpr int W=640,H=480,STRIDE_H=480;
 constexpr size_t RAW=W*H*3/2;
 struct Resources {
     MppCtx ctx=nullptr; MppApi* api=nullptr; MppEncCfg cfg=nullptr;
@@ -46,7 +47,7 @@ static bool write_all(const void* data,size_t size) {
     return true;
 }
 int main(int argc,char**) {
-    if(argc!=1) {fprintf(stderr,"No arguments: fixed NV12 640x360, 30fps input / 10fps output\n");return 2;}
+    if(argc!=1) {fprintf(stderr,"No arguments: fixed NV12 640x480, 21fps input / 10.5fps output\n");return 2;}
     Resources r;
     CHECK(mpp_create(&r.ctx,&r.api));
     MppPollType timeout=MPP_POLL_BLOCK;
@@ -57,8 +58,8 @@ int main(int argc,char**) {
     for(auto item : {std::pair<const char*,int>{"prep:width",W},
         {"prep:height",H},{"prep:hor_stride",W},{"prep:ver_stride",STRIDE_H},
         {"prep:format",MPP_FMT_YUV420SP},{"rc:mode",MPP_ENC_RC_MODE_FIXQP},
-        {"rc:fps_in_num",10},{"rc:fps_in_denorm",1},
-        {"rc:fps_out_num",10},{"rc:fps_out_denorm",1},
+        {"rc:fps_in_num",21},{"rc:fps_in_denorm",2},
+        {"rc:fps_out_num",21},{"rc:fps_out_denorm",2},
         {"jpeg:q_factor",80},{"jpeg:qf_max",80},{"jpeg:qf_min",80}}) {
         CHECK(mpp_enc_cfg_set_s32(r.cfg,item.first,item.second));
     }
@@ -94,7 +95,7 @@ int main(int argc,char**) {
             if(n<=0) {fprintf(stderr,"Truncated NV12 input/read failure\n");return 1;}
             got+=n;
         }
-        if(frame++%3!=0) continue;
+        if(frame++%2!=0) continue;
         CHECK(mpp_buffer_sync_begin(r.raw));
         memcpy(mpp_buffer_get_ptr(r.raw),input.data(),RAW);
         CHECK(mpp_buffer_sync_end(r.raw));
@@ -106,10 +107,11 @@ int main(int argc,char**) {
             pixels[i]=lut[0][pixels[i]];pixels[i+1]=lut[1][pixels[i+1]];
             pixels[i+2]=lut[2][pixels[i+2]];
         }
+        if(!vision_publish(pixels,frame)) {fprintf(stderr,"vision latest-frame write failed\n");}
         CHECK(mpp_buffer_sync_end(r.rgb));
         rc=imcvtcolor(rgb,yuv,RK_FORMAT_RGB_888,RK_FORMAT_YCbCr_420_SP);
         if(rc!=IM_STATUS_SUCCESS) {fprintf(stderr,"RGA RGB->NV12: %s\n",imStrError(rc));return 1;}
-        mpp_frame_set_pts(r.frame,static_cast<int64_t>(frame/3)*100000);
+        mpp_frame_set_pts(r.frame,static_cast<int64_t>(frame/2)*95238);
         CHECK(r.api->encode_put_frame(r.ctx,r.frame));
         MppPacket packet=nullptr;
         CHECK(r.api->encode_get_packet(r.ctx,&packet));

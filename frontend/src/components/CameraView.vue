@@ -104,7 +104,7 @@ function fullscreen() { void stage.value?.requestFullscreen().catch(()=>{error.v
 function applySettings(next: CameraSettings) {
   settings.value = next;
   error.value = next.error;
-  status.value = !next.enabled ? '摄像头已关闭' : !watching.value ? '已停止观看' : next.streaming ? '实时画面' : '等待摄像头';
+  status.value = !next.enabled ? (next.autonomousUse ? '自主互动使用中 · 预览未开启' : '摄像头已关闭') : !watching.value ? '已停止观看' : next.streaming ? '实时画面' : '等待摄像头';
   resolution.value = next.streaming ? `${next.height} × ${next.width}` : '—';
   fps.value = next.streaming ? `目标 ${next.targetFps}` : '—';
   running.value = next.enabled && watching.value;

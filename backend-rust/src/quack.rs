@@ -106,13 +106,13 @@ impl Playback {
         ready()?;
         let voice = VOICE.get().unwrap();
         let mut rng=rand::thread_rng();
-        let tag=match mode {"single"|"double"=>Some("chirp"),"long"=>Some("wheee"),_=>None};
+        let tag=match mode {"single"|"double"|"auto_on"|"auto_off"|"auto_reject"=>Some("chirp"),"long"|"auto_failed"=>Some("wheee"),_=>None};
         let (group,variant)=if let Some(tag)=tag {
             let group=microduck_sounds::TAGS.iter().position(|(t,_)|*t==tag).unwrap();
             (group,rng.gen_range(0..voice.groups[group].len()))
         } else {choose(voice,&mut rng)};
         let selected = &voice.groups[group][variant];
-        let repeated=if mode=="double" {Some(double_clip(selected)?)} else {None};
+        let repeated=if matches!(mode,"double"|"auto_on"|"auto_off"|"auto_failed") {Some(double_clip(selected)?)} else {None};
         let selected=repeated.as_ref().unwrap_or(selected);
         let mut child = Command::new("/usr/bin/aplay").args(["-q", "-D", "plughw:CARD=aic3104,DEV=0"])
             .stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::null()).spawn()?;
@@ -178,4 +178,27 @@ impl Drop for Playback { fn drop(&mut self) { let _ = self.child.kill(); let _ =
             assert!(!samples.is_empty()); assert!(samples.len() < microduck_sounds::SR as usize * 5);
         } }
     }
+}
+
+// Audio-only status notices after the policy owner has released its jaw/audio cycle.
+// One worker retains/reaps the player; notices never write a servo or block control.
+static NOTICES:OnceLock<std::sync::mpsc::Sender<&'static str>>=OnceLock::new();
+pub fn announce(voice:&'static str) {
+    if VOICE.get().is_none(){return;}
+    let tx=NOTICES.get_or_init(||{
+        let (tx,rx)=std::sync::mpsc::channel::<&'static str>();
+        std::thread::spawn(move || {
+            let mut audio:Option<Playback>=None;
+            loop {
+                let wait=if audio.is_some(){Duration::from_millis(20)}else{Duration::from_secs(3600)};
+                match rx.recv_timeout(wait) {
+                    Ok(mut voice)=>{while let Ok(next)=rx.try_recv(){voice=next;}drop(audio.take());audio=Playback::start_voice(voice).ok();},
+                    Err(std::sync::mpsc::RecvTimeoutError::Disconnected)=>break,
+                    Err(_)=>{}
+                }
+                if audio.as_mut().is_some_and(|p|p.check().is_err() || p.finished().unwrap_or(true)){audio=None;}
+            }
+        });tx
+    });
+    let _=tx.send(voice);
 }

@@ -1,0 +1,71 @@
+[
+  {
+    "args": [
+      "systemctl",
+      "stop",
+      "microduck-observer"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "sh",
+      "-c",
+      "printf 2-0010 > /sys/bus/i2c/drivers/imx219/unbind"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "sh",
+      "-c",
+      "printf 2-0010 > /sys/bus/i2c/drivers/imx219_microduck/bind"
+    ],
+    "code": 1,
+    "output": "sh: 1: printf: printf: I/O error\n"
+  },
+  {
+    "error": "RuntimeError(\"['sh', '-c', 'printf 2-0010 > /sys/bus/i2c/drivers/imx219_microduck/bind']\")"
+  },
+  {
+    "args": [
+      "sh",
+      "-c",
+      "printf 2-0010 > /sys/bus/i2c/drivers/imx219/bind"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/1920x1080]"
+    ],
+    "code": 1,
+    "output": "Unable to setup formats: Invalid argument (22)\n"
+  },
+  {
+    "restoreError": "RuntimeError('[\\'media-ctl\\', \\'--set-v4l2\\', \\'\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/1920x1080]\\']')"
+  },
+  {
+    "args": [
+      "systemctl",
+      "start",
+      "microduck-observer"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "sh",
+      "-c",
+      "dmesg | tail -60"
+    ],
+    "code": 0,
+    "output": "[   26.704332] of_dma_request_slave_channel: dma-names property of node '/serial@fe6d0000' missing or empty\n[   26.704378] dw-apb-uart fe6d0000.serial: failed to request DMA, use interrupt mode\n[   28.577243] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\n[   28.601727] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\n[   28.601792] [BT_RFKILL]: ENABLE UART_RTS\n[   28.708249] [BT_RFKILL]: DISABLE UART_RTS\n[   28.708332] [BT_RFKILL]: bt turn on power\n[   28.708514] [BT_RFKILL]: Request irq for bt wakeup host\n[   28.708925] [BT_RFKILL]: ** disable irq\n[   28.708961] bluetooth_set_power: start_block=0\n[   28.708969] aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\n[   28.708975] aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\n[   28.708980] bluetooth_set_power: end_block=0\n[   28.770581] platform mtd_vendor_storage: deferred probe pending\n[   28.774568] of_dma_request_slave_channel: dma-names property of node '/serial@fe650000' missing or empty\n[   28.774613] dw-apb-uart fe650000.serial: failed to request DMA, use interrupt mode\n[   28.839431] Bluetooth: HCI UART driver ver 2.3\n[   28.839464] Bluetooth: HCI UART protocol H4 registered\n[   28.839471] Bluetooth: HCI UART protocol BCSP registered\n[   28.839476] Bluetooth: HCI UART protocol ATH3K registered\n[   28.839588] Bluetooth: HCI UART protocol Three-wire (H5) registered\n[   28.839990] Bluetooth: HCI UART protocol Intel registered\n[   28.840338] Bluetooth: HCI UART protocol Broadcom registered\n[   28.840403] Bluetooth: HCI UART protocol QCA registered\n[   28.840413] Bluetooth: HCI UART protocol AG6XX registered\n[   30.009474] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\n[   30.038215] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\n[   30.038294] [BT_RFKILL]: ENABLE UART_RTS\n[   30.145045] [BT_RFKILL]: DISABLE UART_RTS\n[   30.145128] [BT_RFKILL]: bt turn on power\n[   30.145394] [BT_RFKILL]: Request irq for bt wakeup host\n[   30.145937] [BT_RFKILL]: ** disable irq\n[   30.145988] bluetooth_set_power: start_block=0\n[   30.146023] aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\n[   30.146031] aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\n[   30.146037] bluetooth_set_power: end_block=0\n[   30.146836] Bluetooth: MGMT ver 1.22\n[  214.871695] rga: 1072   1072  : [tgid:1072] Destroy handle[1] when the user exits\n[  214.871738] rga: 1072   1072  : [tgid:1072] Destroy handle[2] when the user exits\n[  214.871749] rga: 1072   1072  : [tgid:1072] Destroy handle[3] when the user exits\n[  214.888482] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream_stop stream stop, dphy0\n[  214.888513] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream stream on:0, dphy0, ret 0\n[  216.199220] rkisp_hw fdff0000.rkisp: set isp clk = 297000000Hz\n[  216.200501] rockchip-csi2-dphy0: dphy0, data_rate_mbps 912\n[  216.200577] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream stream on:1, dphy0, ret 0\n[ 1405.623132] rga: 1315   1319  : [tgid:1315] Destroy handle[4] when the user exits\n[ 1405.623172] rga: 1315   1319  : [tgid:1315] Destroy handle[5] when the user exits\n[ 1405.623182] rga: 1315   1319  : [tgid:1315] Destroy handle[6] when the user exits\n[ 1405.640845] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream_stop stream stop, dphy0\n[ 1405.640877] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream stream on:0, dphy0, ret 0\n[ 1405.894473] imx219_microduck 2-0010: driver version: 00.01.01\n[ 1405.920519] imx219_microduck 2-0010: Model ID 0x0219, Lot ID 0x3b2434, Chip ID 0x07cc\n[ 1405.920628] imx219_microduck 2-0010: Consider updating driver imx219_microduck to match on endpoints\n[ 1405.920694] rockchip-csi2-dphy csi2-dphy0: dphy0 matches m00_b_imx219 2-0010:bus type 5\n[ 1405.920717] rockchip-csi2-dphy0: No link between dphy and sensor\n[ 1405.921337] rockchip-csi2-dphy0: No link between dphy and sensor\n[ 1405.921349] rkisp-vir0: update sensor failed\n[ 1405.934630] imx219 2-0010: driver version: 00.01.01\n[ 1405.960655] imx219 2-0010: Model ID 0x0219, Lot ID 0x3b2434, Chip ID 0x07cc\n[ 1405.960704] ==> imx219 ken: 1104 imx219_probe \n"
+  }
+]

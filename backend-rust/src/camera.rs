@@ -31,6 +31,8 @@ struct Camera {
     path: PathBuf,
     available: bool,
     closing: AtomicBool,
+    preview: AtomicBool,
+    vision: AtomicBool,
     worker: Mutex<Option<Worker>>,
     state: watch::Sender<Frame>,
     viewers: Arc<Semaphore>,
@@ -68,16 +70,17 @@ impl Camera {
             Ok(enabled) => frame.enabled=available && enabled,
             Err(e) => { frame.error=format!("摄像头设置读取失败：{e}"); eprintln!("{}",frame.error); }
         }
+        let preview=AtomicBool::new(frame.enabled);
         let (state,_)=watch::channel(frame);
         Self { path,available,closing:AtomicBool::new(false),worker:Mutex::new(None),
-            state,viewers:Arc::new(Semaphore::new(8)) }
+            preview,vision:AtomicBool::new(false),state,viewers:Arc::new(Semaphore::new(8)) }
     }
     fn status(&self) -> Value {
         let f=self.state.borrow();
-        json!({"available":self.available,"enabled":f.enabled,
+        json!({"available":self.available,"enabled":self.preview.load(Ordering::Acquire),"captureEnabled":f.enabled,"autonomousUse":self.vision.load(Ordering::Acquire),
             "streaming":!f.jpeg.is_empty() && f.at.elapsed()<Duration::from_secs(5),
-            "error":f.error,"device":f.device,"transport":"mjpeg","width":640,"height":360,
-            "targetFps":10,"sequence":f.seq,"capturePid":f.capture_pid,"encoderPid":f.encoder_pid,
+            "error":f.error,"device":f.device,"transport":"mjpeg","width":640,"height":480,
+            "targetFps":10.5,"sequence":f.seq,"capturePid":f.capture_pid,"encoderPid":f.encoder_pid,
             "encoder":"rockchip-mpp","processing":"rga+fixed-wb"})
     }
     async fn stop_worker(worker: &mut Option<Worker>) {
@@ -97,7 +100,8 @@ impl Camera {
         anyhow::ensure!(self.available && !self.closing.load(Ordering::Acquire),"摄像头控制不可用");
         let path=self.path.clone();
         tokio::task::spawn_blocking(move || save_enabled(&path,enabled)).await??;
-        if !enabled {
+        self.preview.store(enabled,Ordering::Release);
+        if !(enabled || self.vision.load(Ordering::Acquire)) {
             Self::stop_worker(&mut worker).await;
             self.state.send_modify(|s|{s.enabled=false;s.error.clear();s.jpeg=Bytes::new();});
         } else {
@@ -123,6 +127,23 @@ pub async fn init(hardware: bool) {
     assert!(CAMERA.set(camera).is_ok(),"Camera already initialized");
 }
 pub fn available() -> bool { CAMERA.get().is_some_and(|c|c.available) }
+// A temporary consumer must never change the user's persisted preview preference.
+pub async fn vision_lease(enabled:bool)->anyhow::Result<()> {
+    let Some(c)=CAMERA.get() else {anyhow::ensure!(!enabled,"摄像头未初始化");return Ok(());};
+    lease(c,enabled).await
+}
+async fn lease(c:&Camera,enabled:bool)->anyhow::Result<()> {
+    if !enabled && !c.vision.load(Ordering::Acquire){return Ok(());}
+    anyhow::ensure!(c.available && !c.closing.load(Ordering::Acquire),"摄像头不可用");
+    let mut worker=c.worker.lock().await;
+    let changed=c.vision.swap(enabled,Ordering::AcqRel)!=enabled;
+    let active=enabled || c.preview.load(Ordering::Acquire);
+    if !active {Camera::stop_worker(&mut worker).await;c.state.send_modify(|s|{s.enabled=false;s.jpeg=Bytes::new();});}
+    else if changed {if worker.as_ref().is_some_and(|w|w.task.is_finished()){Camera::stop_worker(&mut worker).await;}
+        c.state.send_modify(|s|s.enabled=true);if worker.is_none(){*worker=Some(c.spawn_worker());}}
+    if enabled {let frame=c.state.borrow();anyhow::ensure!(frame.error.is_empty(),"{}",frame.error);}
+    Ok(())
+}
 pub async fn shutdown() { if let Some(c)=CAMERA.get() { c.shutdown().await; } }
 
 pub fn router() -> Router<App> {
@@ -190,13 +211,15 @@ async fn prepare() -> anyhow::Result<String> {
         }
     }
     let (media,sensor)=selected.ok_or_else(||anyhow::anyhow!("未发现rkisp0媒体设备"))?;
-    for fmt in [format!("\"{sensor}\":0[fmt:SRGGB10_1X10/1920x1080]"),
-        "\"rkisp-isp-subdev\":0[fmt:SRGGB10_1X10/1920x1080 crop:(0,0)/1920x1080]".into(),
-        "\"rkisp-isp-subdev\":2[fmt:YUYV8_2X8/1920x1080 crop:(0,0)/1920x1080]".into()] {
+    for fmt in [format!("\"{sensor}\":0[fmt:SRGGB10_1X10/3280x2464]"),
+        "\"rkisp-isp-subdev\":0[fmt:SRGGB10_1X10/3280x2464 crop:(0,0)/3280x2464]".into(),
+        "\"rkisp-isp-subdev\":2[fmt:YUYV8_2X8/3280x2464 crop:(0,0)/3280x2464]".into()] {
         command("/usr/bin/media-ctl",&["-d",&media,"--set-v4l2",&fmt]).await?;
     }
-    command("/usr/bin/v4l2-ctl",&["-d",&device,"--set-fmt-video=width=640,height=360,pixelformat=NV12"]).await?;
-    command("/usr/bin/v4l2-ctl",&["-d",&device,"--set-ctrl=exposure=1500,analogue_gain=2048"]).await?;
+    // Keep the entire sensor field of view; ISP performs the hardware downscale.
+    command("/usr/bin/v4l2-ctl",&["-d",&device,"--set-fmt-video=width=640,height=480,pixelformat=NV12"]).await?;
+    command("/usr/bin/v4l2-ctl",&["-d",&device,"--set-selection=target=crop,left=0,top=0,width=3280,height=2464"]).await?;
+    command("/usr/bin/v4l2-ctl",&["-d",&device,"--set-ctrl=exposure=1499,analogue_gain=2048"]).await?;
     Ok(device)
 }
 async fn stderr_tail(mut pipe:impl tokio::io::AsyncRead+Unpin) -> String {
@@ -248,10 +271,13 @@ async fn capture(state:watch::Sender<Frame>,mut cancel:oneshot::Receiver<()>) {
     }};
     let mut pipeline=match Pipeline::spawn(&device) {Ok(p)=>p,Err(e)=>{
         eprintln!("camera spawn: {e}");state.send_modify(|s|s.error=e.to_string());return}};
-    state.send_modify(|s|{s.device=device;s.capture_pid=pipeline.capture.id().unwrap_or(0);s.encoder_pid=pipeline.encoder.id().unwrap_or(0);});
+    state.send_modify(|s|{s.device=device.clone();s.capture_pid=pipeline.capture.id().unwrap_or(0);s.encoder_pid=pipeline.encoder.id().unwrap_or(0);});
     let mut buffer=Vec::with_capacity(65536);let mut chunk=[0;16384];let mut last=Instant::now();
     let mut watchdog=tokio::time::interval(Duration::from_secs(2));
-    let failure:Option<String>=loop {
+    // STREAMON resets full-resolution exposure to 500 lines. Use a different
+    // pre-stream value so V4L2 does not skip the post-start write as unchanged.
+    let mut exposure_applied=false;
+    let failure:Option<String>='capture: loop {
         tokio::select! {biased;
             _=&mut cancel=>break None,
             _=watchdog.tick()=>if last.elapsed()>Duration::from_secs(8) {break Some("摄像头取帧超时，请检查连接后重新开启".into())},
@@ -259,7 +285,15 @@ async fn capture(state:watch::Sender<Frame>,mut cancel:oneshot::Receiver<()>) {
                 Ok(0)=>break Some("摄像头采集进程已退出".into()),
                 Err(e)=>break Some(format!("摄像头读取失败：{e}")),
                 Ok(n)=>{buffer.extend_from_slice(&chunk[..n]);match extract_frames(&mut buffer) {
-                    Ok(frames)=>for frame in frames {last=Instant::now();state.send_modify(|s|{s.jpeg=frame;s.seq+=1;s.at=last;});},
+                    Ok(frames)=>for frame in frames {
+                        if !exposure_applied {
+                            if let Err(e)=command("/usr/bin/v4l2-ctl",&["-d",&device,"--set-ctrl=exposure=1500"]).await {
+                                break 'capture Some(format!("摄像头曝光设置失败：{e}"));
+                            }
+                            exposure_applied=true;last=Instant::now();continue;
+                        }
+                        last=Instant::now();state.send_modify(|s|{s.jpeg=frame;s.seq+=1;s.at=last;});
+                    },
                     Err(e)=>break Some(e.to_string()),
                 }}
             }
@@ -307,5 +341,22 @@ mod tests {
         let tmp=tempfile::tempdir().unwrap();let p=tmp.path().join("not-a-directory");std::fs::write(&p,"x").unwrap();
         let c=Camera::new(p.join("camera.json"),true);
         assert!(c.set(true).await.is_err());assert_eq!(c.status()["enabled"],false);
+    }
+    #[tokio::test]
+    async fn autonomous_camera_lease_preserves_preview_choice_and_reaps_owned_capture() {
+        for preview in [false,true] {
+            let tmp=tempfile::tempdir().unwrap();let p=tmp.path().join("camera.json");save_enabled(&p,preview).unwrap();let c=Camera::new(p.clone(),true);
+            let (cancel,rx)=oneshot::channel();*c.worker.lock().await=Some(Worker{cancel,task:tokio::spawn(async move{let _=rx.await;})});
+            lease(&c,true).await.unwrap();assert_eq!(read_enabled(&p).unwrap(),preview);assert_eq!(c.status()["captureEnabled"],true);assert_eq!(c.status()["enabled"],preview);
+            lease(&c,false).await.unwrap();assert_eq!(read_enabled(&p).unwrap(),preview);assert_eq!(c.worker.lock().await.is_some(),preview);
+            c.shutdown().await;
+        }
+    }
+    #[tokio::test]
+    async fn preview_disable_during_autonomy_is_saved_but_does_not_kill_its_camera() {
+        let tmp=tempfile::tempdir().unwrap();let p=tmp.path().join("camera.json");save_enabled(&p,true).unwrap();let c=Camera::new(p.clone(),true);
+        let (cancel,rx)=oneshot::channel();*c.worker.lock().await=Some(Worker{cancel,task:tokio::spawn(async move{let _=rx.await;})});
+        lease(&c,true).await.unwrap();c.set(false).await.unwrap();assert!(!read_enabled(&p).unwrap());assert!(c.worker.lock().await.is_some());
+        lease(&c,false).await.unwrap();assert!(c.worker.lock().await.is_none());assert_eq!(c.status()["captureEnabled"],false);
     }
 }

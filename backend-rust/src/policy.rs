@@ -68,6 +68,19 @@ impl ImuPause {
         }
     }
 }
+// Match the existing native pre-write fall stop, before selecting the next actor.
+fn autonomous_fall(kind:&str,angle:f64)->bool {
+    (walking_policy(kind) && angle>=FALL_TILT_DEG) || (kind=="dance10" && angle>=45.)
+}
+fn autonomy_deadline(shared:&Shared)->Result<()> {
+    let mut state=shared.write().unwrap();
+    if state.autonomy.expired(Instant::now()) {
+        state.stop_autonomy("起身超过6秒，已退出并卸力",true);
+        state.pending_skill=None;state.pending_quack=false;state.head_intent.clear();
+        bail!("自主起身总时限6秒已到，终止并卸力");
+    }
+    Ok(())
+}
 fn pause_drive(shared:&Shared) {
     let mut state=shared.write().unwrap();
     state.cancel_demo("反馈暂停或模型停止",false);
@@ -156,6 +169,16 @@ pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "flamingo_hold" | "flamin
 #[cfg(test)]
 mod kick_tests {
     use super::*;
+    #[test] fn autonomous_fall_matches_native_prewrite_guard_and_preserves_intentional_skill_poses(){
+        assert!(!autonomous_fall("xgoduck",59.9));assert!(autonomous_fall("xgoduck",60.));assert!(autonomous_fall("flamingo_hold",60.));assert!(autonomous_fall("dance10",45.));
+        for kind in ["xgoduck_getup","sitstand_sit","sitstand_stand","xgoduck_pick","xgoduck_roulade"] {assert!(!autonomous_fall(kind,90.));}
+    }
+    #[test] fn autonomous_deadline_failure_clears_pending_commands_and_retains_failure_reason(){
+        let shared=std::sync::Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(false)));
+        {let mut s=shared.write().unwrap();let t=Instant::now();s.autonomy.observe(t-Duration::from_millis(600),"xgoduck",true,false,false);s.autonomy.observe(t,"xgoduck",true,false,false);s.autonomy.start("s",t).unwrap();s.autonomy.fall(t-Duration::from_secs(6));s.pending_skill=Some("xgoduck_getup".into());s.pending_quack=true;}
+        assert!(autonomy_deadline(&shared).is_err());
+        let s=shared.read().unwrap();assert!(!s.autonomy.enabled());assert!(s.pending_skill.is_none());assert!(!s.pending_quack);assert_eq!(s.autonomy_notice,Some("auto_failed"));assert!(s.autonomy.reason.contains("6秒"));
+    }
     #[test]
     fn native_rear_contract_rejects_fake_stops_and_wrong_board() {
         let meta:Value=serde_json::from_str(include_str!("../../models/rear_hook_native.metadata.json")).unwrap();
@@ -1135,7 +1158,8 @@ impl ExecutionEngine {
     }
 }
 fn advance_quack(shared:&Shared,cycle:&mut Option<(Instant,crate::quack::Playback)>)->bool {
-    if std::mem::take(&mut shared.write().unwrap().quack_cancel) {*cycle=None;}
+    let cancelled={let mut state=shared.write().unwrap();let cancelled=std::mem::take(&mut state.quack_cancel);if cancelled {state.quack_running=false;state.mouth_degrees=-5.;}cancelled};
+    if cancelled {*cycle=None;}
     let requested={let mut state=shared.write().unwrap();let v=(state.pending_quack,state.quack_voice.clone());state.pending_quack=false;v};
     if requested.0 {
         match crate::quack::Playback::start_voice(&requested.1) {
@@ -1239,6 +1263,7 @@ fn native_policy_loop(
     let mouth_limits=control::configuration(bus,34)?;
     trace.transition(json!({"type":"start","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha,"execution":"kissqy-sync50-v1","returnHome":return_home}));
     while !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
+        autonomy_deadline(shared)?;
         let started=Instant::now();
         let lock_wait=std::cell::Cell::new(0.);
         let read_shared=|| {let at=Instant::now();let g=shared.read().unwrap();lock_wait.set(lock_wait.get()+at.elapsed().as_secs_f64()*1000.);g};
@@ -1272,6 +1297,7 @@ fn native_policy_loop(
         control::publish(shared,&fresh,&IDS,bus.diagnostics.clone());
         let publish_done=Instant::now();
         let Some(mut obs)=observed else {
+            write_shared().autonomy.invalid_feedback();
             roll_exit.reset();model.rear_clock.pause();
             quack_cycle=None;write_shared().mouth_degrees=-5.;
             pause_drive(shared);head_offset=[0.;2];model.command_twist=[0.;3];model.upright=0.;
@@ -1283,6 +1309,7 @@ fn native_policy_loop(
                 }
             }
             if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) {break;}
+            autonomy_deadline(shared)?;
             control::goals(bus,goals)?;timing.record(Instant::now());
             let mut v=stats(model,timing,*infer_ms);v["state"]=json!("policy");v["action"]=json!("policy");
             v["policyPhase"]=json!("feedback-hold");v["feedbackHolding"]=json!(true);
@@ -1295,8 +1322,17 @@ fn native_policy_loop(
             model.filtered_action=[0.;14];model.target_initialized=false;model.filtered_gyro=None;walk_twist=[0.;3];
             obs=model.observe(shared,feedback,cal)?;
         }
-        if fall_guard.check(&model.kind,Some(tilt(&obs)),Instant::now()) {
-            pause_drive(shared);bail!("检测到行走跌倒，停止推理并卸力");
+        autonomy_deadline(shared)?;
+        if fall_guard.check(&model.kind,Some(tilt(&obs)),Instant::now()) || (autonomous_fall(&model.kind,tilt(&obs)) && read_shared().autonomy.enabled()) {
+            let automatic={let mut state=write_shared();
+                if state.autonomy.fall(Instant::now()) {
+                    state.cancel_demo("自主跌倒恢复",false);state.head_intent.clear();state.pending_quack=false;state.quack_cancel=true;
+                    if let Some(d)=state.drive.as_mut(){d.twist=[0.;3];}
+                    state.pending_skill=Some("xgoduck_getup".into());
+                    state.log("WARN","autonomy","确认跌倒，开始6秒总时限起身");true
+                }else{false}
+            };
+            if !automatic {pause_drive(shared);bail!("检测到行走跌倒，停止推理并卸力");}
         }
         let recovery_fallen=recovery_posture.observe(tilt(&obs),Instant::now());
         {
@@ -1304,6 +1340,14 @@ fn native_policy_loop(
             if state.demo.active && !state.drive.as_ref().is_some_and(|d|d.session==state.demo.session) {state.cancel_demo("控制会话变更",false);}
             let busy=state.quack_running || state.pending_quack;
             let stable=tilt(&obs)<15. && obs[..3].iter().all(|v|v.abs()<0.5) && model.command_twist.iter().all(|v|v.abs()<0.01);
+            let auto_busy=state.demo.active || state.pending_skill.is_some() || busy;
+            let recovery_pose=tilt(&obs)<15. && obs[..3].iter().all(|v|v.abs()<0.5)
+                && (0..5).chain(9..14).map(|n|obs[6+n].abs()).sum::<f32>()/10.<0.25 && model.progress>=0.5;
+            if state.autonomy.enabled() && !state.drive.as_ref().is_some_and(|d|d.session==state.autonomy.session){state.stop_autonomy("控制会话结束",false);}
+            if state.autonomy.observe(Instant::now(),&model.kind,stable,recovery_pose,auto_busy){
+                state.pending_skill=Some("xgoduck".into());fall_guard=FallGuard::default();
+                state.log("INFO","autonomy","已确认稳定起身，恢复自主待命");
+            }
             let out=state.demo.tick(Instant::now(),&model.kind,model.progress,model.skill_profile.sit_settle(),stable,busy);
             if out.stopped {state.pending_quack=false;state.quack_running=false;state.quack_cancel=true;state.head_intent.clear();}
             if state.pending_skill.is_none() {state.pending_skill=out.skill;}
@@ -1325,6 +1369,7 @@ fn native_policy_loop(
             }
             complete
         } else {model.skill_profile.complete(&model.kind,model.progress,model.upright)};
+        let finished=finished && !read_shared().autonomy.recovering();
         if finished && model.skill_profile.donor_roll {
             trace.transition(json!({"type":"roll-complete","mono":crate::telemetry::monotonic(),"progressSeconds":model.progress,
                 "rotationDegrees":roll_exit.rotation_degrees,"tiltDegrees":tilt(&obs),"destination":"xgoduck"}));
@@ -1336,7 +1381,7 @@ fn native_policy_loop(
             bail!("倒地起身6秒窗口结束但机身仍倒地（{:.1}°），停止推理并卸力；未发HOME目标",tilt(&obs));
         }
         if model.skill_profile.flamingo && model.kind=="flamingo_lower" && model.progress>=6. && !finished {bail!("火烈鸟落脚6秒内未确认稳定双脚姿态，停止并卸力");}
-        if model.skill_profile.dance && tilt(&obs)>=45. {bail!("舞蹈倾倒，停止推理并卸力");}
+        if model.skill_profile.dance && tilt(&obs)>=45. && !read_shared().autonomy.recovering() {bail!("舞蹈倾倒，停止推理并卸力");}
         let handoff=native_handoff(&model.kind,finished,model.skill_profile.donor_getup,return_home,recovery_resume,requested);
         if handoff==NativeHandoff::Home {
             trace.transition(json!({"type":"recovery-complete","mono":crate::telemetry::monotonic(),"destination":"HOME","tiltDegrees":tilt(&obs),"progressSeconds":model.progress}));
@@ -1350,7 +1395,7 @@ fn native_policy_loop(
         }
         if let NativeHandoff::Skill(next)=handoff {
             let reset=if next=="xgoduck_getup" {
-                match native_recovery_transition(&model.kind,return_home,recovery_fallen) {
+                match native_recovery_transition(&model.kind,return_home,recovery_fallen || read_shared().autonomy.recovering()) {
                     Ok((reset,resume))=>{recovery_resume=resume;recovery_resume_progress=model.progress;reset},
                     Err(e)=>{write_shared().log("WARN","policy-switch",&e.to_string());clock.wait();continue;},
                 }
@@ -1395,7 +1440,7 @@ fn native_policy_loop(
         model.command_twist=if model.kind=="xgoduck" {
             let state=read_shared();
             let fresh=state.demo.active || state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
-            let target=if state.demo.active {state.demo.output.twist}else{state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])};
+            let target=if state.autonomy.mode==crate::autonomy::Mode::Standby {[0.;3]}else if state.demo.active {state.demo.output.twist}else{state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])};
             crate::walk_profile::smooth_twist(&mut walk_twist,target,fresh)
         } else {walk_twist=[0.;3];skill_twist(&model.kind,model.progress)};
         let rear_pose=model.skill_profile.rear_hook.then(||rear_geometry.sample_with_transfer(&obs,&model.home));
@@ -1418,7 +1463,15 @@ fn native_policy_loop(
         if model.kind=="xgoduck" || (model.kind=="sitstand_sit" && model.progress>=model.skill_profile.sit_settle()) {
             let input={let state=read_shared();if state.demo.active {state.demo.output.head}else{state.head_intent.current(Instant::now())}};
             let bounds=[control::effective_angle_limits(31,cal,limits[&31])?,control::effective_angle_limits(32,cal,limits[&32])?];
-            crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]],bounds);
+            let autonomous={let s=read_shared();model.kind=="xgoduck" && s.autonomy.mode==crate::autonomy::Mode::Standby};
+            if autonomous {
+                let desired={let mut s=write_shared();let epoch=s.autonomy.epoch;let busy=s.pending_quack || s.quack_running;
+                    if !busy{s.vision.sound=false;}
+                    let desired=s.vision.desired(Instant::now(),epoch);
+                    if let Some(voice)=s.vision.call(Instant::now(),busy){s.pending_quack=true;s.quack_voice=voice.into();}
+                    desired};
+                crate::vision::step(&mut head_offset,desired,[model.sent[6],model.sent[7]],bounds);
+            } else {crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]],bounds);}
             for (axis,n) in [6usize,7].iter().enumerate(){
                 if head_offset[axis].abs()<1e-9 {continue;}
                 let id=ORDER[*n];let (lo,hi)=bounds[axis];let raw=(model.sent[*n]+head_offset[axis]).clamp(lo,hi).to_radians();
@@ -1435,6 +1488,7 @@ fn native_policy_loop(
             goals.insert(34,control::target(34,feedback[&34]["position"].as_i64().unwrap() as i32,cal,mouth_limits.0,mouth_limits.1,degrees.to_radians(),true)?);
         }
         if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) {break;}
+        autonomy_deadline(shared)?;
         let write_at=Instant::now();control::goals(bus,goals)?;timing.record(write_at);
         let trace_at=Instant::now();
         trace.frame(json!({"type":"inference","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha,"commandTwist":model.command_twist,

@@ -1,14 +1,8 @@
 {
   "artifactType": "training-policy",
-  "task": "Mjlab-VelStand-Rough-Backlash-MicroDuck",
-  "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
-  "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
-  "geometry": "Donor HD1910 VelStand rough backlash policy, transferred to local MicroDuck calibration",
   "controlHz": 50,
   "actorObservationDim": 61,
   "actionDim": 14,
-  "observationNormalization": "baked into ONNX by upstream exporter",
-  "actionSemantics": "HOME + 1.0 * raw policy action; head/leg target filter new weights 0.5/0.7; first target passthrough",
   "jointOrder": [
     "left_hip_yaw",
     "left_hip_roll",
@@ -41,35 +35,31 @@
     0.0049,
     -0.453
   ],
-  "nominalTrunkHeightM": 0.11718236219874864,
-  "simulationMassKg": 0.7372431799999999,
-  "hardwareValidated": false,
-  "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
-  "gainBaseline": 5,
-  "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions",
-  "bodyGroundContactMeshes": 68,
-  "source": "https://github.com/kissqy/Microduck-kissqy/tree/94328f5b43c8ac825c90f0e564e7d1b926cd770d",
-  "runtimeActionAlpha": null,
-  "transferBoundary": "Local IDs/calibration and protections retained; donor P3/D0 for walk only; donor torque limit681 not imported; not validated in hardware.",
+  "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+  "task": "Mjlab-Velocity-Flat-MicroDuck",
   "runtimeKind": "xgoduck",
+  "policySha256": "ae59d61ae68f88ecbc0ec6892e20ae0e84d5dacada73921c35651f1d1a175544",
+  "hardwareValidated": false,
+  "geometry": "replica / HD1910 original velocity recipe",
+  "observationNormalization": "embedded_in_onnx_once",
+  "actionSemantics": "HOME + raw action; scale1; no EMA",
+  "runtimeActionAlpha": 0,
+  "sourceExperiment": "/CodeRepo/Code/leiwu30/hd1910-walk-original-20261020",
+  "sourceCheckpoint": "model_4999.pt",
+  "deploymentProvenance": {
+    "userRequested": true,
+    "formalAcceptancePassed": false
+  },
   "walkExecution": {
     "schema": "kissqy-r17-v1",
-    "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+    "policySha256": "ae59d61ae68f88ecbc0ec6892e20ae0e84d5dacada73921c35651f1d1a175544",
     "actionScale": 1.0,
-    "headNewWeight": 0.5,
-    "legsNewWeight": 0.7,
+    "headNewWeight": 1.0,
+    "legsNewWeight": 1.0,
     "gains": {
-      "p": 3,
+      "p": 5,
       "d": 0
     },
-    "gainSource": "R17 management defaults; upstream may be overridden by saved servo-test-parameters.json"
-  },
-  "deploymentProvenance": {
-    "commit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
-    "sourceIteration": 9599,
-    "userRequested": true,
-    "formalAcceptancePassed": false,
-    "upstreamTorqueLimitDefault": 681,
-    "torqueLimitTransferred": false
+    "gainSource": "existing board P5/D0; compatible execution schema, not donor provenance"
   }
 }

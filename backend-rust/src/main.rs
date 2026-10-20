@@ -1,3 +1,5 @@
+mod autonomy;
+mod vision;
 mod demo;
 mod dance;
 mod camera;
@@ -436,6 +438,8 @@ fn policy_drive_command(shared: &mut Telemetry, body: &Value) -> Response {
         if (twist!=[0.;3] || head!=[0.;2]) && shared.drive.as_ref().is_some_and(|d|d.session==body["session"].as_str().unwrap_or("") && sequence>d.sequence) {
             shared.cancel_demo("人工摇杆接管",true);
         }
+        if shared.autonomy.recovering(){return error(StatusCode::CONFLICT,"自主起身中，仅停止、卸力或关闭自主可中断");}
+        shared.autonomous_input(body["session"].as_str().unwrap_or(""),sequence,twist!=[0.;3] || head!=[0.;2]);
         let seated_head=shared.control["activeSkill"]=="sitstand_sit" && head_control::ready(&shared.control) && twist==[0.;3];
         if shared.control["activeSkill"]=="sitstand_sit" && !seated_head {
             return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
@@ -461,7 +465,7 @@ async fn policy_action(
     h: HeaderMap,
     b: Bytes,
 ) -> Response {
-    if !["start", "stop", "shadow", "home", "command", "skill", "mouth", "quack", "demo"].contains(&action.as_str()) {
+    if !["start", "stop", "shadow", "home", "command", "skill", "mouth", "quack", "demo", "autonomy"].contains(&action.as_str()) {
         return error(StatusCode::NOT_FOUND, "Not Found");
     }
     let body = match check_action(&h, &b, 1024) {
@@ -474,9 +478,38 @@ async fn policy_action(
     if action == "stop" {
         let mut shared=a.telemetry.write().unwrap();shared.drive=None;shared.pending_skill=None;
         shared.cancel_demo("停止模型",false);
+        shared.stop_autonomy("用户停止模型",false);
         owner.halt.store(true, Ordering::Release);
         return Json(json!({"state":"stopping","message":"停止模型请求已发送，保持最后目标"}))
             .into_response();
+    }
+    if action=="autonomy" {
+        let session=body["session"].as_str().unwrap_or("");
+        let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少自主指令序号");};
+        let enabling=!a.telemetry.read().unwrap().autonomy.enabled();
+        if enabling {
+            if policy::metadata_for("xgoduck_getup").is_none(){return error(StatusCode::CONFLICT,"自主模式需要已就绪的起身模型");}
+            if let Err(e)=quack::ready(){return error(StatusCode::CONFLICT,&e.to_string());}
+        }
+        let mut state=a.telemetry.write().unwrap();
+        if !state.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence){return error(StatusCode::CONFLICT,"自主会话或序号已过期");}
+        if state.autonomy.enabled(){
+            state.cancel_vision_sound();
+            let recovering=state.autonomy.recovering();state.autonomy.stop("用户关闭自主");
+            if recovering {state.autonomy_notice=Some("auto_off");owner.cancel.store(true,Ordering::Release);}
+            else {state.quack_cancel=true;state.pending_quack=true;state.quack_voice="auto_off".into();}
+        } else {
+            let allowed=state.control["state"]=="policy" && state.control["activeSkill"]=="xgoduck" && state.control["runtimeProfile"]=="kissqy-sync50-v1" && state.control["feedbackHolding"]!=true && !state.demo.active && state.pending_skill.is_none() && !state.pending_quack && !state.quack_running && state.drive.as_ref().unwrap().current()==[0.;3] && state.head_intent.current(Instant::now())==[0.;2];
+            let result=if allowed {state.autonomy.start(session,Instant::now())}else{Err(anyhow::anyhow!("请先稳定站立、摇杆回中并结束其它动作"))};
+            if let Err(e)=result {
+                if state.control["state"]=="policy" && !state.pending_quack && !state.quack_running {state.pending_quack=true;state.quack_voice="auto_reject".into();}
+                return error(StatusCode::CONFLICT,&e.to_string());
+            }
+            state.pending_quack=true;state.quack_voice="auto_on".into();
+        }
+        state.drive.as_mut().unwrap().sequence=sequence;
+        state.log("INFO","autonomy",if enabling {"自主模式开启：原地待命"}else{"自主模式关闭"});
+        return Json(state.autonomy.status()).into_response();
     }
     if action=="demo" {
         let session=body["session"].as_str().unwrap_or("");
@@ -497,6 +530,8 @@ async fn policy_action(
             if state.control["state"]!="policy" || state.control["activeSkill"]!="xgoduck" || state.control["runtimeProfile"]!="kissqy-sync50-v1" || state.control["feedbackHolding"]==true || state.pending_skill.is_some() || state.pending_quack || state.quack_running || state.drive.as_ref().unwrap().current()!=[0.;3] || state.head_intent.current(Instant::now())!=[0.;2] {
                 return error(StatusCode::CONFLICT,"请先站立并等待稳定、摇杆回中、其它动作结束");
             }
+            if state.autonomy.recovering(){return error(StatusCode::CONFLICT,"自主起身中，普通动作暂不可用");}
+            state.cancel_vision_sound();state.autonomy.action(Instant::now());
             if let Err(e)=state.demo.start(session,Instant::now()) {return error(StatusCode::CONFLICT,&e.to_string());}
         }
         state.drive.as_mut().unwrap().sequence=sequence;
@@ -723,6 +758,7 @@ async fn main() -> anyhow::Result<()> {
     )))?;
     let shared = Arc::new(RwLock::new(Telemetry::new(hardware)));
     let stop = Arc::new(AtomicBool::new(false));
+    if hardware {vision::init(shared.clone(),stop.clone());}
     let gamepad_debug = Arc::new(AtomicBool::new(gamepad::initial_debug()));
     let owner = if !port.is_empty() {
         let ids = env("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24")
@@ -852,6 +888,21 @@ mod web_gamepad_tests {
         let mut s=Telemetry::new(false);
         s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1"});
         s.drive=Some(telemetry::DriveCommand{session:"web".into(),sequence:0,twist:[0.;3],updated:Instant::now()});s
+    }
+    #[test] fn autonomous_recovery_blocks_drive_and_manual_skills_without_changing_sequence(){
+        let mut s=ready();let now=Instant::now();s.autonomy.observe(now- Duration::from_millis(600),"xgoduck",true,false,false);s.autonomy.observe(now,"xgoduck",true,false,false);s.autonomy.start("web",now).unwrap();s.autonomy.fall(now);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":1,"twist":[0.2,0,0]})).status(),StatusCode::CONFLICT);
+        assert!(!s.queue_skill("web",1,"xgoduck_getup"));assert!(!s.queue_quack("web",1));assert!(!s.queue_mouth("web",1,20.));
+        assert_eq!(s.drive.as_ref().unwrap().sequence,0);assert_eq!(s.drive.as_ref().unwrap().twist,[0.;3]);assert!(s.autonomy.recovering());
+    }
+    #[test] fn foreign_and_replayed_drive_cannot_take_over_autonomy(){
+        let mut s=ready();let now=Instant::now();s.autonomy.observe(now-Duration::from_millis(600),"xgoduck",true,false,false);s.autonomy.observe(now,"xgoduck",true,false,false);s.autonomy.start("web",now).unwrap();
+        s.vision.sound=true;s.pending_quack=true;
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"other","sequence":1,"twist":[0.2,0,0]})).status(),StatusCode::CONFLICT);assert_eq!(s.autonomy.mode,autonomy::Mode::Standby);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":0,"twist":[0.2,0,0]})).status(),StatusCode::CONFLICT);assert_eq!(s.autonomy.mode,autonomy::Mode::Standby);
+        assert!(s.pending_quack && s.vision.sound);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":1,"twist":[0.2,0,0]})).status(),StatusCode::OK);assert_eq!(s.autonomy.mode,autonomy::Mode::Manual);
+        assert!(!s.pending_quack && !s.vision.sound);assert!(s.quack_cancel);
     }
     #[test]
     fn head_requires_current_session_and_sequence_and_legacy_packets_preserve_it() {

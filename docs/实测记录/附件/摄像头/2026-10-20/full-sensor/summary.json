@@ -1,0 +1,34 @@
+{
+  "release": "runtime-20261020-camera-full-sensor",
+  "ip": "192.168.137.238",
+  "sensor": [
+    3280,
+    2464
+  ],
+  "sensorNominalFps": 21,
+  "captureMeasuredFps": 21.16,
+  "ispCrop": [
+    0,
+    0,
+    3280,
+    2464
+  ],
+  "jpeg": [
+    640,
+    480
+  ],
+  "upright": [
+    480,
+    640
+  ],
+  "nativeVgaDriverUsed": false,
+  "rustTests": {
+    "passed": 260,
+    "ignored": 1
+  },
+  "nativeIpcTest": "passed",
+  "fixtureSamples": 36,
+  "privateImagesTracked": false,
+  "motionTested": false,
+  "rollback": "runtime-20261020-walk-original-5000"
+}

@@ -1,5 +1,6 @@
 export type CameraSettings = {
   enabled: boolean; streaming: boolean; error: string; device: string;
+  autonomousUse?: boolean;
   transport: 'mjpeg'; width: number; height: number; targetFps: number; sequence: number;
 };
 export function cameraBase(endpoint: string): string {

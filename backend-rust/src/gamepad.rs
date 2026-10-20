@@ -270,6 +270,8 @@ impl QuackGesture {
 #[derive(Default)]
 struct Input {
     quack:QuackGesture,
+    autonomy_since:Option<std::time::Instant>,
+    autonomy_fired:bool,
     previous: Sample,
     neutral_seen: bool,
     drive_armed: bool,
@@ -284,6 +286,7 @@ impl Input {
     }
     fn update_at(&mut self, sample: &Sample, ready: bool, diagnostic_only: bool, now: std::time::Instant) -> Option<&'static str> {
         if diagnostic_only {
+            self.autonomy_since=None;self.autonomy_fired=false;
             self.quack=QuackGesture::default();
             self.start_since = None;
             self.start_triggered = false;
@@ -303,6 +306,11 @@ impl Input {
         let long_start = !self.start_triggered && self.start_since
             .is_some_and(|since| now.duration_since(since) >= Duration::from_secs(2));
         if long_start { self.start_triggered = true; }
+        let autonomous_down=sample.dpad[3] && !sample.dpad[..3].iter().any(|v|*v) && !sample.keys.iter().any(|v|*v) && sample.centered();
+        if !autonomous_down {self.autonomy_since=None;self.autonomy_fired=false;}
+        else if self.neutral_seen && !self.previous.dpad[3] {self.autonomy_since=Some(now);}
+        let long_autonomy=!self.autonomy_fired && self.autonomy_since.is_some_and(|at|now.duration_since(at)>=Duration::from_millis(1500));
+        if long_autonomy {self.autonomy_fired=true;}
         let edge = |key| sample.down(key) && !self.previous.down(key);
         if sample.down(Y) && sample.centered() {
             self.y_hold_ticks = self.y_hold_ticks.saturating_add(1);
@@ -324,6 +332,8 @@ impl Input {
             None
         } else if long_start {
             Some("poweroff")
+        } else if long_autonomy {
+            Some("autonomy")
         } else if long_y {
             Some("getup")
         } else if sample.centered() && edge(A) {
@@ -525,6 +535,10 @@ pub fn spawn(app: App, router: Router) {
                     if !diagnostic_only && input.neutral_seen && !sample.neutral() {
                         if motion.take_over_policy() {input.drive_armed=true;}
                     }
+                    if !diagnostic_only {
+                        let manual=!sample.centered() || sample.keys.iter().any(|v|*v) || sample.dpad[..3].iter().any(|v|*v);
+                        motion.autonomous_input(manual);
+                    }
                     let status=motion.status();
                     let demo_active=status["demoActive"]==true;
                     if demo_active && !sample.centered() {motion.cancel_demo();input.drive_armed=true;}
@@ -553,6 +567,7 @@ pub fn spawn(app: App, router: Router) {
                         } else {
                             if !motion.leased {
                                 if !matches!(action, "stand" | "getup" | "quack") {
+                                    if action=="autonomy" {crate::quack::announce("auto_reject");}
                                     report(&app, "手柄尚未取得模型控制权，请先回中并长按Y起身；若由网页/App启动，请先在原端停止保持");
                                     continue;
                                 }
@@ -927,5 +942,26 @@ mod tests {
         assert_eq!(i.update(&lb,true,false),Some("demo"));assert_eq!(i.update(&lb,true,false),None);
         i.update(&Sample::default(),true,false);assert_eq!(i.update(&sample(&[LB],[0.5,0.,0.,0.]),true,false),None);
         i.update(&Sample::default(),true,false);assert_eq!(i.update(&lb,true,true),None);
+    }
+
+    #[test] fn autonomy_long_press_fires_once_and_requires_fresh_release(){
+        let mut i=Input::default();let t=std::time::Instant::now();let neutral=Sample::default();let mut down=neutral.clone();down.dpad[3]=true;
+        assert_eq!(i.update_at(&down,true,false,t),None);
+        assert_eq!(i.update_at(&down,true,false,t+Duration::from_secs(2)),None);
+        i.update_at(&neutral,true,false,t+Duration::from_secs(3));i.update_at(&down,true,false,t+Duration::from_secs(4));
+        assert_eq!(i.update_at(&down,true,false,t+Duration::from_millis(5499)),None);
+        assert_eq!(i.update_at(&down,true,false,t+Duration::from_millis(5500)),Some("autonomy"));
+        assert_eq!(i.update_at(&down,true,false,t+Duration::from_secs(8)),None);
+        i.update_at(&neutral,true,false,t+Duration::from_secs(9));i.update_at(&down,false,false,t+Duration::from_secs(10));
+        assert_eq!(i.update_at(&down,false,false,t+Duration::from_millis(11500)),Some("autonomy"));
+    }
+    #[test] fn autonomy_hold_cancels_on_short_press_input_or_diagnostic(){
+        let t=std::time::Instant::now();let mut down=Sample::default();down.dpad[3]=true;
+        for diagnostic in [false,true] {
+            let mut i=Input::default();i.update_at(&Sample::default(),true,false,t);i.update_at(&down,true,false,t);
+            let mut moved=down.clone();if !diagnostic {moved.axes[0]=0.5;}
+            i.update_at(&moved,true,diagnostic,t+Duration::from_secs(1));
+            assert_eq!(i.update_at(&down,true,false,t+Duration::from_secs(2)),None);
+        }
     }
 }

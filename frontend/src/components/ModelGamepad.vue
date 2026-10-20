@@ -2,10 +2,18 @@
 import type {GamepadFeedback} from '../gamepadFeedback';
 import PadStick from './PadStick.vue';
 import {gamepadSpeed,wheelTwist} from '../wheelSpeed';
-import {computed,ref,watch} from 'vue';
+import {computed,ref,watch,onUnmounted} from 'vue';
+import {longPress} from '../longPress';
 import type {Twist} from '../holdToWalk';
-const props=defineProps<{rearHook?:boolean;drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
+const props=defineProps<{autonomyActive?:boolean;rearHook?:boolean;drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
 const emit=defineEmits<{action:[key:string];body:[value:Twist|null];head:[value:[number,number]|null]}>();
+const autonomyHold=longPress(()=>{if(props.allowed.autonomy)emit('action','autonomy');});
+function startAutonomy(event:PointerEvent){(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);autonomyHold.start();}
+watch(()=>props.allowed.autonomy,value=>{if(!value)autonomyHold.cancel();});
+function cancelAutonomy(){autonomyHold.cancel();}
+function hiddenAutonomy(){if(document.hidden)cancelAutonomy();}
+window.addEventListener('blur',cancelAutonomy);document.addEventListener('visibilitychange',hiddenAutonomy);
+onUnmounted(()=>{autonomyHold.cancel();window.removeEventListener('blur',cancelAutonomy);document.removeEventListener('visibilitychange',hiddenAutonomy);});
 function held(key:string){return !!props.feedback?.buttons[key];}
 const turboHeld=ref(false),boosted=computed(()=>turboHeld.value);
 let lastBody:[number,number]=[0,0],bodyEngaged=false;
@@ -38,11 +46,11 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
       <button :class="{physical:held('left')}" :disabled="!allowed.flamingo" @click="emit('action','flamingo')" :title="rearHook?'金鸡独立：右脚后抬，到位保持3秒后自动回正；再按提前返回':'火烈鸟：按一次抬左脚保持，再按落脚'" :aria-label="rearHook?'十字键左 金鸡独立':'十字键左 火烈鸟'"><small>{{rearHook?'金鸡独立':'火烈鸟'}}<br>{{rearHook?'后抬3秒':'抬脚/落脚'}}</small></button>
       <span/>
       <button :class="{physical:held('right')}" :disabled="!allowed.kick_right" @click="emit('action','kick_right')" title="右脚踢球" aria-label="十字键右 右脚踢球"><small>右脚<br>踢球</small></button>
-      <button :class="{physical:held('down')}" disabled title="自主行动：预留入口，后续接入自主策略" aria-label="十字键下 自主行动，待接入"><small>自主<br>行动</small></button>
+      <button :class="{physical:held('down')}" :disabled="!allowed.autonomy" title="长按1.5秒开启或关闭自主；第一版原地待命" aria-label="十字键下 长按1.5秒切换自主行动" @pointerdown.prevent="startAutonomy" @pointerup="cancelAutonomy" @pointercancel="cancelAutonomy" @lostpointercapture="cancelAutonomy" @keydown.space.prevent="autonomyHold.start()" @keyup.space.prevent="cancelAutonomy" @keydown.enter.prevent="autonomyHold.start()" @keyup.enter.prevent="cancelAutonomy" @blur="cancelAutonomy"><small>{{ autonomyActive?'关闭自主':'自主行动' }}<br>长按1.5秒</small></button>
     </div>
     <span class="grip left-grip">按住拖动</span><span class="grip right-grip">松开回中</span>
   </div>
-  <div class="pad-footer"><span><i/> 舞蹈 / 火烈鸟 / 右脚踢球已接入 · 自主行动预留</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
+  <div class="pad-footer"><span><i/> 舞蹈 / 火烈鸟 / 右脚踢球已接入 · 长按自主键1.5秒切换</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
 </div>
 </template>
 <style scoped>

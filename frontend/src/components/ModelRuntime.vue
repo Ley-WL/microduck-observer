@@ -28,16 +28,19 @@ const resetSticks=ref(0);
 const seatedHead=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=control.value?.sitSettleSeconds && !control.value?.feedbackHolding && !pending.value && !!session.value && control.value?.driveSession===session.value);
 const canHead=computed(()=>(canDrive.value || seatedHead.value) && headAvailable.value && control.value?.runtimeProfile==='kissqy-sync50-v1');
 const demoOwned=computed(()=>!!control.value?.demo?.active && !!session.value && control.value?.driveSession===session.value);
+const autonomousOwned=computed(()=>!!control.value?.autonomy?.enabled && !!session.value && control.value?.driveSession===session.value);
+const recovering=computed(()=>control.value?.autonomy?.state==='recovering');
 const allowed=computed(()=>({
-  demo:live.value && !pending.value && (demoOwned.value || (canDrive.value && !!control.value?.demo?.ready)),
+  autonomy:live.value && !pending.value && (autonomousOwned.value || (canDrive.value && !!control.value?.autonomy?.ready && !demoOwned.value)),
+  demo:!recovering.value && live.value && !pending.value && (demoOwned.value || (canDrive.value && !!control.value?.demo?.ready)),
   standup:!!skillAvailable.value.standup && (canStand.value || (live.value && board.ready && !busy.value)),
   sit:!!skillAvailable.value.sit && (canDrive.value || (live.value && board.ready && !busy.value)),
-  getup:!!skillAvailable.value.getup && (canDrive.value || canRecover.value || (live.value && board.ready && !busy.value)),
+  getup:!recovering.value && !!skillAvailable.value.getup && (canDrive.value || canRecover.value || (live.value && board.ready && !busy.value)),
   flamingo:!!skillAvailable.value.flamingo && (canDrive.value || (live.value && control.value?.state==='policy' && control.value?.activeSkill==='flamingo_hold' && !control.value?.feedbackHolding && !pending.value && !!session.value && control.value?.driveSession===session.value)),
   dance:!!skillAvailable.value.dance && canDrive.value,
   pick:!!skillAvailable.value.pick && canDrive.value,roulade:!!skillAvailable.value.roulade && canDrive.value,
   kick_left:!!skillAvailable.value.kick_left && canDrive.value,kick_right:!!skillAvailable.value.kick_right && canDrive.value,
-  quack:live.value && board.ready && !pending.value && !quackPending.value && (control.value?.state==='policy'
+  quack:!recovering.value && live.value && board.ready && !pending.value && !quackPending.value && (control.value?.state==='policy'
     ? control.value?.kind==='xgoduck' && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value
     : !busy.value),
   stop:running.value && !pending.value,disable:state.connection==='在线',
@@ -80,6 +83,14 @@ function leaveDemo(){demoFocused=false;release();if(demoOwned.value)void demoCom
 onMounted(()=>{demoHeartbeat=setInterval(()=>{if(demoOwned.value && demoFocused && !document.hidden)void demoCommand('keepalive');},120);window.addEventListener('blur',leaveDemo);window.addEventListener('pagehide',leaveDemo);});
 onUnmounted(()=>{if(demoHeartbeat)clearInterval(demoHeartbeat);leaveDemo();window.removeEventListener('blur',leaveDemo);window.removeEventListener('pagehide',leaveDemo);});
 async function extra(action:string,angleDeg?:number){
+  if(action==='autonomy'){
+    release();pending.value=true;failed.value=false;
+    try{
+      const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy/autonomy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:session.value,sequence:hold.nextSequence()}),signal:AbortSignal.timeout(2000)});
+      const result=await response.json();if(!response.ok)throw new Error(result.detail||'自主请求失败');
+      message.value=result.enabled?'自主开启：原地待命，手柄输入优先':'自主已关闭';
+    }catch(e){failed.value=true;message.value=String(e);}finally{pending.value=false;}return;
+  }
   if(action==='demo'){demoFocused=true;release();await demoCommand();return;}
   const independent=action==='quack';
   if(independent){if(quackPending.value)return;quackPending.value=true;}else{release();pending.value=true;}failed.value=false;
@@ -147,9 +158,17 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <p class="drive-result" role="status">{{ state.gamepadFeedback ? (physicalResult || '实物手柄已连接 · 橙色表示输入，不代表动作执行') : (driveReason || commandState || '手柄已就绪 · 左行走，右转头') }}</p>
     <div v-if="control?.demo?.active" class="runtime-metrics" role="status"><b>演示 {{ control.demo.step }}/{{ control.demo.steps }} · {{ control.demo.name }}</b><span>{{ Math.floor(control.demo.elapsedSeconds || 0) }} 秒 · LB 再按取消，摇杆接管</span></div>
     <p v-else-if="control?.demo?.reason" role="status">{{ control.demo.reason }}</p>
-    <ModelGamepad :rear-hook="rearHook" :feedback="state.gamepadFeedback" :drive="canDrive || demoOwned" :head="canHead || demoOwned" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
+    <div class="runtime-metrics" role="status"><b>自主：{{ control?.autonomy?.behavior || '已关闭' }}</b><span v-if="control?.autonomy?.enabled">控制：{{ control.autonomy.controlSource==='autonomous'?'自主':'人工' }}</span><span v-if="recovering">起身剩余 {{ Number(control.autonomy.recoveryRemainingSeconds || 0).toFixed(1) }} 秒</span><span v-if="control?.autonomy?.reason">{{ control.autonomy.reason }}</span></div>
+    <div v-if="control?.autonomy?.enabled" class="runtime-metrics" role="status">
+      <b>看人互动：{{ control.autonomy.vision?.behavior || '等待摄像头' }}</b>
+      <span v-if="control.autonomy.vision?.target">{{ control.autonomy.vision.target.kind==='face'?'人脸':'人体' }} · {{ Math.round(control.autonomy.vision.target.score*100) }}%</span>
+      <span v-if="control.autonomy.vision?.target">位置 {{ Math.round((control.autonomy.vision.target.bounds[0]+control.autonomy.vision.target.bounds[2])*50) }}% / {{ Math.round((control.autonomy.vision.target.bounds[1]+control.autonomy.vision.target.bounds[3])*50) }}%</span>
+      <span v-if="control.autonomy.vision?.metrics?.totalMs">检测 {{ Number(control.autonomy.vision.metrics.totalMs).toFixed(0) }}ms · RGA / RKNN</span>
+      <span v-if="control.autonomy.vision?.error">{{ control.autonomy.vision.error }}</span>
+    </div>
+    <ModelGamepad :autonomy-active="!!control?.autonomy?.enabled" :rear-hook="rearHook" :feedback="state.gamepadFeedback" :drive="canDrive || demoOwned" :head="canHead || demoOwned" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
     <div class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
-    <details class="runtime-help"><summary>按键说明与诊断</summary><p>A 站立 · Start 预留 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · RB 拾取 · LT 加速×2（0.2→0.4m/s）· LB 演示 / 取消（站稳后，约 28～35 秒）· RT 嘎一下（无需先站起）；十字键上舞蹈、左键火烈鸟（首次抬左脚保持，再按落脚）、右键右脚踢球、下自主行动；左右踢球执行 0.5 秒后返回平衡；舞蹈执行8秒后返回平衡，自主行动暂为预留入口。实物手柄：A 站立、长按 Y 倒地起身、模型就绪并回中后摇杆直接控制；单按 RB 拾取（模型就绪且摇杆回中）、LB 演示 / 取消、RT 嘎一下；LT按住走行速度0.4m/s（默认0.2m/s）；网页高亮仅显示实物输入，松键或超过 500ms 无新输入自动清除。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
+    <details class="runtime-help"><summary>按键说明与诊断</summary><p>A 站立 · Start 预留 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · RB 拾取 · LT 加速×2（0.2→0.4m/s）· LB 演示 / 取消（站稳后，约 28～35 秒）· RT 嘎一下（无需先站起）；十字键上舞蹈、左键火烈鸟（首次抬左脚保持，再按落脚）、右键右脚踢球、下长按1.5秒切换自主；左右踢球执行 0.5 秒后返回平衡；舞蹈执行8秒后返回平衡，自主键长按1.5秒切换，第一版原地待命；人工输入优先，回中满1秒并站稳恢复；跌倒起身总限时6秒，失败退出卸力。实物手柄：A 站立、长按 Y 倒地起身、模型就绪并回中后摇杆直接控制；单按 RB 拾取（模型就绪且摇杆回中）、LB 演示 / 取消、RT 嘎一下；LT按住走行速度0.4m/s（默认0.2m/s）；网页高亮仅显示实物输入，松键或超过 500ms 无新输入自动清除。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
 </details>
     <div v-if="message || control?.action==='policy' || control?.state==='failed'" class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?'平衡行走模型就绪 · 等待开始':'模型未就绪') }}</div>
   </div>

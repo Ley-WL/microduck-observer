@@ -1,0 +1,116 @@
+[
+  {
+    "args": [
+      "systemctl",
+      "stop",
+      "microduck-observer"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/3280x2464]"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"rkisp-isp-subdev\":0[fmt:SRGGB10_1X10/3280x2464 crop:(0,0)/3280x2464]"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"rkisp-isp-subdev\":2[fmt:YUYV8_2X8/3280x2464 crop:(0,0)/3280x2464]"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "v4l2-ctl",
+      "-d",
+      "/dev/video0",
+      "--set-fmt-video=width=640,height=480,pixelformat=NV12",
+      "--set-selection=target=crop,left=0,top=0,width=3280,height=2464",
+      "--get-fmt-video",
+      "--get-selection=target=crop"
+    ],
+    "code": 0,
+    "output": "Format Video Capture Multiplanar:\n\tWidth/Height      : 640/480\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : Default\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Full Range\n\tPlane 0           :\n\t   Bytes per Line : 640\n\t   Size Image     : 460800\nSelection Video Capture: crop, Left 0, Top 0, Width 3280, Height 2464, Flags: \n"
+  },
+  {
+    "args": [
+      "media-ctl",
+      "-p"
+    ],
+    "code": 0,
+    "output": "Media controller API version 6.1.115\n\nMedia device information\n------------------------\ndriver          rkisp-vir0\nmodel           rkisp0\nserial          \nbus info        platform:rkisp-vir0\nhw revision     0x0\ndriver version  6.1.115\n\nDevice topology\n- entity 1: rkisp-isp-subdev (4 pads, 8 links, 0 routes)\n            type V4L2 subdev subtype Unknown flags 0\n            device node name /dev/v4l-subdev0\n\tpad0: SINK,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/3280x2464 field:none\n\t\t crop.bounds:(0,0)/3280x2464\n\t\t crop:(0,0)/3280x2464]\n\t\t<- \"rkisp-csi-subdev\":1 [ENABLED]\n\t\t<- \"rkisp_rawrd0_m\":0 []\n\t\t<- \"rkisp_rawrd2_s\":0 []\n\tpad1: SINK\n\t\t<- \"rkisp-input-params\":0 [ENABLED]\n\tpad2: SOURCE\n\t\t[stream:0 fmt:YUYV8_2X8/3280x2464 field:none colorspace:smpte170m quantization:full-range\n\t\t crop.bounds:(0,0)/3280x2464\n\t\t crop:(0,0)/3280x2464]\n\t\t-> \"rkisp_mainpath\":0 [ENABLED]\n\t\t-> \"rkisp_selfpath\":0 [ENABLED]\n\t\t-> \"rkisp_iqtool\":0 [ENABLED]\n\tpad3: SOURCE\n\t\t-> \"rkisp-statistics\":0 [ENABLED]\n\n- entity 6: rkisp-csi-subdev (6 pads, 5 links, 0 routes)\n            type V4L2 subdev subtype Unknown flags 0\n            device node name /dev/v4l-subdev1\n\tpad0: SINK,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/3280x2464 field:none]\n\t\t<- \"rockchip-csi2-dphy0\":1 [ENABLED]\n\tpad1: SOURCE,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/3280x2464 field:none]\n\t\t-> \"rkisp-isp-subdev\":0 [ENABLED]\n\tpad2: SOURCE\n\t\t-> \"rkisp_rawwr0\":0 [ENABLED]\n\tpad3: SOURCE\n\tpad4: SOURCE\n\t\t-> \"rkisp_rawwr2\":0 [ENABLED]\n\tpad5: SOURCE\n\t\t-> \"rkisp_rawwr3\":0 [ENABLED]\n\n- entity 13: rkisp_mainpath (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video0\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":2 [ENABLED]\n\n- entity 19: rkisp_selfpath (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video1\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":2 [ENABLED]\n\n- entity 25: rkisp_rawwr0 (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video2\n\tpad0: SINK\n\t\t<- \"rkisp-csi-subdev\":2 [ENABLED]\n\n- entity 31: rkisp_rawwr2 (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video3\n\tpad0: SINK\n\t\t<- \"rkisp-csi-subdev\":4 [ENABLED]\n\n- entity 37: rkisp_rawwr3 (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video4\n\tpad0: SINK\n\t\t<- \"rkisp-csi-subdev\":5 [ENABLED]\n\n- entity 43: rkisp_iqtool (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video5\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":2 [ENABLED]\n\n- entity 49: rkisp_rawrd0_m (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video6\n\tpad0: SOURCE\n\t\t-> \"rkisp-isp-subdev\":0 []\n\n- entity 55: rkisp_rawrd2_s (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video7\n\tpad0: SOURCE\n\t\t-> \"rkisp-isp-subdev\":0 []\n\n- entity 61: rkisp-statistics (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video8\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":3 [ENABLED]\n\n- entity 67: rkisp-input-params (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video9\n\tpad0: SOURCE\n\t\t-> \"rkisp-isp-subdev\":1 [ENABLED]\n\n- entity 73: rockchip-csi2-dphy0 (2 pads, 2 links, 0 routes)\n             type V4L2 subdev subtype Unknown flags 0\n             device node name /dev/v4l-subdev2\n\tpad0: SINK,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/3280x2464@10000/210000 field:none]\n\t\t<- \"m00_b_imx219 2-0010\":0 [ENABLED]\n\tpad1: SOURCE,MUST_CONNECT\n\t\t-> \"rkisp-csi-subdev\":0 [ENABLED]\n\n- entity 76: m00_b_imx219 2-0010 (1 pad, 1 link, 0 routes)\n             type V4L2 subdev subtype Sensor flags 0\n             device node name /dev/v4l-subdev3\n\tpad0: SOURCE\n\t\t[stream:0 fmt:SRGGB10_1X10/3280x2464@10000/210000 field:none]\n\t\t-> \"rockchip-csi2-dphy0\":0 [ENABLED]\n\n"
+  },
+  {
+    "args": [
+      "v4l2-ctl",
+      "-d",
+      "/dev/video0",
+      "--stream-mmap=4",
+      "--stream-count=63",
+      "--stream-to=/dev/null"
+    ],
+    "code": 0,
+    "output": "<<<<<<<<<<<<<<<<<<<<<<< 21.16 fps\n<<<<<<<<<<<<<<<<<<<<< 21.16 fps\n<<<<<<<<<<<<<<<<<<<\n"
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/1920x1080]"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"rkisp-isp-subdev\":0[fmt:SRGGB10_1X10/1920x1080 crop:(0,0)/1920x1080]"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"rkisp-isp-subdev\":2[fmt:YUYV8_2X8/1920x1080 crop:(0,0)/1920x1080]"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "systemctl",
+      "start",
+      "microduck-observer"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "sh",
+      "-c",
+      "dmesg | tail -45"
+    ],
+    "code": 0,
+    "output": "[   43.934705] dw-apb-uart fe6d0000.serial: failed to request DMA, use interrupt mode\n[   45.670481] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\n[   45.695560] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\n[   45.695627] [BT_RFKILL]: ENABLE UART_RTS\n[   45.805543] [BT_RFKILL]: DISABLE UART_RTS\n[   45.805613] [BT_RFKILL]: bt turn on power\n[   45.805722] [BT_RFKILL]: Request irq for bt wakeup host\n[   45.805976] [BT_RFKILL]: ** disable irq\n[   45.806006] bluetooth_set_power: start_block=0\n[   45.806015] aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\n[   45.806020] aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\n[   45.806025] bluetooth_set_power: end_block=0\n[   45.862512] of_dma_request_slave_channel: dma-names property of node '/serial@fe650000' missing or empty\n[   45.862551] dw-apb-uart fe650000.serial: failed to request DMA, use interrupt mode\n[   45.924353] Bluetooth: HCI UART driver ver 2.3\n[   45.924378] Bluetooth: HCI UART protocol H4 registered\n[   45.924382] Bluetooth: HCI UART protocol BCSP registered\n[   45.924386] Bluetooth: HCI UART protocol ATH3K registered\n[   45.924527] Bluetooth: HCI UART protocol Three-wire (H5) registered\n[   45.924843] Bluetooth: HCI UART protocol Intel registered\n[   45.925065] Bluetooth: HCI UART protocol Broadcom registered\n[   45.925108] Bluetooth: HCI UART protocol QCA registered\n[   45.925114] Bluetooth: HCI UART protocol AG6XX registered\n[   47.041134] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\n[   47.065627] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\n[   47.065761] [BT_RFKILL]: ENABLE UART_RTS\n[   47.175526] [BT_RFKILL]: DISABLE UART_RTS\n[   47.175592] [BT_RFKILL]: bt turn on power\n[   47.175740] [BT_RFKILL]: Request irq for bt wakeup host\n[   47.176183] [BT_RFKILL]: ** disable irq\n[   47.176215] bluetooth_set_power: start_block=0\n[   47.176243] aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\n[   47.176250] aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\n[   47.176255] bluetooth_set_power: end_block=0\n[   47.176870] Bluetooth: MGMT ver 1.22\n[  680.822715] rga: 1079   1079  : [tgid:1079] Destroy handle[1] when the user exits\n[  680.822759] rga: 1079   1079  : [tgid:1079] Destroy handle[2] when the user exits\n[  680.822770] rga: 1079   1079  : [tgid:1079] Destroy handle[3] when the user exits\n[  680.849480] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream_stop stream stop, dphy0\n[  680.849511] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream stream on:0, dphy0, ret 0\n[  681.013334] rkisp_hw fdff0000.rkisp: set isp clk = 297000000Hz\n[  681.014050] rockchip-csi2-dphy0: dphy0, data_rate_mbps 912\n[  681.014109] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream stream on:1, dphy0, ret 0\n[  684.252190] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream_stop stream stop, dphy0\n[  684.252267] rockchip-csi2-dphy csi2-dphy0: csi2_dphy_s_stream stream on:0, dphy0, ret 0\n"
+  }
+]

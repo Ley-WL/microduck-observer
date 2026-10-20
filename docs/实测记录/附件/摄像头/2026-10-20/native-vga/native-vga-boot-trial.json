@@ -1,0 +1,53 @@
+[
+  {
+    "args": [
+      "systemctl",
+      "stop",
+      "microduck-observer"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/640x480]"
+    ],
+    "code": 1,
+    "output": "Unable to setup formats: Invalid argument (22)\n"
+  },
+  {
+    "error": "RuntimeError('[\\'media-ctl\\', \\'--set-v4l2\\', \\'\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/640x480]\\']')"
+  },
+  {
+    "args": [
+      "media-ctl",
+      "--set-v4l2",
+      "\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/1920x1080]"
+    ],
+    "code": 1,
+    "output": "Unable to setup formats: Invalid argument (22)\n"
+  },
+  {
+    "restoreError": "RuntimeError('[\\'media-ctl\\', \\'--set-v4l2\\', \\'\"m00_b_imx219 2-0010\":0[fmt:SRGGB10_1X10/1920x1080]\\']')"
+  },
+  {
+    "args": [
+      "systemctl",
+      "start",
+      "microduck-observer"
+    ],
+    "code": 0,
+    "output": ""
+  },
+  {
+    "args": [
+      "sh",
+      "-c",
+      "dmesg | tail -45"
+    ],
+    "code": 0,
+    "output": "[   21.284972] rwnx_send_sm_connect_req drv_vif_index:0 connect to 2_902(5) channel:2412 auth_type:0\n[   21.564603] get_txpwr_max:txpwr_max:18 \n[   22.834083] systemd-journald[507]: Received client request to relinquish /var/log/journal/15e32534fdad4aaabe2b206aaf30cb57 access.\n[   23.412670] imx219_microduck 2-0010: driver version: 00.01.01\n[   23.479109] imx219_microduck 2-0010: Model ID 0x0219, Lot ID 0x3b2434, Chip ID 0x07cc\n[   23.479182] ==> imx219 ken: 1183 imx219_probe \n[   26.611855] of_dma_request_slave_channel: dma-names property of node '/serial@fe660000' missing or empty\n[   26.611902] dw-apb-uart fe660000.serial: failed to request DMA, use interrupt mode\n[   26.613025] of_dma_request_slave_channel: dma-names property of node '/serial@fe6d0000' missing or empty\n[   26.613071] dw-apb-uart fe6d0000.serial: failed to request DMA, use interrupt mode\n[   27.884993] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\n[   27.911068] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\n[   27.911150] [BT_RFKILL]: ENABLE UART_RTS\n[   28.020478] [BT_RFKILL]: DISABLE UART_RTS\n[   28.020559] [BT_RFKILL]: bt turn on power\n[   28.020698] [BT_RFKILL]: Request irq for bt wakeup host\n[   28.020986] [BT_RFKILL]: ** disable irq\n[   28.021022] bluetooth_set_power: start_block=0\n[   28.021031] aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\n[   28.021038] aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\n[   28.021042] bluetooth_set_power: end_block=0\n[   28.089000] of_dma_request_slave_channel: dma-names property of node '/serial@fe650000' missing or empty\n[   28.089050] dw-apb-uart fe650000.serial: failed to request DMA, use interrupt mode\n[   28.159518] Bluetooth: HCI UART driver ver 2.3\n[   28.159551] Bluetooth: HCI UART protocol H4 registered\n[   28.159557] Bluetooth: HCI UART protocol BCSP registered\n[   28.159562] Bluetooth: HCI UART protocol ATH3K registered\n[   28.159766] Bluetooth: HCI UART protocol Three-wire (H5) registered\n[   28.164221] Bluetooth: HCI UART protocol Intel registered\n[   28.164757] Bluetooth: HCI UART protocol Broadcom registered\n[   28.164815] Bluetooth: HCI UART protocol QCA registered\n[   28.164824] Bluetooth: HCI UART protocol AG6XX registered\n[   29.291733] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host high!\n[   29.320475] [BT_RFKILL]: rfkill_rk_set_power: set bt wake_host input!\n[   29.320560] [BT_RFKILL]: ENABLE UART_RTS\n[   29.427222] [BT_RFKILL]: DISABLE UART_RTS\n[   29.427302] [BT_RFKILL]: bt turn on power\n[   29.427431] [BT_RFKILL]: Request irq for bt wakeup host\n[   29.427872] [BT_RFKILL]: ** disable irq\n[   29.427909] bluetooth_set_power: start_block=0\n[   29.427918] aicbsp: aicbsp_set_subsys, subsys: AIC_BLUETOOTH, state to: 1\n[   29.427924] aicbsp: aicbsp_set_subsys, power state no need to change, current: 1\n[   29.427928] bluetooth_set_power: end_block=0\n[   29.428640] Bluetooth: MGMT ver 1.22\n[   38.211589] platform mtd_vendor_storage: deferred probe pending\n"
+  }
+]

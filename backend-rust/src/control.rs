@@ -328,6 +328,12 @@ pub fn status(shared: &Shared, mut v: Value) {
     let mut state=shared.write().unwrap();
     if v["state"]=="disabled" {state.native_homed=false;}
     if v["state"]!="policy" {state.cancel_demo("模型已停止",false);}
+    if v["state"]!="policy" {
+        state.stop_autonomy(if v["state"]=="failed" {"模型故障，已退出自主"}else{"模型停止，已退出自主"},v["state"]=="failed");
+        if let Some(voice)=state.autonomy_notice.take(){crate::quack::announce(voice);}
+    }
+    v["autonomy"]=state.autonomy.status();
+    v["autonomy"]["vision"]=state.vision.status(state.autonomy.mode);
     v["demo"]=state.demo.status();
     state.control = v;
 }

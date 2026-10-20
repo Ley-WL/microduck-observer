@@ -52,6 +52,9 @@ pub fn rates(hardware: bool, servos: bool, tof: bool) -> BTreeMap<String, Value>
     r
 }
 pub struct Telemetry {
+    pub autonomy:crate::autonomy::Autonomy,
+    pub vision:crate::vision::Interaction,
+    pub autonomy_notice:Option<&'static str>,
     pub demo: crate::demo::Demo,
     pub quack_cancel: bool,
     pub imu_full_rate: Arc<std::sync::atomic::AtomicBool>,
@@ -86,6 +89,19 @@ pub struct DriveCommand {
     pub updated: Instant,
 }
 impl Telemetry {
+    pub fn stop_autonomy(&mut self,reason:&str,failed:bool) {
+        self.cancel_vision_sound();
+        if self.autonomy.enabled() {self.autonomy.stop(reason);self.autonomy_notice=Some(if failed {"auto_failed"}else{"auto_off"});}
+    }
+    pub fn cancel_vision_sound(&mut self) {
+        if self.vision.sound {self.vision.sound=false;self.pending_quack=false;self.quack_running=false;self.quack_cancel=true;}
+    }
+    pub fn autonomous_input(&mut self,session:&str,sequence:u64,active:bool)->bool {
+        if !self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence){return false;}
+        if self.autonomy.recovering(){return false;}
+        if active {self.cancel_vision_sound();}
+        self.autonomy.input(active,Instant::now());true
+    }
     pub fn cancel_demo(&mut self,reason:&str,return_to_stand:bool) {
         if !return_to_stand && !self.demo.active {self.demo.cancel(reason,false);}
         if self.demo.active {
@@ -97,6 +113,8 @@ impl Telemetry {
     }
 
     pub fn queue_quack(&mut self,session:&str,sequence:u64)->bool {
+        if self.autonomy.recovering(){return false;}
+        if self.autonomous_input(session,sequence,true){self.autonomy.input(false,Instant::now());}
         if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
         if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["feedbackHolding"]==true {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
@@ -104,6 +122,8 @@ impl Telemetry {
         self.pending_mouth=None;self.pending_quack=true;true
     }
     pub fn queue_mouth(&mut self,session:&str,sequence:u64,degrees:f64)->bool {
+        if self.autonomy.recovering(){return false;}
+        if self.autonomous_input(session,sequence,true){self.autonomy.input(false,Instant::now());}
         if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
         if self.pending_quack || self.quack_running || !degrees.is_finite() || !(-5. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
@@ -111,6 +131,8 @@ impl Telemetry {
         self.pending_mouth=Some(degrees);true
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
+        if self.autonomy.recovering(){return false;}
+        if self.autonomous_input(session,sequence,true){self.autonomy.input(false,Instant::now());}
         if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
         let recovery_allowed=kind=="xgoduck_getup" && (matches!(self.control["activeSkill"].as_str(),Some("sitstand_sit"|"sitstand_stand"|"xgoduck_getup"))
             || (self.control["recoveryFallen"]==true && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"kick_left"|"kick_right"))));
@@ -306,6 +328,7 @@ impl Telemetry {
     }
     pub fn new(hardware: bool) -> Self {
         let mut s = Self {
+            autonomy:Default::default(), vision:Default::default(), autonomy_notice:None,
             demo:Default::default(), quack_cancel:false,
             native_homed:false,
             native_voltage:crate::policy::NativeVoltage::default(),
@@ -321,7 +344,7 @@ impl Telemetry {
             latest: BTreeMap::new(),
             logs: VecDeque::new(),
             seq: BTreeMap::new(),
-            control: json!({"state":"idle","message":"等待操作"}),
+            control: json!({"state":"idle","message":"等待操作","autonomy":crate::autonomy::Autonomy::default().status()}),
             ble_health: json!({"state":"disabled","backend":"rust","protocol":1}),
             imu: Value::Null,
             tof: json!({"state":"offline","error":"ToF stream timeout","ageMs":null,"hz":0}),
