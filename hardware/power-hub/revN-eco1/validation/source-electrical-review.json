@@ -1,0 +1,36 @@
+{
+  "revision": "N",
+  "pin_contract": {
+    "J1": {
+      "1": "VBAT"
+    },
+    "J5": {
+      "1": "GND"
+    },
+    "J2": {
+      "1": "GND",
+      "2": "VBAT",
+      "3": "DATA"
+    },
+    "J3": {
+      "1": "GND",
+      "2": "VBAT",
+      "3": "DATA"
+    },
+    "J4": {
+      "1": "GND",
+      "2": "VBAT",
+      "3": "DATA"
+    },
+    "C1": {
+      "1": "VBAT",
+      "2": "GND"
+    }
+  },
+  "13_numbered_pads_match_independent_contract_and_schematic": true,
+  "battery_pads": "3mm round top SMD, no drill",
+  "switch_and_support_parts_removed": true,
+  "purchase": "3 CJT A2007WV-3P C225336 connectors plus1 10uF25V X7R1206 capacitor",
+  "target_client_DRC": "pending",
+  "physical_hardware_validation": "not performed"
+}

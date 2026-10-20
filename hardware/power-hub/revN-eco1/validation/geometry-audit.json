@@ -1,0 +1,8 @@
+{
+  "revision": "N",
+  "13_native_numbered_pads_match_source": true,
+  "all_tracks_vias_match_source": true,
+  "track_and_via_count": 13,
+  "mount_NPTH_native_flags_correct": true,
+  "client_DRC": "pending; KiCad reader metadata-restored diagnostic is not target client validation"
+}

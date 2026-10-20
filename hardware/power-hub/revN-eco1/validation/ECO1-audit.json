@@ -1,0 +1,37 @@
+{
+  "based_on_user_ECO_csv": "Info_ImportChanges_microduck-power-hub_2_2026-10-20.csv",
+  "PCB_schematic_all8_refs_matched": true,
+  "mechanical_symbols_added_without_electrical_pins": [
+    "H1",
+    "H2"
+  ],
+  "explicit_instance_BOM_attributes": {
+    "included": [
+      "C1",
+      "J2",
+      "J3",
+      "J4"
+    ],
+    "excluded": [
+      "J1",
+      "J5",
+      "H1",
+      "H2"
+    ]
+  },
+  "PCB_channel_IDs_added_from_sheet1_instance_ids": true,
+  "names_aligned": true,
+  "all_copper_and_routing_records_identical": true,
+  "rules": "GND 3.2mm maximum kept onPCB; schematic-origin rule changes remain unchecked during ECO; client preview must be checked",
+  "target_client_ECO_DRC": "pending",
+  "C1_screenshot_candidate": {
+    "MPN": "CGA1206X7R106K250NT",
+    "manufacturer": "HRE(芯声)",
+    "LCSC": "C6119987",
+    "nominal_specs": "10uF +/-10%,25V,X7R,1206",
+    "status": "screenshot nominal match only;not ordered or manufacturer-datasheet verified"
+  },
+  "native_reopen_physical_geometry_unchanged": true,
+  "native_13_electrical_pins_still_match_source": true,
+  "new_mechanical_symbols_have_no_electrical_pins": true
+}

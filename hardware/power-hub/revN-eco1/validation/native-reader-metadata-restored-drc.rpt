@@ -1,0 +1,60 @@
+** Drc report for metadata-restored.kicad_pcb **
+** Created on 2026-10-20T21:44:13 **
+** Report includes: Errors, Warnings **
+
+** Found 14 DRC violations **
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(166.0000 mm, 94.5000 mm): Footprint J5
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(166.0000 mm, 94.5000 mm): Footprint J5
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(138.0000 mm, 105.7000 mm): Footprint J2
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(138.0000 mm, 105.7000 mm): Footprint J2
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(138.0000 mm, 105.7000 mm): Footprint J2
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(136.0000 mm, 110.1000 mm): Footprint C1
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(159.5000 mm, 110.0000 mm): Footprint H2
+[lib_footprint_issues]: 当前配置中不包含封装库 'MicroDuck--easyedapro'
+    Local override; warning
+    @(159.5000 mm, 110.0000 mm): Footprint H2
+[text_height]: 文字高度超出范围 (<电路板配置> 中的 "丝印文本高度" 约束 最小高度 0.8000 mm; 实际 0.5600 mm)
+    Rule: <电路板配置> 中的 "丝印文本高度" 约束; warning
+    @(134.0000 mm, 91.0000 mm): PCB text 'BAT +' on Top Silkscreen Layer
+[text_height]: 文字高度超出范围 (<电路板配置> 中的 "丝印文本高度" 约束 最小高度 0.8000 mm; 实际 0.5600 mm)
+    Rule: <电路板配置> 中的 "丝印文本高度" 约束; warning
+    @(134.0000 mm, 98.0000 mm): PCB text 'MD HUB N' on Top Silkscreen Layer
+[text_height]: 文字高度超出范围 (<电路板配置> 中的 "丝印文本高度" 约束 最小高度 0.8000 mm; 实际 0.5600 mm)
+    Rule: <电路板配置> 中的 "丝印文本高度" 约束; warning
+    @(138.0000 mm, 102.8000 mm): PCB text 'LEFT' on Top Silkscreen Layer
+[text_height]: 文字高度超出范围 (<电路板配置> 中的 "丝印文本高度" 约束 最小高度 0.8000 mm; 实际 0.5600 mm)
+    Rule: <电路板配置> 中的 "丝印文本高度" 约束; warning
+    @(150.0000 mm, 91.0000 mm): PCB text 'HEAD' on Top Silkscreen Layer
+[text_height]: 文字高度超出范围 (<电路板配置> 中的 "丝印文本高度" 约束 最小高度 0.8000 mm; 实际 0.5600 mm)
+    Rule: <电路板配置> 中的 "丝印文本高度" 约束; warning
+    @(159.0000 mm, 102.8000 mm): PCB text 'RIGHT' on Top Silkscreen Layer
+[text_height]: 文字高度超出范围 (<电路板配置> 中的 "丝印文本高度" 约束 最小高度 0.8000 mm; 实际 0.5600 mm)
+    Rule: <电路板配置> 中的 "丝印文本高度" 约束; warning
+    @(166.0000 mm, 91.0000 mm): PCB text 'BAT -' on Top Silkscreen Layer
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** Ignored checks **
+    - Footprint has no courtyard defined
+    - Track endpoint not centered on via
+    - Tuning profile track geometries
+    - Footprint doesn't match symbol's footprint filters
+    - Footprint component type doesn't match footprint pads
+
+** End of Report **

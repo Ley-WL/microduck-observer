@@ -1,0 +1,183 @@
+{
+  "archived_on": "2026-10-20",
+  "revision": "N / ECO1",
+  "source_preserved": true,
+  "copy_verification": "byte-for-byte SHA256 checked",
+  "files": [
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\MicroDuck-Hub-RevN-Cap-ECO1.zip!/MicroDuck-Hub-RevN-Cap-ECO1.epro",
+      "destination": "eda/MicroDuck-Hub-RevN-Cap-ECO1.epro",
+      "sha256": "a332cca7c4932a44126462b58ee9b9703379eddf477056aa3d3c596a8c2d84fe"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\MicroDuck-Hub-RevN-Cap-ECO1.zip!/BOM-采购-候选匹配.csv",
+      "destination": "bom/BOM-候选匹配.csv",
+      "sha256": "55923760ebc5c30a45c0e6b05826247858b5bff3f4d2d31a46411292a0f96f75"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\MicroDuck-Hub-RevN-Cap-ECO1.zip!/ECO1-说明.md",
+      "destination": "docs/ECO1-导入说明.md",
+      "sha256": "b6d7b3f295909ddd11c7d55871b814cc625b1ce586f3738ec89880c5439a428f"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\MicroDuck-Hub-RevN-Cap-ECO1.zip!/ECO1-audit.json",
+      "destination": "validation/ECO1-audit.json",
+      "sha256": "c6c84d37cb14132507626c15312a3b76a90ae5aee620d8bf1b2d50105777a146"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\microduck-power-hub.kicad_pcb",
+      "destination": "source/kicad/microduck-power-hub.kicad_pcb",
+      "sha256": "040eae067dfda4689f1c6d0f6fd5db0459e7428eeb39697b821b8804db482ea7"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\microduck-power-hub.kicad_sch",
+      "destination": "source/kicad/microduck-power-hub.kicad_sch",
+      "sha256": "53d8a37d3d556d25f85fb3996159b28f163356ddb257665ab9a8a4c4e3c834b9"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\microduck-power-hub.kicad_pro",
+      "destination": "source/kicad/microduck-power-hub.kicad_pro",
+      "sha256": "2701adb674a08297a8e95e2abfaa7bde9fecbbccb4603ccfbd2834a3ee5163cb"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\fp-lib-table",
+      "destination": "source/kicad/fp-lib-table",
+      "sha256": "f5bc696376d65b3bceffb46a45d8182dfbcacfb570e1cc8aa8d91a98cacf9c61"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\sym-lib-table",
+      "destination": "source/kicad/sym-lib-table",
+      "sha256": "ee367267f2ce50e8795a34087bea41ec2fa43d37d2333b1c5df055385bb2e3e4"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\Hub.kicad_sym",
+      "destination": "source/kicad/Hub.kicad_sym",
+      "sha256": "9f298d74764931b21047e44d465c74f0d70fc7574c0131d4519384f5dab5fa57"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\Hub.pretty\\CJT_A2007WV-3P_C225336.kicad_mod",
+      "destination": "source/kicad/Hub.pretty/CJT_A2007WV-3P_C225336.kicad_mod",
+      "sha256": "e744fd696f62d59e1408868eb409a21f343253b67aaacebd247c4d13bc072864"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\Hub.pretty\\SolderInput_SMD_D3.kicad_mod",
+      "destination": "source/kicad/Hub.pretty/SolderInput_SMD_D3.kicad_mod",
+      "sha256": "7a09c6f942c60e48c4e8930f9e0c35754dd1cf740ab87a85155cdb190ed47501"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\models\\A2007WV-3P-approx.wrl",
+      "destination": "source/kicad/models/A2007WV-3P-approx.wrl",
+      "sha256": "5a89a8be0931284e45b36bc968d6840e55052802137c7130e41ab2248feb57e0"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\pcb-3d.png",
+      "destination": "previews/pcb-3d.png",
+      "sha256": "26a9fa50cc90c1db72a95e3c897e240ad0f92dc9f2eeb2f1aa848acb54de5b10"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\drc.rpt",
+      "destination": "validation/source-drc.rpt",
+      "sha256": "35f3f5e19c8f14e549673844f8518fd8e580fadf2bbc0d5e8272753bf9d6836c"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\erc.rpt",
+      "destination": "validation/source-erc.rpt",
+      "sha256": "0b05bd33d0758de4c63acaf0389217ed1874c8fd3682e3ffc6f31c3c805b81b5"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\electrical-review.json",
+      "destination": "validation/source-electrical-review.json",
+      "sha256": "306c230ab8ab93c3c4635538c856138bfe861c9fe94904024712089a3404ef48"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\schematic.xml",
+      "destination": "validation/source-schematic.xml",
+      "sha256": "93256af25788ec572dae881f0cad7abb48198c726b4e264b401f233d3672f95c"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\easyeda-pro\\geometry-audit.json",
+      "destination": "validation/geometry-audit.json",
+      "sha256": "ceb78c8ba9d50badd4e2749bd50fd830f9784524c5948495d11a318b54583900"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\easyeda-pro\\SYNC1-audit.json",
+      "destination": "validation/SYNC1-audit.json",
+      "sha256": "956c50528310ddf916e4b04f261acb2eaa72877e56684bb8a6df4b17259c896d"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\easyeda-pro\\validation\\metadata-restored-drc.rpt",
+      "destination": "validation/native-reader-metadata-restored-drc.rpt",
+      "sha256": "e6c6bd6f37a353ec1f0420daae51454fbe6b6c84cd5d4f6ac049e08bdf00c0d4"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\BOM-采购.csv",
+      "destination": "bom/BOM-原规格.csv",
+      "sha256": "4fe93d094e088863d859fdadf2db8e0944ac91b49ac8df1652edc4116c786a58"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revK-round3-review\\sources\\A2007-cjt.pdf",
+      "destination": "datasheets/A2007-cjt.pdf",
+      "sha256": "5bdcea205b0d12b2b9e4295f4c9c9f2ab7434d4d3bbaf9aea2062f35ec6c363a"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\HAT\\2026-10-20\\hub-revN-eco\\Info_ImportChanges_microduck-power-hub_2_2026-10-20.csv",
+      "destination": "validation/user-feedback/Info_ImportChanges_microduck-power-hub_2_2026-10-20.csv",
+      "sha256": "b2791758cd3a10d203708ff5460380e3af65e05ea45646b9c87962c5194e954b"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-observer\\docs\\实测记录\\附件\\HAT\\2026-10-20\\hub-revN-eco\\C1-matching-candidate.png",
+      "destination": "validation/user-feedback/C1-matching-candidate.png",
+      "sha256": "41ce093cf7d0f914e9725377fb0a6935918aad59fe75a6bf1d4ebde144ceb4bc"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-F_Cu.gtl",
+      "destination": "manufacturing/gerber/microduck-power-hub-F_Cu.gtl",
+      "sha256": "8fe8e7a5c43ca2b4a07a9b9a593d9119a44f0658e3a64b923041bbf060268980"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-B_Cu.gbl",
+      "destination": "manufacturing/gerber/microduck-power-hub-B_Cu.gbl",
+      "sha256": "ea4ab499bf9d5455de0c3a8e4439cc258eb60d28fd666eae9b7c1b9ceea31750"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-F_Mask.gts",
+      "destination": "manufacturing/gerber/microduck-power-hub-F_Mask.gts",
+      "sha256": "91ec223e2dddf0b54287d7368e34af53bed2af5d1836d39643ca6da5df51320d"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-B_Mask.gbs",
+      "destination": "manufacturing/gerber/microduck-power-hub-B_Mask.gbs",
+      "sha256": "cf218e32ff369de659563948ca734325e4c16b394e25e7c91b5886763adf5e0f"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-F_Silkscreen.gto",
+      "destination": "manufacturing/gerber/microduck-power-hub-F_Silkscreen.gto",
+      "sha256": "1dcac38f5641eaf86ab333e6ae208c5743c66941b3651c61b936c7c4f1c13ea8"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-B_Silkscreen.gbo",
+      "destination": "manufacturing/gerber/microduck-power-hub-B_Silkscreen.gbo",
+      "sha256": "fc37d1e7356a3b4914f00c01b73123a8456b6aaa14bb66511636eb55d43c3070"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-Edge_Cuts.gm1",
+      "destination": "manufacturing/gerber/microduck-power-hub-Edge_Cuts.gm1",
+      "sha256": "c8f61ba026cdca1c8f47ebb3adc638b4d726277bb9ff699c13e932eecc688044"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-PTH.drl",
+      "destination": "manufacturing/gerber/microduck-power-hub-PTH.drl",
+      "sha256": "4c9e4131232a2a5164e6eb2f56127bbb1b3cdd3a5e1418225d1f7c9cdd5a5066"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\microduck-power-hub-NPTH.drl",
+      "destination": "manufacturing/gerber/microduck-power-hub-NPTH.drl",
+      "sha256": "5a3625e102edbab12586db0cf62dbe9dfab78d9e50a7614a548bb0d04d219d86"
+    },
+    {
+      "source": "D:\\Users\\wl\\Desktop\\MicroDuck\\microduck-rl\\hardware\\power-hub\\revN-passive-cap\\prototype-fab\\drill.rpt",
+      "destination": "manufacturing/drill.rpt",
+      "sha256": "e267eca24dfb8183566ac22acf1026e257aa804f64aadd1ddc76b102276a6043"
+    }
+  ]
+}

@@ -4,6 +4,10 @@
 
 本仓库维护机器人端服务、Web 工作台、模型运行合同及实测证据。Android App 在独立项目 [DuckLink](https://github.com/Ley-WL/ducklink) 中维护。
 
+## 硬件设计资料
+
+硬件工程、BOM、加工文件、效果图与设计检查统一存放在 [hardware/](hardware/README.md)，后续硬件模块也从该目录继续。当前电源Hub为 [Rev N / ECO1无开关＋C1版本](hardware/power-hub/README.md)，内含立创EDA、KiCad源文件、Gerber及采购清单；源检查通过，立创客户端与实物验证状态见版本说明。实测主记录继续维护在 [docs/实测记录/](docs/实测记录/README.md)。
+
 ## 界面预览
 
 ### Observer 主控工作台

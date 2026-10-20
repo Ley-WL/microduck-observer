@@ -1,0 +1,24 @@
+Drill report for microduck-power-hub.kicad_pcb
+Created on 2026-10-20T21:44:14
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'microduck-power-hub-PTH.drl' contains
+    plated through holes:
+    =============================================================
+    T1  0.300mm  0.0118"  (5 holes))
+    T2  0.800mm  0.0315"  (9 holes))
+
+    Total plated holes count 14
+
+
+Drill file 'microduck-power-hub-NPTH.drl' contains
+    unplated through holes:
+    =============================================================
+    T1  2.200mm  0.0866"  (2 holes))
+
+    Total unplated holes count 2

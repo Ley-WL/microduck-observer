@@ -1,0 +1,7 @@
+(footprint "SolderInput_SMD_D3" (version 20241229) (generator pcbnew) (layer "F.Cu") (attr smd)
+ (descr "Top-side hand-solder wire pad, diameter3mm, no drill and no paste aperture; external wire strain relief required")
+ (property "Reference" "J" (at 0 -3) (layer "F.SilkS") (effects (font (size .8 .8) (thickness .12))))
+ (property "Value" "BAT" (at 0 3) (layer "F.Fab") (effects (font (size .8 .8) (thickness .12))))
+ (fp_rect (start -3 -3) (end 3 3) (stroke (width .05) (type default)) (fill none) (layer "F.CrtYd"))
+ (pad "1" smd circle (at 0 0) (size 3 3) (layers "F.Cu" "F.Mask") )
+)

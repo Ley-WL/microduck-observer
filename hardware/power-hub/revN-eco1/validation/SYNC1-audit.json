@@ -1,0 +1,105 @@
+{
+  "device_and_footprint_bindings_synchronized": [
+    {
+      "ref": "J2",
+      "previous": {
+        "pcb_device": "133c639582f618b3",
+        "schematic_devices": [
+          "2cb37edb34383975"
+        ],
+        "pcb_footprint": "9bf52e19bbb77e9b",
+        "schematic_footprints": [
+          "be1520f17aa72404"
+        ]
+      },
+      "device": "23a887139a6695e2",
+      "footprint": "9bf52e19bbb77e9b"
+    },
+    {
+      "ref": "J3",
+      "previous": {
+        "pcb_device": "133c639582f618b3",
+        "schematic_devices": [
+          "2cb37edb34383975"
+        ],
+        "pcb_footprint": "9bf52e19bbb77e9b",
+        "schematic_footprints": [
+          "be1520f17aa72404"
+        ]
+      },
+      "device": "bcab3147cc7472d2",
+      "footprint": "9bf52e19bbb77e9b"
+    },
+    {
+      "ref": "J4",
+      "previous": {
+        "pcb_device": "03e894e34c50b52c",
+        "schematic_devices": [
+          "03e894e34c50b52c"
+        ],
+        "pcb_footprint": "9bf52e19bbb77e9b",
+        "schematic_footprints": [
+          "9bf52e19bbb77e9b"
+        ]
+      },
+      "device": "b382ab92931ff963",
+      "footprint": "9bf52e19bbb77e9b"
+    },
+    {
+      "ref": "J1",
+      "previous": {
+        "pcb_device": "1c457367ccc5d83c",
+        "schematic_devices": [
+          "03a946b71f265bb8"
+        ],
+        "pcb_footprint": "e4501951e8eaaf89",
+        "schematic_footprints": [
+          "0548dd51cfa8fc69"
+        ]
+      },
+      "device": "d39674331d40873c",
+      "footprint": "e4501951e8eaaf89"
+    },
+    {
+      "ref": "J5",
+      "previous": {
+        "pcb_device": "0bbc00eb52aeed70",
+        "schematic_devices": [
+          "1c457367ccc5d83c"
+        ],
+        "pcb_footprint": "e4501951e8eaaf89",
+        "schematic_footprints": [
+          "e4501951e8eaaf89"
+        ]
+      },
+      "device": "4c81a786c0c534e8",
+      "footprint": "e4501951e8eaaf89"
+    },
+    {
+      "ref": "C1",
+      "previous": {
+        "pcb_device": "a18b96fc127fbaa0",
+        "schematic_devices": [
+          "a18b96fc127fbaa0"
+        ],
+        "pcb_footprint": "622a5c9365041cd0",
+        "schematic_footprints": [
+          "622a5c9365041cd0"
+        ]
+      },
+      "device": "fc2466b3bd1ac63c",
+      "footprint": "622a5c9365041cd0"
+    }
+  ],
+  "all_13_native_schematic_pin_nets_match_source_contract": true,
+  "all_13_native_PCB_PAD_NETs_match_source_contract": true,
+  "NC_pins": [],
+  "physical_copper_records_unchanged": true,
+  "GND_only_width_rule_mm": {
+    "min": 0.2,
+    "preferred": 1,
+    "max": 3.2
+  },
+  "target_client_netlist_update_and_DRC": "pending user validation",
+  "mounting_holes": "H1/H2 PCB-only, no numbered pads or PAD_NET records; retained as mechanical items"
+}

@@ -1,0 +1,11 @@
+#VRML V2.0 utf8
+# As-assembled trimmed tails: 0.8mm below 1.6mm PCB.
+# DIMENSIONAL APPROXIMATION, not manufacturer detailed model; units mm, footprint scale converts KiCad VRML units.
+Transform { translation 2 -0.2 0.85 children [ Shape { appearance Appearance { material Material { diffuseColor .88 .87 .78 } } geometry Box { size 7.96 3.6 1.7 } } ] }
+Transform { translation -1.73 -0.2 4.25 children [ Shape { appearance Appearance { material Material { diffuseColor .88 .87 .78 } } geometry Box { size 0.5 3.6 5.1 } } ] }
+Transform { translation 5.73 -0.2 4.25 children [ Shape { appearance Appearance { material Material { diffuseColor .88 .87 .78 } } geometry Box { size 0.5 3.6 5.1 } } ] }
+Transform { translation -0.29 1.35 4.25 children [ Shape { appearance Appearance { material Material { diffuseColor .88 .87 .78 } } geometry Box { size 3.38 0.5 5.1 } } ] }
+Transform { translation 4.29 1.35 4.25 children [ Shape { appearance Appearance { material Material { diffuseColor .88 .87 .78 } } geometry Box { size 3.38 0.5 5.1 } } ] }
+Transform { translation 0 0 1.95 children [ Shape { appearance Appearance { material Material { diffuseColor .72 .73 .75 shininess .7 } } geometry Box { size .6 .6 8.7 } } ] }
+Transform { translation 2 0 1.95 children [ Shape { appearance Appearance { material Material { diffuseColor .72 .73 .75 shininess .7 } } geometry Box { size .6 .6 8.7 } } ] }
+Transform { translation 4 0 1.95 children [ Shape { appearance Appearance { material Material { diffuseColor .72 .73 .75 shininess .7 } } geometry Box { size .6 .6 8.7 } } ] }
