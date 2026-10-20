@@ -38,13 +38,13 @@
   "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
   "task": "Mjlab-Velocity-Flat-MicroDuck",
   "runtimeKind": "xgoduck",
-  "policySha256": "ae59d61ae68f88ecbc0ec6892e20ae0e84d5dacada73921c35651f1d1a175544",
+  "policySha256": "e3b90ac0e5359f91e14306b7e2143e0d5a1f4cd49cb256bca3fd71835250d895",
   "hardwareValidated": false,
-  "geometry": "replica / HD1910 original velocity recipe",
+  "geometry": "replica / HD1910 / observer backend mechanical limits",
   "observationNormalization": "embedded_in_onnx_once",
-  "actionSemantics": "HOME + raw action; scale1; no EMA",
+  "actionSemantics": "HOME + raw action; scale1; no EMA; observer mechanical target clamp",
   "runtimeActionAlpha": 0,
-  "sourceExperiment": "/CodeRepo/Code/leiwu30/hd1910-walk-original-20261020",
+  "sourceExperiment": "/CodeRepo/Code/leiwu30/hd1910-walk-observer-20261020",
   "sourceCheckpoint": "model_4999.pt",
   "deploymentProvenance": {
     "userRequested": true,
@@ -52,7 +52,7 @@
   },
   "walkExecution": {
     "schema": "kissqy-r17-v1",
-    "policySha256": "ae59d61ae68f88ecbc0ec6892e20ae0e84d5dacada73921c35651f1d1a175544",
+    "policySha256": "e3b90ac0e5359f91e14306b7e2143e0d5a1f4cd49cb256bca3fd71835250d895",
     "actionScale": 1.0,
     "headNewWeight": 1.0,
     "legsNewWeight": 1.0,
@@ -61,5 +61,122 @@
       "d": 0
     },
     "gainSource": "existing board P5/D0; compatible execution schema, not donor provenance"
+  },
+  "completedTrainingUpdates": 5000,
+  "trainingTargetClipRadians": {
+    "left_hip_yaw": [
+      -0.4363323129985824,
+      0.5235987755982988
+    ],
+    "left_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "left_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ],
+    "neck_pitch": [
+      -1.5707963267948966,
+      1.2217304763960306
+    ],
+    "head_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "head_yaw": [
+      -2.9670597283903604,
+      2.9670597283903604
+    ],
+    "head_roll": [
+      -0.3490658503988659,
+      0.3490658503988659
+    ],
+    "right_hip_yaw": [
+      -0.5235987755982988,
+      0.4363323129985824
+    ],
+    "right_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "right_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ]
+  },
+  "mechanicalPhysicalJointLimitsRadians": {
+    "left_hip_yaw": [
+      -0.4363323129985824,
+      0.5235987755982988
+    ],
+    "left_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "left_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ],
+    "neck_pitch": [
+      -1.5707963267948966,
+      1.2217304763960306
+    ],
+    "head_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "head_yaw": [
+      -2.9670597283903604,
+      2.9670597283903604
+    ],
+    "head_roll": [
+      -0.3490658503988659,
+      0.3490658503988659
+    ],
+    "right_hip_yaw": [
+      -0.5235987755982988,
+      0.4363323129985824
+    ],
+    "right_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "right_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ]
   }
 }
