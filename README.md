@@ -4,6 +4,8 @@
 
 本仓库维护机器人端服务、Web 工作台、模型运行合同及实测证据。Android App 在独立项目 [DuckLink](https://github.com/Ley-WL/ducklink) 中维护。
 
+2026-10-21 更新：已接入并部署 HD1910 3000轮右脚金鸡独立模型，固定左支撑、右抬脚，保留现役5000轮行走模型。板端推理与服务校验通过，实物动作待用户测试。[模型说明](models/flamingo_right_hd1910.README.md) · [部署证据](docs/实测记录/附件/平台/2026-10-21/flamingo-right/deployment.json)。
+
 ## 功能规划
 
 - [自主行动功能规划](docs/autonomous-action-plan.md)：2026-10-19确认，第一版模式切换、人工接管、6秒限时起身及后续感知路线；尚未实现。

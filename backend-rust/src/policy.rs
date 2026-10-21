@@ -145,6 +145,8 @@ pub fn path() -> PathBuf {
 pub fn path_for(kind: &str) -> Result<PathBuf> {
     match kind {
         "flamingo_hold" | "flamingo_lower" => {
+            let right=path().with_file_name("flamingo_right_hd1910.onnx");
+            if right.exists() {return Ok(right);}
             let v62b=path().with_file_name("rear_hook_v62b.onnx");
             if v62b.exists() {return Ok(v62b);}
             let official=path().with_file_name("flamingo_official.onnx");
@@ -236,6 +238,23 @@ mod kick_tests {
             ("transferSettleTicks",json!(1)),("holdSeconds",json!(2)),("policySha256",json!("wrong")),
             ("actionEmaOldWeight",json!(0)),("previousAction",json!("filtered"))] {
             let mut bad=meta.clone();bad[key]=value;assert!(validate_skill_metadata("flamingo_hold",&bad).is_err(),"{key}");
+        }
+    }
+    #[test]
+    fn right_flamingo_contract_and_side_are_isolated() {
+        let meta:Value=serde_json::from_str(include_str!("../../models/flamingo_right_hd1910.metadata.json")).unwrap();
+        let p=SkillProfile::from_metadata(&meta);
+        for kind in ["flamingo_hold","flamingo_lower"] {validate_skill_metadata(kind,&meta).unwrap();}
+        assert!(p.flamingo && p.donor() && p.right_flamingo && !p.official_flamingo);
+        assert!(!p.voltage_adapt());
+        assert_eq!(p.twist("flamingo_hold",0.),[1.,-1.,0.]);
+        assert_eq!(p.twist("flamingo_hold",999.),[1.,-1.,0.]);
+        assert_eq!(p.twist("flamingo_lower",0.),[0.,-1.,0.]);
+        assert!(!p.complete("flamingo_hold",999.,999.));
+        assert!(p.complete("flamingo_lower",1.5,1.));
+        assert_eq!(SkillProfile::default().twist("flamingo_hold",0.),[1.,1.,0.]);
+        for (key,value) in [("commandSide",json!(1)),("targetLimits",json!("official")),("swingFoot",json!("left")),("policySha256",json!("bad"))] {
+            let mut bad=meta.clone();bad[key]=value;assert!(validate_skill_metadata("flamingo_hold",&bad).is_err());
         }
     }
     #[test]
@@ -344,15 +363,20 @@ impl NativeRecoveryPosture {
     }
 }
 #[derive(Clone, Copy, Default)]
-struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool, official_flamingo:bool, rear_hook:bool, transfer_settle:bool, pose_entry:bool }
+struct SkillProfile { retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool, official_flamingo:bool, right_flamingo:bool, rear_hook:bool, transfer_settle:bool, pose_entry:bool }
 impl SkillProfile {
     fn from_metadata(meta: &Value) -> Self {
-        Self { rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), pose_entry:meta["runtimeKind"]=="hd1910_rear_hook_v62b", transfer_settle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), flamingo:matches!(meta["runtimeKind"].as_str(),Some("hd1910_flamingo"|"official_flamingo")), dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
-            official_flamingo:meta["runtimeKind"]=="official_flamingo", kissqy: meta["runtimeKind"]=="kissqy_sitstand", bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
+        Self { rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), pose_entry:meta["runtimeKind"]=="hd1910_rear_hook_v62b", transfer_settle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), flamingo:matches!(meta["runtimeKind"].as_str(),Some("hd1910_flamingo"|"official_flamingo"|"hd1910_flamingo_right")), dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:meta["runtimeKind"]=="kissqy_roulade", donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
+            right_flamingo:meta["runtimeKind"]=="hd1910_flamingo_right", official_flamingo:meta["runtimeKind"]=="official_flamingo", kissqy: meta["runtimeKind"]=="kissqy_sitstand", bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
+    }
+    fn twist(self,kind:&str,progress:f64)->[f32;3] {
+        let mut command=skill_twist(kind,progress);
+        if self.right_flamingo && kind.starts_with("flamingo_") {command[1]=-1.;}
+        command
     }
     fn donor(self)->bool {self.flamingo || self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
     // Roulade HD1910 deployment contract explicitly disables voltage adaptation.
-    fn voltage_adapt(self)->bool {!self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook && !self.official_flamingo}
+    fn voltage_adapt(self)->bool {!self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook && !self.official_flamingo && !self.right_flamingo}
     fn voltage_scale(self,voltage:&mut NativeVoltage,feedback:&Feedback,now:Instant)->f32 {
         if self.voltage_adapt() {voltage.scale(feedback,now)} else {1.}
     }
@@ -401,7 +425,12 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
         } else {"RearHook-OneShot-3s-v27"};
         if meta["task"]!=expected_task || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0.45 || meta["actionEmaNewWeight"]!=0.55 || meta["commandEncoding"]!="enabled_progress_height" || meta["commandHeightM"]!=0.035 || meta["holdSeconds"]!=3 || meta["entrySeconds"]!=1.5 || meta["returnSeconds"]!=1.5 || meta["entryTimeoutSeconds"].as_f64()!=Some(if profile.pose_entry {4.5} else {3.}) || meta["settleSeconds"]!=2 || meta["previousAction"]!="delivered_raw_before_ema" || meta["normalization"]!="embedded_once" || meta["headMapping"]!="embedded_once" || meta["targetEncoding"]!="encoder_eeprom_saturation" || meta["poseGate"]!="imu-joint-fk-proxy-v1" || meta["supportFoot"]!="left" || meta["swingFoot"]!="right" {bail!("后抬脚3秒执行合同不匹配");}
     } else if kind.starts_with("flamingo_") {
-        let task_matches=if meta["runtimeKind"]=="official_flamingo" {
+        let task_matches=if profile.right_flamingo {
+            meta["task"]=="Mjlab-FlamingoCycleHard-Flat-MicroDuck"
+                && meta["policySha256"]=="e01fa49f018b6ead35760b39df67102328cba439cfb985c1daf2ee9f213785f2"
+                && meta["supportFoot"]=="left" && meta["swingFoot"]=="right" && meta["commandSide"]==-1
+                && meta["targetLimits"]=="observer" && meta["voltageAdaptation"]==false
+        } else if meta["runtimeKind"]=="official_flamingo" {
             meta["task"]=="Mjlab-FlamingoCycleHard-Flat-MicroDuck"
                 && meta["policySha256"]=="df77929c39d7695092bdaf810c2075e20a9ba91abd8192b4073d3de593d56904"
                 && meta["sourceManifest"]["robot"]["servos"]=="xl330"
@@ -972,7 +1001,7 @@ impl Model {
             kind: kind.to_owned(),
             progress: 0., upright: 0.,
             session: std::sync::Arc::new(std::sync::Mutex::new(session)),
-            command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {skill_twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
+            command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {SkillProfile::from_metadata(&meta).twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
             skill_profile: SkillProfile::from_metadata(&meta),
             encoder_contract: (matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b"))).then(||meta["encoderContract"].clone()),
             walk_profile, target_initialized:false,
@@ -1414,7 +1443,7 @@ fn native_policy_loop(
             selected.last_action=if retain {model.last_action}else{[0.;14]};
             selected.filtered_action=if retain {model.filtered_action}else{[0.;14]};selected.target_initialized=retain && model.target_initialized;
             selected.progress=if model.skill_profile.donor_getup && next=="sitstand_sit" {recovery_resume_progress} else {0.};
-            selected.upright=0.;selected.command_twist=skill_twist(&next,selected.progress);
+            selected.upright=0.;selected.command_twist=selected.skill_profile.twist(&next,selected.progress);
             roll_exit.reset();
             control::native_profiles(bus,&ORDER,feedback,(selected.gains.p,selected.gains.d))?;
             // Gain changes only: no torque toggle and no stale pre-enable observation.
@@ -1442,7 +1471,7 @@ fn native_policy_loop(
             let fresh=state.demo.active || state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
             let target=if state.autonomy.mode==crate::autonomy::Mode::Standby {[0.;3]}else if state.demo.active {state.demo.output.twist}else{state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])};
             crate::walk_profile::smooth_twist(&mut walk_twist,target,fresh)
-        } else {walk_twist=[0.;3];skill_twist(&model.kind,model.progress)};
+        } else {walk_twist=[0.;3];model.skill_profile.twist(&model.kind,model.progress)};
         let rear_pose=model.skill_profile.rear_hook.then(||rear_geometry.sample_with_transfer(&obs,&model.home));
         if let Some((pose,standing,_,_,transfer))=rear_pose {
             model.rear_clock.step_with_transfer(pose,standing,transfer);model.command_twist=model.rear_clock.command();
@@ -1777,7 +1806,7 @@ pub fn execute(
             }
             if is_xgoduck(kind) {
                 let twist=if model.kind=="xgoduck" {shared.read().unwrap().drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])}
-                    else {skill_twist(&model.kind,model.progress)};
+                    else {model.skill_profile.twist(&model.kind,model.progress)};
                 if twist!=model.command_twist {
                     model.command_twist=twist;
                     generation+=1; worker.clear(); next_inference=Instant::now();
@@ -1961,7 +1990,7 @@ pub fn execute(
                     selected.target_initialized=retain_actions && model.target_initialized;
                     selected.last_action=if retain_actions {model.last_action} else {[0.;14]};
                     selected.filtered_action=if retain_actions {model.filtered_action} else {[0.;14]};
-                    selected.progress=0.;selected.upright=0.;selected.command_twist=skill_twist(&next,0.);
+                    selected.progress=0.;selected.upright=0.;selected.command_twist=selected.skill_profile.twist(&next,0.);
                     policy_trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),
                         "from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain_actions,
                         "initialRawActionRadians":selected.last_action,"initialFilteredActionRadians":selected.filtered_action}));
