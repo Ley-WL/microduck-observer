@@ -377,9 +377,9 @@ impl Input {
         let [lx, ly, rx, ry] = if enabled { sample.axes } else { [0.; 4] };
         let boosted = enabled && sample.down(LT);
         // Encode axes independently: Motion multiplies both by speed, then vx by 0.4.
-        // A gentle center retains fine control; full stick reaches 0.6 rad/s yaw.
+        // Use the walking policy command range: linear yaw up to 1 rad/s.
         let forward = -ly * if boosted { 1.0 } else { 0.5 };
-        let turn = -0.6 * lx * (0.5 + 0.5 * lx.abs());
+        let turn = -lx;
         json!({"seq":seq,"action":"drive","forward":forward,"turn":turn,"headYaw":-rx,"headPitch":-ry,"speed":1.0,"compact":true})
     }
 }
@@ -776,13 +776,13 @@ mod tests {
         assert_eq!(drive["speed"], 1.0);
         let turbo=input.drive(&sample(&[LT], [1.,-1.,1.,-1.]),3);
         assert_eq!(turbo["speed"], 1.0);
-        assert_eq!(turbo["turn"], -0.6);
+        assert_eq!(turbo["turn"], -1.0);
         for (buttons, expected) in [(vec![], 0.2), (vec![LT], 0.4)] {
             for axis in [-1., 0., 1.] {
                 let command = input.drive(&sample(&buttons, [1., axis, 0., 0.]), 4);
                 let speed = command["speed"].as_f64().unwrap();
                 assert!((command["forward"].as_f64().unwrap()*speed*0.4 + axis*expected).abs()<1e-9);
-                assert!((command["turn"].as_f64().unwrap()*speed + 0.6).abs()<1e-9);
+                assert!((command["turn"].as_f64().unwrap()*speed + 1.0).abs()<1e-9);
             }
         }
         input.update(&Sample::default(), true, false);
@@ -807,7 +807,7 @@ mod tests {
         assert_eq!(input.drive(&stick, 1)["forward"], 0.5);
     }
     #[test]
-    fn yaw_curve_is_symmetric_monotonic_and_independent_of_boost() {
+    fn yaw_linear_mapping_is_symmetric_monotonic_and_independent_of_boost() {
         let mut input=Input::default();
         input.update(&Sample::default(),true,false);
         let mut previous=1.;
@@ -816,7 +816,8 @@ mod tests {
             let command=input.drive(&sample(&[],[axis,0.,0.,0.]),1);
             let boosted=input.drive(&sample(&[LT],[axis,0.,0.,0.]),2);
             let yaw=command["turn"].as_f64().unwrap();
-            assert!(yaw<=previous && yaw.abs()<=0.6);
+            assert!(yaw<=previous && yaw.abs()<=1.0);
+            assert!((yaw + axis).abs()<1e-9);
             assert_eq!(command["turn"],boosted["turn"]);
             assert_eq!(command["forward"],0.);
             let opposite=input.drive(&sample(&[],[-axis,0.,0.,0.]),3);
@@ -824,7 +825,7 @@ mod tests {
             previous=yaw;
         }
         assert_eq!(input.drive(&Sample::default(),4)["turn"],0.);
-        assert!((input.drive(&sample(&[],[0.5,0.,0.,0.]),5)["turn"].as_f64().unwrap()+0.225).abs()<1e-9);
+        assert!((input.drive(&sample(&[],[0.5,0.,0.,0.]),5)["turn"].as_f64().unwrap()+0.5).abs()<1e-9);
         input.drive_armed=false;
         assert_eq!(input.drive(&sample(&[LT],[1.,-1.,0.,0.]),6)["turn"],0.);
     }
