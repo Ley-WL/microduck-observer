@@ -48,6 +48,6 @@
   "targetLimits": "observer",
   "observationNormalization": "embedded_once",
   "actionSemantics": "HOME + raw action; raw previous action",
-  "durationSeconds": 5,
+  "durationSeconds": 1.5,
   "commandEncoding": "all zero"
 }

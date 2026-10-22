@@ -1,0 +1,2 @@
+# HAT J5 on Radxa ZERO 3W with i2c3-pihat; do not grant access to other buses.
+SUBSYSTEM=="i2c-dev", KERNEL=="i2c-3", GROUP="i2c", MODE="0660"

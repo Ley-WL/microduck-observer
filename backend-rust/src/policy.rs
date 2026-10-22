@@ -246,8 +246,11 @@ mod kick_tests {
         let roll:Value=serde_json::from_str(include_str!("../../models/xgoduck_roulade.metadata.json")).unwrap();
         for (kind,m) in [("sitstand_sit",&sit),("sitstand_stand",&sit),("xgoduck_roulade",&roll)] {validate_skill_metadata(kind,m).unwrap();let p=SkillProfile::from_metadata(m);assert!(p.donor());assert!(!p.voltage_adapt());}
         let p=SkillProfile::from_metadata(&sit);assert!(!p.complete("sitstand_stand",5.98,1.));assert!(p.complete("sitstand_stand",6.,0.5));assert!(!p.complete("sitstand_sit",100.,1.));
-        let p=SkillProfile::from_metadata(&roll);assert_eq!(p.roll_timeout(),5.);assert_eq!(p.twist("xgoduck_roulade",3.),[0.;3]);
-        let mut bad=roll.clone();bad["durationSeconds"]=json!(1);assert!(validate_skill_metadata("xgoduck_roulade",&bad).is_err());
+        let p=SkillProfile::from_metadata(&roll);assert_eq!(p.roll_timeout(),1.5);assert_eq!(p.twist("xgoduck_roulade",3.),[0.;3]);
+        let exit=crate::roll_exit::RollExit::default();
+        assert!(!p.roll_complete(1.48,&exit));assert!(p.roll_complete(1.5,&exit));assert!(p.roll_complete(1.52,&exit));
+        assert!(p.complete("xgoduck_roulade",1.5,0.));
+        let mut bad=roll.clone();bad["durationSeconds"]=json!(2);assert!(validate_skill_metadata("xgoduck_roulade",&bad).is_err());
     }
     #[test]
     fn official_flamingo_preserves_original_contract_and_provenance() {
@@ -368,7 +371,11 @@ impl SkillProfile {
     }
     fn donor(self)->bool {self.flamingo || self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
     // Roulade HD1910 deployment contract explicitly disables voltage adaptation.
-    fn roll_timeout(self)->f64 {if self.official_roll {5.} else {crate::roll_exit::RollExit::TIMEOUT}}
+    fn roll_timeout(self)->f64 {if self.official_roll {1.5} else {crate::roll_exit::RollExit::TIMEOUT}}
+    fn roll_complete(self,progress:f64,exit:&crate::roll_exit::RollExit)->bool {
+        // User-selected 1.5 s window; walking settles the tail (upstream RL default: 2 s).
+        if self.official_roll {progress>=self.roll_timeout()-1e-9} else {exit.complete(progress)}
+    }
     fn voltage_adapt(self)->bool {!self.official_sit && !self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook && !self.official_flamingo && !self.right_flamingo}
     fn voltage_scale(self,voltage:&mut NativeVoltage,feedback:&Feedback,now:Instant)->f32 {
         if self.voltage_adapt() {voltage.scale(feedback,now)} else {1.}
@@ -378,7 +385,7 @@ impl SkillProfile {
     fn stand_request_delay(self)->f64 {if self.kissqy {0.} else {self.sit_settle()}}
     fn complete(self, kind: &str, progress: f64, upright: f64) -> bool {
         if self.official_sit {return kind=="sitstand_stand" && progress>=6. && upright>=0.5;}
-        if self.official_roll {return kind=="xgoduck_roulade" && progress>=5.;}
+        if self.official_roll {return kind=="xgoduck_roulade" && progress>=self.roll_timeout()-1e-9;}
         if self.flamingo {return kind=="flamingo_lower" && progress>=1.5 && upright>=1.;}
         if self.dance {return kind=="dance10" && progress>=8.-1e-9;}
         if self.donor_kick {return matches!(kind,"kick_left"|"kick_right") && progress>=0.5-1e-9;}
@@ -409,7 +416,7 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
 
     let profile=SkillProfile::from_metadata(meta);
     if profile.official_sit || profile.official_roll {
-        let correct_task=if profile.official_sit {kind.starts_with("sitstand_") && meta["task"]=="Mjlab-SitStand-Flat-MicroDuck" && meta["standSeconds"]==6 && meta["sitSettleSeconds"]==4 && meta["commandEncoding"]==json!({"slot":"twist.vx","sit":1,"stand":0})} else {kind=="xgoduck_roulade" && meta["task"]=="Mjlab-Roulade-Flat-MicroDuck" && meta["durationSeconds"]==5 && meta["commandEncoding"]=="all zero"};
+        let correct_task=if profile.official_sit {kind.starts_with("sitstand_") && meta["task"]=="Mjlab-SitStand-Flat-MicroDuck" && meta["standSeconds"]==6 && meta["sitSettleSeconds"]==4 && meta["commandEncoding"]==json!({"slot":"twist.vx","sit":1,"stand":0})} else {kind=="xgoduck_roulade" && meta["task"]=="Mjlab-Roulade-Flat-MicroDuck" && meta["durationSeconds"]==1.5 && meta["commandEncoding"]=="all zero"};
         if !correct_task || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0 || meta["actionEmaNewWeight"]!=1 || meta["voltageAdaptation"]!=false || meta["targetLimits"]!="observer" {bail!("HD1910官方配方技能合同不匹配");}
         return Ok(());
     }
@@ -1405,8 +1412,7 @@ fn native_policy_loop(
             model.rear_clock.done()
         } else if model.skill_profile.donor_roll {
             roll_exit.sample(&obs);
-            // The evaluation horizon is a timeout, not a minimum hold after landing.
-            let complete=roll_exit.complete(model.progress);
+            let complete=model.skill_profile.roll_complete(model.progress,&roll_exit);
             if !complete && model.progress>=model.skill_profile.roll_timeout()-1e-9 {
                 trace.transition(json!({"type":"roll-timeout","mono":crate::telemetry::monotonic(),"progressSeconds":model.progress,
                     "rotationDegrees":roll_exit.rotation_degrees,"inverted":roll_exit.inverted,"tiltDegrees":tilt(&obs),"destination":"disabled"}));

@@ -710,6 +710,7 @@ async fn shutdown_signal(a: App) {
     }
     a.shutdown.store(true, Ordering::Release);
     camera::shutdown().await;
+    tof::shutdown().await;
 }
 async fn api_errors(request: axum::extract::Request, next: axum::middleware::Next) -> Response {
     let api = request.uri().path().starts_with("/api/");
@@ -799,10 +800,7 @@ async fn main() -> anyhow::Result<()> {
         anyhow::bail!("BNO085 native migration is pending; keep the existing production service")
     };
     let port = env("MICRODUCK_SERVO_PORT", "");
-    let tof_path = env(
-        "MICRODUCK_TOF_SOCKET",
-        if hardware { "/run/tofd/tof.sock" } else { "" },
-    );
+    let tof_enabled = hardware;
     let static_dir = env("MICRODUCK_STATIC_DIR", "../frontend/dist");
     let cal = Calibration::open(PathBuf::from(env(
         "MICRODUCK_CALIBRATION_FILE",
@@ -835,10 +833,10 @@ async fn main() -> anyhow::Result<()> {
     let a = App {
         telemetry: shared.clone(),
         cal: Arc::new(Mutex::new(cal)),
-        topics: rates(hardware, !port.is_empty(), !tof_path.is_empty()),
+        topics: rates(hardware, !port.is_empty(), tof_enabled),
         hardware,
         servo: !port.is_empty(),
-        tof: !tof_path.is_empty(),
+        tof: tof_enabled,
         owner,
         gate: Arc::new(tokio::sync::Semaphore::new(1)),
         input_gate: Arc::new(tokio::sync::Semaphore::new(1)),
@@ -855,9 +853,7 @@ async fn main() -> anyhow::Result<()> {
             stop.clone(),
         );
     }
-    if !tof_path.is_empty() {
-        tokio::spawn(tof::run(tof_path.clone(), shared.clone()));
-    }
+    tof::init(hardware,shared.clone()).await;
     let data = shared.clone();
     let producer_stop = stop.clone();
     tokio::spawn(async move {
@@ -874,7 +870,7 @@ async fn main() -> anyhow::Result<()> {
                 s.simulate()
             }
             if system.elapsed() >= Duration::from_secs(1) {
-                let d = json!({"service":service_version(),"resources":s.resources,"uptimeSeconds":s.started.elapsed().as_secs_f64(),"servoControl":if !port.is_empty(){s.control.clone()}else{Value::Null},"tof":if !tof_path.is_empty(){s.tof_health()}else{Value::Null},"imu":s.imu_health(),"scenario":if hardware{Value::Null}else{json!(s.scenario)}});
+                let d = json!({"service":service_version(),"resources":s.resources,"uptimeSeconds":s.started.elapsed().as_secs_f64(),"servoControl":if !port.is_empty(){s.control.clone()}else{Value::Null},"tof":if tof_enabled{s.tof_health()}else{Value::Null},"imu":s.imu_health(),"scenario":if hardware{Value::Null}else{json!(s.scenario)}});
                 s.sample("system", d, true, Instant::now());
                 system = Instant::now();
             }
@@ -913,6 +909,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/gamepad/bindings", get(pad_bindings_info).post(pad_bindings_update))
         .merge(gamepad_bluetooth::router())
         .merge(camera::router())
+        .merge(tof::router())
         .fallback_service(ServeDir::new(static_dir).append_index_html_on_directories(true))
         .layer(DefaultBodyLimit::max(16384))
         .layer(cors)

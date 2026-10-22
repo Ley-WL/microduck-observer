@@ -27,6 +27,7 @@ evidence=root/'docs/实测记录/附件/平台'/datetime.now(timezone(timedelta(
 evidence.mkdir(parents=True)
 binary=root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer'
 assert binary.read_bytes()[:4]==b'\x7fELF' and int.from_bytes(binary.read_bytes()[18:20],'little')==183
+assert b'/api/v1/tof' in binary.read_bytes(), 'Build the current Observer source: ToF API missing from ARM binary'
 if args.rear_hook_native_model or args.rear_hook_gated_model:
     marker=b'RearHook-OneShot-3s-NativeEncoderGated' if args.rear_hook_gated_model else b'RearHook-OneShot-3s-NativeEncoder'
     assert marker in binary.read_bytes(),'Finish building native rear-hook runtime before packaging'
@@ -61,6 +62,9 @@ with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
             archive.add(root/('models/dance10.'+suffix),arcname='models/dance10.'+suffix)
         for tick in [0,80,200,350]:
             archive.add(root/f'backend-rust/tests/fixtures/policy-dance-{tick}.json',arcname=f'policy-dance-{tick}.json')
+    archive.add(binary.with_name('microduck-tof'),arcname='bin/microduck-tof')
+    for notice in ['LICENSE.txt','APACHE-2.0.txt','UPSTREAM.md']:
+        archive.add(root/'backend-rust/vendor/tof'/notice,arcname='licenses/tof/'+notice)
     for notice in ['LICENSE','UPSTREAM.md']:
         archive.add(root/'backend-rust/vendor/microduck-sounds'/notice,arcname='licenses/microduck-sounds/'+notice)
     if not args.binary_only:
@@ -96,6 +100,7 @@ with tarfile.open(stage/'payload.tar.gz') as archive:
     assert all((new/m.name).resolve().is_relative_to(new.resolve()) and (m.isfile() or m.isdir()) for m in archive.getmembers())
     archive.extractall(new)
 os.chmod(new/'bin/microduck-observer',0o755)
+os.chmod(new/'bin/microduck-tof',0o755)
 preserve_device_settings=(new/'preserve-device-settings.json').exists()
 if preserve_device_settings:(new/'preserve-device-settings.json').unlink()
 assert all(sha(Path(p))==v for p,v in preserved.items())

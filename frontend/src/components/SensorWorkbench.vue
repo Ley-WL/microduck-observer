@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch, onUnmounted } from 'vue';
+import { requestTof, type TofSettings } from '../tofSettings';
 import { useTelemetry } from '../store';
 import RobotView from './RobotView.vue';
 import CameraView from './CameraView.vue';
@@ -11,11 +12,31 @@ const props = defineProps<{ quaternion: number[] | null; angles: number[] | null
 const emit = defineEmits<{ navigate: [page: '姿态与 IMU'] }>();
 const state = useTelemetry();
 const depthMode = ref('radar');
+const tofSettings = ref<TofSettings>(), tofBusy = ref(false), tofError = ref('');
+let tofGeneration = 0, tofReading = false;
+async function loadTof() {
+  if (tofReading || tofBusy.value || state.connection !== '在线') return;
+  const generation = tofGeneration, endpoint = state.endpoint; tofReading = true;
+  try { const value = await requestTof(endpoint); if (generation === tofGeneration) { tofSettings.value = value; tofError.value = ''; } }
+  catch (e) { if (generation === tofGeneration) { tofSettings.value = undefined; tofError.value = String(e); } }
+  finally { tofReading = false; }
+}
+async function toggleTof() {
+  if (!tofSettings.value || tofBusy.value || state.connection !== '在线') return;
+  const generation = ++tofGeneration, endpoint = state.endpoint; tofBusy.value = true; tofError.value = '';
+  try { const value = await requestTof(endpoint, !tofSettings.value.enabled); if (generation === tofGeneration) tofSettings.value = value; }
+  catch (e) { if (generation === tofGeneration) tofError.value = String(e); }
+  finally { tofBusy.value = false; }
+}
+watch(() => [state.endpoint,state.connection], () => { tofGeneration++; tofSettings.value = undefined; void loadTof(); }, { immediate: true });
+const tofTimer = setInterval(() => void loadTof(), 2000);
+onUnmounted(() => { tofGeneration++; clearInterval(tofTimer); });
+const tofStatus = computed(() => !tofSettings.value ? '未连接' : !tofSettings.value.enabled ? '已关闭' : tofSettings.value.streaming ? '实时' : tofSettings.value.state === 'starting' ? '启动中' : '未出帧');
 const robot = ref<InstanceType<typeof RobotView>>();
 const selected = ref(27), range = ref(2000), smooth = ref(true);
 const chartKind = ref<'gyro' | 'accel'>('gyro');
 const imuLive = computed(() => state.connection === '在线' && state.imuState === '实时' && state.poseState === '实时');
-const tofLive = computed(() => state.connection === '在线' && state.tof?.valid && state.tofAge < 1500 && state.system?.data.tof?.state !== 'offline');
+const tofLive = computed(() => state.connection === '在线' && tofSettings.value?.enabled && tofSettings.value.streaming && state.tof?.valid && state.tofAge < 1500 && state.system?.data.tof?.state === 'streaming');
 const cells = computed(() => Array.from({length:64}, (_, i) => ({distance:state.tof?.data.distanceMm[i],valid:state.tof?.data.status[i] === 5})));
 const stats = computed(() => tofStats(state.tof?.data as any));
 const accel = computed(() => state.imu?.valid ? Math.hypot(...state.imu.data.accel) : null);
@@ -50,14 +71,16 @@ const distance = (n: number | null | undefined) => n == null ? '—' : `${(n/10)
       <CameraView compact />
 
       <section class="sensor-card depth-card">
-        <div class="sensor-title-row"><div class="sensor-identity"><span class="sensor-icon">◉</span><div><h2>ToF 深度</h2><small>VL53L5CX · DEPTH</small></div></div><span class="live-badge" :class="{live:tofLive}">{{ tofLive ? '实时' : '离线 / 过期' }}</span></div>
+        <div class="sensor-title-row"><div class="sensor-identity"><span class="sensor-icon">◉</span><div><h2>ToF 深度</h2><small>VL53L5CX · DEPTH</small></div></div><span class="live-badge" :class="{live:tofLive}">{{ tofStatus }}</span></div>
         <div class="stream-meta"><span>ToF · {{ tofLive ? fmt(state.tof?.data.hz) : '—' }} Hz</span><span>样本年龄 {{ age(state.tofAge) }}</span></div>
+        <div class="tof-switch"><span>HAT J5 · I²C3 · 8×8</span><button :disabled="!tofSettings || tofBusy || state.connection !== '在线' || (!tofSettings.available && !tofSettings.enabled)" @click="toggleTof">{{ tofBusy ? '处理中…' : tofSettings?.enabled ? '关闭 ToF' : '开启 ToF' }}</button></div>
+        <p v-if="tofError || tofSettings?.error" class="depth-warning">{{ tofError || tofSettings?.error }}</p>
         <div class="depth-controls"><select v-model="depthMode" aria-label="ToF显示方式"><option value="radar">扇环距离</option><option value="depth">灰度深度</option></select><label v-if="depthMode === 'depth'"><input v-model="smooth" type="checkbox" /> 平滑</label><select v-model.number="range"><option :value="1000">0–100 cm</option><option :value="2000">0–200 cm</option><option :value="4000">0–400 cm</option></select></div>
         <div class="depth-stage" :class="{ stale: !tofLive || state.paused }"><TofRadar v-if="depthMode === 'radar'" :cells="cells" :range="range" :selected="selected" :live="Boolean(tofLive) && !state.paused" @select="selected=$event" /><TofDepthMap v-else :cells="cells" :range="range" :smooth="smooth" :selected="selected" @select="selected=$event" /></div>
         <div v-if="depthMode === 'depth'" class="depth-legend"><span>近 0</span><i></i><span>{{ range / 10 }} cm 远</span></div>
         <div class="selected-depth"><span>选点 · {{ Math.floor(selected/8)+1 }}行 {{ selected%8+1 }}列</span><strong>{{ cells[selected].valid ? distance(cells[selected].distance) : '无效测量' }}</strong><small>状态 {{ state.tof?.data.status[selected] ?? '—' }} · 原始分区读数</small></div>
         <div class="depth-stats"><span>最近距离<b>{{ distance(stats.min) }}</b></span><span>中位距离<b>{{ distance(stats.median) }}</b></span><span>有效区域<b>{{ stats.count }} / 64</b></span></div>
-        <p v-if="!tofLive" class="depth-warning">{{ state.tof ? '当前为最后一帧，不代表实时距离。' : '等待 ToF 数据。' }} {{ state.system?.data.tof?.error }}</p>
+        <p v-if="!tofLive" class="depth-warning">{{ !tofSettings?.enabled ? 'ToF 已关闭，点击开启后开始测距。' : state.tof ? '当前为最后一帧，不代表实时距离。' : '等待 ToF 数据，首次启动需要初始化传感器。' }} {{ state.system?.data.tof?.error }}</p>
         <p class="depth-help">扇环按8列取最近有效回波，金色圈标记最近点；点击查看原始距离。</p>
       </section>
     </div>
@@ -66,6 +89,7 @@ const distance = (n: number | null | undefined) => n == null ? '—' : `${(n/10)
 </template>
 
 <style scoped>
+.tof-switch{display:flex;align-items:center;justify-content:space-between;font-size:11px}.sensor-workbench button:disabled{opacity:.5;cursor:not-allowed}
 .sensor-workbench{height:100%;min-height:0;display:flex;flex-direction:column;gap:10px;color:#233f34}
 .workbench-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-shrink:0}.workbench-heading h1{font-size:23px;margin:2px 0 5px}.workbench-heading h1 small{font-size:10px;font-weight:500;letter-spacing:2px;margin-left:12px;color:#74877c}.workbench-heading p{margin:0;font-size:12px;color:#718176}
 .heading-actions{display:flex;gap:12px;align-items:center;font-size:12px}.sensor-workbench button,.sensor-workbench select{font:inherit;border:1px solid #d9e3dd;border-radius:6px;background:#fff;color:#365347;padding:6px 9px;cursor:pointer}.sensor-workbench select{font-size:11px;padding:4px}
@@ -83,8 +107,10 @@ const distance = (n: number | null | undefined) => n == null ? '—' : `${(n/10)
 .workbench-footnote{font-size:10px;color:#829086;flex-shrink:0}.workbench-alert{background:#fff1dc;color:#915822;padding:6px 10px;font-size:12px;border-radius:6px}.workbench-alert button{margin-left:10px}
 @media(max-height:760px){.sensor-card{gap:7px;padding:11px}.mini-chart{height:65px}.workbench-heading p{display:none}.selected-depth{padding:8px}.selected-depth strong{font-size:23px}.angle-readings strong{font-size:20px}.depth-stage :deep(.depth-image){max-width:calc(100dvh - 380px)}}
 @media(max-width:1000px){.sensor-columns{gap:8px;grid-template-columns:minmax(210px,3fr) minmax(245px,4fr) minmax(210px,3fr)}.sensor-card{padding:10px}.heading-actions span{display:none}.workbench-heading h1 small{display:none}}
-@media(max-width:760px),(max-height:570px){.sensor-workbench{overflow:auto}.sensor-columns{flex:none;grid-template-columns:1fr}.sensor-card{min-height:570px}.sensor-columns :deep(.camera-page.compact){min-height:420px}.depth-stage :deep(.depth-image){max-width:300px}.workbench-footnote{line-height:1.6}}
+@media(max-width:760px),(max-height:570px){.tof-switch{display:flex;align-items:center;justify-content:space-between;font-size:11px}.sensor-workbench button:disabled{opacity:.5;cursor:not-allowed}
+.sensor-workbench{overflow:auto}.sensor-columns{flex:none;grid-template-columns:1fr}.sensor-card{min-height:570px}.sensor-columns :deep(.camera-page.compact){min-height:420px}.depth-stage :deep(.depth-image){max-width:300px}.workbench-footnote{line-height:1.6}}
 /* Shared visual language across all three sensor panels, including camera. */
+.tof-switch{display:flex;align-items:center;justify-content:space-between;font-size:11px}.sensor-workbench button:disabled{opacity:.5;cursor:not-allowed}
 .sensor-workbench{gap:14px;color:#29483e;padding:4px 2px 0}.workbench-heading{padding:5px 4px 9px}.workbench-heading h1{font-size:22px;font-weight:650;letter-spacing:-.5px}.workbench-heading h1 small{letter-spacing:1.7px;font-size:9px;color:#92a297}.workbench-heading p{font-size:11px;color:#89988e}.heading-actions{font-size:11px;color:#819187}.heading-actions button{border-radius:8px;padding:8px 12px;box-shadow:0 2px 4px #173c2404}
 .sensor-columns{gap:16px}.sensor-card{border:1px solid #e0e8e5;border-radius:18px;padding:16px;gap:12px;box-shadow:0 4px 22px #18372b05}
 .sensor-workbench :deep(.sensor-title-row){display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:42px;flex-shrink:0}
@@ -97,7 +123,8 @@ const distance = (n: number | null | undefined) => n == null ? '—' : `${(n/10)
 .angle-readings>div{border:1px solid #edf1ef;background:#f7f9f8;border-radius:9px;padding:10px 8px}.angle-readings strong{font-size:24px;font-weight:550;letter-spacing:-.8px}.angle-readings span{color:#8a9b90;font-size:9px}.angle-readings small{color:#99a79f;margin-left:2px}
 .motion-state{padding:8px 10px;border:1px solid #f2e7d7;border-radius:8px;background:#fdf8f0}.motion-state.ready{background:#f3f9f5;border-color:#e4f0e8}.motion-state small{font-size:9px}.raw-readings{padding:0 3px}.raw-readings b{font-weight:550;font-size:12px}.sensor-workbench .detail-link{margin-top:auto;border:1px solid #e5ede8;background:#f6f9f7;border-radius:8px;color:#678675;padding:8px}
 .depth-stage{background:#f6f8f7;border:1px solid #edf1ef;border-radius:12px;padding:10px}.depth-stage :deep(.depth-image){border-radius:8px;max-width:calc(100dvh - 480px)}.depth-legend{padding:0 4px;color:#92a196}.selected-depth{border:1px solid #e5eee8;background:linear-gradient(120deg,#f2f7f4,#f8faf9);padding:13px}.selected-depth strong{font-weight:550;letter-spacing:-.6px;font-size:29px;color:#315c48}.selected-depth small{font-size:9px}.depth-stats{padding:4px 2px}.depth-stats b{font-size:14px;font-weight:550}.depth-stats>span+span{border-left:1px solid #e9eeeb;padding-left:10px}.depth-help{color:#93a095;font-size:9px}.workbench-footnote{font-size:9px;color:#99a59d;padding:0 4px}
-@media(max-height:760px){.sensor-workbench{gap:8px}.workbench-heading{padding:0 4px 4px}.sensor-card{gap:8px;padding:12px}.sensor-columns{gap:12px}.angle-readings>div{padding:7px}.angle-readings strong{font-size:20px}.motion-state{padding:6px 8px}.selected-depth{padding:9px}.selected-depth strong{font-size:25px}.depth-stage :deep(.depth-image){max-width:calc(100dvh - 405px)}}
+@media(max-height:760px){.tof-switch{display:flex;align-items:center;justify-content:space-between;font-size:11px}.sensor-workbench button:disabled{opacity:.5;cursor:not-allowed}
+.sensor-workbench{gap:8px}.workbench-heading{padding:0 4px 4px}.sensor-card{gap:8px;padding:12px}.sensor-columns{gap:12px}.angle-readings>div{padding:7px}.angle-readings strong{font-size:20px}.motion-state{padding:6px 8px}.selected-depth{padding:9px}.selected-depth strong{font-size:25px}.depth-stage :deep(.depth-image){max-width:calc(100dvh - 405px)}}
 @media(max-width:1100px){.sensor-workbench :deep(.sensor-identity){gap:7px}.sensor-workbench :deep(.sensor-identity h2){font-size:14px}.sensor-workbench :deep(.sensor-icon){width:30px;height:32px;font-size:20px}.sensor-workbench :deep(.sensor-identity small){font-size:8px;letter-spacing:.4px}.sensor-columns{gap:10px}.sensor-card{padding:11px}}
 @media(max-width:760px),(max-height:570px){.depth-stage :deep(.depth-image){max-width:300px}.sensor-workbench :deep(.sensor-identity h2){font-size:17px}}
 </style>
