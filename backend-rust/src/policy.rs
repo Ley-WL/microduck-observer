@@ -245,7 +245,7 @@ mod kick_tests {
         let sit:Value=serde_json::from_str(include_str!("../../models/alpha_sitstand.metadata.json")).unwrap();
         let roll:Value=serde_json::from_str(include_str!("../../models/xgoduck_roulade.metadata.json")).unwrap();
         for (kind,m) in [("sitstand_sit",&sit),("sitstand_stand",&sit),("xgoduck_roulade",&roll)] {validate_skill_metadata(kind,m).unwrap();let p=SkillProfile::from_metadata(m);assert!(p.donor());assert!(!p.voltage_adapt());}
-        let p=SkillProfile::from_metadata(&sit);assert!(!p.complete("sitstand_stand",5.98,1.));assert!(p.complete("sitstand_stand",6.,0.5));assert!(!p.complete("sitstand_sit",100.,1.));
+        let p=SkillProfile::from_metadata(&sit);assert!(!p.complete("sitstand_stand",1.,0.48));assert!(p.complete("sitstand_stand",1.,0.5));assert!(!p.complete("sitstand_sit",100.,1.));
         let p=SkillProfile::from_metadata(&roll);assert_eq!(p.roll_timeout(),1.5);assert_eq!(p.twist("xgoduck_roulade",3.),[0.;3]);
         let exit=crate::roll_exit::RollExit::default();
         assert!(!p.roll_complete(1.48,&exit));assert!(p.roll_complete(1.5,&exit));assert!(p.roll_complete(1.52,&exit));
@@ -384,7 +384,7 @@ impl SkillProfile {
     // Donor sit_toggle allows Sitting -> Rising without a dwell timer.
     fn stand_request_delay(self)->f64 {if self.kissqy {0.} else {self.sit_settle()}}
     fn complete(self, kind: &str, progress: f64, upright: f64) -> bool {
-        if self.official_sit {return kind=="sitstand_stand" && progress>=6. && upright>=0.5;}
+        if self.official_sit {return kind=="sitstand_stand" && upright>=0.5-1e-9;}
         if self.official_roll {return kind=="xgoduck_roulade" && progress>=self.roll_timeout()-1e-9;}
         if self.flamingo {return kind=="flamingo_lower" && progress>=1.5 && upright>=1.;}
         if self.dance {return kind=="dance10" && progress>=8.-1e-9;}
@@ -403,6 +403,14 @@ impl SkillProfile {
         *seconds=if self.upright(obs) {*seconds+0.02} else {0.};
     }
     fn upright(self, obs: &[f32]) -> bool {
+        if self.official_sit {
+            // Confirm actual standing, rather than waiting a fixed six seconds.
+            if obs.len()<34 || !obs[..34].iter().all(|v|v.is_finite()) {return false;}
+            let gyro=obs[..3].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
+            let legs=(0..5).chain(9..14).all(|n|obs[6+n].abs()<0.30);
+            let slow_legs=(0..5).chain(9..14).all(|n|obs[20+n].abs()<1.);
+            return tilt(obs)<10. && gyro<0.5 && legs && slow_legs;
+        }
         if tilt(obs)>=15. { return false; }
         if !self.retrained && !self.flamingo { return true; }
         let gyro=obs[..3].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
@@ -2462,6 +2470,25 @@ mod tests {
         assert!(validate_skill_metadata("xgoduck_getup",&bad).is_err());
         bad=meta.clone();bad["skillPhysicsRevision"]=json!("unknown");
         assert!(validate_skill_metadata("xgoduck_getup",&bad).is_err());
+    }
+
+    #[test]
+    fn official_sit_handoff_requires_continuous_stable_standing() {
+        let p=SkillProfile::from_metadata(&json!({"runtimeKind":"hd1910_official_sitstand"}));
+        let mut obs=vec![0f32;61];obs[5]=-1.;
+        let mut stable=0.;
+        for _ in 0..24 {p.update_upright(&mut stable,&obs);}
+        assert!(!p.complete("sitstand_stand",10.,stable));
+        p.update_upright(&mut stable,&obs);
+        assert!(p.complete("sitstand_stand",0.5,stable));
+        for index in [0,6,9,15,20,29] {
+            let mut bad=obs.clone();bad[index]=2.;
+            p.update_upright(&mut stable,&bad);assert_eq!(stable,0.);
+            assert!(!p.complete("sitstand_stand",10.,stable));
+        }
+        obs[3]=0.3;obs[5]=-0.95;assert!(!p.upright(&obs));
+        obs[3]=f32::NAN;assert!(!p.upright(&obs));
+        assert!(!p.upright(&[]));
     }
 
     #[test]

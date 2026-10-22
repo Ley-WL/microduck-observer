@@ -1,25 +1,15 @@
 {
-  "artifactType": "training-policy",
-  "controlHz": 50,
-  "actorObservationDim": 61,
   "actionDim": 14,
-  "observationNormalization": "baked into ONNX by upstream exporter",
-  "jointOrder": [
-    "left_hip_yaw",
-    "left_hip_roll",
-    "left_hip_pitch",
-    "left_knee",
-    "left_ankle",
-    "neck_pitch",
-    "head_pitch",
-    "head_yaw",
-    "head_roll",
-    "right_hip_yaw",
-    "right_hip_roll",
-    "right_hip_pitch",
-    "right_knee",
-    "right_ankle"
-  ],
+  "actionEmaNewWeight": 1,
+  "actionEmaOldWeight": 0,
+  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+  "actorObservationDim": 61,
+  "artifactType": "training-policy",
+  "commandEncoding": "phase cos/sin, period4 end0.7",
+  "completedTrainingUpdates": 1001,
+  "controlHz": 50,
+  "deploymentNote": "Existing compatible ground-pick runtime schema; retained board P5/D20 and 2.8s window; not hardware acceptance.",
+  "hardwareValidated": false,
   "homeRadians": [
     0.0,
     -0.0873,
@@ -36,24 +26,46 @@
     0.0049,
     -0.453
   ],
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "modelSource": "Ley-WL/microduck-rl",
+  "observationNormalization": "embedded_in_onnx_once",
+  "policySha256": "b9f88799be0f979115f8d22fefbc3d4db8c95e4567f6ac04f42c6203cece5141",
   "runtimeKind": "kissqy_ground_pick",
-  "task": "Mjlab-GroundPick-Flat-MicroDuck",
-  "policySha256": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
-  "hardwareValidated": false,
-  "modelSource": "kissqy/Microduck-kissqy",
-  "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
-  "actionEmaOldWeight": 0,
-  "actionEmaNewWeight": 1,
+  "simulationValidated": false,
+  "sitExecution": null,
   "skillExecution": {
-    "schema": "kissqy-skills-v1",
-    "policySha256": "2b69fa681ed06f7ded9e2a2d12ba5c6776ec87308ac4a299e4b8196199c17f24",
-    "gains": {
-      "p": 5,
-      "d": 20
-    },
+    "actionScale": 1,
     "durationSeconds": 2.8,
-    "actionScale": 1
+    "gains": {
+      "d": 20,
+      "p": 5
+    },
+    "policySha256": "b9f88799be0f979115f8d22fefbc3d4db8c95e4567f6ac04f42c6203cece5141",
+    "schema": "kissqy-skills-v1"
   },
-  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
-  "commandEncoding": "phase cos/sin, period4 end0.7"
+  "sourceCheckpoint": "model_1000.pt",
+  "sourceExperiment": "/CodeRepo/Code/leiwu30/hd1910-pick-seed221149-20261022",
+  "task": "Mjlab-GroundPick-Flat-MicroDuck",
+  "trainingSeed": 221149,
+  "walkExecution": null,
+  "userFeedback": {
+    "date": "2026-10-22",
+    "device": "microduck-e6fc56",
+    "result": "User approved deployed behavior; not a full robustness acceptance"
+  }
 }
