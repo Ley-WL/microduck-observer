@@ -398,24 +398,23 @@ pub fn execute<T: Transport>(
         let cal=command["calibration"].clone();
         let initial=bus.control_feedback(&[34])?;validate(34,initial.get(&34),false)?;
         let (low,high,_)=configuration(bus,34)?;
-        for angle in [30f64,-5.] {target(34,position(&initial[&34])?,&cal,low,high,angle.to_radians(),false)?;}
-        execute(bus,&json!({"action":"angle","id":34,"angleDeg":30,"calibration":cal}),cancel,shared)?;
-        let audio=crate::quack::Playback::start_voice(command["voice"].as_str().unwrap_or("random"));
-        let open_duration=audio.as_ref().map(|p|p.open_duration()).unwrap_or(Duration::from_millis(550));
-        let began=Instant::now();let mut clock=FrameClock::new(began);
+        for angle in [12f64,-5.] {target(34,position(&initial[&34])?,&cal,low,high,angle.to_radians(),false)?;}
+        let mut audio=crate::quack::Playback::start_voice(command["voice"].as_str().unwrap_or("random"))?;
+        let began=Instant::now();
+        execute(bus,&json!({"action":"angle","id":34,"angleDeg":audio.peak_degrees(),"calibration":cal}),cancel,shared)?;
+        let open_duration=audio.open_duration();
+        let mut clock=FrameClock::new(began);
         while began.elapsed()<open_duration {
             if cancel.load(Ordering::Acquire) {return unload(bus);}
             status(shared,json!({"state":"moving","action":"quack","message":"嘎一下"}));clock.wait();
         }
         let result=execute(bus,&json!({"action":"angle","id":34,"angleDeg":-5,"calibration":cal}),cancel,shared)?;
-        match audio {Ok(mut playback)=>{
-            loop {
+        loop {
                 if cancel.load(Ordering::Acquire) {return unload(bus);}
-                if let Err(e)=playback.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());break;}
-                if playback.finished().unwrap_or(true) {break;}
+                if let Err(e)=audio.check(){shared.write().unwrap().log("ERROR","quack",&e.to_string());break;}
+                if audio.finished().unwrap_or(true) {break;}
                 clock.wait();
-            }
-        },Err(e)=>shared.write().unwrap().log("ERROR","quack",&e.to_string())}
+        }
         return Ok(json!({"state":"holding","action":"quack","message":"张闭嘴一次完成","mouthResult":result}));
     }
     let pose = matches!(action, "stand" | "zero");

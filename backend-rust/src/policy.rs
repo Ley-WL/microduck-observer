@@ -1314,6 +1314,8 @@ fn native_policy_loop(
     arm_current_profile(bus,&[34],feedback,(10,20),cancel,halt,true)?;
     let mouth_owned=true;
     let mut head_offset=[0.;2];
+    let mut quack_head_offset=[0.;2];
+    let mut quack_neck_offset=[0.;2];
     let mut quack_cycle:Option<(Instant,crate::quack::Playback)>=None;
     shared.write().unwrap().mouth_degrees=-5.;
     let mouth_limits=control::configuration(bus,34)?;
@@ -1543,6 +1545,10 @@ fn native_policy_loop(
         let adjusted=action.map(|v|v*scale);
         let filtered=model.filter_action(&adjusted);
         *goals=model.targets(filtered,feedback,cal,limits)?;
+        let mouth_request=write_shared().pending_mouth.take();
+        if let Some(degrees)=mouth_request {write_shared().mouth_degrees=degrees;}
+        if model.kind=="xgoduck_pick" {write_shared().mouth_degrees=pick_mouth_target(model.progress);}
+        let quacking=advance_quack(shared,&mut quack_cycle);
         if model.kind=="xgoduck" || (model.kind=="sitstand_sit" && model.progress>=model.skill_profile.sit_settle()) {
             let input={let state=read_shared();if state.demo.active {state.demo.output.head}else{state.head_intent.current(Instant::now())}};
             let bounds=[control::effective_angle_limits(31,cal,limits[&31])?,control::effective_angle_limits(32,cal,limits[&32])?];
@@ -1555,17 +1561,24 @@ fn native_policy_loop(
                     desired};
                 crate::vision::step(&mut head_offset,desired,[model.sent[6],model.sent[7]],bounds);
             } else {crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]],bounds);}
+            let expressive=crate::quack::head_allowed(&model.kind,model.progress,model.skill_profile.sit_settle(),model.command_twist,input,read_shared().demo.active);
+            let desired=if expressive {quack_cycle.as_ref().map(|(at,a)|a.head_degrees(at.elapsed())).unwrap_or([0.;2])} else {[0.;2]};
+            crate::quack::step_head(&mut quack_head_offset,desired,[model.sent[6]+head_offset[0],model.sent[7]+head_offset[1]],bounds);
+            let neck_bounds=control::effective_angle_limits(30,cal,limits[&30])?;
+            crate::quack::step_head(&mut quack_neck_offset,[desired[0]*0.5,0.],[model.sent[5],0.],[neck_bounds,(0.,0.)]);
+            if quack_neck_offset[0].abs()>1e-9 {
+                let raw=(model.sent[5]+quack_neck_offset[0]).clamp(neck_bounds.0,neck_bounds.1).to_radians();
+                let (goal,sent,saturated)=skill_target(30,raw,cal,limits[&30],true)?;
+                goals.insert(30,goal);model.sent[5]=sent.to_degrees();if saturated && !model.saturated.contains(&30){model.saturated.push(30);}
+            }
             for (axis,n) in [6usize,7].iter().enumerate(){
-                if head_offset[axis].abs()<1e-9 {continue;}
-                let id=ORDER[*n];let (lo,hi)=bounds[axis];let raw=(model.sent[*n]+head_offset[axis]).clamp(lo,hi).to_radians();
+                let offset=head_offset[axis]+quack_head_offset[axis];
+                if offset.abs()<1e-9 {continue;}
+                let id=ORDER[*n];let (lo,hi)=bounds[axis];let raw=(model.sent[*n]+offset).clamp(lo,hi).to_radians();
                 let (goal,sent,saturated)=skill_target(id,raw,cal,limits[&id],true)?;
                 goals.insert(id,goal);model.sent[*n]=sent.to_degrees();if saturated && !model.saturated.contains(&id){model.saturated.push(id);}
             }
-        } else {head_offset=[0.;2];write_shared().head_intent.clear();}
-        let mouth_request=write_shared().pending_mouth.take();
-        if let Some(degrees)=mouth_request {write_shared().mouth_degrees=degrees;}
-        if model.kind=="xgoduck_pick" {write_shared().mouth_degrees=pick_mouth_target(model.progress);}
-        let quacking=advance_quack(shared,&mut quack_cycle);
+        } else {head_offset=[0.;2];quack_head_offset=[0.;2];quack_neck_offset=[0.;2];write_shared().head_intent.clear();}
         if mouth_owned {
             let degrees=read_shared().mouth_degrees;
             goals.insert(34,control::target(34,feedback[&34]["position"].as_i64().unwrap() as i32,cal,mouth_limits.0,mouth_limits.1,degrees.to_radians(),true)?);

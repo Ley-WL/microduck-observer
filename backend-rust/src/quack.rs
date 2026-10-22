@@ -99,6 +99,32 @@ fn double_clip(source:&Clip)->Result<Clip> {
      for v in &samples {writer.write_sample(*v)?;}writer.finalize()?;}
     clip(out.into_inner())
 }
+// Small expressions use the selected clip's duration, not a fixed full-open jaw.
+pub fn mouth_peak(duration:Duration)->f64 {2.+10.*((duration.as_secs_f64()-0.25)/1.75).clamp(0.,1.)}
+fn expression_envelope(duration:Duration,elapsed:Duration)->f64 {
+    let t=elapsed.as_secs_f64();let end=duration.as_secs_f64()+0.1;
+    (t/0.12).clamp(0.,1.).min(((end-t)/0.15).clamp(0.,1.))
+}
+fn mouth_expression(duration:Duration,elapsed:Duration)->f64 {
+    -5.+(mouth_peak(duration)+5.)*expression_envelope(duration,elapsed)
+}
+pub fn head_allowed(kind:&str,progress:f64,settle:f64,twist:[f32;3],input:[f64;2],demo:bool)->bool {
+    !demo && input.iter().all(|v|v.abs()<1e-6) &&
+        ((kind=="xgoduck" && twist.iter().all(|v|v.abs()<1e-6)) || (kind=="sitstand_sit" && progress>=settle))
+}
+fn head_expression(duration:Duration,elapsed:Duration)->[f64;2] {
+    let e=expression_envelope(duration,elapsed);
+    let phase=elapsed.as_secs_f64()/duration.as_secs_f64().max(0.4);
+    [-4.*e*(std::f64::consts::PI*phase).sin(),5.*e*(std::f64::consts::TAU*phase).sin()]
+}
+pub fn step_head(offset:&mut [f64;2],desired:[f64;2],base:[f64;2],bounds:[(f64,f64);2]) {
+    for i in 0..2 {
+        // An actor outside the effective range must not acquire an expression correction.
+        if !(bounds[i].0..=bounds[i].1).contains(&base[i]) {offset[i]=0.;continue;}
+        offset[i]+=(desired[i]-offset[i]).clamp(-0.5,0.5); // 25 degrees/s at 50Hz
+        offset[i]=(base[i]+offset[i]).clamp(bounds[i].0,bounds[i].1)-base[i];
+    }
+}
 pub struct Playback { child: Child, started: Instant, duration: Duration }
 impl Playback {
     pub fn start() -> Result<Self> {Self::start_voice("random")}
@@ -123,7 +149,9 @@ impl Playback {
     }
     pub fn open_duration(&self) -> Duration { self.duration + Duration::from_millis(100) }
     pub fn cycle_duration(&self) -> Duration { self.open_duration() + Duration::from_millis(150) }
-    pub fn degrees(&self, elapsed: Duration) -> f64 { if elapsed < self.open_duration() {30.} else {-5.} }
+    pub fn peak_degrees(&self)->f64 {mouth_peak(self.duration)}
+    pub fn head_degrees(&self,elapsed:Duration)->[f64;2] {head_expression(self.duration,elapsed)}
+    pub fn degrees(&self, elapsed: Duration) -> f64 {mouth_expression(self.duration,elapsed)}
     pub fn finished(&mut self) -> Result<bool> {
         match self.child.try_wait()? { Some(status) => { ensure!(status.success(), "扬声器播放失败，请检查音频连接"); Ok(true) }, None => Ok(false) }
     }
@@ -135,6 +163,36 @@ impl Playback {
 impl Drop for Playback { fn drop(&mut self) { let _ = self.child.kill(); let _ = self.child.wait(); } }
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn short_calls_open_less_and_all_calls_close() {
+        let short=Duration::from_millis(300);let long=Duration::from_secs(3);
+        assert!(mouth_peak(short)<mouth_peak(long));assert_eq!(mouth_peak(long),12.);
+        for ms in [100,300,800,1500,3000,19000] {
+            let duration=Duration::from_millis(ms);
+            assert_eq!(mouth_expression(duration,Duration::ZERO),-5.);
+            for t in (0..ms+400).step_by(20) {
+                assert!((-5. ..=12.).contains(&mouth_expression(duration,Duration::from_millis(t))));
+                let h=head_expression(duration,Duration::from_millis(t));assert!(h[0].abs()<=4. && h[1].abs()<=5.);
+            }
+            assert_eq!(mouth_expression(duration,duration+Duration::from_millis(200)),-5.);
+            assert_eq!(head_expression(duration,duration+Duration::from_millis(200)),[0.;2]);
+        }
+    }
+    #[test] fn head_expression_only_when_settled_and_manual_control_wins() {
+        assert!(head_allowed("xgoduck",0.,4.,[0.;3],[0.;2],false));
+        assert!(head_allowed("sitstand_sit",4.,4.,[0.;3],[0.;2],false));
+        assert!(!head_allowed("sitstand_sit",3.99,4.,[0.;3],[0.;2],false));
+        for kind in ["xgoduck_roulade","xgoduck_getup","sitstand_stand","dance10"] {assert!(!head_allowed(kind,10.,4.,[0.;3],[0.;2],false));}
+        assert!(!head_allowed("xgoduck",0.,4.,[0.1,0.,0.],[0.;2],false));
+        assert!(!head_allowed("xgoduck",0.,4.,[0.;3],[0.1,0.],false));
+        assert!(!head_allowed("xgoduck",0.,4.,[0.;3],[0.;2],true));
+        let mut offset=[0.;2];
+        for _ in 0..50 {let before=offset;step_head(&mut offset,[-4.,5.],[0.;2],[(-2.,2.),(-3.,3.)]);for i in 0..2{assert!((offset[i]-before[i]).abs()<=0.5);}}
+        assert_eq!(offset,[-2.,3.]);
+        for _ in 0..20 {step_head(&mut offset,[0.;2],[0.;2],[(-2.,2.),(-3.,3.)]);}
+        assert_eq!(offset,[0.;2]);
+        step_head(&mut offset,[-4.,5.],[100.,-100.],[(-2.,2.),(-3.,3.)]);
+        assert_eq!(offset,[0.;2]);
+    }
     #[test] fn double_voice_has_two_complete_calls_and_gap() {
         let p=microduck_sounds::Personality::from_seed(42);let samples=microduck_sounds::render("chirp",&p,0).unwrap();
         let dir=tempfile::tempdir().unwrap();let path=dir.path().join("chirp.wav");microduck_sounds::to_wav(&samples,&path).unwrap();
