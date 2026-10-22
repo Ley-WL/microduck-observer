@@ -22,6 +22,7 @@ mod observer_ota;
 mod roll_exit;
 mod rear_hook;
 mod walk_profile;
+mod walk_handoff;
 mod power;
 mod quack;
 mod resources;

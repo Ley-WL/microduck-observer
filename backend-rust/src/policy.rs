@@ -246,10 +246,10 @@ mod kick_tests {
         let roll:Value=serde_json::from_str(include_str!("../../models/xgoduck_roulade.metadata.json")).unwrap();
         for (kind,m) in [("sitstand_sit",&sit),("sitstand_stand",&sit),("xgoduck_roulade",&roll)] {validate_skill_metadata(kind,m).unwrap();let p=SkillProfile::from_metadata(m);assert!(p.donor());assert!(!p.voltage_adapt());}
         let p=SkillProfile::from_metadata(&sit);assert!(!p.complete("sitstand_stand",1.,0.48));assert!(p.complete("sitstand_stand",1.,0.5));assert!(!p.complete("sitstand_sit",100.,1.));
-        let p=SkillProfile::from_metadata(&roll);assert_eq!(p.roll_timeout(),1.5);assert_eq!(p.twist("xgoduck_roulade",3.),[0.;3]);
+        let p=SkillProfile::from_metadata(&roll);assert_eq!(p.roll_timeout(),4.);assert_eq!(p.twist("xgoduck_roulade",3.),[0.;3]);
         let exit=crate::roll_exit::RollExit::default();
-        assert!(!p.roll_complete(1.48,&exit));assert!(p.roll_complete(1.5,&exit));assert!(p.roll_complete(1.52,&exit));
-        assert!(p.complete("xgoduck_roulade",1.5,0.));
+        assert!(!p.roll_complete(1.48,&exit));assert!(!p.roll_complete(2.,&exit));assert!(!p.roll_complete(4.,&exit));
+        assert!(!p.complete("xgoduck_roulade",4.,0.));
         let mut bad=roll.clone();bad["durationSeconds"]=json!(2);assert!(validate_skill_metadata("xgoduck_roulade",&bad).is_err());
     }
     #[test]
@@ -371,10 +371,10 @@ impl SkillProfile {
     }
     fn donor(self)->bool {self.flamingo || self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
     // Roulade HD1910 deployment contract explicitly disables voltage adaptation.
-    fn roll_timeout(self)->f64 {if self.official_roll {1.5} else {crate::roll_exit::RollExit::TIMEOUT}}
+    fn roll_timeout(self)->f64 {if self.official_roll {crate::roll_exit::RollToGetup::TIMEOUT} else {crate::roll_exit::RollExit::TIMEOUT}}
     fn roll_complete(self,progress:f64,exit:&crate::roll_exit::RollExit)->bool {
-        // User-selected 1.5 s window; walking settles the tail (upstream RL default: 2 s).
-        if self.official_roll {progress>=self.roll_timeout()-1e-9} else {exit.complete(progress)}
+        // Native roll-to-getup requires an observed lying posture, never a timer alone.
+        if self.official_roll {false} else {exit.complete(progress)}
     }
     fn voltage_adapt(self)->bool {!self.official_sit && !self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook && !self.official_flamingo && !self.right_flamingo}
     fn voltage_scale(self,voltage:&mut NativeVoltage,feedback:&Feedback,now:Instant)->f32 {
@@ -385,7 +385,7 @@ impl SkillProfile {
     fn stand_request_delay(self)->f64 {if self.kissqy {0.} else {self.sit_settle()}}
     fn complete(self, kind: &str, progress: f64, upright: f64) -> bool {
         if self.official_sit {return kind=="sitstand_stand" && upright>=0.5-1e-9;}
-        if self.official_roll {return kind=="xgoduck_roulade" && progress>=self.roll_timeout()-1e-9;}
+        if self.official_roll {return false;}
         if self.flamingo {return kind=="flamingo_lower" && progress>=1.5 && upright>=1.;}
         if self.dance {return kind=="dance10" && progress>=8.-1e-9;}
         if self.donor_kick {return matches!(kind,"kick_left"|"kick_right") && progress>=0.5-1e-9;}
@@ -402,15 +402,9 @@ impl SkillProfile {
     fn update_upright(self, seconds: &mut f64, obs: &[f32]) {
         *seconds=if self.upright(obs) {*seconds+0.02} else {0.};
     }
+    fn standing_ready(obs:&[f32])->bool {crate::walk_handoff::Gate::standing(obs)}
     fn upright(self, obs: &[f32]) -> bool {
-        if self.official_sit {
-            // Confirm actual standing, rather than waiting a fixed six seconds.
-            if obs.len()<34 || !obs[..34].iter().all(|v|v.is_finite()) {return false;}
-            let gyro=obs[..3].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
-            let legs=(0..5).chain(9..14).all(|n|obs[6+n].abs()<0.30);
-            let slow_legs=(0..5).chain(9..14).all(|n|obs[20+n].abs()<1.);
-            return tilt(obs)<10. && gyro<0.5 && legs && slow_legs;
-        }
+        if self.official_sit {return Self::standing_ready(obs);}
         if tilt(obs)>=15. { return false; }
         if !self.retrained && !self.flamingo { return true; }
         let gyro=obs[..3].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
@@ -1308,6 +1302,8 @@ fn native_policy_loop(
     let mut recovery_resume_progress=0.;
     let mut recovery_posture=NativeRecoveryPosture::default();
     let mut roll_exit=crate::roll_exit::RollExit::default();
+    let mut roll_getup=crate::roll_exit::RollToGetup::default();
+    let mut walk_gate=crate::walk_handoff::Gate::default();
     let mut clock=control::FrameClock::new(Instant::now());
     let mut coast=control::FeedbackCoast::default();
     let mut imu_pause=ImuPause::default();
@@ -1358,7 +1354,10 @@ fn native_policy_loop(
         let publish_done=Instant::now();
         let Some(mut obs)=observed else {
             write_shared().autonomy.invalid_feedback();
-            roll_exit.reset();model.rear_clock.pause();
+            roll_exit.reset();
+            roll_getup=crate::roll_exit::RollToGetup::default();
+            walk_gate.reset();
+            model.rear_clock.pause();
             quack_cycle=None;write_shared().mouth_degrees=-5.;
             pause_drive(shared);head_offset=[0.;2];model.command_twist=[0.;3];model.upright=0.;
             if paused.is_none() {
@@ -1394,6 +1393,7 @@ fn native_policy_loop(
             };
             if !automatic {pause_drive(shared);bail!("检测到行走跌倒，停止推理并卸力");}
         }
+        walk_gate.observe(&obs,Instant::now());
         let recovery_fallen=recovery_posture.observe(tilt(&obs),Instant::now());
         {
             let mut state=write_shared();
@@ -1401,8 +1401,7 @@ fn native_policy_loop(
             let busy=state.quack_running || state.pending_quack;
             let stable=tilt(&obs)<15. && obs[..3].iter().all(|v|v.abs()<0.5) && model.command_twist.iter().all(|v|v.abs()<0.01);
             let auto_busy=state.demo.active || state.pending_skill.is_some() || busy;
-            let recovery_pose=tilt(&obs)<15. && obs[..3].iter().all(|v|v.abs()<0.5)
-                && (0..5).chain(9..14).map(|n|obs[6+n].abs()).sum::<f32>()/10.<0.25 && model.progress>=0.5;
+            let recovery_pose=walk_gate.ready();
             if state.autonomy.enabled() && !state.drive.as_ref().is_some_and(|d|d.session==state.autonomy.session){state.stop_autonomy("控制会话结束",false);}
             if state.autonomy.observe(Instant::now(),&model.kind,stable,recovery_pose,auto_busy){
                 state.pending_skill=Some("xgoduck".into());fall_guard=FallGuard::default();
@@ -1415,9 +1414,13 @@ fn native_policy_loop(
         }
 
         let requested=write_shared().pending_skill.take();
-        let finished=if model.skill_profile.rear_hook {
-            if model.rear_clock.done() && model.rear_clock.stand_run<48 {bail!("后抬脚返回窗口内未确认稳定站姿，停止并卸力");}
+        let finished=if (model.kind=="xgoduck_getup" && !return_home) || model.kind=="sitstand_stand" {
+            true
+        } else if model.skill_profile.rear_hook {
             model.rear_clock.done()
+        } else if model.skill_profile.official_roll {
+            roll_exit.sample(&obs);
+            roll_getup.ready(model.progress,&obs).map_err(|e|anyhow::anyhow!(e))?
         } else if model.skill_profile.donor_roll {
             roll_exit.sample(&obs);
             let complete=model.skill_profile.roll_complete(model.progress,&roll_exit);
@@ -1428,13 +1431,14 @@ fn native_policy_loop(
                 bail!("翻滚窗口内未确认完整旋转并稳定直立，停止并卸力（倾角{:.1}°）",tilt(&obs));
             }
             complete
-        } else {model.skill_profile.complete(&model.kind,model.progress,model.upright)};
+        } else if model.kind=="flamingo_lower" {model.progress>=1.5}
+        else {model.skill_profile.complete(&model.kind,model.progress,model.upright)};
         let finished=finished && !read_shared().autonomy.recovering();
         if finished && model.skill_profile.donor_roll {
             trace.transition(json!({"type":"roll-complete","mono":crate::telemetry::monotonic(),"progressSeconds":model.progress,
-                "rotationDegrees":roll_exit.rotation_degrees,"tiltDegrees":tilt(&obs),"destination":"xgoduck"}));
+                "rotationDegrees":roll_exit.rotation_degrees,"tiltDegrees":tilt(&obs),"destination":if model.skill_profile.official_roll {"xgoduck_getup"} else {"xgoduck"}}));
         }
-        if finished && model.skill_profile.donor_getup && home_posture_allowed(tilt(&obs)).is_err() {
+        if finished && model.skill_profile.donor_getup && return_home && home_posture_allowed(tilt(&obs)).is_err() {
             trace.transition(json!({"type":"recovery-failed","mono":crate::telemetry::monotonic(),
                 "tiltDegrees":tilt(&obs),"progressSeconds":model.progress,"destination":"disabled"}));
             pause_drive(shared);
@@ -1442,7 +1446,16 @@ fn native_policy_loop(
         }
         if model.skill_profile.flamingo && model.kind=="flamingo_lower" && model.progress>=6. && !finished {bail!("火烈鸟落脚6秒内未确认稳定双脚姿态，停止并卸力");}
         if model.skill_profile.dance && tilt(&obs)>=45. && !read_shared().autonomy.recovering() {bail!("舞蹈倾倒，停止推理并卸力");}
-        let handoff=native_handoff(&model.kind,finished,model.skill_profile.donor_getup,return_home,recovery_resume,requested);
+        if matches!(model.kind.as_str(),"xgoduck_getup"|"sitstand_stand") && model.progress>=10. && !walk_gate.ready() {bail!("起身10秒内未确认站稳，停止并卸力");}
+        let roll_handoff=model.skill_profile.official_roll && finished && requested.is_none();
+        let handoff=if roll_handoff {NativeHandoff::Skill("xgoduck_getup".into())}
+            else {native_handoff(&model.kind,finished,model.skill_profile.donor_getup,return_home,recovery_resume,requested)};
+        let wanted_walk=matches!(&handoff,NativeHandoff::Skill(next) if next=="xgoduck");
+        let handoff=match handoff {
+            NativeHandoff::Skill(next)=>walk_gate.route(&model.kind,Some(next),finished)
+                .map_or(NativeHandoff::Continue,NativeHandoff::Skill),other=>other,
+        };
+        let recovery_bridge=matches!(&handoff,NativeHandoff::Skill(next) if next=="xgoduck_getup") && (finished || wanted_walk);
         if handoff==NativeHandoff::Home {
             trace.transition(json!({"type":"recovery-complete","mono":crate::telemetry::monotonic(),"destination":"HOME","tiltDegrees":tilt(&obs),"progressSeconds":model.progress}));
             pause_drive(shared);
@@ -1454,8 +1467,9 @@ fn native_policy_loop(
             return Ok(v);
         }
         if let NativeHandoff::Skill(next)=handoff {
+            let handoff_stable=walk_gate.seconds();
             let reset=if next=="xgoduck_getup" {
-                match native_recovery_transition(&model.kind,return_home,recovery_fallen || read_shared().autonomy.recovering()) {
+                match native_recovery_transition(&model.kind,return_home,recovery_bridge || roll_handoff || recovery_fallen || read_shared().autonomy.recovering()) {
                     Ok((reset,resume))=>{recovery_resume=resume;recovery_resume_progress=model.progress;reset},
                     Err(e)=>{write_shared().log("WARN","policy-switch",&e.to_string());clock.wait();continue;},
                 }
@@ -1476,6 +1490,8 @@ fn native_policy_loop(
             selected.progress=if model.skill_profile.donor_getup && next=="sitstand_sit" {recovery_resume_progress} else {0.};
             selected.upright=0.;selected.command_twist=selected.skill_profile.twist(&selected.kind,selected.progress);
             roll_exit.reset();
+            roll_getup=crate::roll_exit::RollToGetup::default();
+            walk_gate.reset();
             control::native_profiles(bus,&ORDER,feedback,(selected.gains.p,selected.gains.d))?;
             // Gain changes only: no torque toggle and no stale pre-enable observation.
             if selected.gains!=model.gains {
@@ -1483,7 +1499,7 @@ fn native_policy_loop(
                 for id in ORDER {control::validate(id,feedback.get(&id),true)?;
                     if feedback[&id]["kpRaw"]!=selected.gains.p || feedback[&id]["kdRaw"]!=selected.gains.d {bail!("技能切换增益回读不一致");}}
             }
-            trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),"from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain,"recoveryFallen":recovery_fallen,"recoveryReturnHome":return_home,"recoveryResumeSkill":recovery_resume}));
+            trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),"from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain,"walkHandoffStableSeconds":handoff_stable,"walkHandoffRevision":"shared-standing-500ms-v1","recoveryFallen":recovery_fallen,"recoveryReturnHome":return_home,"recoveryResumeSkill":recovery_resume}));
             write_shared().log("INFO","policy-switch",&format!("模型已切换：{} → {}",model.kind,selected.kind));
             if model.kind=="xgoduck_pick" || selected.kind=="xgoduck_pick" {
                 let mut state=write_shared();state.pending_mouth=None;
@@ -1515,7 +1531,14 @@ fn native_policy_loop(
         let (scale,filtered_voltage)={let mut state=write_shared();
             let scale=model.skill_profile.voltage_scale(&mut state.native_voltage,feedback,Instant::now());(scale,state.native_voltage.volts)};
         let infer_at=Instant::now();
-        let (action,ms)=model.infer(obs.clone())?;*infer_ms=ms;*last_obs=Some(obs.clone());
+        let tuck=if model.skill_profile.official_roll {roll_getup.target(model.progress)} else {None};
+        if tuck.is_some() && (model.progress-crate::roll_exit::RollToGetup::MIN_SECONDS).abs()<1e-9 {
+            trace.transition(json!({"type":"roll-tuck","mono":crate::telemetry::monotonic(),"progressSeconds":model.progress,"tiltDegrees":tilt(&obs)}));
+            write_shared().log("INFO","policy-switch","翻滚1.6秒结束，收腿躺倒后立即交给倒地起身模型");
+        }
+        let (action,ms)=if let Some(target)=tuck {(target,0.)} else {model.infer(obs.clone())?};
+        if model.skill_profile.official_roll {roll_getup.capture(model.progress,action);}
+        *infer_ms=ms;*last_obs=Some(obs.clone());
         let infer_done=Instant::now();
         let adjusted=action.map(|v|v*scale);
         let filtered=model.filter_action(&adjusted);
@@ -1571,12 +1594,14 @@ fn native_policy_loop(
         if model.skill_profile.donor_roll {
             v["rollExitRevision"]=json!("rotation-stable-bounded-v1");v["rollRotationDegrees"]=json!(roll_exit.rotation_degrees);
             v["rollTimeoutSeconds"]=json!(model.skill_profile.roll_timeout());
+            if model.skill_profile.official_roll {v["rollExitRevision"]=json!("roll1p6s-tuck-getup-stable-v2");v["rollPhase"]=json!(if model.progress>=crate::roll_exit::RollToGetup::MIN_SECONDS {"tucking"} else {"rolling"});}
         }
         v["uprightStableSeconds"]=json!(model.upright);
+        v["walkHandoffStableSeconds"]=json!(walk_gate.seconds());v["walkHandoffReady"]=json!(walk_gate.ready());v["walkHandoffRevision"]=json!("shared-standing-500ms-v1");
         if model.skill_profile.rear_hook {v["commandTargetHz"]=json!(50);v["modelSource"]=json!(format!("microduck-rl/rear-hook/{}",model.sha));}
         if let Some((_,_,clearance,rear,_))=rear_pose {v["rearHook"]=model.rear_clock.status();v["flamingoSupportSide"]=json!("left");v["rearHook"]["estimatedSoleClearanceM"]=json!(clearance);v["rearHook"]["estimatedRearM"]=json!(rear);}
         if model.skill_profile.flamingo {v["flamingoFlag"]=json!(model.command_twist[0]);v["flamingoSupportSide"]=json!("right");}
-        v["message"]=json!(if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup {"kissqy倒地起身，同步50Hz，6秒窗口"} else {"起身中，等待连续稳定站立1秒"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
+        v["message"]=json!(if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
         let status_done=Instant::now();
         {
             let mut c=costs.lock().unwrap();
@@ -1816,6 +1841,7 @@ pub fn execute(
         let mut paused: Option<Instant> = None;
         let mut imu_pause=ImuPause::default();
         let mut fall_guard=FallGuard::default();
+        let mut walk_gate=crate::walk_handoff::Gate::default();
         let mut last_status = Instant::now() - Duration::from_secs(1);
         // Bounded timestamp ring keeps long running policies at constant memory.
         while !cancel.load(Ordering::Acquire) && !halt.load(Ordering::Acquire) {
@@ -1960,6 +1986,7 @@ pub fn execute(
             }
             control::publish(shared, &fresh, &IDS, bus.diagnostics.clone());
             if obs.is_none() {
+                walk_gate.reset();
                 model.upright=0.;
                 if imu_pause.since.is_some(){pause_drive(shared);model.command_twist=[0.;3];}
                 if paused.is_none() {
@@ -1977,6 +2004,7 @@ pub fn execute(
                 v["imuHoldAgeMs"]=json!(imu_pause.last_age_ms);
                 v["imuFreshLimitMs"]=json!(IMU_FRESH_MS);v["imuStopAgeMs"]=json!(IMU_STOP_MS);
                 v["feedbackHolding"] = json!(true);
+                v["walkHandoffStableSeconds"]=json!(walk_gate.seconds());v["walkHandoffReady"]=json!(walk_gate.ready());v["walkHandoffRevision"]=json!("shared-standing-500ms-v1");
                 v["consecutiveFeedbackFailures"] = json!(coast.misses);
                 v["skippedControlTicks"] = json!(clock.skipped);
                 v["message"] = json!(if imu_pause.since.is_some(){"IMU 暂时过期，暂停推理并保持姿态；行走归零，等待新鲜数据"}else{"反馈持续缺失，策略暂停，保持最后测得姿态；等待完整反馈恢复"});
@@ -1998,9 +2026,13 @@ pub fn execute(
                     if pending.is_some() {state.control["activeSkill"]=json!("transitioning");}
                     pending
                 } else {None};
-                let next = requested.or_else(||model.skill_profile.complete(&model.kind,model.progress,model.upright)
-                    .then(||if model.kind!="sitstand_stand" && tilt(&obs)>55. {"xgoduck_getup".to_owned()} else {"xgoduck".to_owned()}));
+                walk_gate.observe(&obs,Instant::now());
+                let finished=matches!(model.kind.as_str(),"xgoduck_getup"|"sitstand_stand")
+                    || model.skill_profile.complete(&model.kind,model.progress,model.upright);
+                if matches!(model.kind.as_str(),"xgoduck_getup"|"sitstand_stand") && model.progress>=10. && !walk_gate.ready() {bail!("起身10秒内未确认站稳，停止并卸力");}
+                let next=walk_gate.route(&model.kind,requested.or_else(||finished.then(||"xgoduck".into())),finished);
                 if let Some(next) = next.filter(|next|next!=&model.kind) {
+                    let handoff_stable=walk_gate.seconds();
                     if next!="xgoduck_getup" && tilt(&obs)>55. { bail!("当前姿态不支持拾取/翻滚或返回平衡"); }
                     shared.write().unwrap().mouth_degrees=0.;
                     if crate::model_registry::execution_kind(&next)?=="xgoduck_pick" && !mouth_owned {
@@ -2027,9 +2059,10 @@ pub fn execute(
                     selected.target_initialized=retain_actions && model.target_initialized;
                     selected.last_action=if retain_actions {model.last_action} else {[0.;14]};
                     selected.filtered_action=if retain_actions {model.filtered_action} else {[0.;14]};
+                    walk_gate.reset();
                     selected.progress=0.;selected.upright=0.;selected.command_twist=selected.skill_profile.twist(&selected.kind,0.);
                     policy_trace.transition(json!({"type":"transition","mono":crate::telemetry::monotonic(),
-                        "from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain_actions,
+                        "from":model.kind,"to":selected.kind,"policySha256":selected.sha,"retainedActions":retain_actions,"walkHandoffStableSeconds":handoff_stable,"walkHandoffRevision":"shared-standing-500ms-v1",
                         "initialRawActionRadians":selected.last_action,"initialFilteredActionRadians":selected.filtered_action}));
                     generation+=1;worker.clear();drop(worker);
                     let old=std::mem::replace(&mut model,selected);bank.insert(old.key.clone(),old);
@@ -2073,9 +2106,10 @@ pub fn execute(
                 v["action"] = json!("policy");
                 v["policyPhase"] = json!(if coast.misses > 0 { "coasting" } else { "running" });
                 v["feedbackHolding"] = json!(false);
+                v["walkHandoffStableSeconds"]=json!(walk_gate.seconds());v["walkHandoffReady"]=json!(walk_gate.ready());v["walkHandoffRevision"]=json!("shared-standing-500ms-v1");
                 v["consecutiveFeedbackFailures"] = json!(coast.misses);
                 v["skippedControlTicks"] = json!(clock.skipped);
-                v["message"] = json!(if model.kind=="sitstand_sit" {"坐下模型维持坐姿，点站起恢复行走"} else if model.kind=="sitstand_stand" {"站起模型过渡中"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup {"kissqy倒地起身，6有效秒后尝试返回平衡"}else{"倒地起身中，直立稳定后返回零速度平衡"}} else if model.kind=="dance10" {"十拍鸭子舞，8秒后返回平衡"} else if model.kind=="kick_left" {"左脚踢球中"} else if model.kind=="kick_right" {"右脚踢球中"} else if model.kind=="xgoduck_pick" {"XgoDuck 拾取中"} else if model.kind=="xgoduck_roulade" {"XgoDuck 翻滚中"} else if is_xgoduck(kind) { if model.command_twist==[0.;3] {"XgoDuck 原地平衡，按住方向键行走"} else {"XgoDuck 按住行走中"} } else { "模型控制中" });
+                v["message"] = json!(if model.kind=="sitstand_sit" {"坐下模型维持坐姿，点站起恢复行走"} else if model.kind=="sitstand_stand" {"站起模型过渡中"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup {"kissqy倒地起身，6有效秒后尝试返回平衡"}else{"倒地起身中，站稳0.5秒后返回行走"}} else if model.kind=="dance10" {"十拍鸭子舞，收尾站稳后返回行走"} else if model.kind=="kick_left" {"左脚踢球中"} else if model.kind=="kick_right" {"右脚踢球中"} else if model.kind=="xgoduck_pick" {"XgoDuck 拾取中"} else if model.kind=="xgoduck_roulade" {"XgoDuck 翻滚中"} else if is_xgoduck(kind) { if model.command_twist==[0.;3] {"XgoDuck 原地平衡，按住方向键行走"} else {"XgoDuck 按住行走中"} } else { "模型控制中" });
                 control::status(shared, v);
                 last_status = tick;
             }
