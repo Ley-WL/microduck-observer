@@ -393,7 +393,7 @@ impl Motion {
                 "mouth_close",
                 "quack", "demo", "autonomy"
             ]
-            .contains(&action),
+            .contains(&action) || crate::model_registry::is_custom(action),
             "不支持的指令"
         );
         let mut vals = [0.; 3];
@@ -469,7 +469,7 @@ impl Motion {
                 else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"],"voice":body["voice"]}))).await?;}
                 self.error.clear();
             },
-            "flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
+            value if matches!(value,"flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close") || crate::model_registry::is_custom(value)=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;
                     self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;

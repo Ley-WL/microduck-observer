@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-21",
+  "ip": "192.168.137.67",
+  "hostname": "microduck-e6fc56",
+  "userReport": "金鸡独立突然软了；没有手动重启，是设备自行重启",
+  "release": "runtime-20261021-flamingo-right-3000",
+  "modelSha256": "e01fa49f018b6ead35760b39df67102328cba439cfb985c1daf2ee9f213785f2",
+  "serviceStartCst": "2026-10-21 16:04:04",
+  "kernelBootCst": "2026-10-21 16:04:00",
+  "serviceActive": true,
+  "serviceNRestartsThisBoot": 0,
+  "currentServos": {
+    "online": 15,
+    "torque": 0,
+    "fault": 0,
+    "voltageRange": [
+      7.8,
+      8.0
+    ]
+  },
+  "latestPolicyFailureDate": "2026-10-19",
+  "latestPolicySessionDate": "2026-10-19",
+  "currentPstoreEmpty": true,
+  "archivedPstoreDate": "2026-10-19",
+  "systemdRuntimeWatchdogUSec": 0,
+  "watchdogSysfsStatusUnavailable": true,
+  "stateDirectoryWritable": true,
+  "filesystemCommitSeconds": 120,
+  "diagnosticWriterFsync": false,
+  "cause": "Unconfirmed; power transient is leading hypothesis for whole-board reboot under motion; no preserved crash or voltage transient evidence",
+  "hardwareMotionAdded": false,
+  "changedDeviceSettings": false
+}

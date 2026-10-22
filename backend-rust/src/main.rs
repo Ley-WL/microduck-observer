@@ -5,6 +5,7 @@ mod dance;
 mod camera;
 mod head_control;
 mod gamepad;
+mod pad_bindings;
 mod gamepad_bluetooth;
 mod calibration;
 mod control;
@@ -16,6 +17,7 @@ mod gains;
 mod imu;
 mod orientation;
 mod policy;
+mod model_registry;
 mod observer_ota;
 mod roll_exit;
 mod rear_hook;
@@ -371,6 +373,36 @@ async fn policy_info(State(a): State<App>) -> Json<Value> {
         json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance","flamingo"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
+async fn pad_bindings_info()->Json<Value>{Json(pad_bindings::info())}
+async fn pad_bindings_update(State(a):State<App>,headers:HeaderMap,body:Bytes)->Response {
+    let body=match check_write(&headers,&body,4096){Ok(v)=>v,Err(r)=>return r};
+    let permit=match a.gate.clone().try_acquire_owned(){Ok(p)=>p,Err(_)=>return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务")};
+    if !model_registry::idle(a.telemetry.read().unwrap().control["state"].as_str().unwrap_or("")){return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务");}
+    match tokio::task::spawn_blocking(move||{let _permit=permit;pad_bindings::update(&body)}).await {
+        Ok(Ok(v))=>Json(v).into_response(),Ok(Err(e))=>error(StatusCode::CONFLICT,&format!("手柄配置未更改：{e:#}")),
+        Err(e)=>error(StatusCode::INTERNAL_SERVER_ERROR,&format!("手柄配置保存失败：{e}")),
+    }
+}
+async fn model_registry_info() -> Response {
+    match tokio::task::spawn_blocking(model_registry::snapshot).await {
+        Ok(value)=>Json(value).into_response(),
+        Err(e)=>error(StatusCode::INTERNAL_SERVER_ERROR,&format!("读取模型列表失败：{e}")),
+    }
+}
+async fn model_registry_action(State(a): State<App>, Path(action): Path<String>, headers: HeaderMap, body: Bytes) -> Response {
+    if !matches!(action.as_str(),"select"|"rollback"|"import") {return error(StatusCode::NOT_FOUND,"未知模型管理操作");}
+    let body=match check_write(&headers,&body,model_registry::MAX_REQUEST_BYTES) {Ok(v)=>v,Err(r)=>return r};
+    let permit=match a.gate.clone().try_acquire_owned() {Ok(p)=>p,Err(_)=>return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务")};
+    if !model_registry::idle(a.telemetry.read().unwrap().control["state"].as_str().unwrap_or("")) {
+        return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务");
+    }
+    // The permit lives in the blocking task even if the HTTP client disconnects.
+    match tokio::task::spawn_blocking(move || {let _permit=permit;model_registry::update(&action,&body)}).await {
+        Ok(Ok(v))=>Json(v).into_response(),
+        Ok(Err(e))=>error(StatusCode::CONFLICT,&format!("模型配置未更改：{e:#}")),
+        Err(e)=>error(StatusCode::INTERNAL_SERVER_ERROR,&format!("模型管理任务失败：{e}")),
+    }
+}
 async fn model_gains_info() -> Json<Value> {
     let value=gains::ui_current();
     Json(json!({"supported":true,"p":value.p,"d":value.d,"appliesOn":"next-model-start","scope":"all-models","source":"model-gains.json"}))
@@ -378,6 +410,24 @@ async fn model_gains_info() -> Json<Value> {
 #[cfg(test)]
 mod gain_route_tests {
     use super::*;
+    #[tokio::test]
+    async fn registry_changes_share_motion_gate_and_reject_active_or_unknown_states() {
+        let tmp=tempfile::tempdir().unwrap();
+        let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
+        let app=App {telemetry:shared.clone(),cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false)),gamepad_debug:Arc::new(AtomicBool::new(true))};
+        let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
+        for state in ["policy","moving","preflight","disabling","calibrating",""] {
+            shared.write().unwrap().control=json!({"state":state});
+            assert_eq!(pad_bindings_update(State(app.clone()),headers.clone(),Bytes::from_static(b"{}")).await.status(),StatusCode::CONFLICT);
+            for action in ["select","rollback","import"] {
+                let result=model_registry_action(State(app.clone()),Path(action.into()),headers.clone(),Bytes::from_static(b"{}")).await;
+                assert_eq!(result.status(),StatusCode::CONFLICT);
+            }
+        }
+        shared.write().unwrap().control=json!({"state":"idle"});
+        let _permit=app.gate.clone().acquire_owned().await.unwrap();
+        assert_eq!(model_registry_action(State(app.clone()),Path("select".into()),headers,Bytes::from_static(b"{}")).await.status(),StatusCode::CONFLICT);
+    }
     #[tokio::test]
     async fn quack_route_is_registered_and_requires_real_hardware() {
         let tmp=tempfile::tempdir().unwrap();
@@ -538,7 +588,7 @@ async fn policy_action(
         return Json(state.demo.status()).into_response();
     }
     if action=="skill" {
-        let mut kind=match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())};
+        let mut kind=if body["skill"].as_str().is_some_and(model_registry::is_custom) {body["skill"].as_str().unwrap()} else {match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())}};
         if body["skill"]=="flamingo" && a.telemetry.read().unwrap().control["activeSkill"]=="flamingo_hold" {kind="flamingo_lower";}
         if policy::metadata_for(kind).is_none() {return error(StatusCode::CONFLICT,"动作模型不可用");}
         let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少动作序号");};
@@ -719,6 +769,8 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
     gains::init()?;
+    model_registry::init()?;
+    pad_bindings::init()?;
     if args.get(1).is_some_and(|s|s=="--verify-gamepad") {
         println!("{}",gamepad::verify_input()?);return Ok(());
     }
@@ -849,6 +901,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/servos/limits", get(limits))
         .route("/api/v1/logs", get(logs))
         .route("/api/v1/policy", get(policy_info))
+        .route("/api/v1/model-registry", get(model_registry_info))
+        .route("/api/v1/model-registry/{action}", post(model_registry_action).layer(DefaultBodyLimit::max(model_registry::MAX_REQUEST_BYTES)))
         .route("/api/v1/model-gains", get(model_gains_info).post(model_gains))
         .route("/api/v1/policy/{action}", post(policy_action))
         .route("/api/v1/servos/{action}", post(servo_action))
@@ -856,6 +910,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/debug/scenario", post(scenario))
         .route("/api/v1/stream", get(stream))
         .merge(gamepad::mode_router())
+        .route("/api/v1/gamepad/bindings", get(pad_bindings_info).post(pad_bindings_update))
         .merge(gamepad_bluetooth::router())
         .merge(camera::router())
         .fallback_service(ServeDir::new(static_dir).append_index_html_on_directories(true))

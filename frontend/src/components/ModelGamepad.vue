@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type {GamepadFeedback} from '../gamepadFeedback';
+import MappedPadButton from './MappedPadButton.vue';
+import { bindingLabel, type Bindings } from '../padBindings';
 import PadStick from './PadStick.vue';
 import {gamepadSpeed,wheelTwist} from '../wheelSpeed';
 import {computed,ref,watch,onUnmounted} from 'vue';
 import {longPress} from '../longPress';
 import type {Twist} from '../holdToWalk';
-const props=defineProps<{autonomyActive?:boolean;rearHook?:boolean;drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
+const props=defineProps<{bindings?:Bindings;actionLabels?:Record<string,string>;autonomyActive?:boolean;rearHook?:boolean;flamingoSide?:string;drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
 const emit=defineEmits<{action:[key:string];body:[value:Twist|null];head:[value:[number,number]|null]}>();
 const autonomyHold=longPress(()=>{if(props.allowed.autonomy)emit('action','autonomy');});
 function startAutonomy(event:PointerEvent){(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);autonomyHold.start();}
@@ -14,6 +16,10 @@ function cancelAutonomy(){autonomyHold.cancel();}
 function hiddenAutonomy(){if(document.hidden)cancelAutonomy();}
 window.addEventListener('blur',cancelAutonomy);document.addEventListener('visibilitychange',hiddenAutonomy);
 onUnmounted(()=>{autonomyHold.cancel();window.removeEventListener('blur',cancelAutonomy);document.removeEventListener('visibilitychange',hiddenAutonomy);});
+function action(key:string){return props.bindings?.[key] ?? 'none';}
+function label(key:string){return bindingLabel(props.bindings,key,props.actionLabels);}
+function title(key:string){return `${key.toUpperCase()} ${label(key)}${action(key)==='getup'?' · 长按0.56秒':''}`;}
+function enabled(key:string){return !!props.bindings && !!props.allowed[action(key)];}
 function held(key:string){return !!props.feedback?.buttons[key];}
 const turboHeld=ref(false),boosted=computed(()=>turboHeld.value);
 let lastBody:[number,number]=[0,0],bodyEngaged=false;
@@ -28,29 +34,29 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
     <svg class="pad-silhouette" viewBox="0 0 640 350" aria-hidden="true"><defs><linearGradient id="pad-shell" x2="0.3" y2="1"><stop stop-color="#515060"/><stop offset="1" stop-color="#262631"/></linearGradient></defs><path d="M144 35 Q192 16 253 41 Q320 54 387 41 Q448 16 496 35 Q548 49 570 115 L616 281 Q625 334 588 337 Q563 340 541 310 L474 290 Q320 260 166 290 L99 310 Q77 340 52 337 Q15 334 24 281 L70 115 Q92 49 144 35Z" fill="url(#pad-shell)" stroke="#656373" stroke-width="2"/><path d="M166 290 Q320 260 474 290" fill="none" stroke="#171720" stroke-width="3"/></svg>
     <button class="trigger left" :class="{physical:held('lt')||turboHeld}" aria-label="LT 按住加速，速度翻倍" @pointerdown.prevent="setTurbo(true)" @pointerup="setTurbo(false)" @pointerleave="setTurbo(false)" @pointercancel="setTurbo(false)" @lostpointercapture="setTurbo(false)" @keydown.space.prevent="setTurbo(true)" @keyup.space.prevent="setTurbo(false)" @blur="setTurbo(false)"><b>LT</b><small>加速 ×2</small></button>
     <button class="trigger right" :class="{physical:held('rt')}" :disabled="!allowed.quack" aria-label="RT 嘎一下" @click="emit('action','quack')"><b>RT</b><small>嘎一下</small></button>
-    <button class="shoulder left" :class="{physical:held('lb')}" :disabled="!allowed.demo" @click="emit('action','demo')"><b>LB</b> 演示 / 取消</button>
-    <button class="shoulder right" :class="{physical:held('rb')}" :disabled="!allowed.pick" @click="emit('action','pick')">拾取 <b>RB</b></button>
+    <MappedPadButton class="shoulder left" :class="{physical:held('lb')}" :action="action('lb')" :enabled="enabled('lb')" :reset="reset" :aria-label="title('lb')" :title="title('lb')" @action="emit('action',$event)"><b>LB</b><small>{{ label('lb') }}</small></MappedPadButton>
+    <MappedPadButton class="shoulder right" :class="{physical:held('rb')}" :action="action('rb')" :enabled="enabled('rb')" :reset="reset" :aria-label="title('rb')" :title="title('rb')" @action="emit('action',$event)"><b>RB</b><small>{{ label('rb') }}</small></MappedPadButton>
     <div class="stick-left"><PadStick :feedback="feedback ? [feedback.axes[0],feedback.axes[1]] : null" label="L · 行走 / 转向" :disabled="!drive" :reset="reset" @move="body" @release="releaseBody" /></div>
     <div class="stick-right"><PadStick :feedback="feedback ? [feedback.axes[2],feedback.axes[3]] : null" label="R · 头部" :disabled="!head" :reset="reset" @move="(x,y)=>emit('head',[-y,-x])" @release="emit('head',null)" /></div>
     <div class="pad-brand"><span :class="{online:active}"/><strong>MICRODUCK</strong><small>VIRTUAL CONTROLLER</small></div>
     <button class="menu-button back" :class="{physical:held('back')}" :disabled="!allowed.disable" aria-label="Back 急停卸力" title="Back / Select · 急停卸力" @click="emit('action','disable')">■<small>急停卸力</small></button>
     <button class="menu-button start" :class="{physical:held('start')}" disabled aria-label="Start 预留，未启用" title="Start：预留按键，暂不执行动作">▷<small>预留</small></button>
     <div class="face-buttons">
-      <button class="face y" :class="{physical:held('y')}" :disabled="!allowed.getup" aria-label="Y 倒地起身" @click="emit('action','getup')"><b>Y</b><small>倒地<br>起身</small></button>
-      <button class="face x" :class="{physical:held('x')}" :disabled="!allowed.sit" aria-label="X 坐下" @click="emit('action','sit')"><b>X</b><small>坐下</small></button>
+      <MappedPadButton class="face y" :class="{physical:held('y')}" :action="action('y')" :enabled="enabled('y')" :reset="reset" :aria-label="title('y')" :title="title('y')" @action="emit('action',$event)"><b>Y</b><small>{{ label('y') }}</small></MappedPadButton>
+      <MappedPadButton class="face x" :class="{physical:held('x')}" :action="action('x')" :enabled="enabled('x')" :reset="reset" :aria-label="title('x')" :title="title('x')" @action="emit('action',$event)"><b>X</b><small>{{ label('x') }}</small></MappedPadButton>
       <button class="face b" :class="{physical:held('b')}" :disabled="!allowed.stop" aria-label="B 停止保持" @click="emit('action','stop')"><b>B</b><small>停止</small></button>
-      <button class="face a" :class="{physical:held('a')}" :disabled="!allowed.standup" aria-label="A 站立" @click="emit('action','standup')"><b>A</b><small>站立</small></button>
+      <MappedPadButton class="face a" :class="{physical:held('a')}" :action="action('a')" :enabled="enabled('a')" :reset="reset" :aria-label="title('a')" :title="title('a')" @action="emit('action',$event)"><b>A</b><small>{{ label('a') }}</small></MappedPadButton>
     </div>
     <div class="dpad" aria-label="策略动作">
-      <button :class="{physical:held('up')}" :disabled="!allowed.dance" @click="emit('action','dance')" title="十拍鸭子舞：8秒后返回平衡" aria-label="十字键上 舞蹈">♫<small>舞蹈</small></button>
-      <button :class="{physical:held('left')}" :disabled="!allowed.flamingo" @click="emit('action','flamingo')" :title="rearHook?'金鸡独立：右脚后抬，到位保持3秒后自动回正；再按提前返回':'火烈鸟：按一次抬左脚保持，再按落脚'" :aria-label="rearHook?'十字键左 金鸡独立':'十字键左 火烈鸟'"><small>{{rearHook?'金鸡独立':'火烈鸟'}}<br>{{rearHook?'后抬3秒':'抬脚/落脚'}}</small></button>
+      <MappedPadButton :class="{physical:held('up')}" :action="action('up')" :enabled="enabled('up')" :reset="reset" :aria-label="title('up')" :title="title('up')" @action="emit('action',$event)">↑<small>{{ label('up') }}</small></MappedPadButton>
+      <MappedPadButton :class="{physical:held('left')}" :action="action('left')" :enabled="enabled('left')" :reset="reset" :aria-label="title('left')" :title="title('left')" @action="emit('action',$event)">←<small>{{ label('left') }}</small></MappedPadButton>
       <span/>
-      <button :class="{physical:held('right')}" :disabled="!allowed.kick_right" @click="emit('action','kick_right')" title="右脚踢球" aria-label="十字键右 右脚踢球"><small>右脚<br>踢球</small></button>
+      <MappedPadButton :class="{physical:held('right')}" :action="action('right')" :enabled="enabled('right')" :reset="reset" :aria-label="title('right')" :title="title('right')" @action="emit('action',$event)">→<small>{{ label('right') }}</small></MappedPadButton>
       <button :class="{physical:held('down')}" :disabled="!allowed.autonomy" title="长按1.5秒开启或关闭自主；第一版原地待命" aria-label="十字键下 长按1.5秒切换自主行动" @pointerdown.prevent="startAutonomy" @pointerup="cancelAutonomy" @pointercancel="cancelAutonomy" @lostpointercapture="cancelAutonomy" @keydown.space.prevent="autonomyHold.start()" @keyup.space.prevent="cancelAutonomy" @keydown.enter.prevent="autonomyHold.start()" @keyup.enter.prevent="cancelAutonomy" @blur="cancelAutonomy"><small>{{ autonomyActive?'关闭自主':'自主行动' }}<br>长按1.5秒</small></button>
     </div>
     <span class="grip left-grip">按住拖动</span><span class="grip right-grip">松开回中</span>
   </div>
-  <div class="pad-footer"><span><i/> 舞蹈 / 火烈鸟 / 右脚踢球已接入 · 长按自主键1.5秒切换</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
+  <div class="pad-footer"><span><i/> 按键动作见标签，可在「手柄设置」修改 · 起身需长按</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
 </div>
 </template>
 <style scoped>

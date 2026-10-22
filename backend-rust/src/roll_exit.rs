@@ -41,6 +41,16 @@ mod tests {
     use super::*;
     fn obs(degrees:f64,gyro:f32)->Vec<f32>{let mut o=vec![0.;61];o[1]=gyro;o[3]=degrees.to_radians().sin() as f32;o[5]=-degrees.to_radians().cos() as f32;o}
     fn turn(r:&mut RollExit){for n in 0..=72 {r.sample(&obs(n as f64*5.,1.));}}
+    #[test] fn recorded_landing_exits_before_five_second_timeout() {
+        let frames:Vec<Vec<f64>>=serde_json::from_str(include_str!("../tests/fixtures/roll-landing-23.json")).unwrap();
+        let mut guard=RollExit::default();let mut first=None;
+        for frame in frames {
+            let observation:Vec<f32>=frame[1..].iter().map(|v|*v as f32).collect();
+            guard.sample(&observation);
+            if guard.complete(frame[0]) {first=Some(frame[0]);break;}
+        }
+        assert!((first.expect("recorded landing must complete")-3.74).abs()<0.001);
+    }
     #[test] fn mid_roll_and_simple_recovery_do_not_complete(){
         let mut r=RollExit::default();for n in 0..=18 {r.sample(&obs(n as f64*5.,1.));}assert!(!r.complete(1.));
         for n in (0..18).rev(){r.sample(&obs(n as f64*5.,1.));}for _ in 0..30{r.sample(&obs(0.,0.));}assert!(!r.complete(1.8));

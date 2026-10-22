@@ -4,6 +4,8 @@ import { useTelemetry } from "./store";
 import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
+import PadSettings from "./components/PadSettings.vue";
+import ModelRegistry from "./components/ModelRegistry.vue";
 import SensorWorkbench from "./components/SensorWorkbench.vue";
 import PowerControls from "./components/PowerControls.vue";
 import BoardResources from "./components/BoardResources.vue";
@@ -133,12 +135,12 @@ onMounted(() => state.connect());
       </div>
       <nav>
         <button
-          v-for="(label, i) in ['总览', '姿态与 IMU', '联合观测', '日志']"
+          v-for="(label, i) in ['总览', '姿态与 IMU', '联合观测', '模型管理', '手柄设置', '日志']"
           :key="label" :title="label"
           :class="{ active: page === label }"
           @click="page = label"
         >
-          <span class="nav-symbol">{{ ["◫", "⌁", "⊞", "≡"][i] }}</span
+          <span class="nav-symbol">{{ ["◫", "⌁", "⊞", "◇", "⌘", "≡"][i] }}</span
           >{{ label }}
         </button>
       </nav>
@@ -188,6 +190,8 @@ onMounted(() => state.connect());
           @pause="pause"
         />
         <SensorWorkbench v-else-if="page === '联合观测'" :quaternion="quaternion" :angles="angles" :calibrated="Boolean(initialOrientation)" @navigate="page = $event" />
+        <PadSettings v-else-if="page === '手柄设置'" />
+        <ModelRegistry v-else-if="page === '模型管理'" :endpoint="state.endpoint" :online="state.connection === '在线'" :control-state="state.system?.data?.servoControl?.state || (state.info?.source === 'simulation' ? 'idle' : undefined)" />
         <template v-else>
           <div class="page-heading">
             <div>

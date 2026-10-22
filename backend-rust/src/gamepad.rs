@@ -125,8 +125,16 @@ struct Sample {
     dpad: [bool; 4],
 }
 impl Sample {
+    fn button(&self, name: &str) -> bool {
+        match name {"a"=>self.down(A),"x"=>self.down(X),"y"=>self.down(Y),"lb"=>self.down(LB),"rb"=>self.down(RB),"up"=>self.dpad[0],"left"=>self.dpad[1],"right"=>self.dpad[2],_=>false}
+    }
     fn down(&self, code: usize) -> bool {
         self.keys[BUTTONS.iter().position(|v| *v == code).unwrap()]
+    }
+    fn meaningful(&self, bindings:&crate::pad_bindings::Config, include_autonomy:bool)->bool {
+        !self.centered() || [B,LT,RT,BACK,START].into_iter().any(|key|self.down(key))
+            || (include_autonomy && self.dpad[3])
+            || crate::pad_bindings::BUTTONS.into_iter().any(|key|bindings.action(key)!="none" && self.button(key))
     }
     fn centered(&self) -> bool {
         self.axes.iter().all(|v| *v == 0.)
@@ -269,6 +277,8 @@ impl QuackGesture {
 }
 #[derive(Default)]
 struct Input {
+    binding_revision: Option<u64>,
+    getup_key: Option<&'static str>,
     quack:QuackGesture,
     autonomy_since:Option<std::time::Instant>,
     autonomy_fired:bool,
@@ -281,10 +291,18 @@ struct Input {
     y_hold_triggered: bool,
 }
 impl Input {
+    #[cfg(test)]
     fn update(&mut self, sample: &Sample, ready: bool, diagnostic_only: bool) -> Option<&'static str> {
         self.update_at(sample, ready, diagnostic_only, std::time::Instant::now())
     }
+    #[cfg(test)]
     fn update_at(&mut self, sample: &Sample, ready: bool, diagnostic_only: bool, now: std::time::Instant) -> Option<&'static str> {
+        static DEFAULT:std::sync::OnceLock<crate::pad_bindings::Config>=std::sync::OnceLock::new();
+        self.update_mapped(sample,ready,diagnostic_only,now,DEFAULT.get_or_init(crate::pad_bindings::Config::default))
+    }
+    fn update_mapped<'a>(&mut self, sample:&Sample, ready:bool, diagnostic_only:bool, now:std::time::Instant, bindings:&'a crate::pad_bindings::Config)->Option<&'a str> {
+        if self.binding_revision.is_some_and(|revision|revision!=bindings.revision) {*self=Self::default();}
+        self.binding_revision=Some(bindings.revision);
         if diagnostic_only {
             self.autonomy_since=None;self.autonomy_fired=false;
             self.quack=QuackGesture::default();
@@ -312,7 +330,9 @@ impl Input {
         let long_autonomy=!self.autonomy_fired && self.autonomy_since.is_some_and(|at|now.duration_since(at)>=Duration::from_millis(1500));
         if long_autonomy {self.autonomy_fired=true;}
         let edge = |key| sample.down(key) && !self.previous.down(key);
-        if sample.down(Y) && sample.centered() {
+        let getup_key=crate::pad_bindings::BUTTONS.into_iter().find(|key|bindings.action(key)=="getup" && sample.button(key));
+        if getup_key!=self.getup_key {self.y_hold_ticks=0;self.y_hold_triggered=false;self.getup_key=getup_key;}
+        if getup_key.is_some() && sample.centered() {
             self.y_hold_ticks = self.y_hold_ticks.saturating_add(1);
         } else {
             self.y_hold_ticks = 0;
@@ -324,42 +344,27 @@ impl Input {
         }
         let quack_action=if self.neutral_seen {self.quack.update(sample.down(RT),now)} else {None};
         if edge(BACK)||edge(B)||long_y||long_start {self.quack=QuackGesture::default();}
-        let action = if edge(BACK) {
-            Some("estop")
-        } else if edge(B) {
-            Some("release")
-        } else if !self.neutral_seen {
-            None
-        } else if long_start {
-            Some("poweroff")
-        } else if long_autonomy {
-            Some("autonomy")
-        } else if long_y {
-            Some("getup")
-        } else if sample.centered() && edge(A) {
-            Some("stand")
-        } else if edge(X) {
-            Some("sit")
-        } else if ready && sample.centered() && edge(LB)
-            && sample.keys.iter().zip(BUTTONS).all(|(down,key)|key==LB || !down)
-            && !sample.dpad.iter().any(|down|*down) {
-            Some("demo")
-        } else if quack_action.is_some() {
-            quack_action
-        } else if ready && sample.centered() && sample.dpad[0] && !self.previous.dpad[0] {
-            Some("dance")
-        } else if ready && sample.centered() && sample.dpad[1] && !self.previous.dpad[1] {
-            Some("flamingo")
-        } else if ready && sample.centered() && sample.dpad[2] && !self.previous.dpad[2] {
-            Some("kick_right")
-        } else if ready && sample.centered() && edge(RB)
-            && sample.keys.iter().zip(BUTTONS).all(|(down, key)| key == RB || !down)
-            && !sample.dpad.iter().any(|down| *down)
-        {
-            Some("pick")
-        } else {
-            None
-        };
+        let custom=crate::pad_bindings::BUTTONS.into_iter().find_map(|key| {
+            if !sample.button(key) || self.previous.button(key) {return None;}
+            let action=bindings.action(key);
+            let alone=sample.keys.iter().filter(|v|**v).count()+sample.dpad.iter().filter(|v|**v).count()==1;
+            match action {
+                "standup" if sample.centered()=>Some("stand"),
+                "sit"=>Some("sit"),
+                "quack"=>Some("quack"),
+                "demo"|"pick" if ready && sample.centered() && alone=>Some(action),
+                "dance"|"flamingo"|"kick_left"|"kick_right"|"roulade" if ready && sample.centered()=>Some(action),
+                value if value.starts_with("custom-") && ready && sample.centered() && alone=>Some(value),
+                _=>None,
+            }
+        });
+        let action = if edge(BACK) {Some("estop")}
+            else if edge(B) {Some("release")}
+            else if !self.neutral_seen {None}
+            else if long_start {Some("poweroff")}
+            else if long_autonomy {Some("autonomy")}
+            else if long_y {Some("getup")}
+            else {custom.or(quack_action)};
         if sample.neutral() {
             self.neutral_seen = true;
         }
@@ -504,7 +509,7 @@ pub fn spawn(app: App, router: Router) {
                 report(&app, if debug.load(Ordering::Acquire) {
                     "手柄只读诊断已连接；网页显示按键和摇杆输入，实体动作已屏蔽"
                 } else {
-                    "手柄已连接；长按 Y 起身，起身就绪后回中即可直接用摇杆控制"
+                    "手柄已连接；按配置的站立/起身键启动，起身就绪后回中即可直接用摇杆控制"
                 });
                 let mut input = Input::default();
                 let mut clock = tokio::time::interval(Duration::from_millis(40));
@@ -524,6 +529,10 @@ pub fn spawn(app: App, router: Router) {
                     last_tick = std::time::Instant::now();
                     let (sampled_at, sample) = samples.borrow().clone().map_err(anyhow::Error::msg)?;
                     ensure!(sampled_at.elapsed() < Duration::from_millis(250), "gamepad sample expired");
+                    let bindings=crate::pad_bindings::snapshot();
+                    if input.binding_revision!=Some(bindings.revision) {
+                        motion.close().await;input=Input::default();input.binding_revision=Some(bindings.revision);
+                    }
                     let diagnostic_only = debug.load(Ordering::Acquire);
                     if diagnostic_only && motion.leased {
                         motion.close().await;
@@ -532,18 +541,18 @@ pub fn spawn(app: App, router: Router) {
                     }
                     // Require a fresh deliberate input after neutral; merely connecting
                     // or holding a key through reconnect must not steal control.
-                    if !diagnostic_only && input.neutral_seen && !sample.neutral() {
+                    if !diagnostic_only && input.neutral_seen && sample.meaningful(&bindings,true) {
                         if motion.take_over_policy() {input.drive_armed=true;}
                     }
                     if !diagnostic_only {
-                        let manual=!sample.centered() || sample.keys.iter().any(|v|*v) || sample.dpad[..3].iter().any(|v|*v);
+                        let manual=sample.meaningful(&bindings,false);
                         motion.autonomous_input(manual);
                     }
                     let status=motion.status();
                     let demo_active=status["demoActive"]==true;
                     if demo_active && !sample.centered() {motion.cancel_demo();input.drive_armed=true;}
                     let ready = motion.leased && (demo_active || status["headReady"] == true || status["flamingoReady"] == true);
-                    if let Some(gesture) = input.update(&sample, ready, diagnostic_only) {
+                    if let Some(gesture) = input.update_mapped(&sample, ready, diagnostic_only, std::time::Instant::now(), &bindings) {
                         let voice=match gesture {"quack_double"=>"double","quack_long"=>"long",_=>"single"};
                         let action=if gesture.starts_with("quack") {"quack"} else {gesture};
                         if action == "estop" {
@@ -568,7 +577,7 @@ pub fn spawn(app: App, router: Router) {
                             if !motion.leased {
                                 if !matches!(action, "stand" | "getup" | "quack") {
                                     if action=="autonomy" {crate::quack::announce("auto_reject");}
-                                    report(&app, "手柄尚未取得模型控制权，请先回中并长按Y起身；若由网页/App启动，请先在原端停止保持");
+                                    report(&app, "手柄尚未取得模型控制权，请先回中并使用配置的站立/起身键；若由网页/App启动，请先在原端停止保持");
                                     continue;
                                 }
                                 if let Err(e) = motion.open() {
@@ -615,6 +624,57 @@ pub fn spawn(app: App, router: Router) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test] fn custom_mapping_uses_new_actions_once_and_preserves_fixed_controls(){
+        let mut config=crate::pad_bindings::Config::default();config.bindings.insert("x".into(),"kick_left".into());
+        let mut input=Input::default();let now=std::time::Instant::now();
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),false,false,now,&config),None);
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),Some("kick_left"));
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),None);
+        assert_eq!(input.update_mapped(&sample(&[X,BACK],[0.;4]),true,false,now,&config),Some("estop"));
+        assert_eq!(input.update_mapped(&sample(&[B],[0.;4]),false,false,now,&config),Some("release"));
+        config.bindings.insert("x".into(),"none".into());config.revision+=1;
+        assert!(!sample(&[X],[0.;4]).meaningful(&config,true));
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),None);
+    }
+    #[test] fn registered_action_binding_requires_ready_center_and_respects_estop() {
+        let mut config=crate::pad_bindings::Config::default();config.bindings.insert("x".into(),"custom-wave".into());
+        let mut input=Input::default();let now=std::time::Instant::now();
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),false,false,now,&config),None);
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),Some("custom-wave"));
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),None);
+        assert_eq!(input.update_mapped(&sample(&[X,BACK],[0.;4]),true,false,now,&config),Some("estop"));
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.8,0.,0.,0.]),true,false,now,&config),None);
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,true,now,&config),None);
+    }
+    #[test] fn changing_bindings_while_held_requires_release_and_diagnostic_blocks_actions(){
+        let mut config=crate::pad_bindings::Config::default();let mut input=Input::default();let now=std::time::Instant::now();
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),Some("sit"));
+        config.bindings.insert("x".into(),"dance".into());config.revision+=1;
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),None);
+        assert!(!input.drive_armed);
+        input.update_mapped(&Sample::default(),true,false,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),Some("dance"));
+        input.update_mapped(&Sample::default(),true,true,now,&config);
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,true,now,&config),None);
+    }
+    #[test] fn remapped_getup_still_requires_hold_and_fires_only_once(){
+        let mut config=crate::pad_bindings::Config::default();config.bindings.insert("rb".into(),"getup".into());
+        let mut input=Input::default();let now=std::time::Instant::now();
+        input.update_mapped(&Sample::default(),false,false,now,&config);
+        for _ in 0..13{assert_eq!(input.update_mapped(&sample(&[RB],[0.;4]),false,false,now,&config),None);}
+        assert_eq!(input.update_mapped(&sample(&[RB],[0.;4]),false,false,now,&config),Some("getup"));
+        for _ in 0..20{assert_eq!(input.update_mapped(&sample(&[RB],[0.;4]),false,false,now,&config),None);}
+        input.update_mapped(&Sample::default(),false,false,now,&config);
+        for _ in 0..20{assert_eq!(input.update_mapped(&sample(&[RB],[1.;4]),false,false,now,&config),None);}
+    }
     #[test]
     fn poweroff_requires_explicit_complete_unload_confirmation() {
         assert!(unload_confirmed(&json!({"state":"disabled","unconfirmedIds":[]})));
@@ -909,7 +969,7 @@ mod tests {
         input.update(&Sample::default(), true, false);
         let mut right = Sample::default();
         right.dpad[2] = true;
-        assert_eq!(input.update(&right, true, false), Some("kick_right"));
+        assert_eq!(input.update(&right, true, false), Some("roulade"));
         input.update(&Sample::default(), true, false);
         let mut up=Sample::default();up.dpad[0]=true;
         assert_eq!(input.update(&up,true,false),Some("dance"));
