@@ -1,0 +1,7 @@
+[Unit]
+Description=Recover Observer bundle before startup
+Before=microduck-observer.service
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/microduck-observer-ota-helper bundle-recover-boot
+RemainAfterExit=yes

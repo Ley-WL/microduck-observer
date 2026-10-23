@@ -19,6 +19,7 @@ mod orientation;
 mod policy;
 mod model_registry;
 mod observer_ota;
+mod web_update;
 mod roll_exit;
 mod rear_hook;
 mod walk_profile;
@@ -714,6 +715,9 @@ async fn shutdown_signal(a: App) {
     tof::shutdown().await;
 }
 async fn api_errors(request: axum::extract::Request, next: axum::middleware::Next) -> Response {
+    if request.method()!=Method::GET && observer_ota::busy(&observer_ota::status()) && request.uri().path()!="/api/v1/servos/disable" {
+        return error(StatusCode::CONFLICT,"服务正在更新，请等待完成；急停卸力仍可用");
+    }
     let api = request.uri().path().starts_with("/api/");
     let response = next.run(request).await;
     if api && response.status() == StatusCode::NOT_FOUND {
@@ -911,6 +915,7 @@ async fn main() -> anyhow::Result<()> {
         .merge(gamepad_bluetooth::router())
         .merge(camera::router())
         .merge(tof::router())
+        .merge(web_update::router())
         .fallback_service(ServeDir::new(static_dir).append_index_html_on_directories(true))
         .layer(DefaultBodyLimit::max(16384))
         .layer(cors)

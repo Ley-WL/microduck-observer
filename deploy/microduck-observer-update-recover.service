@@ -1,0 +1,5 @@
+[Unit]
+Description=Recover interrupted Observer bundle update
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/microduck-observer-ota-helper bundle-recover

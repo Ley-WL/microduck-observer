@@ -6,4 +6,5 @@ StandardInput=socket
 StandardOutput=socket
 StandardError=journal
 TimeoutStartSec=12
+RuntimeMaxSec=80
 NoNewPrivileges=yes

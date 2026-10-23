@@ -246,7 +246,7 @@ mod kick_tests {
         let roll:Value=serde_json::from_str(include_str!("../../models/xgoduck_roulade.metadata.json")).unwrap();
         for (kind,m) in [("sitstand_sit",&sit),("sitstand_stand",&sit),("xgoduck_roulade",&roll)] {validate_skill_metadata(kind,m).unwrap();let p=SkillProfile::from_metadata(m);assert!(p.donor());assert!(!p.voltage_adapt());}
         let p=SkillProfile::from_metadata(&sit);assert!(!p.complete("sitstand_stand",1.,0.48));assert!(p.complete("sitstand_stand",1.,0.5));assert!(!p.complete("sitstand_sit",100.,1.));
-        let p=SkillProfile::from_metadata(&roll);assert_eq!(p.roll_timeout(),4.);assert_eq!(p.twist("xgoduck_roulade",3.),[0.;3]);
+        let p=SkillProfile::from_metadata(&roll);assert_eq!(p.roll_timeout(),2.);assert_eq!(p.twist("xgoduck_roulade",3.),[0.;3]);
         let exit=crate::roll_exit::RollExit::default();
         assert!(!p.roll_complete(1.48,&exit));assert!(!p.roll_complete(2.,&exit));assert!(!p.roll_complete(4.,&exit));
         assert!(!p.complete("xgoduck_roulade",4.,0.));
@@ -1303,6 +1303,7 @@ fn native_policy_loop(
     let mut recovery_posture=NativeRecoveryPosture::default();
     let mut roll_exit=crate::roll_exit::RollExit::default();
     let mut roll_getup=crate::roll_exit::RollToGetup::default();
+    let mut roll_head_bridge:Option<[f32;3]>=None;
     let mut walk_gate=crate::walk_handoff::Gate::default();
     let mut clock=control::FrameClock::new(Instant::now());
     let mut coast=control::FeedbackCoast::default();
@@ -1485,6 +1486,7 @@ fn native_policy_loop(
                 if model.skill_profile.rear_hook {selected.rear_clock=model.rear_clock.clone();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
                 else {selected.rear_clock=crate::rear_hook::Clock::with_profile(selected.skill_profile.transfer_settle,selected.skill_profile.pose_entry);selected.rear_clock.trigger();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
             }
+            roll_head_bridge=if roll_handoff || (roll_head_bridge.is_some() && next=="xgoduck") {Some([5,6,7].map(|i|model.sent[i].to_radians() as f32))}else{None};
             selected.previous=model.previous.take();selected.velocity=model.velocity;
             selected.filtered_gyro=model.filtered_gyro;
             selected.last_action=if retain {model.last_action}else{[0.;14]};
@@ -1534,17 +1536,20 @@ fn native_policy_loop(
             let scale=model.skill_profile.voltage_scale(&mut state.native_voltage,feedback,Instant::now());(scale,state.native_voltage.volts)};
         let infer_at=Instant::now();
         let tuck=if model.skill_profile.official_roll {roll_getup.target(model.progress)} else {None};
-        if tuck.is_some() && (model.progress-crate::roll_exit::RollToGetup::MIN_SECONDS).abs()<1e-9 {
-            trace.transition(json!({"type":"roll-tuck","mono":crate::telemetry::monotonic(),"progressSeconds":model.progress,"tiltDegrees":tilt(&obs)}));
-            write_shared().log("INFO","policy-switch","翻滚1.6秒结束，收腿躺倒后立即交给倒地起身模型");
+        if roll_getup.just_started(model.progress) {
+            trace.transition(json!({"type":"roll-extend","mono":crate::telemetry::monotonic(),"progressSeconds":model.progress,"tiltDegrees":tilt(&obs)}));
+            write_shared().log("INFO","policy-switch","检测到背朝下姿态，停止翻滚输出，0.5秒伸腿后起身（非接触检测）");
         }
         let (action,ms)=if let Some(target)=tuck {(target,0.)} else {model.infer(obs.clone())?};
-        if model.skill_profile.official_roll {roll_getup.capture(model.progress,action);}
+
         *infer_ms=ms;*last_obs=Some(obs.clone());
         let infer_done=Instant::now();
         let adjusted=action.map(|v|v*scale);
-        let filtered=model.filter_action(&adjusted);
+        let mut filtered=if tuck.is_some(){adjusted}else{model.filter_action(&adjusted)};
+        let head_caught=roll_head_bridge.map(|from|crate::roll_exit::slew_head(&mut filtered,&model.home,from));
         *goals=model.targets(filtered,feedback,cal,limits)?;
+        if let Some(caught)=head_caught {roll_head_bridge=if caught && model.kind=="xgoduck" {None}else{Some([5,6,7].map(|i|model.sent[i].to_radians() as f32))};}
+        if model.skill_profile.official_roll {roll_getup.capture(model.progress,std::array::from_fn(|i|model.sent[i].to_radians() as f32-model.home[i]));}
         let mouth_request=write_shared().pending_mouth.take();
         if let Some(degrees)=mouth_request {write_shared().mouth_degrees=degrees;}
         if model.kind=="xgoduck_pick" {write_shared().mouth_degrees=pick_mouth_target(model.progress);}
@@ -1607,7 +1612,7 @@ fn native_policy_loop(
         if model.skill_profile.donor_roll {
             v["rollExitRevision"]=json!("rotation-stable-bounded-v1");v["rollRotationDegrees"]=json!(roll_exit.rotation_degrees);
             v["rollTimeoutSeconds"]=json!(model.skill_profile.roll_timeout());
-            if model.skill_profile.official_roll {v["rollExitRevision"]=json!("roll1p6s-tuck-getup-stable-v2");v["rollPhase"]=json!(if model.progress>=crate::roll_exit::RollToGetup::MIN_SECONDS {"tucking"} else {"rolling"});}
+            if model.skill_profile.official_roll {v["rollExitRevision"]=json!("roll-back-attitude-extend500ms-head60dps-v6");v["rollPhase"]=json!(roll_getup.phase(model.progress));}
         }
         v["uprightStableSeconds"]=json!(model.upright);
         v["walkHandoffStableSeconds"]=json!(walk_gate.seconds());v["walkHandoffReady"]=json!(walk_gate.ready());v["walkHandoffRevision"]=json!("shared-standing-500ms-v1");

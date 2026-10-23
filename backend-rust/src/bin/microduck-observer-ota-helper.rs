@@ -5,6 +5,7 @@ use serde_json::{json,Value};
 use sha2::{Digest,Sha256};
 use std::{fs,path::{Path,PathBuf},process::Command,io::{Read,Write},time::Duration};
 #[path="../observer_ota.rs"] mod ota;
+#[path="../update_bundle.rs"] mod bundle;
 const ROOT:&str="/home/radxa/microduck-observer";
 const BASE:&str="http://8.133.210.70:6661/microduck/observer/";
 const WORK:&str="/var/lib/microduck-observer/ota";
@@ -67,17 +68,19 @@ fn install()->Result<Value>{
     Ok(json!({"phase":"success","version":v["version"],"release":next,"previousRelease":old,"hardwareMotion":false}))
 }
 fn request(v:&Value)->Result<Value>{
+    if v["op"].as_str().is_some_and(|s|s.starts_with("bundle-")){return bundle::request(v);}
     ensure!(v.as_object().is_some_and(|o|o.len()==1),"非法请求");
     match v["op"].as_str(){Some("check")=>{let v=manifest()?;Ok(json!({"manifest":v,"currentVersionCode":current_code(),"available":v["versionCode"].as_u64().unwrap()>current_code()}))},Some("apply")=>{
         use std::os::fd::AsRawFd;let lock=fs::OpenOptions::new().write(true).create(true).truncate(false).open(Path::new(WORK).join("request.lock"))?;ensure!(unsafe{libc::flock(lock.as_raw_fd(),libc::LOCK_EX|libc::LOCK_NB)}==0,"已有更新请求");ensure_idle()?;
-        ensure!(!matches!(ota::status()["phase"].as_str(),Some("queued"|"downloading"|"installing")),"已有更新任务");
+        ensure!(!ota::busy(&ota::status()),"已有更新任务");
         write_status(json!({"phase":"queued"}))?;
         if let Err(e)=cmd("/usr/bin/systemd-run",&["--quiet","--collect","--unit=microduck-observer-ota-job","--on-active=3s","--timer-property=AccuracySec=1s","--property=RuntimeMaxSec=300","/usr/local/lib/microduck-observer-ota-helper","install"]){write_status(json!({"phase":"failed","message":e.to_string()}))?;return Err(e);}
         Ok(json!({"accepted":true,"phase":"queued"}))},_=>bail!("非法请求")}
 }
-fn main(){let result=if std::env::args().nth(1).as_deref()==Some("install"){install()}else{let mut input=String::new();std::io::stdin().take(257).read_to_string(&mut input).and_then(|_|std::io::Result::Ok(())).map_err(anyhow::Error::from).and_then(|_|Ok(serde_json::from_str::<Value>(&input)?)).and_then(|v|request(&v))};
-    let v=match result{Ok(v)=>v,Err(e)=>json!({"phase":"failed","error":e.to_string(),"message":e.to_string()})};
-    if std::env::args().nth(1).as_deref()==Some("install"){let _=write_status(v.clone());}println!("{v}");let _=std::io::stdout().flush();}
+fn main(){let mode=std::env::args().nth(1).unwrap_or_default();let result=match mode.as_str(){"install"=>install(),"bundle-verify"=>bundle::verify_local(Path::new(&std::env::args().nth(2).unwrap_or_default()),Path::new(&std::env::args().nth(3).unwrap_or_default())),"bundle-install"=>bundle::install(&std::env::args().nth(2).unwrap_or_default()),"bundle-recover"=>bundle::recover(false),"bundle-recover-boot"=>bundle::recover(true),_=>{let mut input=String::new();std::io::stdin().take(257).read_to_string(&mut input).and_then(|_|std::io::Result::Ok(())).map_err(anyhow::Error::from).and_then(|_|Ok(serde_json::from_str::<Value>(&input)?)).and_then(|v|request(&v))}};
+    let failed=result.is_err();
+    let v=match result{Ok(v)=>v,Err(e)=>json!({"phase":if mode=="bundle-install"&&bundle::recovery_pending(){"recovering"}else{"failed"},"error":e.to_string(),"message":e.to_string()})};
+    if matches!(mode.as_str(),"install"|"bundle-install"){let _=write_status(v.clone());}println!("{v}");let _=std::io::stdout().flush();if failed&&!mode.is_empty(){std::process::exit(1);}}
 #[cfg(test)]mod tests{use super::*;#[test]fn rejects_unsigned_contract_urls_and_platforms(){let v=json!({"schema":"microduck-observer-ota/v1","architecture":"aarch64","version":"0.9.1","versionCode":1,"url":format!("{BASE}observer-1.bin"),"size":100000,"sha256":"a".repeat(64)});assert!(validate(&v).is_ok());for (key,bad) in [("url",json!("http://localhost/payload")),("architecture",json!("x86_64")),("version",json!("../bad")),("sha256",json!("a")),("size",json!(100000001))]{let mut v=v.clone();v[key]=bad;assert!(validate(&v).is_err());}}}
 
 #[cfg(test)]mod signature_tests{use super::*;

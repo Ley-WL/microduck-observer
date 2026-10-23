@@ -4,7 +4,7 @@ No robot motion, firmware, model or identity edits. Reprovision only unloaded.
 """
 import hashlib,json,subprocess,shlex,argparse
 from pathlib import Path
-parser=argparse.ArgumentParser();parser.add_argument('--host',default='radxa@8.133.210.70');parser.add_argument('--port',type=int,default=5722);parser.add_argument('--host-key-alias');parser.add_argument('--password-file',type=Path,default=Path('D:/Users/wl/Downloads/MicroDuck-Flash/board-login-20260928.txt'));args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--host',default='radxa@8.133.210.70');parser.add_argument('--port',type=int,default=5722);parser.add_argument('--host-key-alias');parser.add_argument('--password-file',type=Path,default=Path('D:/Users/wl/Downloads/MicroDuck-Flash/board-login-20260928.txt'));parser.add_argument('--package-only',action='store_true');args=parser.parse_args()
 root=Path(__file__).resolve().parents[1]
 opts=['-o','BatchMode=yes','-o','ConnectTimeout=8','-o','ServerAliveInterval=5','-o','ServerAliveCountMax=2']
 alias=args.host_key_alias or ('192.168.31.193' if args.host=='radxa@8.133.210.70' else None)
@@ -25,16 +25,25 @@ keys=Path('/usr/local/share/microduck-observer');keys.mkdir(parents=True,exist_o
 if key.exists():assert key.read_bytes()==(stage/'ota-public.pem').read_bytes(),'Signing key changed unexpectedly'
 shutil.copyfile(stage/'ota-public.pem',key);os.chmod(key,0o644)
 work=Path('/var/lib/microduck-observer/ota');work.mkdir(parents=True,exist_ok=True);os.chmod(work,0o755)
-for name in ['microduck-observer-ota.socket','microduck-observer-ota@.service']:
+for name in ['microduck-observer-ota.socket','microduck-observer-ota@.service','microduck-observer-update-recover.service','microduck-observer-update-boot.service']:
  shutil.copyfile(stage/name,Path('/etc/systemd/system')/name)
+drop=Path('/etc/systemd/system/microduck-observer.service.d');drop.mkdir(parents=True,exist_ok=True)
+shutil.copyfile(stage/'update-recovery.conf',drop/'update-recovery.conf')
 subprocess.run(['systemctl','daemon-reload'],check=True);subprocess.run(['systemctl','enable','--now','microduck-observer-ota.socket'],check=True)
 assert Path('/run/microduck-observer-ota.sock').exists()
 print(json.dumps(dict(installed=True,helperSha256=expected,hardwareMotion=False,serviceRestarted=False)))
 '''
 (stage/'install.py').write_text(script,encoding='utf-8')
+import shutil
+for name in ['ota-public.pem','microduck-observer-ota.socket','microduck-observer-ota@.service','microduck-observer-update-recover.service','microduck-observer-update-boot.service','update-recovery.conf']:
+    shutil.copyfile(root/'deploy'/name,stage/name)
+shutil.copyfile(helper,stage/helper.name)
+(stage/'helper.sha256').write_text(sha,encoding='ascii')
+if args.package_only:
+    print(stage);raise SystemExit(0)
 remote='/home/radxa/observer-ota-bootstrap'
 subprocess.run([*ssh,'mkdir -p '+remote],check=True)
-subprocess.run(['scp','-O',*opts,'-P',str(args.port),str(helper),str(root/'deploy/ota-public.pem'),str(root/'deploy/microduck-observer-ota.socket'),str(root/'deploy/microduck-observer-ota@.service'),str(stage/'install.py'),host+':'+remote+'/'],check=True)
+subprocess.run(['scp','-O',*opts,'-P',str(args.port),str(helper),str(root/'deploy/ota-public.pem'),str(root/'deploy/microduck-observer-ota.socket'),str(root/'deploy/microduck-observer-ota@.service'),str(root/'deploy/microduck-observer-update-recover.service'),str(root/'deploy/microduck-observer-update-boot.service'),str(root/'deploy/update-recovery.conf'),str(stage/'install.py'),host+':'+remote+'/'],check=True)
 password=next(s.removeprefix('Password: ') for s in args.password_file.read_text().splitlines() if s.startswith('Password: '))
 result=subprocess.run([*ssh,"sudo -S -p '' python3 "+shlex.quote(remote+'/install.py')+' '+shlex.quote(remote)+' '+sha],input=password+'\n',text=True,encoding='utf-8',capture_output=True)
 print(result.stdout);print(result.stderr);result.check_returncode()
