@@ -37,9 +37,10 @@ struct Resources {
 };
 #define CHECK(call) do { int rc=(call); if(rc!=MPP_OK) { \
     fprintf(stderr,"%s failed: %d\n",#call,rc);return 1;} } while(0)
+static int jpeg_output=STDOUT_FILENO;
 static bool write_all(const void* data,size_t size) {
     auto p=static_cast<const unsigned char*>(data);
-    while(size) {ssize_t n=write(STDOUT_FILENO,p,size);
+    while(size) {ssize_t n=write(jpeg_output,p,size);
         if(n<0 && errno==EINTR) continue;
         if(n<=0) return false;
         p+=n;size-=n;
@@ -48,6 +49,10 @@ static bool write_all(const void* data,size_t size) {
 }
 int main(int argc,char**) {
     if(argc!=1) {fprintf(stderr,"No arguments: fixed NV12 640x480, 21fps input / 10.5fps output\n");return 2;}
+    // Vendor libraries may print to stdout, including buffered exit messages.
+    // Keep JPEG bytes on a dedicated descriptor and route diagnostics to stderr.
+    jpeg_output=dup(STDOUT_FILENO);
+    if(jpeg_output<0 || dup2(STDERR_FILENO,STDOUT_FILENO)<0) {perror("camera output");return 1;}
     Resources r;
     CHECK(mpp_create(&r.ctx,&r.api));
     MppPollType timeout=MPP_POLL_BLOCK;

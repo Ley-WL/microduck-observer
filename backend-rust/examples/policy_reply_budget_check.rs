@@ -1,4 +1,12 @@
 //! Hardware acceptance executable: reuses production Bus, FrameClock and FeedbackCoast.
+#[path="support/http_disabled.rs"] mod http_disabled;
+use http_disabled::{App, check_write, error};
+#[path="../src/model_registry.rs"] mod model_registry;
+#[path="../src/walk_handoff.rs"] mod walk_handoff;
+#[path="../src/autonomy.rs"] mod autonomy;
+#[path="../src/vision.rs"] mod vision;
+#[path="../src/camera.rs"] mod camera;
+#[path="../src/demo.rs"] mod demo;
 #[path="../src/walk_profile.rs"] mod walk_profile;
 #[path="../src/quack.rs"] mod quack;
 #[path="../src/calibration.rs"] mod calibration;

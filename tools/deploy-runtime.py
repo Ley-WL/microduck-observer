@@ -71,6 +71,7 @@ with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
         archive.add(root/'frontend/dist',arcname='frontend/dist')
     archive.add(root/'deploy/imu-installation.default.json',arcname='imu-installation.default.json')
     archive.add(root/'deploy/audio_prepare.py',arcname='hardware/audio/audio_prepare.py')
+    archive.add(root/'deploy/tof_prepare.py',arcname='hardware/tof/tof_prepare.py')
     archive.add(root/'deploy/hardware/audio',arcname='hardware/audio')
     for tool in ['verify_rust_hardware.py','measure_runtime.py','ws_reader.py']:
         archive.add(root/'deploy'/tool,arcname=tool)
@@ -196,6 +197,9 @@ try:
         subprocess.run(['systemctl','daemon-reload'],check=True)
         subprocess.run(['systemctl','restart','microduck-audio-prepare'],check=True)
         input_drop.write_text('[Service]\nSupplementaryGroups=input\nDeviceAllow=char-input r\n')
+    if (new/'bin/microduck-tof').is_file():
+        subprocess.run([sys.executable,str(new/'hardware/tof/tof_prepare.py'),'--install'],check=True)
+        subprocess.run(['systemctl','daemon-reload'],check=True)
     point(new)
     if bank_reports:policy_drop.write_text('[Service]\nEnvironment=MICRODUCK_POLICY_PATH=/home/radxa/microduck-observer/current/models/xgoduck_walk.onnx\n')
     subprocess.run(['systemctl','daemon-reload'],check=True);subprocess.run(['systemctl','start','microduck-observer'],check=True)

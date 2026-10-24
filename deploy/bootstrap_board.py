@@ -168,7 +168,40 @@ def install(bundle, digest, release_name):
     if not (audio / 'audio_prepare.py').is_file():
         raise RuntimeError('Bundle lacks required automatic audio preparation; rebuild bundle')
     run('/usr/bin/python3', str(audio / 'audio_prepare.py'), '--install', str(audio))
+    # Optional, fixed-layout assets from the validated NPU installation bundle.
+    vision = release / 'hardware/vision'
+    if vision.is_dir():
+        run('groupadd', '-f', 'render')
+        Path('/boot/overlay-user').mkdir(exist_ok=True)
+        run('dtc', '-@', '-I', 'dts', '-O', 'dtb', '-o',
+            '/boot/overlay-user/microduck-npu-enable.dtbo',
+            str(vision / 'radxa-zero3-npu-enable.dts'))
+        lines = env.read_text().splitlines()
+        users = next((line.split('=', 1)[1].split() for line in lines
+                      if line.startswith('user_overlays=')), [])
+        users = list(dict.fromkeys(users + ['microduck-npu-enable']))
+        env.write_text('\n'.join([line for line in lines if not line.startswith('user_overlays=')]
+                                 + ['user_overlays=' + ' '.join(users)]) + '\n')
+        run('sh', str(vision / 'install-camera.sh'))
+        shutil.copy2(vision / 'vision.conf',
+                     '/etc/systemd/system/microduck-observer.service.d/vision.conf')
+    ota_key = release / 'hardware/update/ota-public.pem'
+    if ota_key.is_file():
+        key_target = Path('/usr/local/share/microduck-observer/ota-public.pem')
+        key_target.parent.mkdir(parents=True, exist_ok=True)
+        if key_target.exists() and key_target.read_bytes() != ota_key.read_bytes():
+            raise RuntimeError('Existing OTA public key differs; refusing replacement')
+        shutil.copy2(ota_key, key_target)
+        key_target.chmod(0o644)
+    if (release / 'bin/microduck-tof').is_file():
+        tof_source = Path(__file__).with_name('tof_prepare.py')
+        tof_assets = release / 'hardware/tof'
+        tof_assets.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(tof_source, tof_assets / 'tof_prepare.py')
+        run('/usr/bin/python3', str(tof_source), '--install')
     run('systemctl', 'daemon-reload')
+    if ota_key.is_file():
+        run('systemctl', 'enable', 'microduck-observer-ota.socket')
     run('systemctl', 'enable', 'microduck-observer', 'ducklink-wifi',
         'microduck-power.socket', 'bluetooth')
     run('systemctl', 'reload', 'dbus')

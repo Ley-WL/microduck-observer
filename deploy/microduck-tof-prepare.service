@@ -1,0 +1,9 @@
+[Unit]
+Description=Prepare MicroDuck J5 ToF permissions
+After=systemd-modules-load.service systemd-udev-trigger.service
+Before=microduck-observer.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/microduck-services/tof_prepare.py
+TimeoutStartSec=8
+NoNewPrivileges=true

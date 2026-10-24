@@ -1,6 +1,6 @@
 {
-  "localPath": "deploy/staging/bootstrap/payload-quack-gestures-20261018.tar.gz",
-  "sha256": "4e6be533f90b387c1f53fbf687895875ceea84929f66be84858bce859fcde3a2",
-  "provenance": "2026-10-17 RB/RT single/double/hold voice gestures plus automatic preparation service",
-  "note": "198 Rust passed/1 ignored; ARM binary unchanged. 2026-10-18 audio depmod install timeout120s and UART2 rescue console cleanup. Board43 reboot/startup/BLE/UART nodes/7 HTTP assets verified; hardware calibration and real motion pending."
+  "localPath": "deploy/staging/bootstrap/payload-npu-e205b18-20261023.tar.gz",
+  "sha256": "b56d6fdfb0e57799b6768bfb16b06d8081cb5461b951cf8b78437791f876430f",
+  "provenance": "e205b18 freshly built Rust bins/frontend; validated same-source NPU assets + camera stdout fix; OTA recovery initial bootstrap",
+  "binarySha256": "cd5372ae394ff3a06c765b31ce06883cad946bccd3392b4203b5c438517ad0b1"
 }

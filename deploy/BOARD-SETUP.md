@@ -25,3 +25,7 @@ python tools/check-uart-loopback.py --host <IP> --confirmed-isolated
 系统不联网：先确认是否真正进入Linux。SD离线无新增挂载/启动日志只支持早期启动问题方向，不证明Wi-Fi坏。只读TTL先GND→Pin6、RXD→Pin8，3.3V、1500000/8N1/无流控、先开串口再上电。HAT接回前拔掉TTL；交互TX→Pin10需用户确认3.3V并排除HAT共驱动。乱码不是有效错误日志，不按乱码猜根因或盲目改波特率。不同板RAM可不同，不能用旧板日志代替新板。
 
 默认走已实机成功的纯净系统→联网→部署路线。64GB完整镜像不能直接写32GB，容量转换要离线副本验证；此前重建分区/克隆未能启动的镜像不能当已验证模板。本机刷卡脚本/镜像保存在Downloads，尚非可在任意电脑直接使用的便携安装器。
+
+## 默认双 Wi-Fi（2026-10-22）
+
+新卡默认同时配置 `2_902` 与 `ducklink`，DHCP，任一可用即可连接；密码从本机 `D:/Users/wl/Downloads/MicroDuck-Flash/wifi-defaults.private.json` 读取，不写入Git。制卡脚本读取networks数组，离线Netplan生成验证，刷后核对两网络并更新镜像SHA；实际启动联网仍需单独验收。不得只修改说明而沿用单网络模板。
