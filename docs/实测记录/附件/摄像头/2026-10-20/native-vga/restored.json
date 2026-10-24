@@ -1,0 +1,32 @@
+{
+  "hostname": "microduck-e6fc56",
+  "driver": "/sys/bus/i2c/drivers/imx219",
+  "all15Disabled": true,
+  "ageMs": 5.1450000000040745,
+  "control": {
+    "autonomy": {
+      "behavior": "已关闭",
+      "controlSource": "manual",
+      "enabled": false,
+      "ready": false,
+      "reason": "",
+      "recoveryRemainingSeconds": null,
+      "state": "off"
+    },
+    "message": "等待操作",
+    "state": "idle"
+  },
+  "snapshotKeys": [
+    "calibration",
+    "gamepad",
+    "imu.orientation",
+    "imu.raw",
+    "joints",
+    "logs",
+    "system"
+  ],
+  "bootOriginal": true,
+  "testEnabled": "disabled\n",
+  "media": "Media controller API version 6.1.115\n\nMedia device information\n------------------------\ndriver          rkisp-vir0\nmodel           rkisp0\nserial          \nbus info        platform:rkisp-vir0\nhw revision     0x0\ndriver version  6.1.115\n\nDevice topology\n- entity 1: rkisp-isp-subdev (4 pads, 8 links, 0 routes)\n            type V4L2 subdev subtype Unknown flags 0\n            device node name /dev/v4l-subdev0\n\tpad0: SINK,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/1920x1080 field:none\n\t\t crop.bounds:(0,0)/1920x1080\n\t\t crop:(0,0)/1920x1080]\n\t\t<- \"rkisp-csi-subdev\":1 [ENABLED]\n\t\t<- \"rkisp_rawrd0_m\":0 []\n\t\t<- \"rkisp_rawrd2_s\":0 []\n\tpad1: SINK\n\t\t<- \"rkisp-input-params\":0 [ENABLED]\n\tpad2: SOURCE\n\t\t[stream:0 fmt:YUYV8_2X8/1920x1080 field:none colorspace:smpte170m quantization:full-range\n\t\t crop.bounds:(0,0)/1920x1080\n\t\t crop:(0,0)/1920x1080]\n\t\t-> \"rkisp_mainpath\":0 [ENABLED]\n\t\t-> \"rkisp_selfpath\":0 [ENABLED]\n\t\t-> \"rkisp_iqtool\":0 [ENABLED]\n\tpad3: SOURCE\n\t\t-> \"rkisp-statistics\":0 [ENABLED]\n\n- entity 6: rkisp-csi-subdev (6 pads, 5 links, 0 routes)\n            type V4L2 subdev subtype Unknown flags 0\n            device node name /dev/v4l-subdev1\n\tpad0: SINK,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/1920x1080 field:none]\n\t\t<- \"rockchip-csi2-dphy0\":1 [ENABLED]\n\tpad1: SOURCE,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/1920x1080 field:none]\n\t\t-> \"rkisp-isp-subdev\":0 [ENABLED]\n\tpad2: SOURCE\n\t\t-> \"rkisp_rawwr0\":0 [ENABLED]\n\tpad3: SOURCE\n\tpad4: SOURCE\n\t\t-> \"rkisp_rawwr2\":0 [ENABLED]\n\tpad5: SOURCE\n\t\t-> \"rkisp_rawwr3\":0 [ENABLED]\n\n- entity 13: rkisp_mainpath (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video0\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":2 [ENABLED]\n\n- entity 19: rkisp_selfpath (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video1\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":2 [ENABLED]\n\n- entity 25: rkisp_rawwr0 (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video2\n\tpad0: SINK\n\t\t<- \"rkisp-csi-subdev\":2 [ENABLED]\n\n- entity 31: rkisp_rawwr2 (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video3\n\tpad0: SINK\n\t\t<- \"rkisp-csi-subdev\":4 [ENABLED]\n\n- entity 37: rkisp_rawwr3 (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video4\n\tpad0: SINK\n\t\t<- \"rkisp-csi-subdev\":5 [ENABLED]\n\n- entity 43: rkisp_iqtool (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video5\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":2 [ENABLED]\n\n- entity 49: rkisp_rawrd0_m (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video6\n\tpad0: SOURCE\n\t\t-> \"rkisp-isp-subdev\":0 []\n\n- entity 55: rkisp_rawrd2_s (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video7\n\tpad0: SOURCE\n\t\t-> \"rkisp-isp-subdev\":0 []\n\n- entity 61: rkisp-statistics (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video8\n\tpad0: SINK\n\t\t<- \"rkisp-isp-subdev\":3 [ENABLED]\n\n- entity 67: rkisp-input-params (1 pad, 1 link)\n             type Node subtype V4L flags 0\n             device node name /dev/video9\n\tpad0: SOURCE\n\t\t-> \"rkisp-isp-subdev\":1 [ENABLED]\n\n- entity 73: rockchip-csi2-dphy0 (2 pads, 2 links, 0 routes)\n             type V4L2 subdev subtype Unknown flags 0\n             device node name /dev/v4l-subdev2\n\tpad0: SINK,MUST_CONNECT\n\t\t[stream:0 fmt:SRGGB10_1X10/1920x1080@10000/300000 field:none]\n\t\t<- \"m00_b_imx219 2-0010\":0 [ENABLED]\n\tpad1: SOURCE,MUST_CONNECT\n\t\t-> \"rkisp-csi-subdev\":0 [ENABLED]\n\n- entity 76: m00_b_imx219 2-0010 (1 pad, 1 link, 0 routes)\n             type V4L2 subdev subtype Sensor flags 0\n             device node name /dev/v4l-subdev3\n\tpad0: SOURCE\n\t\t[stream:0 fmt:SRGGB10_1X10/1920x1080@10000/300000 field:none]\n\t\t-> \"rockchip-csi2-dphy0\":0 [ENABLED]\n\n",
+  "observer": "active\n"
+}

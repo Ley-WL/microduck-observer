@@ -1,0 +1,16 @@
+{
+  "release": "runtime-20261020-camera-color-v2",
+  "ip": "192.168.137.109",
+  "wbGains": [
+    1.36,
+    1.0,
+    1.58
+  ],
+  "gamma": 1.05,
+  "rgaInput": "IM_YUV_TO_RGB_BT601_FULL",
+  "rgaOutput": "IM_RGB_TO_YUV_BT601_FULL",
+  "rangeTest": "v1 hardware paths; v2 changes only WB gains; real camera v2 decoded and detection tested",
+  "view": "subjective improvement; awaiting user assessment",
+  "privateImagesTracked": false,
+  "autoWhiteBalance": false
+}

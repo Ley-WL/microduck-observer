@@ -4,7 +4,10 @@ import { useTelemetry } from "./store";
 import RobotView from "./components/RobotView.vue";
 import SignalChart from "./components/SignalChart.vue";
 import PoseWorkbench from "./components/PoseWorkbench.vue";
+import PadSettings from "./components/PadSettings.vue";
+import ModelRegistry from "./components/ModelRegistry.vue";
 import SensorWorkbench from "./components/SensorWorkbench.vue";
+import SystemUpdate from "./components/SystemUpdate.vue";
 import PowerControls from "./components/PowerControls.vue";
 import BoardResources from "./components/BoardResources.vue";
 import { validQuaternion, euler, type Sample } from "./protocol";
@@ -12,6 +15,10 @@ import { bodyRelativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
 const state = useTelemetry();
 const board = useBoardCalibration();
+const serviceVersion = computed(() => {
+  const service = state.system?.data?.service ?? state.info?.service;
+  return service?.release || (service?.version ? `v${service.version}` : "待获取");
+});
 // Display-only mounting selection; shared servo/IMU references stay on the board.
 const mountingYaw = computed(() => board.data?.mounting?.yaw ?? -90);
 const calibrationSaveError = computed(() => !!board.error);
@@ -129,12 +136,12 @@ onMounted(() => state.connect());
       </div>
       <nav>
         <button
-          v-for="(label, i) in ['总览', '姿态与 IMU', '联合观测', '日志']"
+          v-for="(label, i) in ['总览', '姿态与 IMU', '联合观测', '模型管理', '手柄设置', '系统更新', '日志']"
           :key="label" :title="label"
           :class="{ active: page === label }"
           @click="page = label"
         >
-          <span class="nav-symbol">{{ ["◫", "⌁", "⊞", "≡"][i] }}</span
+          <span class="nav-symbol">{{ ["◫", "⌁", "⊞", "◇", "⌘", "≡"][i] }}</span
           >{{ label }}
         </button>
       </nav>
@@ -144,7 +151,7 @@ onMounted(() => state.connect());
           state.info?.source === "hardware" ? "主控实机观测" : "独立调试环境"
         }}
         <p>连接数据，理解每一次运动。</p>
-        <small>OBSERVER / v0.8.0</small>
+        <small>MICRODUCK OBSERVER</small>
       </div>
     </aside>
     <div class="main-shell">
@@ -154,7 +161,13 @@ onMounted(() => state.connect());
         </div>
         <BoardResources />
         <div class="header-right">
-          <PowerControls />
+          <div class="version-power-group">
+            <div class="service-version" role="status" :title="`服务版本：${serviceVersion}${state.connection === '在线' ? '' : '（离线，待确认）'}`">
+              <span>服务版本<span v-if="state.connection !== '在线'"> · 待确认</span></span>
+              <strong>{{ serviceVersion }}</strong>
+            </div>
+            <PowerControls />
+          </div>
           <span class="source-badge">{{ state.source }}</span
           ><span class="status" :class="{ online: state.connection === '在线' }"
             ><i></i>{{ state.connection }}</span
@@ -178,6 +191,9 @@ onMounted(() => state.connect());
           @pause="pause"
         />
         <SensorWorkbench v-else-if="page === '联合观测'" :quaternion="quaternion" :angles="angles" :calibrated="Boolean(initialOrientation)" @navigate="page = $event" />
+        <PadSettings v-else-if="page === '手柄设置'" />
+        <SystemUpdate v-else-if="page === '系统更新'" :endpoint="state.endpoint" :online="state.connection === '在线'" />
+        <ModelRegistry v-else-if="page === '模型管理'" :endpoint="state.endpoint" :online="state.connection === '在线'" :control-state="state.system?.data?.servoControl?.state || (state.info?.source === 'simulation' ? 'idle' : undefined)" />
         <template v-else>
           <div class="page-heading">
             <div>

@@ -1,0 +1,165 @@
+{
+  "artifactType": "training-policy",
+  "controlHz": 50,
+  "actorObservationDim": 61,
+  "actionDim": 14,
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "homeRadians": [
+    0.0,
+    -0.0873,
+    -0.4579,
+    -0.0049,
+    0.453,
+    0.3491,
+    0.3491,
+    0.0,
+    0.0,
+    0.0,
+    0.0873,
+    0.4579,
+    0.0049,
+    -0.453
+  ],
+  "actionEmaOldWeight": 0,
+  "actionEmaNewWeight": 1,
+  "actionScale": 1,
+  "commandEncoding": "flamingo_flag_side",
+  "lowerMinSeconds": 1.5,
+  "observationNormalization": "embedded_in_onnx_once",
+  "runtimeKind": "official_flamingo",
+  "task": "Mjlab-FlamingoCycleHard-Flat-MicroDuck",
+  "policySha256": "df77929c39d7695092bdaf810c2075e20a9ba91abd8192b4073d3de593d56904",
+  "hardwareValidated": false,
+  "voltageAdaptation": false,
+  "sourceManifest": {
+    "schema_version": 2,
+    "model_api": 1,
+    "name": "flamingo-cycle",
+    "kind": "perpetual",
+    "obs_len": 61,
+    "action_len": 14,
+    "action_scale": 1.0,
+    "entry_pose": "standing",
+    "duration_s": null,
+    "description": "Stand on one foot, either side, on command, and come back to a two-foot stand: twist = [flag, side, 0].",
+    "command": {
+      "twist": [
+        "flag: 0 = stand on two feet (HOME), 1 = stand on one foot",
+        "side: +1 = right foot down / left leg lifted, -1 = left foot down / right leg lifted; 0 allowed while flag = 0",
+        "unused (0)"
+      ],
+      "head": "unused (zeros)",
+      "body": "unused (zeros)",
+      "idle": [
+        0,
+        0,
+        0
+      ]
+    },
+    "robot": {
+      "model": "microduck",
+      "hw_rev": 1,
+      "servos": "xl330",
+      "control_hz": 50
+    },
+    "training": {
+      "task_id": "Mjlab-FlamingoCycleHard-Flat-MicroDuck",
+      "repo": "pollen-robotics/microduck_rl",
+      "commit": "0bf9897 on branch flamingo (https://github.com/pollen-robotics/microduck_rl/commit/0bf9897), not merged yet",
+      "run": "pollen-robotics/flamingo-cycle-r2-hard-20260829-0245"
+    },
+    "eval": {
+      "sim_proxy": "CPU MuJoCo with the BAM XL330 servo model, allcollisions model",
+      "battery": "10/10: right and left cycles, 0.1 m/s pushes toward either side, 0.15 m/s forward, a 0.3 m/s push toward the lifted side (brief touch-down, re-lift), lowering from a static hold, 10 s hold",
+      "stress_24_random_trials": {
+        "held": 20,
+        "recovered_stepped_down": 2,
+        "fell": 2,
+        "push_range_m_s": [
+          0.05,
+          0.25
+        ]
+      },
+      "known_limits": "falls on backward pushes >= 0.18 m/s; pushes toward the standing-foot side above ~0.15 m/s end in a step-down; never tested on hardware",
+      "transition_time_s": 1.5,
+      "lifted_foot_height_m": 0.09
+    }
+  },
+  "sourceRepository": "RemiFabre/microduck-flamingo-cycle",
+  "sourceRevision": "a69e4f6103a70e355983eb5d4e919da76778a40f",
+  "deploymentNote": "Original XL330 policy; HD1910 hardware unvalidated. Right support / left lift; press again to lower. User requested original XML target angle limits only for this skill; physical range not newly validated.",
+  "executionTargetLimitsDegrees": [
+    [
+      -25.0,
+      30.0
+    ],
+    [
+      -22.0,
+      22.0
+    ],
+    [
+      -90.0,
+      90.0
+    ],
+    [
+      -90.0,
+      90.0
+    ],
+    [
+      -90.0,
+      90.0
+    ],
+    [
+      -90.0,
+      60.0
+    ],
+    [
+      -90.0,
+      90.0
+    ],
+    [
+      -170.0,
+      170.0
+    ],
+    [
+      -25.0,
+      25.0
+    ],
+    [
+      -30.0,
+      25.0
+    ],
+    [
+      -22.0,
+      22.0
+    ],
+    [
+      -90.0,
+      90.0
+    ],
+    [
+      -90.0,
+      90.0
+    ],
+    [
+      -90.0,
+      90.0
+    ]
+  ],
+  "angleLimitsRevision": "official-flamingo-training-0bf9897-v1"
+}

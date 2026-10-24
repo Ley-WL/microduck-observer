@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { driveLease } from '../driveLease';
+import { requestBindings, buttonLabels, bindingLabel, padButtons, type PadConfig } from '../padBindings';
 import ModelGamepad from './ModelGamepad.vue';
 import { gamepadInput } from '../gamepadInput';
 import type { Twist } from '../holdToWalk';
@@ -12,7 +13,23 @@ const physicalResult=computed(()=>{
   return '';
 });
 const modelAvailable=ref(false),headAvailable=ref(false),wheelSpeed=ref(0.2);
-const rearHook=ref(false);
+const padConfig=ref<PadConfig>();
+const customActions=ref<{id:string;label:string}[]>([]);
+const customLabels=computed(()=>Object.fromEntries(customActions.value.map(a=>[a.id,a.label])));
+let padGeneration=0, padPoll:ReturnType<typeof setInterval>|undefined, padLoading=false;
+async function loadPadBindings(){
+  if(padLoading || state.connection!=='在线')return;
+  const token=padGeneration;padLoading=true;
+  try{const data=await requestBindings(state.endpoint);if(token!==padGeneration)return;
+    customActions.value=data.customActions ?? [];
+    if(padConfig.value?.revision!==data.config.revision){release();padConfig.value=data.config;}
+  }catch{if(token===padGeneration){release();padConfig.value=undefined;}}
+  finally{padLoading=false;}
+}
+watch(()=>[state.endpoint,state.connection],()=>{padGeneration++;padConfig.value=undefined;void loadPadBindings();});
+onMounted(()=>{void loadPadBindings();padPoll=setInterval(()=>void loadPadBindings(),2000);});
+onUnmounted(()=>{padGeneration++;if(padPoll)clearInterval(padPoll);});
+const rearHook=ref(false), flamingoSide=ref('左');
 const lease=driveLease(sessionStorage,state.endpoint);
 const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), commandState=ref('');
 const skills=[{key:'flamingo',name:'火烈鸟'},{key:'dance',name:'十拍鸭子舞'},{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'},{key:'kick_left',name:'左脚踢球'},{key:'kick_right',name:'右脚踢球'}];
@@ -27,15 +44,21 @@ const available=computed(()=>modelAvailable.value);
 const resetSticks=ref(0);
 const seatedHead=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=control.value?.sitSettleSeconds && !control.value?.feedbackHolding && !pending.value && !!session.value && control.value?.driveSession===session.value);
 const canHead=computed(()=>(canDrive.value || seatedHead.value) && headAvailable.value && control.value?.runtimeProfile==='kissqy-sync50-v1');
+const demoOwned=computed(()=>!!control.value?.demo?.active && !!session.value && control.value?.driveSession===session.value);
+const autonomousOwned=computed(()=>!!control.value?.autonomy?.enabled && !!session.value && control.value?.driveSession===session.value);
+const recovering=computed(()=>control.value?.autonomy?.state==='recovering');
 const allowed=computed(()=>({
+  ...Object.fromEntries(customActions.value.map(a=>[a.id,canDrive.value])),
+  autonomy:live.value && !pending.value && (autonomousOwned.value || (canDrive.value && !!control.value?.autonomy?.ready && !demoOwned.value)),
+  demo:!recovering.value && live.value && !pending.value && (demoOwned.value || (canDrive.value && !!control.value?.demo?.ready)),
   standup:!!skillAvailable.value.standup && (canStand.value || (live.value && board.ready && !busy.value)),
   sit:!!skillAvailable.value.sit && (canDrive.value || (live.value && board.ready && !busy.value)),
-  getup:!!skillAvailable.value.getup && (canDrive.value || canRecover.value || (live.value && board.ready && !busy.value)),
+  getup:!recovering.value && !!skillAvailable.value.getup && (canDrive.value || canRecover.value || (live.value && board.ready && !busy.value)),
   flamingo:!!skillAvailable.value.flamingo && (canDrive.value || (live.value && control.value?.state==='policy' && control.value?.activeSkill==='flamingo_hold' && !control.value?.feedbackHolding && !pending.value && !!session.value && control.value?.driveSession===session.value)),
   dance:!!skillAvailable.value.dance && canDrive.value,
   pick:!!skillAvailable.value.pick && canDrive.value,roulade:!!skillAvailable.value.roulade && canDrive.value,
   kick_left:!!skillAvailable.value.kick_left && canDrive.value,kick_right:!!skillAvailable.value.kick_right && canDrive.value,
-  quack:live.value && board.ready && !pending.value && !quackPending.value && (control.value?.state==='policy'
+  quack:!recovering.value && live.value && board.ready && !pending.value && !quackPending.value && (control.value?.state==='policy'
     ? control.value?.kind==='xgoduck' && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value
     : !busy.value),
   stop:running.value && !pending.value,disable:state.connection==='在线',
@@ -60,7 +83,33 @@ const hold=gamepadInput(async(input,sequence)=>{
   commandState.value=twist.some(v=>v!==0)?'已接受：前后 '+twist[0].toFixed(2)+' · 转向 '+twist[2].toFixed(2)+' rad/s':'零速度指令已接受';
 },()=>lease.nextSequence(),error=>{resetSticks.value++;pressed.value='';failed.value=true;message.value='手柄指令失败：'+String(error);commandState.value='指令被拒绝 / 未收到响应';});
 watch(()=>[control.value?.activeSkill,control.value?.state],()=>{if(control.value?.activeSkill!=='xgoduck' || control.value?.state!=='policy')skillQueued.value=false;});
+let demoHeartbeat:ReturnType<typeof setInterval>|undefined;
+let demoRequestPending=false;
+let demoFocused=true;
+async function demoCommand(mode='toggle'){
+  if(demoRequestPending)return;
+  demoRequestPending=true;
+  try{
+    const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy/demo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:session.value,sequence:hold.nextSequence(),mode}),keepalive:true,signal:AbortSignal.timeout(1000)});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.detail||'演示请求失败');
+    if(mode!=='keepalive'){failed.value=false;message.value=result.active?'演示开始：约 28～35 秒，再按演示键取消':'演示已取消，返回平衡';}
+  }catch(e){if(mode!=='keepalive'){failed.value=true;message.value=String(e);}}
+  finally{demoRequestPending=false;}
+}
+function leaveDemo(){demoFocused=false;release();if(demoOwned.value)void demoCommand('cancel');}
+onMounted(()=>{demoHeartbeat=setInterval(()=>{if(demoOwned.value && demoFocused && !document.hidden)void demoCommand('keepalive');},120);window.addEventListener('blur',leaveDemo);window.addEventListener('pagehide',leaveDemo);});
+onUnmounted(()=>{if(demoHeartbeat)clearInterval(demoHeartbeat);leaveDemo();window.removeEventListener('blur',leaveDemo);window.removeEventListener('pagehide',leaveDemo);});
 async function extra(action:string,angleDeg?:number){
+  if(action==='autonomy'){
+    release();pending.value=true;failed.value=false;
+    try{
+      const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy/autonomy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:session.value,sequence:hold.nextSequence()}),signal:AbortSignal.timeout(2000)});
+      const result=await response.json();if(!response.ok)throw new Error(result.detail||'自主请求失败');
+      message.value=result.enabled?'自主开启：原地待命，手柄输入优先':'自主已关闭';
+    }catch(e){failed.value=true;message.value=String(e);}finally{pending.value=false;}return;
+  }
+  if(action==='demo'){demoFocused=true;release();await demoCommand();return;}
   const independent=action==='quack';
   if(independent){if(quackPending.value)return;quackPending.value=true;}else{release();pending.value=true;}failed.value=false;
   try{
@@ -73,7 +122,7 @@ async function extra(action:string,angleDeg?:number){
     const result=await response.json();if(!response.ok)throw new Error(result.detail || '操作未接受');
     if(start){session.value=result.driveSession || '';lease.remember(session.value);}
     if(angleDeg==null && action!=='quack')skillQueued.value=control.value?.state==='policy' && control.value?.activeSkill==='xgoduck';
-    message.value=action==='flamingo'?(rearHook.value?'后抬脚已请求：右脚向后抬起，到位保持3秒后自动回正；再按提前返回':'火烈鸟切换已请求：首次抬左脚保持，再按落脚'):action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
+    message.value=action==='flamingo'?(rearHook.value?'后抬脚已请求：右脚向后抬起，到位保持3秒后自动回正；再按提前返回':`火烈鸟切换已请求：首次抬${flamingoSide.value}脚保持，再按落脚`):action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
   }catch(e){failed.value=true;message.value=String(e);}finally{if(independent)quackPending.value=false;else pending.value=false;}
 }
 const driveReason=computed(()=>{
@@ -81,7 +130,7 @@ const driveReason=computed(()=>{
   if(pending.value)return '等待操作完成';
   if(control.value?.state==='failed')return control.value.message || '模型故障，手柄锁定';
   if(control.value?.state==='holding')return '模型已停止：请站起后行走';
-  if(control.value?.state!=='policy')return '点击 A 站立，或 X 坐下预备';
+  if(control.value?.state!=='policy')return '点击当前绑定的站立或坐下按键预备';
   if(control.value?.kind!=='xgoduck')return '当前运行其他模型，请切换平衡行走';
   if(control.value?.feedbackHolding)return '反馈暂缺，等待恢复后重新按住';
   if(skillQueued.value || (control.value?.activeSkill && control.value.activeSkill!=='xgoduck'))return control.value?.activeSkill==='sitstand_sit'?'坐姿维持中：点站起后恢复行走':'动作执行中，完成后再行走';
@@ -89,23 +138,30 @@ const driveReason=computed(()=>{
   return '';
 });
 function release(){resetSticks.value++;pressed.value='';hold.release();}
-function wheel(twist:Twist|null){if(twist && !canDrive.value)return;hold.body(twist);}
-function head(value:[number,number]|null){if(value && !canHead.value)return;hold.head(value);}
+function wheel(twist:Twist|null){if(twist && !canDrive.value && !demoOwned.value)return;hold.body(twist);}
+function head(value:[number,number]|null){if(value && !canHead.value && !demoOwned.value)return;hold.head(value);}
 function padAction(action:string){if(!allowed.value[action as keyof typeof allowed.value])return;if(action==='stop'||action==='disable')void run(action);else void extra(action);}
 watch(wheelSpeed,()=>release());
-function hidden(){if(document.hidden)release();}
+function hidden(){if(document.hidden)leaveDemo();}
 watch(canDrive,value=>{if(!value)release();});
 watch(canHead,value=>{if(!value)release();});
 onMounted(()=>{window.addEventListener('blur',release);window.addEventListener('pagehide',release);document.addEventListener('visibilitychange',hidden);});
 onUnmounted(()=>{release();window.removeEventListener('blur',release);window.removeEventListener('pagehide',release);document.removeEventListener('visibilitychange',hidden);});
-onMounted(async()=>{
+let modelInfoGeneration=0;
+async function refreshModelInfo(){
+  const token=++modelInfoGeneration;
+  modelAvailable.value=false;headAvailable.value=false;skillAvailable.value={};
+  if(state.connection!=='在线')return;
   try { const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy');
-    const result=await response.json();headAvailable.value=response.ok && result.webHeadControl===true;modelAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='xgoduck')?.available;
-    rearHook.value=['hd1910_rear_hook_v27','hd1910_rear_hook_native','hd1910_rear_hook_native_gated'].includes(result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.runtimeKind);
+    const result=await response.json();if(token!==modelInfoGeneration)return;headAvailable.value=response.ok && result.webHeadControl===true;modelAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='xgoduck')?.available;
+    rearHook.value=['hd1910_rear_hook_v27','hd1910_rear_hook_native','hd1910_rear_hook_native_gated','hd1910_rear_hook_v62b'].includes(result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.runtimeKind);
+    flamingoSide.value=result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.swingFoot==='right'?'右':'左';
     for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='flamingo'?'flamingo_hold':skill.key==='dance'?'dance10':skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':skill.key.startsWith('kick_')?skill.key:'xgoduck_'+skill.key))?.available;
     }
-  catch { modelAvailable.value=false; }
-});
+  catch { if(token===modelInfoGeneration)modelAvailable.value=false; }
+}
+watch(()=>[state.endpoint,state.connection],()=>void refreshModelInfo(),{immediate:true});
+onUnmounted(()=>{modelInfoGeneration++;});
 async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
   if(action==='home'){await extra('sit');return;}
   if(action==='start'){await extra('standup');return;}
@@ -125,9 +181,19 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <div v-if="control?.state==='policy'" class="runtime-metrics" role="status"><span>近 1 秒实际推理 <b>{{ Number.isFinite(control?.cycleCosts?.inferenceHzLast1s) ? control.cycleCosts.inferenceHzLast1s.toFixed(1)+' Hz' : '—' }}</b></span></div>
     <details class="bluetooth-setup"><summary>连接实物蓝牙手柄</summary><p>手柄关机时同时短按 <b>B + Home</b> 进入蓝牙配对，再扫描。确认名称和设备后点“配对并连接”。</p><div class="bluetooth-actions"><button :disabled="bluetoothBusy" @click="scanBluetooth">{{ bluetoothBusy?'请稍候…':'扫描主板附近设备' }}</button><span role="status">{{ bluetoothMessage }}</span></div><div class="bluetooth-devices"><div v-for="device in visibleBluetoothDevices" :key="device.address" class="bluetooth-device"><span><b>{{ device.name }}</b> · {{ device.address }}<small>疑似 Xbox / GameSir 手柄</small></span><button :disabled="bluetoothBusy" @click="pairBluetooth(device.address)">配对并连接</button></div></div><small>仅列出名称包含 Xbox、Wireless Controller 或 GameSir 的设备。扫描和配对由主板执行，不要求登录后台。配对后若网页未显示实物输入，还需主板内核提供手柄输入设备。</small></details>
     <p class="drive-result" role="status">{{ state.gamepadFeedback ? (physicalResult || '实物手柄已连接 · 橙色表示输入，不代表动作执行') : (driveReason || commandState || '手柄已就绪 · 左行走，右转头') }}</p>
-    <ModelGamepad :rear-hook="rearHook" :feedback="state.gamepadFeedback" :drive="canDrive" :head="canHead" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
+    <div v-if="control?.demo?.active" class="runtime-metrics" role="status"><b>演示 {{ control.demo.step }}/{{ control.demo.steps }} · {{ control.demo.name }}</b><span>{{ Math.floor(control.demo.elapsedSeconds || 0) }} 秒 · LB 再按取消，摇杆接管</span></div>
+    <p v-else-if="control?.demo?.reason" role="status">{{ control.demo.reason }}</p>
+    <div class="runtime-metrics" role="status"><b>自主：{{ control?.autonomy?.behavior || '已关闭' }}</b><span v-if="control?.autonomy?.enabled">控制：{{ control.autonomy.controlSource==='autonomous'?'自主':'人工' }}</span><span v-if="recovering">起身剩余 {{ Number(control.autonomy.recoveryRemainingSeconds || 0).toFixed(1) }} 秒</span><span v-if="control?.autonomy?.reason">{{ control.autonomy.reason }}</span></div>
+    <div v-if="control?.autonomy?.enabled" class="runtime-metrics" role="status">
+      <b>看人互动：{{ control.autonomy.vision?.behavior || '等待摄像头' }}</b>
+      <span v-if="control.autonomy.vision?.target">{{ control.autonomy.vision.target.kind==='face'?'人脸':'人体' }} · {{ Math.round(control.autonomy.vision.target.score*100) }}%</span>
+      <span v-if="control.autonomy.vision?.target">位置 {{ Math.round((control.autonomy.vision.target.bounds[0]+control.autonomy.vision.target.bounds[2])*50) }}% / {{ Math.round((control.autonomy.vision.target.bounds[1]+control.autonomy.vision.target.bounds[3])*50) }}%</span>
+      <span v-if="control.autonomy.vision?.metrics?.totalMs">检测 {{ Number(control.autonomy.vision.metrics.totalMs).toFixed(0) }}ms · RGA / RKNN</span>
+      <span v-if="control.autonomy.vision?.error">{{ control.autonomy.vision.error }}</span>
+    </div>
+    <ModelGamepad :bindings="padConfig?.bindings" :action-labels="customLabels" :autonomy-active="!!control?.autonomy?.enabled" :rear-hook="rearHook" :flamingo-side="flamingoSide" :feedback="state.gamepadFeedback" :drive="canDrive || demoOwned" :head="canHead || demoOwned" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
     <div class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
-    <details class="runtime-help"><summary>按键说明与诊断</summary><p>A 站立 · Start 预留 · X 坐下 · Y 倒地起身 · B 停止保持 · Back 急停卸力 · LB 拾取 · LT 加速×2（0.2→0.4m/s）· RB / RT 嘎一下（无需先站起）；十字键上舞蹈、左键火烈鸟（首次抬左脚保持，再按落脚）、右键右脚踢球、下自主行动；左右踢球执行 0.5 秒后返回平衡；舞蹈执行8秒后返回平衡，自主行动暂为预留入口。实物手柄：A 站立、长按 Y 倒地起身、模型就绪并回中后摇杆直接控制；单按 LB 拾取（模型就绪且摇杆回中）、RB / RT 嘎一下；LT按住走行速度0.4m/s（默认0.2m/s）；网页高亮仅显示实物输入，松键或超过 500ms 无新输入自动清除。先站起，再拖动摇杆；松开保持平衡，急停卸力。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
+    <details class="runtime-help"><summary>按键说明与诊断</summary><p><span v-for="key in padButtons" :key="key">{{ buttonLabels[key] }}：{{ bindingLabel(padConfig?.bindings,key,customLabels) }}{{ padConfig?.bindings[key]==='getup'?'（长按）':'' }} · </span>Back 急停卸力；B 停止保持；LT 加速×2；RT 嘎一下；十字键下长按1.5秒切换自主。Start 网页预留，实体长按2秒卸力并关机。先站立再行走，松开摇杆回中；起身动作无论绑在哪个键都需长按。实体调试模式仅高亮、不执行动作。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
 </details>
     <div v-if="message || control?.action==='policy' || control?.state==='failed'" class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?'平衡行走模型就绪 · 等待开始':'模型未就绪') }}</div>
   </div>

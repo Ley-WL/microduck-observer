@@ -1,0 +1,28 @@
+{
+  "sensor": "imx219",
+  "sensorActive": [
+    1920,
+    1080
+  ],
+  "ispSink": [
+    1920,
+    1080
+  ],
+  "ispSource": [
+    1920,
+    1080
+  ],
+  "mainpathCrop": {
+    "left": 0,
+    "top": 0,
+    "width": 1920,
+    "height": 1080
+  },
+  "configuredOutput": [
+    640,
+    480
+  ],
+  "conclusion": "Unequal horizontal and vertical scaling; accepted TRY_FMT output is not proof of a native 4:3 sensor mode.",
+  "sensorModesEnumeration": "follow-up SSH timed out; not enumerated",
+  "changesApplied": false
+}

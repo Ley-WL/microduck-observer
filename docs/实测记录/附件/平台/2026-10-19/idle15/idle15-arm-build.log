@@ -1,0 +1,219 @@
+   Compiling libc v0.2.189
+   Compiling proc-macro2 v1.0.107
+   Compiling generic-array v0.14.7
+   Compiling getrandom v0.3.4
+   Compiling serde_core v1.0.229
+   Compiling libdbus-sys v0.2.7
+   Compiling serde v1.0.229
+   Compiling getrandom v0.4.3
+   Compiling paste v1.0.15
+   Compiling serde_json v1.0.151
+   Compiling quote v1.0.47
+   Compiling block-buffer v0.10.4
+   Compiling inout v0.1.4
+   Compiling syn v3.0.6
+   Compiling syn v2.0.119
+   Compiling simba v0.9.1
+   Compiling getrandom v0.2.17
+   Compiling errno v0.3.14
+   Compiling parking_lot_core v0.9.12
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.3
+   Compiling cpufeatures v0.2.17
+   Compiling nix v0.26.4
+   Compiling rand_core v0.6.4
+   Compiling parking_lot v0.12.5
+   Compiling signal-hook-registry v1.4.8
+   Compiling rand_core v0.9.5
+   Compiling uuid v1.26.1
+   Compiling nix v0.29.0
+   Compiling crypto-common v0.1.7
+   Compiling rand_chacha v0.9.0
+   Compiling digest v0.10.7
+   Compiling universal-hash v0.5.1
+   Compiling cipher v0.4.4
+   Compiling aead v0.5.2
+   Compiling rand v0.9.5
+   Compiling serde_path_to_error v0.1.20
+   Compiling polyval v0.6.2
+   Compiling sha1 v0.10.7
+   Compiling serde_urlencoded v0.7.1
+   Compiling hmac v0.12.1
+   Compiling sha2 v0.10.9
+   Compiling ctr v0.9.2
+   Compiling ghash v0.5.1
+   Compiling aes v0.8.4
+   Compiling rand_chacha v0.3.1
+   Compiling microduck-sounds v0.15.0 (/mnt/d/Code/microduck/microduck-observer/backend-rust/vendor/microduck-sounds)
+   Compiling pbkdf2 v0.12.2
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling darling_core v0.20.11
+   Compiling synstructure v0.13.2
+   Compiling aes-gcm v0.10.3
+   Compiling rand v0.8.8
+   Compiling tokio-macros v2.7.2
+   Compiling futures-macro v0.3.34
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling displaydoc v0.2.7
+   Compiling strum_macros v0.26.4
+   Compiling pin-project-internal v1.1.13
+   Compiling num-derive v0.4.2
+   Compiling nalgebra-macros v0.3.0
+   Compiling futures-util v0.3.34
+   Compiling tokio v1.53.1
+   Compiling darling_macro v0.20.11
+   Compiling nalgebra v0.34.2
+   Compiling thiserror v2.0.21
+   Compiling pin-project v1.1.13
+   Compiling tungstenite v0.29.0
+   Compiling unescaper v0.1.10
+   Compiling serialport v4.10.1
+   Compiling strum v0.26.3
+   Compiling darling v0.20.11
+   Compiling futures-executor v0.3.34
+   Compiling custom_debug_derive v0.6.2
+   Compiling futures v0.3.34
+   Compiling bluer v0.17.4
+   Compiling custom_debug v0.6.2
+   Compiling hyper v1.11.1
+   Compiling tower v0.5.3
+   Compiling tokio-stream v0.1.19
+   Compiling tokio-tungstenite v0.29.0
+   Compiling tokio-util v0.7.19
+   Compiling tower-http v0.6.11
+   Compiling hyper-util v0.1.21
+   Compiling axum v0.8.9
+   Compiling dbus v0.9.12
+   Compiling dbus-tokio v0.7.6
+   Compiling dbus-crossroads v0.5.3
+   Compiling microduck-observer v0.9.1 (/mnt/d/Code/microduck/microduck-observer/backend-rust)
+warning: function `decode_fast` is never used
+  --> src/bin/../servos.rs:40:8
+   |
+40 | ...fn decode_fast(da...
+   |       ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `reusable_profile` is never used
+   --> src/bin/../servos.rs:104:4
+    |
+104 | fn reusa...ofile(ro...
+    |    ^^^^^...^^^^^
+
+warning: multiple methods are never used
+   --> src/bin/../servos.rs:189:12
+    |
+111 | impl Bus {
+    | -------- methods in this implementation
+...
+189 |     pub fn write...ister(&mut self...
+    |            ^^^^^...^^^^^
+...
+196 |     pub fn sync_write(&mut self, ad...
+    |            ^^^^^^^^^^
+...
+260 |     pub fn read_tick(&mut self, ids...
+    |            ^^^^^^^^^
+...
+263 |     pub fn read_..._tick(&mut se...
+    |            ^^^^^...^^^^^
+...
+266 |     fn read_...udget(&mut self, ...
+    |        ^^^^^...^^^^^
+...
+276 |     pub fn read_...dback(&m...
+    |            ^^^^^...^^^^^
+...
+288 |     pub fn read_fast(&mut self, ids...
+    |            ^^^^^^^^^
+...
+291 |     fn read_...udget(&mut self, ...
+    |        ^^^^^...^^^^^
+
+warning: function `startup_lock` is never used
+ --> src/bin/../observer_ota.rs:7:8
+  |
+7 | ...fn startup_lock(ga...
+  |       ^^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `enabled` is never used
+ --> src/bin/../observer_ota.rs:9:8
+  |
+9 | ...fn enabled()-...
+  |       ^^^^^^^
+
+warning: function `request` is never used
+  --> src/bin/../observer_ota.rs:15:14
+   |
+15 | ...fn request(op...
+   |       ^^^^^^^
+
+warning: unnecessary parentheses around `if` condition
+   --> src/policy.rs:907:137
+    |
+907 | ...if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {s...
+    |       ^                                                                                            ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+907 -             command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {skill_twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
+907 +             command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo {skill_twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
+    |
+
+warning: unused import: `Context`
+ --> src/quack.rs:2:22
+  |
+2 | ...e, Context, R...
+  |       ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `microduck-observer` (bin "servo-limits-readonly") generated 3 warnings
+warning: `microduck-observer` (bin "microduck-observer-ota-helper") generated 3 warnings
+warning: constant `POLICY_GAINS` is never used
+   --> src/control.rs:352:11
+    |
+352 | ...st POLICY_GAINS: (...
+    |       ^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `smooth_action` is never used
+   --> src/policy.rs:642:4
+    |
+642 | fn smooth_action(pr...
+    |    ^^^^^^^^^^^^^
+
+warning: method `step` is never used
+  --> src/rear_hook.rs:20:12
+   |
+13 | impl Clock {
+   | ---------- method in this implementation
+...
+20 |     pub fn step(&m...
+   |            ^^^^
+
+warning: method `feet` is never used
+  --> src/rear_hook.rs:72:12
+   |
+60 | impl Geometry {
+   | ------------- method in this implementation
+...
+72 |     pub fn feet(&s...
+   |            ^^^^
+
+warning: associated function `start` is never used
+   --> src/quack.rs:104:12
+    |
+103 | impl Playback {
+    | ------------- associated function in this implementation
+104 |     pub fn start() ...
+    |            ^^^^^
+
+warning: `microduck-observer` (bin "microduck-observer") generated 7 warnings (run `cargo fix --bin "microduck-observer" -p microduck-observer` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 28s

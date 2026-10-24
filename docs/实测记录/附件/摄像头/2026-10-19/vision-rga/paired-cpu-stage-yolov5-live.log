@@ -1,0 +1,238 @@
+load lable ./model/coco_80_labels_list.txt
+model input num: 1, output num: 3
+input tensors:
+  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+output tensors:
+  index=0, name=output0, n_dims=4, dims=[1, 255, 80, 80], n_elems=1632000, size=1632000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003917
+  index=1, name=343, n_dims=4, dims=[1, 255, 40, 40], n_elems=408000, size=408000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+  index=2, name=345, n_dims=4, dims=[1, 255, 20, 20], n_elems=102000, size=102000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+model is NHWC input fmt
+model input height=640, width=640, channel=3
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+convert image use cpu
+finish
+rknn_run
+BENCH pipeline mean_ms=67.096 p50_ms=60.186 p95_ms=104.239 min_ms=56.587 max_ms=117.092
+BENCH rknn_run mean_ms=26.691 p50_ms=26.494 p95_ms=28.982 min_ms=25.906 max_ms=29.282
+BENCH resize mean_ms=33.612 p50_ms=27.210 p95_ms=65.425 min_ms=24.619 max_ms=76.125
+BENCH inputs_set mean_ms=1.120 p50_ms=1.021 p95_ms=1.987 min_ms=0.816 max_ms=2.250
+BENCH outputs_get mean_ms=5.506 p50_ms=5.031 p95_ms=8.383 min_ms=4.423 max_ms=10.177
+BENCH postprocess_and_other mean_ms=0.167 p50_ms=0.135 p95_ms=0.328 min_ms=0.120 max_ms=0.331
+BENCH runs=50 warmup=5 cpu_one_core_pct=60.46 peak_rss_kib=28916 input=360x640
+write_image path: /home/radxa/vision-bench/paired-cpu-stage-yolov5-live.png width=360 height=640 channel=3 data=0xaaab17621ce0

@@ -1,0 +1,12 @@
+{
+  "testsPassed": 292,
+  "testsIgnored": 1,
+  "armBuild": true,
+  "rollSeconds": 1.6,
+  "extensionSeconds": 0.2,
+  "postExtensionHoldSeconds": 0,
+  "headGetupBlendSeconds": 0.3,
+  "binarySha256": "33731aa834a80ba9d73b56cce5daaf69e0dab69bbd4c81dff1771011b7c92813",
+  "motionTested": false,
+  "newSimulationRun": false
+}

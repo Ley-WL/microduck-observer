@@ -1,0 +1,30 @@
+{
+  "before": {
+    "neutralRegionMedianRGB": [
+      56.0,
+      83.0,
+      46.0
+    ],
+    "greenOverRed": 1.4821428571428572,
+    "greenOverBlue": 1.8043478260869565
+  },
+  "after": {
+    "neutralRegionMedianRGB": [
+      87.0,
+      88.0,
+      86.0
+    ],
+    "greenOverRed": 1.0114942528735633,
+    "greenOverBlue": 1.0232558139534884
+  },
+  "filter": "fps=10,colorchannelmixer=rr=1.48:gg=1:bb=1.80,eq=gamma=1.15:gamma_weight=0.7",
+  "neutralRegion": [
+    425,
+    160,
+    600,
+    187
+  ],
+  "sourceSha256": "9b04566df761fd39866de84ec70b67f6029eec7763e6236f9cd48bbcc9229ffa",
+  "automaticWhiteBalance": false,
+  "standardColorChart": false
+}

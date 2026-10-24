@@ -1,0 +1,11 @@
+{
+  "service": {
+    "release": "runtime-20261019-idle15-version",
+    "version": "0.9.1"
+  },
+  "http_asset_sha256": {
+    "/assets/index-DRzp9cTT.js": "9526b7a7da694a905b64bf807694c1eeca28daf8b14932d353701b577e3c5006",
+    "/assets/index-C10WZ3CP.css": "c79e82b73532a010df92a617ecec3ac907ae858c23a995fa4513718d5d59b57b"
+  },
+  "visual_verification": "in-app browser timed out; HTTP assets and API verified"
+}

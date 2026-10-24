@@ -1,0 +1,11 @@
+{
+  "deployed": false,
+  "reason": "last known IP 192.168.137.160 SSH timed out; waiting for current address",
+  "modelSha256": "e01fa49f018b6ead35760b39df67102328cba439cfb985c1daf2ee9f213785f2",
+  "binarySha256": "3cb930472d7505cd8b4d1a5b89baa3be21b603a2b59ee9d1ae09d47a91351e0b",
+  "rustTestsPassed": 261,
+  "rustTestsIgnored": 1,
+  "armBuild": true,
+  "boardFixturesVerified": false,
+  "physicalMotionTested": false
+}

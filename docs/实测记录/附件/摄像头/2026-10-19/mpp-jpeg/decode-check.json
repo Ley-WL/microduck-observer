@@ -1,0 +1,16 @@
+{
+    "programs": [
+
+    ],
+    "stream_groups": [
+
+    ],
+    "streams": [
+        {
+            "codec_name": "mjpeg",
+            "width": 640,
+            "height": 360,
+            "nb_read_frames": "100"
+        }
+    ]
+}

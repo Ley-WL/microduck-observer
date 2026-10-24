@@ -1,0 +1,21 @@
+{
+  "seconds": 10.50461690300017,
+  "services": {
+    "microduck-observer": {
+      "MainPID": "3208",
+      "ControlGroup": "/system.slice/microduck-observer.service",
+      "MemoryCurrent": "72904704",
+      "CPUUsageNSec": "70132807000",
+      "ActiveState": "active",
+      "pids": [
+        "3208",
+        "3221",
+        "3222"
+      ],
+      "pssKiB": 112485,
+      "cpuPercentOneCore": 241.12939323627984
+    }
+  },
+  "totalPssKiB": 112485,
+  "totalCpuPercentOneCore": 241.12939323627984
+}

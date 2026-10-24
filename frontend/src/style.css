@@ -1130,3 +1130,30 @@ footer b {
     font-size: 16px;
   }
 }
+
+/* Keep the running service version next to the power controls. */
+.version-power-group { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.service-version {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 250px;
+  min-width: 0;
+  padding: 4px 8px;
+  background: #edf5ed;
+  border: 1px solid #cadcca;
+  border-radius: 4px;
+  color: #365c42;
+  font-size: 10px;
+}
+.service-version strong {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+header { flex-wrap: wrap; height: auto; }
+.workbench-shell header { height: auto; padding-top: 4px; padding-bottom: 4px; }
+@media (max-width: 550px) {
+  .header-right { gap: 8px; flex-wrap: wrap; }
+  .service-version { max-width: 190px; }
+}

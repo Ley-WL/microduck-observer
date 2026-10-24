@@ -1,0 +1,23 @@
+{
+  "source": "https://github.com/rockchip-linux/mpp",
+  "revision": "20959ec3dabb313b8c33ca0b7b09c06ffd2a9caa",
+  "cross_build": "Release aarch64-linux-gnu gcc/g++; source git archive (runtime version string missing VCS)",
+  "sha256": {
+    "librockchip_mpp.so.1": "fd48765f7dfb7e51629d78da1fdc01e42e6eea52c4ef278f2a057bf882f6fbf2",
+    "mpi_enc_test": "c7e384d27d28a8cd12f40ce91004ad69ce91ace7cfd084521c71da242089ecaf"
+  },
+  "settings": {
+    "mpp_jpeg_qfactor": 80,
+    "ffmpeg_q_v": 5,
+    "resolution": [
+      640,
+      360
+    ],
+    "frames": 100
+  },
+  "limitations": [
+    "same repeated NV12 frame, no quality/size equivalence",
+    "encode only, not full camera pipeline",
+    "root standalone test, no production service or device permission change"
+  ]
+}

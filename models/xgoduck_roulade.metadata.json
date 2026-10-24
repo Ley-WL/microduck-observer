@@ -3,7 +3,6 @@
   "controlHz": 50,
   "actorObservationDim": 61,
   "actionDim": 14,
-  "observationNormalization": "baked into ONNX by upstream exporter",
   "jointOrder": [
     "left_hip_yaw",
     "left_hip_roll",
@@ -36,26 +35,19 @@
     0.0049,
     -0.453
   ],
-  "runtimeKind": "kissqy_roulade",
+  "runtimeKind": "hd1910_official_roulade",
   "task": "Mjlab-Roulade-Flat-MicroDuck",
-  "policySha256": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
+  "policySha256": "4d2b2a72ba69dfebc4762854352f5077b85a90e4b29d7845db72ffab5b4c23ec",
   "hardwareValidated": false,
-  "modelSource": "kissqy/Microduck-kissqy",
-  "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "modelSource": "Ley-WL/microduck-rl",
+  "trainingUpdates": 1001,
+  "actionScale": 1,
   "actionEmaOldWeight": 0,
   "actionEmaNewWeight": 1,
-  "skillExecution": {
-    "schema": "kissqy-skills-v1",
-    "policySha256": "8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168",
-    "gains": {
-      "p": 5,
-      "d": 20
-    },
-    "durationSeconds": 1,
-    "actionScale": 1
-  },
-  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
-  "commandEncoding": "all zero",
-  "sourceManifest": "microduck-hd1910/firmware/policies/roulade/manifest.json",
-  "sourceContract": "microduck-hd1910/firmware/policies/roulade/deployment-contract.json"
+  "voltageAdaptation": false,
+  "targetLimits": "observer",
+  "observationNormalization": "embedded_once",
+  "actionSemantics": "HOME + raw action; raw previous action",
+  "durationSeconds": 1.5,
+  "commandEncoding": "all zero"
 }

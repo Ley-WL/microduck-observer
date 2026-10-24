@@ -1,12 +1,12 @@
 {
   "runtimeKind": "kissqy_stand",
   "task": "Mjlab-StandUp-Rough-Backlash-MicroDuck",
-  "policySha256": "fixture",
+  "policySha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "actionEmaOldWeight": 0,
   "actionEmaNewWeight": 1,
   "skillExecution": {
     "schema": "kissqy-skills-v1",
-    "policySha256": "fixture",
+    "policySha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "gains": {
       "p": 5,
       "d": 20

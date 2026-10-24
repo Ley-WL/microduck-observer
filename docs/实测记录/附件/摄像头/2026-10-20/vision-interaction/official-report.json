@@ -1,0 +1,1577 @@
+{
+  "person": {
+    "samples": [
+      {
+        "sequence": 6,
+        "capturedNs": 1299516230795,
+        "ageMs": 45.542,
+        "totalMs": 44.176,
+        "cpuMs": 10.707,
+        "rotationMs": 1.39,
+        "resizeMs": 4.735,
+        "faceMs": 8.545,
+        "personMs": 33.614,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 7,
+        "capturedNs": 1299762565194,
+        "ageMs": 43.733,
+        "totalMs": 42.396,
+        "cpuMs": 9.862,
+        "rotationMs": 1.422,
+        "resizeMs": 4.235,
+        "faceMs": 8.092,
+        "personMs": 32.282,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 8,
+        "capturedNs": 1300007109052,
+        "ageMs": 43.604,
+        "totalMs": 42.303,
+        "cpuMs": 9.674,
+        "rotationMs": 1.474,
+        "resizeMs": 4.156,
+        "faceMs": 7.947,
+        "personMs": 32.296,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 9,
+        "capturedNs": 1300251561910,
+        "ageMs": 44.224,
+        "totalMs": 42.878,
+        "cpuMs": 10.522,
+        "rotationMs": 1.35,
+        "resizeMs": 3.996,
+        "faceMs": 8.168,
+        "personMs": 32.6,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 10,
+        "capturedNs": 1300496779518,
+        "ageMs": 44.496,
+        "totalMs": 43.192,
+        "cpuMs": 9.966,
+        "rotationMs": 1.385,
+        "resizeMs": 4.301,
+        "faceMs": 8.119,
+        "personMs": 33.069,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 11,
+        "capturedNs": 1300742102126,
+        "ageMs": 44.088,
+        "totalMs": 42.795,
+        "cpuMs": 10.071,
+        "rotationMs": 1.365,
+        "resizeMs": 4.148,
+        "faceMs": 8.131,
+        "personMs": 32.62,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 12,
+        "capturedNs": 1300987644401,
+        "ageMs": 62.373,
+        "totalMs": 58.261,
+        "cpuMs": 22.956,
+        "rotationMs": 3.632,
+        "resizeMs": 6.708,
+        "faceMs": 20.371,
+        "personMs": 32.584,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 13,
+        "capturedNs": 1301250780927,
+        "ageMs": 43.648,
+        "totalMs": 42.279,
+        "cpuMs": 9.976,
+        "rotationMs": 1.485,
+        "resizeMs": 4.362,
+        "faceMs": 7.865,
+        "personMs": 32.304,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 14,
+        "capturedNs": 1301495442327,
+        "ageMs": 46.004,
+        "totalMs": 44.198,
+        "cpuMs": 10.517,
+        "rotationMs": 1.828,
+        "resizeMs": 4.629,
+        "faceMs": 9.173,
+        "personMs": 32.475,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 15,
+        "capturedNs": 1301742393602,
+        "ageMs": 43.995,
+        "totalMs": 42.654,
+        "cpuMs": 10.098,
+        "rotationMs": 1.446,
+        "resizeMs": 4.19,
+        "faceMs": 8.17,
+        "personMs": 32.355,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 16,
+        "capturedNs": 1301987389251,
+        "ageMs": 44.113,
+        "totalMs": 42.782,
+        "cpuMs": 10.25,
+        "rotationMs": 1.457,
+        "resizeMs": 4.137,
+        "faceMs": 8.194,
+        "personMs": 32.571,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 17,
+        "capturedNs": 1302232516151,
+        "ageMs": 44.565,
+        "totalMs": 42.978,
+        "cpuMs": 10.171,
+        "rotationMs": 1.44,
+        "resizeMs": 4.684,
+        "faceMs": 8.514,
+        "personMs": 32.419,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 18,
+        "capturedNs": 1302477904967,
+        "ageMs": 43.749,
+        "totalMs": 42.47,
+        "cpuMs": 9.899,
+        "rotationMs": 1.527,
+        "resizeMs": 4.089,
+        "faceMs": 8.077,
+        "personMs": 32.274,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 19,
+        "capturedNs": 1302722444450,
+        "ageMs": 45.005,
+        "totalMs": 43.289,
+        "cpuMs": 10.519,
+        "rotationMs": 1.373,
+        "resizeMs": 4.351,
+        "faceMs": 8.512,
+        "personMs": 32.804,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 20,
+        "capturedNs": 1302968364683,
+        "ageMs": 43.929,
+        "totalMs": 42.634,
+        "cpuMs": 10.137,
+        "rotationMs": 1.315,
+        "resizeMs": 4.275,
+        "faceMs": 7.937,
+        "personMs": 32.656,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 21,
+        "capturedNs": 1303214198708,
+        "ageMs": 57.556,
+        "totalMs": 55.352,
+        "cpuMs": 20.424,
+        "rotationMs": 2.069,
+        "resizeMs": 7.712,
+        "faceMs": 13.108,
+        "personMs": 39.114,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 22,
+        "capturedNs": 1303473012650,
+        "ageMs": 56.55,
+        "totalMs": 54.066,
+        "cpuMs": 19.8,
+        "rotationMs": 2.309,
+        "resizeMs": 6.753,
+        "faceMs": 13.007,
+        "personMs": 37.862,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 23,
+        "capturedNs": 1303730780385,
+        "ageMs": 45.051,
+        "totalMs": 43.686,
+        "cpuMs": 10.66,
+        "rotationMs": 1.749,
+        "resizeMs": 4.794,
+        "faceMs": 8.857,
+        "personMs": 32.311,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 24,
+        "capturedNs": 1303976639659,
+        "ageMs": 43.977,
+        "totalMs": 42.655,
+        "cpuMs": 10.013,
+        "rotationMs": 1.371,
+        "resizeMs": 4.177,
+        "faceMs": 8.432,
+        "personMs": 32.228,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 25,
+        "capturedNs": 1304221445142,
+        "ageMs": 45.35,
+        "totalMs": 44.052,
+        "cpuMs": 10.685,
+        "rotationMs": 1.362,
+        "resizeMs": 4.964,
+        "faceMs": 8.606,
+        "personMs": 33.396,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 0,
+            "score": 0.8448,
+            "bounds": [
+              58,
+              267,
+              119,
+              442
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.7483,
+            "bounds": [
+              114,
+              272,
+              162,
+              427
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.6594,
+            "bounds": [
+              272,
+              265,
+              317,
+              427
+            ]
+          }
+        ]
+      }
+    ],
+    "meanMs": 44.9548,
+    "cpuMs": 11.84535,
+    "maxRssKiB": 32812
+  },
+  "face": {
+    "samples": [
+      {
+        "sequence": 31,
+        "capturedNs": 1305695018832,
+        "ageMs": 80.127,
+        "totalMs": 76.012,
+        "cpuMs": 38.919,
+        "rotationMs": 3.566,
+        "resizeMs": 11.45,
+        "faceMs": 22.749,
+        "personMs": 47.985,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 32,
+        "capturedNs": 1305976514027,
+        "ageMs": 43.671,
+        "totalMs": 42.254,
+        "cpuMs": 9.898,
+        "rotationMs": 1.539,
+        "resizeMs": 4.054,
+        "faceMs": 8.228,
+        "personMs": 31.874,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 33,
+        "capturedNs": 1306220992843,
+        "ageMs": 44.585,
+        "totalMs": 43.233,
+        "cpuMs": 10.244,
+        "rotationMs": 1.479,
+        "resizeMs": 4.463,
+        "faceMs": 8.308,
+        "personMs": 32.822,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 34,
+        "capturedNs": 1306466346368,
+        "ageMs": 44.222,
+        "totalMs": 42.759,
+        "cpuMs": 9.89,
+        "rotationMs": 1.39,
+        "resizeMs": 4.677,
+        "faceMs": 8.6,
+        "personMs": 32.149,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 35,
+        "capturedNs": 1306711355434,
+        "ageMs": 44.318,
+        "totalMs": 42.917,
+        "cpuMs": 9.857,
+        "rotationMs": 1.379,
+        "resizeMs": 4.109,
+        "faceMs": 8.438,
+        "personMs": 32.371,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 36,
+        "capturedNs": 1306956596959,
+        "ageMs": 44.216,
+        "totalMs": 42.838,
+        "cpuMs": 9.726,
+        "rotationMs": 1.495,
+        "resizeMs": 4.513,
+        "faceMs": 8.371,
+        "personMs": 32.332,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 37,
+        "capturedNs": 1307201641900,
+        "ageMs": 44.551,
+        "totalMs": 43.224,
+        "cpuMs": 10.309,
+        "rotationMs": 1.707,
+        "resizeMs": 4.189,
+        "faceMs": 8.029,
+        "personMs": 32.755,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 38,
+        "capturedNs": 1307447086716,
+        "ageMs": 43.392,
+        "totalMs": 42.019,
+        "cpuMs": 9.654,
+        "rotationMs": 1.479,
+        "resizeMs": 4.073,
+        "faceMs": 7.965,
+        "personMs": 31.978,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 39,
+        "capturedNs": 1307691359616,
+        "ageMs": 43.807,
+        "totalMs": 42.459,
+        "cpuMs": 9.963,
+        "rotationMs": 1.405,
+        "resizeMs": 4.297,
+        "faceMs": 8.082,
+        "personMs": 32.278,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 40,
+        "capturedNs": 1307936532932,
+        "ageMs": 81.523,
+        "totalMs": 76.524,
+        "cpuMs": 37.847,
+        "rotationMs": 3.603,
+        "resizeMs": 11.933,
+        "faceMs": 22.369,
+        "personMs": 48.872,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 41,
+        "capturedNs": 1308219961544,
+        "ageMs": 44.034,
+        "totalMs": 42.656,
+        "cpuMs": 9.741,
+        "rotationMs": 1.453,
+        "resizeMs": 4.291,
+        "faceMs": 8.185,
+        "personMs": 32.393,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 42,
+        "capturedNs": 1308464841985,
+        "ageMs": 44.232,
+        "totalMs": 42.754,
+        "cpuMs": 10.256,
+        "rotationMs": 1.481,
+        "resizeMs": 4.025,
+        "faceMs": 8.189,
+        "personMs": 32.382,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 43,
+        "capturedNs": 1308710039760,
+        "ageMs": 44.141,
+        "totalMs": 42.554,
+        "cpuMs": 9.956,
+        "rotationMs": 1.536,
+        "resizeMs": 4.226,
+        "faceMs": 8.096,
+        "personMs": 32.303,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 44,
+        "capturedNs": 1308954932743,
+        "ageMs": 43.495,
+        "totalMs": 42.243,
+        "cpuMs": 9.849,
+        "rotationMs": 1.418,
+        "resizeMs": 3.984,
+        "faceMs": 7.845,
+        "personMs": 32.26,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 45,
+        "capturedNs": 1309199359934,
+        "ageMs": 44.386,
+        "totalMs": 42.96,
+        "cpuMs": 10.508,
+        "rotationMs": 1.382,
+        "resizeMs": 4.049,
+        "faceMs": 8.198,
+        "personMs": 32.755,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 46,
+        "capturedNs": 1309444766834,
+        "ageMs": 44.073,
+        "totalMs": 42.683,
+        "cpuMs": 10.107,
+        "rotationMs": 1.616,
+        "resizeMs": 4.145,
+        "faceMs": 8.113,
+        "personMs": 32.208,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 47,
+        "capturedNs": 1309689631525,
+        "ageMs": 44.156,
+        "totalMs": 42.575,
+        "cpuMs": 10.021,
+        "rotationMs": 1.394,
+        "resizeMs": 4.264,
+        "faceMs": 8.127,
+        "personMs": 32.378,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 48,
+        "capturedNs": 1309934586050,
+        "ageMs": 44.532,
+        "totalMs": 43.189,
+        "cpuMs": 10.299,
+        "rotationMs": 1.379,
+        "resizeMs": 4.352,
+        "faceMs": 8.75,
+        "personMs": 32.329,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 49,
+        "capturedNs": 1310180412408,
+        "ageMs": 70.55,
+        "totalMs": 66.358,
+        "cpuMs": 29.374,
+        "rotationMs": 3.759,
+        "resizeMs": 11.156,
+        "faceMs": 22.786,
+        "personMs": 38.355,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 50,
+        "capturedNs": 1310451726393,
+        "ageMs": 43.86,
+        "totalMs": 42.425,
+        "cpuMs": 9.988,
+        "rotationMs": 1.337,
+        "resizeMs": 4.388,
+        "faceMs": 8.186,
+        "personMs": 32.216,
+        "maxRssKiB": 32812,
+        "boxes": [
+          {
+            "kind": 1,
+            "score": 0.9912,
+            "bounds": [
+              170,
+              238,
+              274,
+              380
+            ]
+          },
+          {
+            "kind": 0,
+            "score": 0.8828,
+            "bounds": [
+              74,
+              201,
+              354,
+              436
+            ]
+          }
+        ]
+      }
+    ],
+    "meanMs": 47.2318,
+    "cpuMs": 13.8203,
+    "maxRssKiB": 32812
+  },
+  "duplicateRejected": true
+}

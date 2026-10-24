@@ -1,0 +1,30 @@
+{
+  "status": "deployed runtime-20261020-vision-interaction-v3; physical interaction awaiting user test",
+  "rustTests": {
+    "passed": 258,
+    "failed": 0,
+    "ignored": 1
+  },
+  "armBuild": true,
+  "nativeBuild": true,
+  "binarySha256": "c5bd69241af57678bf56ea4bd44961091871ad543ae88f9c75f613ff32507a23",
+  "workerSha256": "eb02b2eac237afceaeff5eca14f99a701a066d598e579edd7df3567a3a1b94d2",
+  "sourceSha256": {
+    "backend-rust/src/vision.rs": "a1092b7bcd31bd9fb293798eaa5b0c097827a8b81df82a74dcf9dd24f21a3f1c",
+    "tools/vision-worker.cc": "715233b741723c6e2024e14e13ea02f88937a3e5554334053fb97c2f4b4ee961"
+  },
+  "parameters": {
+    "stabilityMs": 500,
+    "stableBoxEdgeDeltaNormalized": 0.03,
+    "maxBodyGapMs": 300,
+    "faceCenterUpperFraction": 0.6,
+    "estimatedHeadHeightFraction": 0.22
+  },
+  "physicalMotionTested": false,
+  "boardEvidence": [
+    "official-report.json",
+    "deployment.json",
+    "live-report.json"
+  ],
+  "sourceEncoding": "UTF-8 without BOM, LF"
+}

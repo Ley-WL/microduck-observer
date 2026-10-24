@@ -1,0 +1,237 @@
+model input num: 1, output num: 3
+input tensors:
+  index=0, name=input0, n_dims=4, dims=[1, 320, 320, 3], n_elems=307200, size=307200, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-14, scale=1.074510
+output tensors:
+  index=0, name=output0, n_dims=3, dims=[1, 4200, 4, 0], n_elems=16800, size=16800, fmt=UNDEFINED, type=INT8, qnt_type=AFFINE, zp=0, scale=0.044699
+  index=1, name=572, n_dims=3, dims=[1, 4200, 2, 0], n_elems=8400, size=16800, fmt=UNDEFINED, type=FP16, qnt_type=AFFINE, zp=0, scale=1.000000
+  index=2, name=571, n_dims=3, dims=[1, 4200, 10, 0], n_elems=42000, size=42000, fmt=UNDEFINED, type=INT8, qnt_type=AFFINE, zp=-22, scale=0.086195
+model is NHWC input fmt
+model input height=320, width=320, channel=3
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+scale=0.500000 dst_box=(70 0 249 319) allow_slight_change=1 _left_offset=70 _top_offset=0 padding_w=140 padding_h=0
+convert image use cpu
+finish
+rknn_run
+BENCH pipeline mean_ms=17.812 p50_ms=17.790 p95_ms=19.100 min_ms=15.644 max_ms=19.513
+BENCH rknn_run mean_ms=8.883 p50_ms=8.829 p95_ms=10.034 min_ms=7.719 max_ms=10.327
+BENCH resize mean_ms=8.118 p50_ms=8.049 p95_ms=9.086 min_ms=6.924 max_ms=9.484
+BENCH inputs_set mean_ms=0.370 p50_ms=0.356 p95_ms=0.483 min_ms=0.272 max_ms=0.824
+BENCH outputs_get mean_ms=0.383 p50_ms=0.370 p95_ms=0.462 min_ms=0.313 max_ms=0.486
+BENCH postprocess_and_other mean_ms=0.057 p50_ms=0.056 p95_ms=0.067 min_ms=0.047 max_ms=0.113
+BENCH runs=50 warmup=5 cpu_one_core_pct=78.48 peak_rss_kib=12124 input=360x640
+write_image path: /home/radxa/vision-bench/cpu-stage-RetinaFace-live.png width=360 height=640 channel=3 data=0xffffb4d3e010

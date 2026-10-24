@@ -1,0 +1,23 @@
+{
+  "installed": true,
+  "release": "/home/radxa/microduck-observer/releases/frontend-20261019-110004",
+  "previousRelease": "/home/radxa/microduck-observer/releases/frontend-20261019-105248",
+  "assets": {
+    "index.html": "a136dcdfab2cbc6bd602b2d2ad46c354d8b23a11c10c2c929c89940f5a1d02b5",
+    "assets/index-DGF3mMGO.css": "4e90659a4a471f264ff36a92f09765624252b1d24e17bce733ebc10ce65870e9",
+    "assets/index-DthV3YcT.js": "19a58de0456dea759e710437eff4d827c6c9b818804922b8b475a59cf6d55bfd",
+    "model/LICENSE": "48a029ca4cffafe32428e9f7d3f6a54ce637fac5327a9ccf88c93cb3c40e5a8a",
+    "model/meshes.bin": "d2252354ee5a04367aaf82242e08e52491b02ebbf27d48dc2c20350e6714d1a8",
+    "model/model.json": "afb68b1b75ed9c8e1e9a96de401cc2346bb913e7c4f8c6a82fd8bbc10ca69c9c",
+    "model/NOTICE.md": "40025b104ed58fdae7d4e3eec6703746a925cc2c626c84dd476aa50619e2f15a"
+  },
+  "mainPidUnchanged": 1026,
+  "calibrationUnchanged": true,
+  "modelsAndGainsUnchanged": true,
+  "hardwareMotion": false,
+  "serviceRestart": false,
+  "serviceEnablementUnchanged": {
+    "tofd": "not-found",
+    "rsyslog": "enabled"
+  }
+}

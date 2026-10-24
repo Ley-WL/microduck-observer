@@ -1,0 +1,50 @@
+{
+  "before": {
+    "temp": "81666",
+    "irq": [
+      " 34:       1320          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu"
+    ],
+    "npu_freq": "900000000"
+  },
+  "tests": [
+    {
+      "name": "yolov5-bench",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=47.525 p50_ms=47.496 p95_ms=49.072 min_ms=46.370 max_ms=49.832",
+        "BENCH rknn_run mean_ms=25.632 p50_ms=25.530 p95_ms=26.204 min_ms=25.140 max_ms=26.426",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=44.80 peak_rss_kib=28904 input=360x640"
+      ],
+      "after": {
+        "temp": "81111",
+        "irq": [
+          " 34:       1485          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu"
+        ],
+        "npu_freq": "900000000"
+      }
+    },
+    {
+      "name": "RetinaFace-bench",
+      "exit": 0,
+      "summary": [
+        "BENCH pipeline mean_ms=13.024 p50_ms=12.950 p95_ms=14.098 min_ms=11.883 max_ms=15.021",
+        "BENCH rknn_run mean_ms=6.962 p50_ms=6.927 p95_ms=7.617 min_ms=6.360 max_ms=7.994",
+        "BENCH runs=50 warmup=5 cpu_one_core_pct=71.63 peak_rss_kib=12136 input=360x640"
+      ],
+      "after": {
+        "temp": "82222",
+        "irq": [
+          " 34:       1980          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu"
+        ],
+        "npu_freq": "900000000"
+      }
+    }
+  ],
+  "after": {
+    "temp": "82222",
+    "irq": [
+      " 34:       1980          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu"
+    ],
+    "npu_freq": "900000000"
+  }
+}

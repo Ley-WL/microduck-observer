@@ -1,0 +1,1 @@
+{"rejections": [{"mode": "toggle", "status": 409, "body": {"detail": "演示会话或序号已过期"}}, {"mode": "keepalive", "status": 409, "body": {"detail": "演示会话或序号已过期"}}, {"mode": "cancel", "status": 409, "body": {"detail": "演示会话或序号已过期"}}], "idle": true, "allDisabled": true}

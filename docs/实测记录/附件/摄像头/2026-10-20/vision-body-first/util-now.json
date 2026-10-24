@@ -1,0 +1,5813 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3",
+  "seconds": 20.595829070000036,
+  "cpuCores": 4,
+  "systemBusyPercent": 23.242286292362166,
+  "processes": [
+    {
+      "pid": "2403",
+      "cpuOneCorePercent": 58.94,
+      "rssMiB": 141.07,
+      "cmd": "/home/radxa/microduck-observer/current/bin/microduck-observer "
+    },
+    {
+      "pid": "2417",
+      "cpuOneCorePercent": 6.7,
+      "rssMiB": 6.23,
+      "cmd": "/home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp "
+    },
+    {
+      "pid": "2540",
+      "cpuOneCorePercent": 6.51,
+      "rssMiB": 32.11,
+      "cmd": "/home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn "
+    },
+    {
+      "pid": "620",
+      "cpuOneCorePercent": 5.34,
+      "rssMiB": 6.09,
+      "cmd": "/usr/libexec/bluetooth/bluetoothd "
+    },
+    {
+      "pid": "2609",
+      "cpuOneCorePercent": 2.33,
+      "rssMiB": 22.89,
+      "cmd": "python3 -c import os,time,json,pathlib,urllib.request,statistics\nP=pathlib.Path\ndef get(x):return json.load(urllib.request.urlopen('http://127.0.0.1:8877/api/v1/'+x,timeout=5))\ndef read(p):\n try:return P(p).read_text().s"
+    },
+    {
+      "pid": "2416",
+      "cpuOneCorePercent": 2.23,
+      "rssMiB": 1.77,
+      "cmd": "/usr/bin/v4l2-ctl -d /dev/video0 --stream-mmap=3 --stream-to=- "
+    },
+    {
+      "pid": "2535",
+      "cpuOneCorePercent": 1.65,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "2536",
+      "cpuOneCorePercent": 1.46,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "2202",
+      "cpuOneCorePercent": 1.21,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "629",
+      "cpuOneCorePercent": 1.07,
+      "rssMiB": 3.96,
+      "cmd": "/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only "
+    },
+    {
+      "pid": "168",
+      "cpuOneCorePercent": 0.92,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "328",
+      "cpuOneCorePercent": 0.73,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "96",
+      "cpuOneCorePercent": 0.68,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "2526",
+      "cpuOneCorePercent": 0.63,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "329",
+      "cpuOneCorePercent": 0.53,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "2221",
+      "cpuOneCorePercent": 0.44,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "522",
+      "cpuOneCorePercent": 0.39,
+      "rssMiB": 9.52,
+      "cmd": "/usr/lib/systemd/systemd-journald "
+    },
+    {
+      "pid": "640",
+      "cpuOneCorePercent": 0.29,
+      "rssMiB": 3.42,
+      "cmd": "/usr/sbin/rsyslogd -n -iNONE "
+    },
+    {
+      "pid": "14",
+      "cpuOneCorePercent": 0.24,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "71",
+      "cpuOneCorePercent": 0.19,
+      "rssMiB": 0.0,
+      "cmd": ""
+    },
+    {
+      "pid": "630",
+      "cpuOneCorePercent": 0.0,
+      "rssMiB": 2.48,
+      "cmd": "/usr/local/lib/microduck-services/20261011-service-rust-v1/ducklink-wifi "
+    }
+  ],
+  "meminfo": "MemTotal:         986196 kB\nMemFree:           72180 kB\nMemAvailable:     678608 kB\nBuffers:           10176 kB\nCached:           591308 kB\nSwapCached:            0 kB\nActive:           483080 kB\nInactive:         274856 kB\nActive(anon):       4928 kB\nInactive(anon):   176044 kB\nActive(file):     478152 kB\nInactive(file):    98812 kB\nUnevictable:       19104 kB\nMlocked:               0 kB\nSwapTotal:        493096 kB\nSwapFree:         492584 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:                12 kB\nWriteback:             0 kB\nAnonPages:        175596 kB\nMapped:            91452 kB\nShmem:             24520 kB\nKReclaimable:      45156 kB\nSlab:              91160 kB\nSReclaimable:      45156 kB\nSUnreclaim:        46004 kB\nKernelStack:        2816 kB\nPageTables:         2520 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:      986192 kB\nCommitted_AS:     329628 kB\nVmallocTotal:   133143592960 kB\nVmallocUsed:       24440 kB\nVmallocChunk:          0 kB\nPercpu:             1584 kB\nCmaTotal:         262144 kB\nCmaAllocated:       2004 kB\nCmaReleased:      260140 kB\nCmaFree:           36176 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB",
+  "loadavg": "0.67 0.58 0.52 2/173 2611",
+  "npuLoadSamples": [
+    "NPU load: 24%",
+    "NPU load: 25%",
+    "NPU load: 24%",
+    "NPU load: 22%",
+    "NPU load: 20%",
+    "NPU load: 12%",
+    "NPU load: 12%",
+    "NPU load: 20%",
+    "NPU load: 26%",
+    "NPU load: 23%",
+    "NPU load: 24%",
+    "NPU load: 24%",
+    "NPU load: 23%",
+    "NPU load: 25%",
+    "NPU load: 25%",
+    "NPU load: 23%",
+    "NPU load: 25%",
+    "NPU load: 26%",
+    "NPU load: 25%",
+    "NPU load: 24%"
+  ],
+  "rgaLoadSamples": [
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 2%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 2%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 2%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn",
+    "num of scheduler = 1\n================= load ==================\nscheduler[0]: rga2\n\t load = 3%\n-----------------------------------\n=========================================\n<session>  <status>  <tgid>  <process>\n21         active    2417    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-camera-mpp\n23         active    2540    /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/microduck-vision-worker /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/yolov5n.rknn /home/radxa/microduck-observer/releases/runtime-20261020-vision-interaction-v3/bin/../models/vision/RetinaFace_mobile320.rknn"
+  ],
+  "thermal": {
+    "/sys/class/thermal/thermal_zone0/temp": "85000",
+    "/sys/class/thermal/thermal_zone1/temp": "81666"
+  },
+  "devfreq": {
+    "/sys/class/devfreq/fdf80200.rkvdec/cur_freq": "0",
+    "/sys/class/devfreq/dmc/cur_freq": "1056000000",
+    "/sys/class/devfreq/fde40000.npu/cur_freq": "900000000",
+    "/sys/class/devfreq/fdf40000.rkvenc/cur_freq": "0",
+    "/sys/class/devfreq/fde60000.gpu/cur_freq": "200000000"
+  },
+  "samples": [
+    {
+      "at": 3790.727534062,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u76ee\u6807\u4e22\u5931",
+            "error": "",
+            "frameAgeMs": 182.239186,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -12.58320456099375,
+              -7.905069062749999
+            ],
+            "metrics": {
+              "cpuMs": 8.389,
+              "faceMs": 0.0,
+              "frameIntervalMs": 97.816842,
+              "maxRssKiB": 86108,
+              "personMs": 37.402,
+              "resizeMs": 3.835,
+              "rotationMs": 1.743,
+              "totalMs": 40.056
+            },
+            "state": "lost",
+            "target": {
+              "bounds": [
+                0.24166666666666667,
+                0.41875,
+                0.8166666666666667,
+                0.9984375
+              ],
+              "kind": "person",
+              "score": 0.5744
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6178,
+        "commandHz": 49.94,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 11.95,
+            "maxMs": 24.96,
+            "meanMs": 10.593
+          },
+          "feedbackActualHz": 49.94237705132328,
+          "feedbackReads": 6178,
+          "inferenceActualHz": 49.95046273787131,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 46,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6178,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.230709,
+              "maxMs": 0.920792,
+              "meanMs": 0.22470777918083126,
+              "samples": 6177
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.004956,
+              "maxMs": 0.658581,
+              "meanMs": 0.008988841346932126,
+              "samples": 6177
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.006416,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.0049010563380281905,
+              "samples": 6177
+            },
+            "infer": {
+              "lastMs": 0.56525,
+              "maxMs": 2.327792,
+              "meanMs": 0.7186542765096335,
+              "samples": 6177
+            },
+            "observe": {
+              "lastMs": 0.16799999999999998,
+              "maxMs": 1.032208,
+              "meanMs": 0.1394356153472559,
+              "samples": 6177
+            },
+            "publishAndAccounting": {
+              "lastMs": 2.0772500000000003,
+              "maxMs": 5.873876,
+              "meanMs": 1.6792592146673184,
+              "samples": 6177
+            },
+            "readAndSensors": {
+              "lastMs": 6.427751,
+              "maxMs": 10.900751,
+              "meanMs": 5.98215409875344,
+              "samples": 6177
+            },
+            "skillAndCommand": {
+              "lastMs": 0.6635420000000001,
+              "maxMs": 3.016708,
+              "meanMs": 0.6328036890076079,
+              "samples": 6177
+            },
+            "status": {
+              "lastMs": 0.46141699999999997,
+              "maxMs": 2.921042,
+              "meanMs": 0.43106146236036913,
+              "samples": 6177
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.06708299999999999,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.0741794762829841,
+              "samples": 6177
+            },
+            "totalBeforeWait": {
+              "lastMs": 12.162793,
+              "maxMs": 25.468919,
+              "meanMs": 11.024872193783429,
+              "samples": 6177
+            },
+            "trace": {
+              "lastMs": 1.495375,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1377155253359235,
+              "samples": 6177
+            }
+          },
+          "observe": {
+            "lastMs": 0.142,
+            "maxMs": 1.035,
+            "meanMs": 0.141
+          },
+          "read": {
+            "lastMs": 6.082,
+            "maxMs": 10.901,
+            "meanMs": 5.982
+          },
+          "write": {
+            "lastMs": 1.719,
+            "maxMs": 11.402,
+            "meanMs": 1.366
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.630320943331456,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 4.53,
+          "imu.raw": 2.03
+        },
+        "inferenceMs": 0.762,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.4411248860592174,
+          -6.31694783832366,
+          -24.231827533574833,
+          -4.198543322903049,
+          22.29365548865158,
+          12.023603760154694,
+          20.16167511848192,
+          -2.5843860606950915,
+          1.0498545035009084,
+          -0.6313858885271522,
+          7.065473818994057,
+          26.68480801171487,
+          2.3477708054861015,
+          -27.298954716220322
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.439453125,
+          -6.328125,
+          -24.2578125,
+          -4.21875,
+          22.32421875,
+          12.041015625,
+          7.55859375,
+          -10.458984375,
+          1.0546875,
+          -0.615234375,
+          7.03125,
+          26.71875,
+          2.373046875,
+          -27.333984375
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9698150157928467,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7688,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3791.740761414,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 99.61992699999999,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -17.70683410877625,
+              -6.048569116749999
+            ],
+            "metrics": {
+              "cpuMs": 6.726,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.20530099999999,
+              "maxRssKiB": 86108,
+              "personMs": 33.331,
+              "resizeMs": 3.236,
+              "rotationMs": 1.474,
+              "totalMs": 35.576
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.0,
+                0.0578125,
+                0.9777777777777777,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.6328
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6229,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.403,
+            "maxMs": 24.96,
+            "meanMs": 10.606
+          },
+          "feedbackActualHz": 49.94346100096831,
+          "feedbackReads": 6229,
+          "inferenceActualHz": 49.951480649711726,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 51,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6229,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.21000000000000002,
+              "maxMs": 0.920792,
+              "meanMs": 0.22500966618497026,
+              "samples": 6228
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.003499,
+              "maxMs": 0.658581,
+              "meanMs": 0.00902762941554267,
+              "samples": 6228
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004667,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.00490901846499681,
+              "samples": 6228
+            },
+            "infer": {
+              "lastMs": 0.769417,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7196802700706499,
+              "samples": 6228
+            },
+            "observe": {
+              "lastMs": 0.116083,
+              "maxMs": 1.032208,
+              "meanMs": 0.13974314354527936,
+              "samples": 6228
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.278667,
+              "maxMs": 5.873876,
+              "meanMs": 1.6824951584778463,
+              "samples": 6228
+            },
+            "readAndSensors": {
+              "lastMs": 5.786668,
+              "maxMs": 10.900751,
+              "meanMs": 5.9847669566474,
+              "samples": 6228
+            },
+            "skillAndCommand": {
+              "lastMs": 0.569333,
+              "maxMs": 3.016708,
+              "meanMs": 0.634276294797687,
+              "samples": 6228
+            },
+            "status": {
+              "lastMs": 0.378292,
+              "maxMs": 2.921042,
+              "meanMs": 0.43195720086705197,
+              "samples": 6228
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.06125,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07423957048811701,
+              "samples": 6228
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.379835,
+              "maxMs": 25.468919,
+              "meanMs": 11.038974407032795,
+              "samples": 6228
+            },
+            "trace": {
+              "lastMs": 1.205458,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1418971274887604,
+              "samples": 6228
+            }
+          },
+          "observe": {
+            "lastMs": 0.119,
+            "maxMs": 1.035,
+            "meanMs": 0.141
+          },
+          "read": {
+            "lastMs": 5.749,
+            "maxMs": 10.901,
+            "meanMs": 5.985
+          },
+          "write": {
+            "lastMs": 1.814,
+            "maxMs": 11.402,
+            "meanMs": 1.371
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.63128884899831,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 2.84,
+          "imu.raw": 0.61
+        },
+        "inferenceMs": 0.581,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.335018057385628,
+          -6.354977904735468,
+          -24.31056083168486,
+          -4.116686920795031,
+          21.9954767502455,
+          12.105878511349374,
+          20.11584796424572,
+          -1.985851247641585,
+          1.1703437362149878,
+          -0.6810936040681249,
+          7.0271141959547965,
+          26.891952281315724,
+          2.122593982702768,
+          -26.99207260926436
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.3515625,
+          -6.328125,
+          -24.345703125,
+          -4.130859375,
+          21.97265625,
+          12.12890625,
+          2.4609375,
+          -8.0859375,
+          1.142578125,
+          -0.703125,
+          7.03125,
+          26.89453125,
+          2.109375,
+          -26.982421875
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.969692051410675,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7698,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3792.755681016,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 150.169266,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -6.048569116749999
+            ],
+            "metrics": {
+              "cpuMs": 6.625,
+              "faceMs": 0.0,
+              "frameIntervalMs": 67.872007,
+              "maxRssKiB": 86108,
+              "personMs": 33.071,
+              "resizeMs": 3.149,
+              "rotationMs": 1.67,
+              "totalMs": 35.539
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.0,
+                0.0,
+                0.9305555555555556,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.5875
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6280,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.224,
+            "maxMs": 24.96,
+            "meanMs": 10.607
+          },
+          "feedbackActualHz": 49.94401397254696,
+          "feedbackReads": 6280,
+          "inferenceActualHz": 49.951968455255056,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 51,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6280,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.228958,
+              "maxMs": 0.920792,
+              "meanMs": 0.22507007262302817,
+              "samples": 6279
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.005543,
+              "maxMs": 0.658581,
+              "meanMs": 0.009020172957477266,
+              "samples": 6279
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.005542,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.0049113239369326525,
+              "samples": 6279
+            },
+            "infer": {
+              "lastMs": 0.673167,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7193661105271552,
+              "samples": 6279
+            },
+            "observe": {
+              "lastMs": 0.116083,
+              "maxMs": 1.032208,
+              "meanMs": 0.139669839783405,
+              "samples": 6279
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.299667,
+              "maxMs": 5.873876,
+              "meanMs": 1.6811003573817533,
+              "samples": 6279
+            },
+            "readAndSensors": {
+              "lastMs": 5.833042,
+              "maxMs": 10.900751,
+              "meanMs": 5.984892367574456,
+              "samples": 6279
+            },
+            "skillAndCommand": {
+              "lastMs": 0.5772079999999999,
+              "maxMs": 3.016708,
+              "meanMs": 0.6346015586876883,
+              "samples": 6279
+            },
+            "status": {
+              "lastMs": 0.585958,
+              "maxMs": 2.921042,
+              "meanMs": 0.4321605728619206,
+              "samples": 6279
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.063292,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07419319843924074,
+              "samples": 6279
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.545209,
+              "maxMs": 25.468919,
+              "meanMs": 11.039694709030135,
+              "samples": 6279
+            },
+            "trace": {
+              "lastMs": 1.162292,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1437293072145245,
+              "samples": 6279
+            }
+          },
+          "observe": {
+            "lastMs": 0.122,
+            "maxMs": 1.035,
+            "meanMs": 0.141
+          },
+          "read": {
+            "lastMs": 5.941,
+            "maxMs": 10.901,
+            "meanMs": 5.985
+          },
+          "write": {
+            "lastMs": 1.373,
+            "maxMs": 11.402,
+            "meanMs": 1.373
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.630826630765146,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 2.49,
+          "imu.raw": 0.19
+        },
+        "inferenceMs": 0.538,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.2700677608555669,
+          -6.389929690265715,
+          -24.509980157334432,
+          -3.891362395170895,
+          21.760670214506096,
+          12.181101092226017,
+          19.9682578215655,
+          -2.010231394440534,
+          1.1896219451473486,
+          -0.5855180199601959,
+          7.041919911641269,
+          27.077810266368235,
+          1.8981631446428457,
+          -26.76535472504954
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.263671875,
+          -6.416015625,
+          -24.521484375,
+          -3.8671874999999996,
+          21.796875,
+          12.216796875,
+          1.9335937499999998,
+          -8.0859375,
+          1.23046875,
+          -0.615234375,
+          7.03125,
+          27.0703125,
+          1.9335937499999998,
+          -26.806640625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9697507619857788,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7708,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3793.771272618,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u76ee\u6807\u4e22\u5931",
+            "error": "",
+            "frameAgeMs": 136.391222,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -6.048569116749999
+            ],
+            "metrics": {
+              "cpuMs": 6.799,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.517385,
+              "maxRssKiB": 86108,
+              "personMs": 34.361,
+              "resizeMs": 2.999,
+              "rotationMs": 1.422,
+              "totalMs": 36.407
+            },
+            "state": "lost",
+            "target": {
+              "bounds": [
+                0.0,
+                0.0,
+                0.9305555555555556,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.5875
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6331,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.604,
+            "maxMs": 24.96,
+            "meanMs": 10.608
+          },
+          "feedbackActualHz": 49.94430851863214,
+          "feedbackReads": 6331,
+          "inferenceActualHz": 49.952199074711594,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6331,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.280875,
+              "maxMs": 0.920792,
+              "meanMs": 0.22506334060031502,
+              "samples": 6330
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.004668000000000001,
+              "maxMs": 0.658581,
+              "meanMs": 0.008998182780410698,
+              "samples": 6330
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.006125,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004911518799368108,
+              "samples": 6330
+            },
+            "infer": {
+              "lastMs": 1.005958,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7190800055292269,
+              "samples": 6330
+            },
+            "observe": {
+              "lastMs": 0.123667,
+              "maxMs": 1.032208,
+              "meanMs": 0.13966724739336495,
+              "samples": 6330
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.4393749999999998,
+              "maxMs": 5.873876,
+              "meanMs": 1.679959383570305,
+              "samples": 6330
+            },
+            "readAndSensors": {
+              "lastMs": 5.970709,
+              "maxMs": 10.900751,
+              "meanMs": 5.985479936176937,
+              "samples": 6330
+            },
+            "skillAndCommand": {
+              "lastMs": 0.684542,
+              "maxMs": 3.016708,
+              "meanMs": 0.6348236219589249,
+              "samples": 6330
+            },
+            "status": {
+              "lastMs": 0.506334,
+              "maxMs": 2.921042,
+              "meanMs": 0.4322780985781991,
+              "samples": 6330
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.085167,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07414936982622311,
+              "samples": 6330
+            },
+            "totalBeforeWait": {
+              "lastMs": 12.05546,
+              "maxMs": 25.468919,
+              "meanMs": 11.040653463981084,
+              "samples": 6330
+            },
+            "trace": {
+              "lastMs": 1.952708,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1452409415481828,
+              "samples": 6330
+            }
+          },
+          "observe": {
+            "lastMs": 0.18,
+            "maxMs": 1.035,
+            "meanMs": 0.141
+          },
+          "read": {
+            "lastMs": 6.204,
+            "maxMs": 10.901,
+            "meanMs": 5.986
+          },
+          "write": {
+            "lastMs": 1.38,
+            "maxMs": 11.402,
+            "meanMs": 1.374
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.629743967688631,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 2.56,
+          "imu.raw": 0.38
+        },
+        "inferenceMs": 0.624,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.2682193942722851,
+          -6.383495652067563,
+          -24.515828506811253,
+          -3.888028409082283,
+          21.755783214154953,
+          12.180694695970402,
+          19.971848793521634,
+          -2.0128772389702676,
+          1.1854348257427192,
+          -0.587612913683833,
+          7.045956553440746,
+          27.076659379493087,
+          1.8956285041305363,
+          -26.768894470586897
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.263671875,
+          -6.416015625,
+          -24.521484375,
+          -3.8671874999999996,
+          21.796875,
+          12.216796875,
+          1.9335937499999998,
+          -8.0859375,
+          1.142578125,
+          -0.615234375,
+          7.03125,
+          27.0703125,
+          1.9335937499999998,
+          -26.806640625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9698883891105652,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7718,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3794.785001344,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u5bfb\u627e\u76ee\u6807",
+            "error": "",
+            "frameAgeMs": 154.67522400000001,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              0.0,
+              0.0
+            ],
+            "metrics": {
+              "cpuMs": 6.76,
+              "faceMs": 0.0,
+              "frameIntervalMs": 200.363354,
+              "maxRssKiB": 86108,
+              "personMs": 33.781,
+              "resizeMs": 3.421,
+              "rotationMs": 1.545,
+              "totalMs": 36.012
+            },
+            "state": "searching",
+            "target": {
+              "bounds": [
+                0.4,
+                0.478125,
+                0.8916666666666667,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.7539
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6382,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.093,
+            "maxMs": 24.96,
+            "meanMs": 10.609
+          },
+          "feedbackActualHz": 49.94497359731564,
+          "feedbackReads": 6382,
+          "inferenceActualHz": 49.95280107837303,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6382,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.217292,
+              "maxMs": 0.920792,
+              "meanMs": 0.22498728443817495,
+              "samples": 6381
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.002044,
+              "maxMs": 0.658581,
+              "meanMs": 0.008960180849396602,
+              "samples": 6381
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004667,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004912578592697091,
+              "samples": 6381
+            },
+            "infer": {
+              "lastMs": 0.5567909999999999,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7188800180222544,
+              "samples": 6381
+            },
+            "observe": {
+              "lastMs": 0.119583,
+              "maxMs": 1.032208,
+              "meanMs": 0.1398118320012538,
+              "samples": 6381
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.8923340000000002,
+              "maxMs": 5.873876,
+              "meanMs": 1.6795646955022772,
+              "samples": 6381
+            },
+            "readAndSensors": {
+              "lastMs": 5.7986260000000005,
+              "maxMs": 10.900751,
+              "meanMs": 5.986114152327225,
+              "samples": 6381
+            },
+            "skillAndCommand": {
+              "lastMs": 0.7011670000000001,
+              "maxMs": 3.016708,
+              "meanMs": 0.6349772288042621,
+              "samples": 6381
+            },
+            "status": {
+              "lastMs": 0.49379199999999995,
+              "maxMs": 2.921042,
+              "meanMs": 0.4322272295878391,
+              "samples": 6381
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.060375,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07409403808180416,
+              "samples": 6381
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.969876999999999,
+              "maxMs": 25.468919,
+              "meanMs": 11.042264194013521,
+              "samples": 6381
+            },
+            "trace": {
+              "lastMs": 1.1252499999999999,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1466951366556961,
+              "samples": 6381
+            }
+          },
+          "observe": {
+            "lastMs": 0.13,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 5.765,
+            "maxMs": 10.901,
+            "meanMs": 5.986
+          },
+          "write": {
+            "lastMs": 1.368,
+            "maxMs": 11.402,
+            "meanMs": 1.376
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.630102904253102,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 1.67,
+          "imu.raw": 4.62
+        },
+        "inferenceMs": 0.691,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.31557312246840996,
+          -6.413232588166506,
+          -23.55677944733496,
+          -4.9407744304796335,
+          23.55002439024582,
+          11.964756557813157,
+          19.703150859120626,
+          -0.10152942132081066,
+          1.435795303047831,
+          -1.3961246038530448,
+          7.110598317519393,
+          26.57873175880999,
+          2.557471273383833,
+          -28.15376142858388
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.3515625,
+          -6.416015625,
+          -23.5546875,
+          -4.921875,
+          23.5546875,
+          11.953125,
+          14.677734375000002,
+          -0.087890625,
+          1.40625,
+          -1.40625,
+          7.119140625,
+          26.54296875,
+          2.548828125,
+          -28.125
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9698427319526672,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7728,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3795.798646946,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u76ee\u6807\u4e22\u5931",
+            "error": "",
+            "frameAgeMs": 174.46072500000002,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              0.0,
+              0.0
+            ],
+            "metrics": {
+              "cpuMs": 6.021,
+              "faceMs": 0.0,
+              "frameIntervalMs": 200.28256199999998,
+              "maxRssKiB": 86108,
+              "personMs": 32.633,
+              "resizeMs": 2.913,
+              "rotationMs": 1.365,
+              "totalMs": 34.626
+            },
+            "state": "lost",
+            "target": {
+              "bounds": [
+                0.4,
+                0.478125,
+                0.8916666666666667,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.7539
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6433,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 11.089,
+            "maxMs": 24.96,
+            "meanMs": 10.609
+          },
+          "feedbackActualHz": 49.9449883534847,
+          "feedbackReads": 6433,
+          "inferenceActualHz": 49.95275377192096,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6433,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.217001,
+              "maxMs": 0.920792,
+              "meanMs": 0.22489053249378013,
+              "samples": 6432
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.00204,
+              "maxMs": 0.658581,
+              "meanMs": 0.008938246735074583,
+              "samples": 6432
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.0043749999999999995,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004909585820895545,
+              "samples": 6432
+            },
+            "infer": {
+              "lastMs": 0.6965,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7187937560634338,
+              "samples": 6432
+            },
+            "observe": {
+              "lastMs": 0.11870800000000001,
+              "maxMs": 1.032208,
+              "meanMs": 0.13977192288557222,
+              "samples": 6432
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.427708,
+              "maxMs": 5.873876,
+              "meanMs": 1.6787168642723918,
+              "samples": 6432
+            },
+            "readAndSensors": {
+              "lastMs": 5.761001,
+              "maxMs": 10.900751,
+              "meanMs": 5.985840184079602,
+              "samples": 6432
+            },
+            "skillAndCommand": {
+              "lastMs": 0.529959,
+              "maxMs": 3.016708,
+              "meanMs": 0.6349852870024869,
+              "samples": 6432
+            },
+            "status": {
+              "lastMs": 0.377417,
+              "maxMs": 2.921042,
+              "meanMs": 0.4320030376243783,
+              "samples": 6432
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.058916,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07401999362562071,
+              "samples": 6432
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.365542999999999,
+              "maxMs": 25.468919,
+              "meanMs": 11.041513235230145,
+              "samples": 6432
+            },
+            "trace": {
+              "lastMs": 1.1739579999999998,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1475820713619402,
+              "samples": 6432
+            }
+          },
+          "observe": {
+            "lastMs": 0.155,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 6.613,
+            "maxMs": 10.901,
+            "meanMs": 5.986
+          },
+          "write": {
+            "lastMs": 1.441,
+            "maxMs": 11.402,
+            "meanMs": 1.376
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.631092613827792,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 2.41,
+          "imu.raw": 0.2
+        },
+        "inferenceMs": 0.581,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.6120530914422839,
+          -6.236916377384505,
+          -23.293028277440335,
+          -5.329132156497389,
+          23.837003325960367,
+          11.794893168249525,
+          20.050360110483638,
+          0.06362099764327381,
+          1.465257217310975,
+          -1.6155030229178613,
+          7.04498069016308,
+          26.154969747229472,
+          2.9239094282511364,
+          -28.484508216499872
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.615234375,
+          -6.240234375,
+          -23.291015625,
+          -5.361328125,
+          23.818359375,
+          11.77734375,
+          20.0390625,
+          0.087890625,
+          1.494140625,
+          -1.58203125,
+          7.03125,
+          26.19140625,
+          2.900390625,
+          -28.4765625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9697169661521912,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7738,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3796.81218609,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u5bfb\u627e\u76ee\u6807",
+            "error": "",
+            "frameAgeMs": 224.66064799999998,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              0.0,
+              0.0
+            ],
+            "metrics": {
+              "cpuMs": 6.229,
+              "faceMs": 0.0,
+              "frameIntervalMs": 167.91135,
+              "maxRssKiB": 86108,
+              "personMs": 32.849,
+              "resizeMs": 2.803,
+              "rotationMs": 1.393,
+              "totalMs": 34.873
+            },
+            "state": "searching",
+            "target": {
+              "bounds": [
+                0.03333333333333333,
+                0.0296875,
+                0.9833333333333333,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.5988
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6484,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.606,
+            "maxMs": 24.96,
+            "meanMs": 10.609
+          },
+          "feedbackActualHz": 49.945623384343406,
+          "feedbackReads": 6484,
+          "inferenceActualHz": 49.95332781230356,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6484,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.21787499999999999,
+              "maxMs": 0.920792,
+              "meanMs": 0.2248586478482175,
+              "samples": 6483
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.004084,
+              "maxMs": 0.658581,
+              "meanMs": 0.008986930741940416,
+              "samples": 6483
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004083,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004907630109517223,
+              "samples": 6483
+            },
+            "infer": {
+              "lastMs": 0.7043750000000001,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7187103814592017,
+              "samples": 6483
+            },
+            "observe": {
+              "lastMs": 0.11375,
+              "maxMs": 1.032208,
+              "meanMs": 0.13972431867962368,
+              "samples": 6483
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.418375,
+              "maxMs": 5.873876,
+              "meanMs": 1.6775299697670867,
+              "samples": 6483
+            },
+            "readAndSensors": {
+              "lastMs": 5.736792,
+              "maxMs": 10.900751,
+              "meanMs": 5.985566566250192,
+              "samples": 6483
+            },
+            "skillAndCommand": {
+              "lastMs": 0.5311250000000001,
+              "maxMs": 3.016708,
+              "meanMs": 0.6347931061237074,
+              "samples": 6483
+            },
+            "status": {
+              "lastMs": 0.374208,
+              "maxMs": 2.921042,
+              "meanMs": 0.4319339870430358,
+              "samples": 6483
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.059792,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07393870029307306,
+              "samples": 6483
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.334042,
+              "maxMs": 25.468919,
+              "meanMs": 11.04111947493449,
+              "samples": 6483
+            },
+            "trace": {
+              "lastMs": 1.173667,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1491561673607897,
+              "samples": 6483
+            }
+          },
+          "observe": {
+            "lastMs": 0.146,
+            "maxMs": 1.035,
+            "meanMs": 0.141
+          },
+          "read": {
+            "lastMs": 5.888,
+            "maxMs": 10.901,
+            "meanMs": 5.986
+          },
+          "write": {
+            "lastMs": 1.507,
+            "maxMs": 11.402,
+            "meanMs": 1.378
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.630650019111679,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 1.62,
+          "imu.raw": 4.42
+        },
+        "inferenceMs": 0.622,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.6014241965158333,
+          -6.2184441307742055,
+          -23.253363661382778,
+          -5.357030064162306,
+          23.795542370151097,
+          11.788625615912391,
+          20.08384169779504,
+          0.06435973863090623,
+          1.4429632664166419,
+          -1.6136204520278765,
+          7.030618509885836,
+          26.144304406840497,
+          2.9557410979911576,
+          -28.516345435768592
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.615234375,
+          -6.240234375,
+          -23.291015625,
+          -5.361328125,
+          23.818359375,
+          11.77734375,
+          20.126953125,
+          0.087890625,
+          1.40625,
+          -1.58203125,
+          7.03125,
+          26.103515625,
+          2.98828125,
+          -28.4765625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9697732329368591,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7748,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3797.829359109,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 110.69538600000001,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -9.07164996834,
+              0.0
+            ],
+            "metrics": {
+              "cpuMs": 6.336,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.25313499999999,
+              "maxRssKiB": 86108,
+              "personMs": 33.022,
+              "resizeMs": 2.967,
+              "rotationMs": 1.41,
+              "totalMs": 35.094
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.03611111111111111,
+                0.178125,
+                0.9555555555555556,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.4554
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6535,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.589,
+            "maxMs": 24.96,
+            "meanMs": 10.61
+          },
+          "feedbackActualHz": 49.9460230233359,
+          "feedbackReads": 6535,
+          "inferenceActualHz": 49.953667376892206,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6535,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.349416,
+              "maxMs": 0.920792,
+              "meanMs": 0.22492988399142855,
+              "samples": 6534
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.003209,
+              "maxMs": 0.658581,
+              "meanMs": 0.008984681052953733,
+              "samples": 6534
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.0052499999999999995,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004909365472910952,
+              "samples": 6534
+            },
+            "infer": {
+              "lastMs": 1.1150419999999999,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7185315766758502,
+              "samples": 6534
+            },
+            "observe": {
+              "lastMs": 0.22458299999999998,
+              "maxMs": 1.032208,
+              "meanMs": 0.13972330180593825,
+              "samples": 6534
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.925292,
+              "maxMs": 5.873876,
+              "meanMs": 1.6772065176002482,
+              "samples": 6534
+            },
+            "readAndSensors": {
+              "lastMs": 6.076001,
+              "maxMs": 10.900751,
+              "meanMs": 5.986089549433729,
+              "samples": 6534
+            },
+            "skillAndCommand": {
+              "lastMs": 1.083542,
+              "maxMs": 3.016708,
+              "meanMs": 0.6351686437098252,
+              "samples": 6534
+            },
+            "status": {
+              "lastMs": 0.398708,
+              "maxMs": 2.921042,
+              "meanMs": 0.43202608723599645,
+              "samples": 6534
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.06212500000000001,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.0738813979185786,
+              "samples": 6534
+            },
+            "totalBeforeWait": {
+              "lastMs": 12.888459999999998,
+              "maxMs": 25.468919,
+              "meanMs": 11.042814595959642,
+              "samples": 6534
+            },
+            "trace": {
+              "lastMs": 1.648501,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1503482721150904,
+              "samples": 6534
+            }
+          },
+          "observe": {
+            "lastMs": 0.245,
+            "maxMs": 1.035,
+            "meanMs": 0.141
+          },
+          "read": {
+            "lastMs": 6.165,
+            "maxMs": 10.901,
+            "meanMs": 5.986
+          },
+          "write": {
+            "lastMs": 1.327,
+            "maxMs": 11.402,
+            "meanMs": 1.379
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.6315850172005115,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 1.5,
+          "imu.raw": 4.26
+        },
+        "inferenceMs": 0.571,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.3034176802624616,
+          -6.310493309557998,
+          -23.713402515192524,
+          -4.776831534265933,
+          22.556450432062405,
+          12.02701202455053,
+          20.032429156365062,
+          0.043817231000685464,
+          1.4994504249565284,
+          -1.3263582769061844,
+          6.9822223507480645,
+          26.75810447924557,
+          2.2901997813022987,
+          -27.412684196090204
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.263671875,
+          -6.328125,
+          -23.73046875,
+          -4.74609375,
+          22.587890625,
+          12.041015625,
+          11.07421875,
+          -0.0,
+          1.494140625,
+          -1.318359375,
+          6.943359375,
+          26.71875,
+          2.28515625,
+          -27.421875
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.969654381275177,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7758,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3798.847399544,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 128.160387,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -2.2557267127499996
+            ],
+            "metrics": {
+              "cpuMs": 6.337,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.161844,
+              "maxRssKiB": 86108,
+              "personMs": 33.849,
+              "resizeMs": 3.313,
+              "rotationMs": 1.406,
+              "totalMs": 35.937
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.26944444444444443,
+                0.0546875,
+                0.9722222222222222,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.457
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6586,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.15,
+            "maxMs": 24.96,
+            "meanMs": 10.614
+          },
+          "feedbackActualHz": 49.946658019745485,
+          "feedbackReads": 6586,
+          "inferenceActualHz": 49.954243265180004,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6586,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.313542,
+              "maxMs": 0.920792,
+              "meanMs": 0.22498566636294517,
+              "samples": 6585
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.003794,
+              "maxMs": 0.658581,
+              "meanMs": 0.008963907365223947,
+              "samples": 6585
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.006125,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004907441761579368,
+              "samples": 6585
+            },
+            "infer": {
+              "lastMs": 0.690084,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7182064085041768,
+              "samples": 6585
+            },
+            "observe": {
+              "lastMs": 0.1785,
+              "maxMs": 1.032208,
+              "meanMs": 0.13990700045558094,
+              "samples": 6585
+            },
+            "publishAndAccounting": {
+              "lastMs": 2.2595419999999997,
+              "maxMs": 5.873876,
+              "meanMs": 1.6778810712224783,
+              "samples": 6585
+            },
+            "readAndSensors": {
+              "lastMs": 6.457792,
+              "maxMs": 10.900751,
+              "meanMs": 5.98733087501898,
+              "samples": 6585
+            },
+            "skillAndCommand": {
+              "lastMs": 1.113583,
+              "maxMs": 3.016708,
+              "meanMs": 0.6356745196659073,
+              "samples": 6585
+            },
+            "status": {
+              "lastMs": 0.49175,
+              "maxMs": 2.921042,
+              "meanMs": 0.4320046127562642,
+              "samples": 6585
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.072333,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.0738608601366731,
+              "samples": 6585
+            },
+            "totalBeforeWait": {
+              "lastMs": 13.253918,
+              "maxMs": 25.468919,
+              "meanMs": 11.046544793166335,
+              "samples": 6585
+            },
+            "trace": {
+              "lastMs": 1.6706670000000001,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1517863372817014,
+              "samples": 6585
+            }
+          },
+          "observe": {
+            "lastMs": 0.118,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 5.76,
+            "maxMs": 10.901,
+            "meanMs": 5.987
+          },
+          "write": {
+            "lastMs": 1.348,
+            "maxMs": 11.402,
+            "meanMs": 1.381
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.629759848813793,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 0.67,
+          "imu.raw": 3.46
+        },
+        "inferenceMs": 0.707,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.13129032311280822,
+          -6.416667319545376,
+          -24.360279486200678,
+          -4.15703199444865,
+          21.666384575655947,
+          12.244009695802774,
+          19.949167442835314,
+          -0.03605876309357244,
+          1.4716548634074555,
+          -0.8897691167035313,
+          6.966224340164603,
+          27.203285964063248,
+          1.7568725708114927,
+          -26.618657629603298
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.087890625,
+          -6.416015625,
+          -24.345703125,
+          -4.130859375,
+          21.708984375,
+          12.216796875,
+          1.9335937499999998,
+          -1.845703125,
+          1.494140625,
+          -0.87890625,
+          6.943359375,
+          27.24609375,
+          1.7578125,
+          -26.630859375
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9698863625526428,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7769,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3799.864817271,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 147.83564099999998,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -5.9988303827500005
+            ],
+            "metrics": {
+              "cpuMs": 6.47,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.03876000000001,
+              "maxRssKiB": 86108,
+              "personMs": 33.283,
+              "resizeMs": 3.048,
+              "rotationMs": 1.551,
+              "totalMs": 35.475
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.0,
+                0.0765625,
+                0.9,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.5642
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6637,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.682,
+            "maxMs": 24.96,
+            "meanMs": 10.619
+          },
+          "feedbackActualHz": 49.94682505278568,
+          "feedbackReads": 6637,
+          "inferenceActualHz": 49.954352028106875,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6637,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.266,
+              "maxMs": 0.920792,
+              "meanMs": 0.22509271910789552,
+              "samples": 6636
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.0029140000000000004,
+              "maxMs": 0.658581,
+              "meanMs": 0.008934308619650345,
+              "samples": 6636
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.0043749999999999995,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004907876280892128,
+              "samples": 6636
+            },
+            "infer": {
+              "lastMs": 0.740834,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7179989754370104,
+              "samples": 6636
+            },
+            "observe": {
+              "lastMs": 0.135625,
+              "maxMs": 1.032208,
+              "meanMs": 0.14001504596142264,
+              "samples": 6636
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.922666,
+              "maxMs": 5.873876,
+              "meanMs": 1.6792102534659465,
+              "samples": 6636
+            },
+            "readAndSensors": {
+              "lastMs": 6.489584,
+              "maxMs": 10.900751,
+              "meanMs": 5.98817807760699,
+              "samples": 6636
+            },
+            "skillAndCommand": {
+              "lastMs": 0.6168750000000001,
+              "maxMs": 3.016708,
+              "meanMs": 0.636433476039783,
+              "samples": 6636
+            },
+            "status": {
+              "lastMs": 0.426709,
+              "maxMs": 2.921042,
+              "meanMs": 0.4321281146775163,
+              "samples": 6636
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.078458,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07381954083785294,
+              "samples": 6636
+            },
+            "totalBeforeWait": {
+              "lastMs": 12.057501,
+              "maxMs": 25.468919,
+              "meanMs": 11.051385991862622,
+              "samples": 6636
+            },
+            "trace": {
+              "lastMs": 1.376375,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1536019124472576,
+              "samples": 6636
+            }
+          },
+          "observe": {
+            "lastMs": 0.129,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 5.886,
+            "maxMs": 10.901,
+            "meanMs": 5.988
+          },
+          "write": {
+            "lastMs": 1.558,
+            "maxMs": 11.402,
+            "meanMs": 1.383
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.628117197265747,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 0.71,
+          "imu.raw": 3.61
+        },
+        "inferenceMs": 0.671,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.26688030366899235,
+          -6.401726707622797,
+          -24.443256039332578,
+          -3.9762018823989163,
+          21.91301758394323,
+          12.16797176109396,
+          20.000361418211853,
+          -1.9590346442996456,
+          1.1741326769353464,
+          -0.6491311468776684,
+          7.036471128230891,
+          27.0303968006973,
+          1.9696222912868118,
+          -26.893253432352612
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.263671875,
+          -6.416015625,
+          -24.43359375,
+          -3.955078125,
+          21.884765625,
+          12.12890625,
+          2.021484375,
+          -7.91015625,
+          1.142578125,
+          -0.615234375,
+          7.03125,
+          27.0703125,
+          1.9335937499999998,
+          -26.89453125
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9700952172279358,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7779,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3800.878879957,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 167.61735,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -8.558693579375
+            ],
+            "metrics": {
+              "cpuMs": 6.438,
+              "faceMs": 0.0,
+              "frameIntervalMs": 130.438889,
+              "maxRssKiB": 86108,
+              "personMs": 33.409,
+              "resizeMs": 3.304,
+              "rotationMs": 1.538,
+              "totalMs": 35.67
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.4361111111111111,
+                0.05625,
+                1.0,
+                0.9953125
+              ],
+              "kind": "person",
+              "score": 0.5117
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6688,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 11.939,
+            "maxMs": 24.96,
+            "meanMs": 10.623
+          },
+          "feedbackActualHz": 49.94676854462749,
+          "feedbackReads": 6688,
+          "inferenceActualHz": 49.95423810522503,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6688,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.294583,
+              "maxMs": 0.920792,
+              "meanMs": 0.22523953103035668,
+              "samples": 6687
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.004374,
+              "maxMs": 0.658581,
+              "meanMs": 0.008954755645281842,
+              "samples": 6687
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004667,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.0049097006131299786,
+              "samples": 6687
+            },
+            "infer": {
+              "lastMs": 0.7945,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7180789582772544,
+              "samples": 6687
+            },
+            "observe": {
+              "lastMs": 0.11900000000000001,
+              "maxMs": 1.032208,
+              "meanMs": 0.140060248691491,
+              "samples": 6687
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.333208,
+              "maxMs": 5.873876,
+              "meanMs": 1.6793123225661761,
+              "samples": 6687
+            },
+            "readAndSensors": {
+              "lastMs": 5.798334,
+              "maxMs": 10.900751,
+              "meanMs": 5.989242741737696,
+              "samples": 6687
+            },
+            "skillAndCommand": {
+              "lastMs": 0.9884589999999999,
+              "maxMs": 3.016708,
+              "meanMs": 0.6373114021235232,
+              "samples": 6687
+            },
+            "status": {
+              "lastMs": 0.483,
+              "maxMs": 2.921042,
+              "meanMs": 0.4324867037535513,
+              "samples": 6687
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.08574999999999999,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.0738078573351267,
+              "samples": 6687
+            },
+            "totalBeforeWait": {
+              "lastMs": 11.546793,
+              "maxMs": 25.468919,
+              "meanMs": 11.05603762913121,
+              "samples": 6687
+            },
+            "trace": {
+              "lastMs": 1.645292,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.155588163002841,
+              "samples": 6687
+            }
+          },
+          "observe": {
+            "lastMs": 0.126,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 5.923,
+            "maxMs": 10.901,
+            "meanMs": 5.989
+          },
+          "write": {
+            "lastMs": 1.927,
+            "maxMs": 11.402,
+            "meanMs": 1.385
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.629305477539173,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 2.04,
+          "imu.raw": 4.86
+        },
+        "inferenceMs": 1.263,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.3112876856923294,
+          -6.370702280865307,
+          -24.51012871394888,
+          -3.873857900988622,
+          21.760566054121252,
+          12.171187072645745,
+          20.015978645749087,
+          -2.093204959364672,
+          1.16661573358863,
+          -0.5106701389925518,
+          7.034538611582601,
+          26.994760288702757,
+          1.9956062518802442,
+          -26.78113929222144
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.3515625,
+          -6.328125,
+          -24.521484375,
+          -3.8671874999999996,
+          21.796875,
+          12.12890625,
+          2.021484375,
+          -10.634765625,
+          1.142578125,
+          -0.52734375,
+          7.03125,
+          26.982421875,
+          2.021484375,
+          -26.806640625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9699441194534302,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7789,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3801.8935076,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 185.420394,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -8.558693579375
+            ],
+            "metrics": {
+              "cpuMs": 6.715,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.719218,
+              "maxRssKiB": 86108,
+              "personMs": 33.211,
+              "resizeMs": 3.118,
+              "rotationMs": 1.472,
+              "totalMs": 35.365
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.06111111111111111,
+                0.1,
+                0.9944444444444445,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.6719
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6739,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 11.501,
+            "maxMs": 24.96,
+            "meanMs": 10.627
+          },
+          "feedbackActualHz": 49.947165575806146,
+          "feedbackReads": 6739,
+          "inferenceActualHz": 49.95457898215561,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6739,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.220209,
+              "maxMs": 0.920792,
+              "meanMs": 0.22531334669041206,
+              "samples": 6738
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.0034980000000000007,
+              "maxMs": 0.658581,
+              "meanMs": 0.00891601944197086,
+              "samples": 6738
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004667,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004912535915702019,
+              "samples": 6738
+            },
+            "infer": {
+              "lastMs": 0.714875,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7177386717126744,
+              "samples": 6738
+            },
+            "observe": {
+              "lastMs": 0.12804200000000002,
+              "maxMs": 1.032208,
+              "meanMs": 0.14011264603739987,
+              "samples": 6738
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.4679579999999999,
+              "maxMs": 5.873876,
+              "meanMs": 1.6791329108043958,
+              "samples": 6738
+            },
+            "readAndSensors": {
+              "lastMs": 5.903042,
+              "maxMs": 10.900751,
+              "meanMs": 5.9904834387058425,
+              "samples": 6738
+            },
+            "skillAndCommand": {
+              "lastMs": 0.697959,
+              "maxMs": 3.016708,
+              "meanMs": 0.6377464584446424,
+              "samples": 6738
+            },
+            "status": {
+              "lastMs": 0.465208,
+              "maxMs": 2.921042,
+              "meanMs": 0.43302123656871455,
+              "samples": 6738
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.063291,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07378085307212708,
+              "samples": 6738
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.794876,
+              "maxMs": 25.468919,
+              "meanMs": 11.060164857821366,
+              "samples": 6738
+            },
+            "trace": {
+              "lastMs": 1.1296249999999999,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.157922759869397,
+              "samples": 6738
+            }
+          },
+          "observe": {
+            "lastMs": 0.164,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 6.269,
+            "maxMs": 10.901,
+            "meanMs": 5.991
+          },
+          "write": {
+            "lastMs": 1.74,
+            "maxMs": 11.402,
+            "meanMs": 1.387
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.629041596451923,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 1.71,
+          "imu.raw": 4.63
+        },
+        "inferenceMs": 0.609,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.3265810128525169,
+          -6.37449388962831,
+          -24.518087591879237,
+          -3.825780199420902,
+          21.739727146963546,
+          12.148992372937787,
+          20.051034591664177,
+          -2.7342205608478958,
+          1.0617567484598902,
+          -0.4394025044496106,
+          7.046989192665888,
+          26.992670250816733,
+          2.0076538518025004,
+          -26.781636188483557
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.3515625,
+          -6.416015625,
+          -24.521484375,
+          -3.8671874999999996,
+          21.708984375,
+          12.12890625,
+          2.021484375,
+          -11.25,
+          1.0546875,
+          -0.439453125,
+          7.03125,
+          26.982421875,
+          2.021484375,
+          -26.806640625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9699776768684387,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7799,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3802.907185285,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 204.129646,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -8.558693579375
+            ],
+            "metrics": {
+              "cpuMs": 7.193,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.97121800000001,
+              "maxRssKiB": 86108,
+              "personMs": 35.242,
+              "resizeMs": 4.399,
+              "rotationMs": 1.698,
+              "totalMs": 37.597
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.07777777777777778,
+                0.09375,
+                0.9805555555555555,
+                0.9890625
+              ],
+              "kind": "person",
+              "score": 0.642
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6790,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 12.66,
+            "maxMs": 24.96,
+            "meanMs": 10.631
+          },
+          "feedbackActualHz": 49.94731013743184,
+          "feedbackReads": 6790,
+          "inferenceActualHz": 49.95466755286137,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 51,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6790,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.332209,
+              "maxMs": 0.920792,
+              "meanMs": 0.22542463264103638,
+              "samples": 6789
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.005247999999999999,
+              "maxMs": 0.658581,
+              "meanMs": 0.008887105022831,
+              "samples": 6789
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.0043749999999999995,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004914899248784832,
+              "samples": 6789
+            },
+            "infer": {
+              "lastMs": 0.8589589999999999,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7176442543820888,
+              "samples": 6789
+            },
+            "observe": {
+              "lastMs": 0.12425000000000001,
+              "maxMs": 1.032208,
+              "meanMs": 0.1402133619089704,
+              "samples": 6789
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.406125,
+              "maxMs": 5.873876,
+              "meanMs": 1.6797188494623678,
+              "samples": 6789
+            },
+            "readAndSensors": {
+              "lastMs": 5.929293,
+              "maxMs": 10.900751,
+              "meanMs": 5.9916828973339165,
+              "samples": 6789
+            },
+            "skillAndCommand": {
+              "lastMs": 0.622708,
+              "maxMs": 3.016708,
+              "meanMs": 0.6381434878479897,
+              "samples": 6789
+            },
+            "status": {
+              "lastMs": 0.392,
+              "maxMs": 2.921042,
+              "meanMs": 0.43316744144940333,
+              "samples": 6789
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.067666,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07376211665930064,
+              "samples": 6789
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.961418,
+              "maxMs": 25.468919,
+              "meanMs": 11.063976646634314,
+              "samples": 6789
+            },
+            "trace": {
+              "lastMs": 1.223833,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.159304705700397,
+              "samples": 6789
+            }
+          },
+          "observe": {
+            "lastMs": 0.216,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 6.019,
+            "maxMs": 10.901,
+            "meanMs": 5.992
+          },
+          "write": {
+            "lastMs": 2.021,
+            "maxMs": 11.402,
+            "meanMs": 1.389
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.630137436806732,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 2.3,
+          "imu.raw": 5.01
+        },
+        "inferenceMs": 0.727,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.34818546148622254,
+          -6.374582255200696,
+          -24.487491759492165,
+          -3.8867720811618236,
+          21.905769045686554,
+          12.142836664948314,
+          20.077925046426518,
+          -2.717014247111576,
+          1.0602696882115314,
+          -0.48723752085838334,
+          7.046367218564593,
+          26.938590520515866,
+          2.0562931229860424,
+          -26.92426078363718
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.3515625,
+          -6.416015625,
+          -24.521484375,
+          -3.8671874999999996,
+          21.884765625,
+          12.12890625,
+          2.021484375,
+          -11.25,
+          1.0546875,
+          -0.52734375,
+          7.03125,
+          26.982421875,
+          2.021484375,
+          -26.89453125
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9698383808135986,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7809,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3803.924566554,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 153.001349,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -8.558693579375
+            ],
+            "metrics": {
+              "cpuMs": 6.742,
+              "faceMs": 0.0,
+              "frameIntervalMs": 68.03563199999999,
+              "maxRssKiB": 86108,
+              "personMs": 33.334,
+              "resizeMs": 3.432,
+              "rotationMs": 1.596,
+              "totalMs": 35.7
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.09444444444444444,
+                0.0828125,
+                0.9694444444444444,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.6201
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6841,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.537,
+            "maxMs": 24.96,
+            "meanMs": 10.635
+          },
+          "feedbackActualHz": 49.94848901964495,
+          "feedbackReads": 6841,
+          "inferenceActualHz": 49.955791749518326,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 51,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6841,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.25083300000000003,
+              "maxMs": 0.920792,
+              "meanMs": 0.22559378523391765,
+              "samples": 6840
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.004667999999999999,
+              "maxMs": 0.658581,
+              "meanMs": 0.008903184356725095,
+              "samples": 6840
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.006125,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.0049160761695906715,
+              "samples": 6840
+            },
+            "infer": {
+              "lastMs": 0.652459,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7175874897660814,
+              "samples": 6840
+            },
+            "observe": {
+              "lastMs": 0.13037500000000002,
+              "maxMs": 1.032208,
+              "meanMs": 0.1403048571637427,
+              "samples": 6840
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.8526669999999998,
+              "maxMs": 5.873876,
+              "meanMs": 1.680324620760236,
+              "samples": 6840
+            },
+            "readAndSensors": {
+              "lastMs": 5.775291999999999,
+              "maxMs": 10.900751,
+              "meanMs": 5.992521036842104,
+              "samples": 6840
+            },
+            "skillAndCommand": {
+              "lastMs": 0.848166,
+              "maxMs": 3.016708,
+              "meanMs": 0.6390442030701758,
+              "samples": 6840
+            },
+            "status": {
+              "lastMs": 0.45675,
+              "maxMs": 2.921042,
+              "meanMs": 0.43343695994152015,
+              "samples": 6840
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.07145800000000001,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07378604619882924,
+              "samples": 6840
+            },
+            "totalBeforeWait": {
+              "lastMs": 11.939084000000001,
+              "maxMs": 25.468919,
+              "meanMs": 11.068955997514669,
+              "samples": 6840
+            },
+            "trace": {
+              "lastMs": 1.894959,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1614409223684201,
+              "samples": 6840
+            }
+          },
+          "observe": {
+            "lastMs": 0.21,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 5.982,
+            "maxMs": 10.901,
+            "meanMs": 5.993
+          },
+          "write": {
+            "lastMs": 1.373,
+            "maxMs": 11.402,
+            "meanMs": 1.391
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.627123693126058,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 4.69,
+          "imu.raw": 2.42
+        },
+        "inferenceMs": 0.543,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.3539962449226109,
+          -6.374807224556484,
+          -24.476612975691626,
+          -3.907817174655102,
+          21.959471408035782,
+          12.140830296879622,
+          20.09282339655361,
+          -2.723227157935349,
+          1.053883247894158,
+          -0.49783167786960203,
+          7.047279475705613,
+          26.91772087750689,
+          2.072182917759842,
+          -26.969679834070472
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.3515625,
+          -6.416015625,
+          -24.43359375,
+          -3.8671874999999996,
+          21.97265625,
+          12.12890625,
+          2.109375,
+          -11.25,
+          1.0546875,
+          -0.52734375,
+          7.03125,
+          26.89453125,
+          2.109375,
+          -26.982421875
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9702215790748596,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7819,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3804.94107049,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 108.84097,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -14.718408345124999
+            ],
+            "metrics": {
+              "cpuMs": 13.1,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.172634,
+              "maxRssKiB": 86108,
+              "personMs": 40.361,
+              "resizeMs": 5.018,
+              "rotationMs": 2.342,
+              "totalMs": 43.826
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.022222222222222223,
+                0.08125,
+                0.7555555555555555,
+                0.99375
+              ],
+              "kind": "person",
+              "score": 0.5214
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6890,
+        "commandHz": 49.95,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 19.346,
+            "maxMs": 24.96,
+            "meanMs": 10.641
+          },
+          "feedbackActualHz": 49.945444479706886,
+          "feedbackReads": 6890,
+          "inferenceActualHz": 49.952694930576264,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6890,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.33425099999999996,
+              "maxMs": 0.920792,
+              "meanMs": 0.2256880824502826,
+              "samples": 6889
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.005541,
+              "maxMs": 0.658581,
+              "meanMs": 0.008876354187835627,
+              "samples": 6889
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.006125,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004920144578313282,
+              "samples": 6889
+            },
+            "infer": {
+              "lastMs": 0.981167,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.717883488459863,
+              "samples": 6889
+            },
+            "observe": {
+              "lastMs": 0.24266700000000002,
+              "maxMs": 1.032208,
+              "meanMs": 0.14044591827551164,
+              "samples": 6889
+            },
+            "publishAndAccounting": {
+              "lastMs": 2.937958,
+              "maxMs": 5.873876,
+              "meanMs": 1.6807927729714054,
+              "samples": 6889
+            },
+            "readAndSensors": {
+              "lastMs": 8.185043,
+              "maxMs": 10.900751,
+              "meanMs": 5.993624475395557,
+              "samples": 6889
+            },
+            "skillAndCommand": {
+              "lastMs": 1.135167,
+              "maxMs": 3.016708,
+              "meanMs": 0.6399631749165342,
+              "samples": 6889
+            },
+            "status": {
+              "lastMs": 0.709916,
+              "maxMs": 2.921042,
+              "meanMs": 0.4337833524459279,
+              "samples": 6889
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.19454100000000002,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07378845667005254,
+              "samples": 6889
+            },
+            "totalBeforeWait": {
+              "lastMs": 16.777835,
+              "maxMs": 25.468919,
+              "meanMs": 11.074321563216776,
+              "samples": 6889
+            },
+            "trace": {
+              "lastMs": 2.0509999999999997,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.163431697053272,
+              "samples": 6889
+            }
+          },
+          "observe": {
+            "lastMs": 0.251,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 7.025,
+            "maxMs": 10.901,
+            "meanMs": 5.994
+          },
+          "write": {
+            "lastMs": 3.244,
+            "maxMs": 11.402,
+            "meanMs": 1.393
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.626411323813452,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 2.75,
+          "imu.raw": 1.45
+        },
+        "inferenceMs": 1.366,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.5462732470931836,
+          -6.26569495256553,
+          -24.723397955687943,
+          -3.5627500413705344,
+          21.867120420268037,
+          12.014704023666168,
+          20.27601760782981,
+          -5.278611808527743,
+          0.6053932301146984,
+          -0.040368809227995524,
+          7.118089754378428,
+          26.574621692476935,
+          2.27168527289651,
+          -27.037081848347448
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.52734375,
+          -6.240234375,
+          -24.697265625,
+          -3.6035156249999996,
+          21.884765625,
+          12.041015625,
+          2.28515625,
+          -21.005859375,
+          0.615234375,
+          -0.0,
+          7.119140625,
+          26.54296875,
+          2.28515625,
+          -27.0703125
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 7,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9703121781349182,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7830,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3805.959815884,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 137.82564,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -10.547979953625
+            ],
+            "metrics": {
+              "cpuMs": 7.242,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.15075900000001,
+              "maxRssKiB": 86108,
+              "personMs": 34.786,
+              "resizeMs": 4.374,
+              "rotationMs": 1.576,
+              "totalMs": 37.233
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.008333333333333333,
+                0.096875,
+                0.9722222222222222,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.6459
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6940,
+        "commandHz": 49.94,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 10.605,
+            "maxMs": 24.96,
+            "meanMs": 10.654
+          },
+          "feedbackActualHz": 49.93480761767175,
+          "feedbackReads": 6940,
+          "inferenceActualHz": 49.94200418630289,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6940,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.246167,
+              "maxMs": 0.920792,
+              "meanMs": 0.2260390412163132,
+              "samples": 6939
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.004083000000000001,
+              "maxMs": 2.215791,
+              "meanMs": 0.009418172359129501,
+              "samples": 6939
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004958,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.0049286584522265755,
+              "samples": 6939
+            },
+            "infer": {
+              "lastMs": 0.655958,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7190181382043516,
+              "samples": 6939
+            },
+            "observe": {
+              "lastMs": 0.16333299999999998,
+              "maxMs": 1.032208,
+              "meanMs": 0.1407210481337368,
+              "samples": 6939
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.598042,
+              "maxMs": 5.873876,
+              "meanMs": 1.6838071725032435,
+              "samples": 6939
+            },
+            "readAndSensors": {
+              "lastMs": 5.9610840000000005,
+              "maxMs": 10.900751,
+              "meanMs": 5.996501698659747,
+              "samples": 6939
+            },
+            "skillAndCommand": {
+              "lastMs": 0.749875,
+              "maxMs": 3.016708,
+              "meanMs": 0.6412906611903737,
+              "samples": 6939
+            },
+            "status": {
+              "lastMs": 0.458209,
+              "maxMs": 2.921042,
+              "meanMs": 0.4350352690589418,
+              "samples": 6939
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.065625,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07441897333909676,
+              "samples": 6939
+            },
+            "totalBeforeWait": {
+              "lastMs": 11.555543,
+              "maxMs": 25.468919,
+              "meanMs": 11.089621437094737,
+              "samples": 6939
+            },
+            "trace": {
+              "lastMs": 1.652292,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1678607763366466,
+              "samples": 6939
+            }
+          },
+          "observe": {
+            "lastMs": 0.242,
+            "maxMs": 1.035,
+            "meanMs": 0.142
+          },
+          "read": {
+            "lastMs": 6.258,
+            "maxMs": 10.901,
+            "meanMs": 5.997
+          },
+          "write": {
+            "lastMs": 1.351,
+            "maxMs": 11.402,
+            "meanMs": 1.398
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.6264368580987725,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 4.49,
+          "imu.raw": 2.18
+        },
+        "inferenceMs": 0.608,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.3998994116937543,
+          -6.348107161317258,
+          -24.572317586341846,
+          -3.8077403891624293,
+          21.924536697978457,
+          12.11068354943048,
+          20.13375842779679,
+          -3.6588290317646344,
+          0.8901624395501888,
+          -0.3118089678642189,
+          7.073483496456367,
+          26.72248845781854,
+          2.1511708538598664,
+          -26.943745605791932
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.439453125,
+          -6.328125,
+          -24.609375,
+          -3.779296875,
+          21.884765625,
+          12.12890625,
+          2.109375,
+          -14.23828125,
+          0.87890625,
+          -0.3515625,
+          7.03125,
+          26.71875,
+          2.109375,
+          -26.982421875
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 9,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9703089594841003,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7840,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3806.976633069,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 58.304173,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -10.547979953625
+            ],
+            "metrics": {
+              "cpuMs": 6.245,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.029717,
+              "maxRssKiB": 86108,
+              "personMs": 33.531,
+              "resizeMs": 3.291,
+              "rotationMs": 1.334,
+              "totalMs": 35.489
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.005555555555555556,
+                0.0921875,
+                0.9694444444444444,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.5758
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 6991,
+        "commandHz": 49.94,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 11.902,
+            "maxMs": 24.96,
+            "meanMs": 10.657
+          },
+          "feedbackActualHz": 49.93476352400703,
+          "feedbackReads": 6991,
+          "inferenceActualHz": 49.941907683353556,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 6991,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.22633399999999998,
+              "maxMs": 0.920792,
+              "meanMs": 0.22603225951359046,
+              "samples": 6990
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.0035020000000000003,
+              "maxMs": 2.215791,
+              "meanMs": 0.009397732331902662,
+              "samples": 6990
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004958,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004951407439198887,
+              "samples": 6990
+            },
+            "infer": {
+              "lastMs": 0.756292,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7188059834048633,
+              "samples": 6990
+            },
+            "observe": {
+              "lastMs": 0.156625,
+              "maxMs": 1.032208,
+              "meanMs": 0.14088394406294696,
+              "samples": 6990
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.694583,
+              "maxMs": 5.873876,
+              "meanMs": 1.6837126756795433,
+              "samples": 6990
+            },
+            "readAndSensors": {
+              "lastMs": 6.510876,
+              "maxMs": 10.900751,
+              "meanMs": 5.997469662947064,
+              "samples": 6990
+            },
+            "skillAndCommand": {
+              "lastMs": 0.786334,
+              "maxMs": 3.016708,
+              "meanMs": 0.6419061555078691,
+              "samples": 6990
+            },
+            "status": {
+              "lastMs": 0.433417,
+              "maxMs": 2.921042,
+              "meanMs": 0.4351793907010011,
+              "samples": 6990
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.07029099999999999,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07438093147353253,
+              "samples": 6990
+            },
+            "totalBeforeWait": {
+              "lastMs": 11.999168,
+              "maxMs": 25.468919,
+              "meanMs": 11.092808852074448,
+              "samples": 6990
+            },
+            "trace": {
+              "lastMs": 1.359458,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1694864413447768,
+              "samples": 6990
+            }
+          },
+          "observe": {
+            "lastMs": 0.134,
+            "maxMs": 1.035,
+            "meanMs": 0.143
+          },
+          "read": {
+            "lastMs": 5.972,
+            "maxMs": 10.901,
+            "meanMs": 5.997
+          },
+          "write": {
+            "lastMs": 2.305,
+            "maxMs": 11.402,
+            "meanMs": 1.4
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.624459838955562,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 0.56,
+          "imu.raw": 3.27
+        },
+        "inferenceMs": 0.749,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.38020109276658465,
+          -6.35094809312516,
+          -24.628999618716488,
+          -3.708263806543071,
+          21.84270078643795,
+          12.12234268234369,
+          20.093491047544976,
+          -3.6468855922272208,
+          0.9086204921736194,
+          -0.28463057793968033,
+          7.099982496001901,
+          26.767084470456844,
+          2.1110526705527386,
+          -26.81988695538292
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.3515625,
+          -6.328125,
+          -24.609375,
+          -3.69140625,
+          21.884765625,
+          12.12890625,
+          2.109375,
+          -14.150390625,
+          0.87890625,
+          -0.263671875,
+          7.119140625,
+          26.806640625,
+          2.109375,
+          -26.806640625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 9,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9705605506896973,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7850,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3807.992801005,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 76.474716,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -13.117765159125
+            ],
+            "metrics": {
+              "cpuMs": 6.66,
+              "faceMs": 0.0,
+              "frameIntervalMs": 132.13843,
+              "maxRssKiB": 86108,
+              "personMs": 33.172,
+              "resizeMs": 3.089,
+              "rotationMs": 1.467,
+              "totalMs": 35.267
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.008333333333333333,
+                0.11875,
+                0.725,
+                0.99375
+              ],
+              "kind": "person",
+              "score": 0.6367
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 7042,
+        "commandHz": 49.94,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 11.656,
+            "maxMs": 24.96,
+            "meanMs": 10.661
+          },
+          "feedbackActualHz": 49.93532793729868,
+          "feedbackReads": 7042,
+          "inferenceActualHz": 49.94242042960209,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 7042,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.26658299999999996,
+              "maxMs": 0.920792,
+              "meanMs": 0.22604810978554135,
+              "samples": 7041
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.0035009999999999998,
+              "maxMs": 2.215791,
+              "meanMs": 0.009366446527481836,
+              "samples": 7041
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004958,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004951002272404523,
+              "samples": 7041
+            },
+            "infer": {
+              "lastMs": 0.607833,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7186833120295402,
+              "samples": 7041
+            },
+            "observe": {
+              "lastMs": 0.20883300000000002,
+              "maxMs": 1.032208,
+              "meanMs": 0.14113167746058786,
+              "samples": 7041
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.8427499999999999,
+              "maxMs": 5.873876,
+              "meanMs": 1.6842869723050704,
+              "samples": 7041
+            },
+            "readAndSensors": {
+              "lastMs": 6.176334000000001,
+              "maxMs": 10.900751,
+              "meanMs": 5.998588928561283,
+              "samples": 7041
+            },
+            "skillAndCommand": {
+              "lastMs": 0.890459,
+              "maxMs": 3.016708,
+              "meanMs": 0.6425373811958538,
+              "samples": 7041
+            },
+            "status": {
+              "lastMs": 0.446542,
+              "maxMs": 2.921042,
+              "meanMs": 0.4352984348814088,
+              "samples": 7041
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.067667,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07438851086493288,
+              "samples": 7041
+            },
+            "totalBeforeWait": {
+              "lastMs": 12.215293,
+              "maxMs": 25.468919,
+              "meanMs": 11.09681308038636,
+              "samples": 7041
+            },
+            "trace": {
+              "lastMs": 1.703334,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1708987510296818,
+              "samples": 7041
+            }
+          },
+          "observe": {
+            "lastMs": 0.143,
+            "maxMs": 1.035,
+            "meanMs": 0.143
+          },
+          "read": {
+            "lastMs": 6.093,
+            "maxMs": 10.901,
+            "meanMs": 5.999
+          },
+          "write": {
+            "lastMs": 1.501,
+            "maxMs": 11.402,
+            "meanMs": 1.401
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.623347188393339,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 0.3,
+          "imu.raw": 3.01
+        },
+        "inferenceMs": 0.608,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.49171054771280126,
+          -6.326090046527722,
+          -24.71216741714515,
+          -3.5129082300062473,
+          21.757337082191132,
+          12.041560327482657,
+          20.19529672467131,
+          -5.204086760720088,
+          0.637253074385046,
+          -0.04694511746511412,
+          7.1216393183127185,
+          26.687301030761926,
+          2.1898867139530256,
+          -26.862695166005977
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.52734375,
+          -6.328125,
+          -24.697265625,
+          -3.515625,
+          21.796875,
+          12.041015625,
+          2.197265625,
+          -19.16015625,
+          0.615234375,
+          -0.087890625,
+          7.119140625,
+          26.71875,
+          2.197265625,
+          -26.89453125
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 9,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9707022309303284,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7860,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3809.006897232,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 196.433145,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -11.14012674875
+            ],
+            "metrics": {
+              "cpuMs": 8.65,
+              "faceMs": 0.0,
+              "frameIntervalMs": 99.950385,
+              "maxRssKiB": 86108,
+              "personMs": 36.511,
+              "resizeMs": 2.957,
+              "rotationMs": 1.5,
+              "totalMs": 38.657
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.0,
+                0.1171875,
+                1.0,
+                1.0
+              ],
+              "kind": "person",
+              "score": 0.7305
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 7093,
+        "commandHz": 49.94,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 12.994,
+            "maxMs": 24.96,
+            "meanMs": 10.666
+          },
+          "feedbackActualHz": 49.93529396401941,
+          "feedbackReads": 7093,
+          "inferenceActualHz": 49.94233544799121,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 7093,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.218167,
+              "maxMs": 1.0386250000000001,
+              "meanMs": 0.22624074027072708,
+              "samples": 7092
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.003501,
+              "maxMs": 2.215791,
+              "meanMs": 0.009402605188945236,
+              "samples": 7092
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.004958,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.00495015031020872,
+              "samples": 7092
+            },
+            "infer": {
+              "lastMs": 1.066041,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7186239303440484,
+              "samples": 7092
+            },
+            "observe": {
+              "lastMs": 0.143791,
+              "maxMs": 1.032208,
+              "meanMs": 0.14119279653130276,
+              "samples": 7092
+            },
+            "publishAndAccounting": {
+              "lastMs": 2.132375,
+              "maxMs": 5.873876,
+              "meanMs": 1.6852495064861808,
+              "samples": 7092
+            },
+            "readAndSensors": {
+              "lastMs": 6.041293,
+              "maxMs": 10.900751,
+              "meanMs": 5.9992712928651954,
+              "samples": 7092
+            },
+            "skillAndCommand": {
+              "lastMs": 0.8295009999999999,
+              "maxMs": 3.016708,
+              "meanMs": 0.6433239909757484,
+              "samples": 7092
+            },
+            "status": {
+              "lastMs": 0.523834,
+              "maxMs": 2.921042,
+              "meanMs": 0.4353448647772138,
+              "samples": 7092
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.0665,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.07441559729272315,
+              "samples": 7092
+            },
+            "totalBeforeWait": {
+              "lastMs": 12.548376999999999,
+              "maxMs": 25.468919,
+              "meanMs": 11.101077952340715,
+              "samples": 7092
+            },
+            "trace": {
+              "lastMs": 1.521917,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1724650824873084,
+              "samples": 7092
+            }
+          },
+          "observe": {
+            "lastMs": 0.13,
+            "maxMs": 1.035,
+            "meanMs": 0.143
+          },
+          "read": {
+            "lastMs": 6.318,
+            "maxMs": 10.901,
+            "meanMs": 5.999
+          },
+          "write": {
+            "lastMs": 1.302,
+            "maxMs": 11.402,
+            "meanMs": 1.403
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.619012469554005,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 0.97,
+          "imu.raw": 3.71
+        },
+        "inferenceMs": 0.687,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": 30.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.4093993510555958,
+          -6.348945140151054,
+          -24.623711344751605,
+          -3.7169936420759933,
+          21.832125946055477,
+          12.097188803177826,
+          20.11901204937873,
+          -3.859248980127611,
+          0.8637003657148554,
+          -0.23256433938136406,
+          7.095459630110883,
+          26.727870646884508,
+          2.1544322691885474,
+          -26.82412338021562
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.439453125,
+          -6.328125,
+          -24.609375,
+          -3.69140625,
+          21.796875,
+          12.12890625,
+          2.109375,
+          -15.029296875,
+          0.87890625,
+          -0.263671875,
+          7.119140625,
+          26.71875,
+          2.197265625,
+          -26.806640625
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 9,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9712544679641724,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7870,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    },
+    {
+      "at": 3810.027623043,
+      "control": {
+        "action": "policy",
+        "actionAlpha": null,
+        "actionScale": 0.8999999761581421,
+        "activeSkill": "xgoduck",
+        "angleLimitsRevision": "kissqy-hd1910-saved-mechanical-v1",
+        "autonomy": {
+          "behavior": "\u539f\u5730\u5f85\u547d",
+          "controlSource": "autonomous",
+          "enabled": true,
+          "ready": true,
+          "reason": "",
+          "recoveryRemainingSeconds": null,
+          "state": "standby",
+          "vision": {
+            "behavior": "\u6b63\u5728\u6ce8\u89c6",
+            "error": "",
+            "frameAgeMs": 213.637688,
+            "hardware": "RGA + RKNN",
+            "headOffsetDegrees": [
+              -18.0,
+              -13.06817522825
+            ],
+            "metrics": {
+              "cpuMs": 6.335,
+              "faceMs": 0.0,
+              "frameIntervalMs": 100.109634,
+              "maxRssKiB": 86108,
+              "personMs": 33.65,
+              "resizeMs": 3.319,
+              "rotationMs": 1.532,
+              "totalMs": 36.085
+            },
+            "state": "watching",
+            "target": {
+              "bounds": [
+                0.0,
+                0.1296875,
+                0.9277777777777778,
+                0.9921875
+              ],
+              "kind": "person",
+              "score": 0.668
+            }
+          }
+        },
+        "commandAlpha": 0.2,
+        "commandCount": 7144,
+        "commandHz": 49.94,
+        "commandMaxGapMs": 39.21,
+        "commandTargetHz": 50,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cycleCosts": {
+          "checksumErrors": 0,
+          "cycleBusy": {
+            "lastMs": 11.593,
+            "maxMs": 24.96,
+            "meanMs": 10.668
+          },
+          "feedbackActualHz": 49.93617603231552,
+          "feedbackReads": 7144,
+          "inferenceActualHz": 49.94316726264685,
+          "inferenceConcurrent": true,
+          "inferenceHzLast1s": 50,
+          "inferenceResultAgeMs": 0.0,
+          "inferenceResults": 7144,
+          "missingFrames": 0,
+          "missingResponses": 0,
+          "nativePhases": {
+            "busWrite": {
+              "lastMs": 0.22079200000000002,
+              "maxMs": 1.0386250000000001,
+              "meanMs": 0.22634593266134606,
+              "samples": 7143
+            },
+            "directSharedLockWaitSubset": {
+              "lastMs": 0.003501,
+              "maxMs": 2.215791,
+              "meanMs": 0.009428567268654575,
+              "samples": 7143
+            },
+            "historyAndAccounting": {
+              "lastMs": 0.008457999999999999,
+              "maxMs": 0.27504100000000004,
+              "meanMs": 0.004951719445611127,
+              "samples": 7143
+            },
+            "infer": {
+              "lastMs": 0.61075,
+              "maxMs": 3.0560829999999997,
+              "meanMs": 0.7186103936721253,
+              "samples": 7143
+            },
+            "observe": {
+              "lastMs": 0.113459,
+              "maxMs": 1.032208,
+              "meanMs": 0.1412102910541788,
+              "samples": 7143
+            },
+            "publishAndAccounting": {
+              "lastMs": 1.523958,
+              "maxMs": 5.873876,
+              "meanMs": 1.6851860979980389,
+              "samples": 7143
+            },
+            "readAndSensors": {
+              "lastMs": 5.787834,
+              "maxMs": 10.900751,
+              "meanMs": 5.99983056180876,
+              "samples": 7143
+            },
+            "skillAndCommand": {
+              "lastMs": 0.605209,
+              "maxMs": 3.016708,
+              "meanMs": 0.6437583765924687,
+              "samples": 7143
+            },
+            "status": {
+              "lastMs": 0.5314169999999999,
+              "maxMs": 2.921042,
+              "meanMs": 0.43547033669326585,
+              "samples": 7143
+            },
+            "targetsAndIntents": {
+              "lastMs": 0.062708,
+              "maxMs": 3.6134589999999998,
+              "meanMs": 0.0748011338373222,
+              "samples": 7143
+            },
+            "totalBeforeWait": {
+              "lastMs": 10.71671,
+              "maxMs": 25.468919,
+              "meanMs": 11.104331504549961,
+              "samples": 7143
+            },
+            "trace": {
+              "lastMs": 1.252125,
+              "maxMs": 11.072543000000001,
+              "meanMs": 1.1741666607867836,
+              "samples": 7143
+            }
+          },
+          "observe": {
+            "lastMs": 0.134,
+            "maxMs": 1.035,
+            "meanMs": 0.143
+          },
+          "read": {
+            "lastMs": 6.374,
+            "maxMs": 10.901,
+            "meanMs": 6.0
+          },
+          "write": {
+            "lastMs": 1.922,
+            "maxMs": 11.402,
+            "meanMs": 1.405
+          }
+        },
+        "demo": {
+          "active": false,
+          "completedStages": [],
+          "elapsedSeconds": null,
+          "expectedSeconds": 30,
+          "name": "\u5f00\u573a\u62db\u547c\u4e0e\u8f6c\u5934",
+          "ready": true,
+          "reason": "",
+          "step": 1,
+          "steps": 9,
+          "timeoutSeconds": 55
+        },
+        "driveSession": "c0981ed8-90ec-4433-82bc-fd320b4d3157",
+        "executionOrder": "read-observe-infer-write",
+        "fallDetection": {
+          "confirmMs": 150,
+          "enabled": true,
+          "immediateTiltDegrees": 90.0,
+          "tiltDegrees": 60.0
+        },
+        "feedbackHolding": false,
+        "feedbackReplyBudgetMs": 6,
+        "feedbackTargetHz": 50,
+        "filteredVoltage": 7.621111222598605,
+        "headNewWeight": 0.5,
+        "homeCommandTargetHz": 50,
+        "imuAgeMs": {
+          "imu.orientation": 4.57,
+          "imu.raw": 2.27
+        },
+        "inferenceMs": 0.781,
+        "inferenceTargetHz": 50,
+        "kdHome": 0,
+        "kdRun": 0,
+        "kind": "xgoduck",
+        "kpHome": 5,
+        "kpRun": 5,
+        "legsNewWeight": 0.699999988079071,
+        "message": "kissqy\u540c\u6b6550Hz\u63a7\u5236",
+        "modelSource": "kissqy/Microduck-kissqy",
+        "mouthControlSource": "independent-intent",
+        "mouthTargetDegrees": -5.0,
+        "nominalVoltage": 7.4,
+        "policy": "xgoduck_walk",
+        "policyPhase": "running",
+        "policySha256": "1cbf8730eadd75a5704332c9f3c10f60bfa9412135b907831c9dbd731ce1795f",
+        "posture": "standing",
+        "rawTargetDegrees": [
+          0.4962443525786617,
+          -6.288888567439601,
+          -24.68353184904987,
+          -3.671729978446319,
+          21.855334928855182,
+          12.049674592216633,
+          20.190083582787295,
+          -4.506153271892444,
+          0.7301327614832297,
+          -0.13485337400266736,
+          7.116597784931603,
+          26.619979271207697,
+          2.229608959731704,
+          -26.939927530045896
+        ],
+        "recoveryFallen": false,
+        "recoveryResumeSkill": "xgoduck",
+        "recoveryReturnHome": false,
+        "requestedKind": "sitstand_stand",
+        "runtimeProfile": "kissqy-sync50-v1",
+        "saturatedIds": [],
+        "sentTargetDegrees": [
+          0.52734375,
+          -6.328125,
+          -24.697265625,
+          -3.69140625,
+          21.884765625,
+          12.041015625,
+          2.197265625,
+          -17.578125,
+          0.703125,
+          -0.17578125,
+          7.119140625,
+          26.630859375,
+          2.197265625,
+          -26.982421875
+        ],
+        "sitSettleSeconds": 2.0,
+        "skillProgressSeconds": 0.0,
+        "skippedControlTicks": 9,
+        "standAllowed": false,
+        "state": "policy",
+        "targetEncoding": "mechanical-clamp-single-turn-reject-v1",
+        "uprightStableSeconds": 0.0,
+        "velocityAlphaAt100Hz": null,
+        "velocitySource": "servo-register-one-sample-delay",
+        "voltageAdapt": true,
+        "voltageScale": 0.9709870219230652,
+        "walkSpeedMps": 0.0
+      },
+      "camera": {
+        "autonomousUse": true,
+        "available": true,
+        "captureEnabled": true,
+        "capturePid": 2416,
+        "device": "/dev/video0",
+        "enabled": true,
+        "encoder": "rockchip-mpp",
+        "encoderPid": 2417,
+        "error": "",
+        "height": 360,
+        "processing": "rga+fixed-wb",
+        "sequence": 7880,
+        "streaming": true,
+        "targetFps": 10,
+        "transport": "mjpeg",
+        "width": 640
+      }
+    }
+  ]
+}

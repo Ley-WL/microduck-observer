@@ -1,0 +1,65 @@
+{
+  "off": {
+    "enabled": false,
+    "streaming": false,
+    "error": "",
+    "device": "/dev/video0",
+    "transport": "mjpeg",
+    "width": 640,
+    "height": 360,
+    "targetFps": 10,
+    "sequence": 312
+  },
+  "offAfterServiceRestart": {
+    "enabled": false,
+    "streaming": false,
+    "error": "",
+    "device": "",
+    "transport": "mjpeg",
+    "width": 640,
+    "height": 360,
+    "targetFps": 10,
+    "sequence": 0
+  },
+  "offProcessCount": 1,
+  "on": {
+    "enabled": true,
+    "streaming": false,
+    "error": "",
+    "device": "/dev/video0",
+    "transport": "mjpeg",
+    "width": 640,
+    "height": 360,
+    "targetFps": 10,
+    "sequence": 0
+  },
+  "onStreaming": {
+    "enabled": true,
+    "streaming": true,
+    "error": "",
+    "device": "/dev/video0",
+    "transport": "mjpeg",
+    "width": 640,
+    "height": 360,
+    "targetFps": 10,
+    "sequence": 1
+  },
+  "onAfterServiceRestart": {
+    "enabled": true,
+    "streaming": true,
+    "error": "",
+    "device": "/dev/video0",
+    "transport": "mjpeg",
+    "width": 640,
+    "height": 360,
+    "targetFps": 10,
+    "sequence": 5
+  },
+  "measuredFps": 9.982142549235107,
+  "jpegBytes": 13536,
+  "savedConfiguration": {
+    "enabled": true
+  },
+  "enabledAtBoot": "enabled",
+  "memoryBytes": "28692480"
+}

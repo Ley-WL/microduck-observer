@@ -1,0 +1,63 @@
+{
+  "artifactType": "training-policy",
+  "controlHz": 50,
+  "actorObservationDim": 61,
+  "actionDim": 14,
+  "observationNormalization": "baked into ONNX by upstream exporter",
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "homeRadians": [
+    0.0,
+    -0.0873,
+    -0.4579,
+    -0.0049,
+    0.453,
+    0.3491,
+    0.3491,
+    0.0,
+    0.0,
+    0.0,
+    0.0873,
+    0.4579,
+    0.0049,
+    -0.453
+  ],
+  "task": "Mjlab-SitStand-Flat-MicroDuck",
+  "runtimeKind": "kissqy_sitstand",
+  "policySha256": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+  "hardwareValidated": false,
+  "modelSource": "kissqy/Microduck-kissqy",
+  "sourceCommit": "94328f5b43c8ac825c90f0e564e7d1b926cd770d",
+  "actionSemantics": "HOME + raw action, scale 1, no target filtering",
+  "actionEmaOldWeight": 0,
+  "actionEmaNewWeight": 1,
+  "standSeconds": 1,
+  "sitSettleSeconds": 4,
+  "commandEncoding": {
+    "slot": "twist.vx",
+    "sit": 1,
+    "stand": 0
+  },
+  "sitExecution": {
+    "schema": "kissqy-sitstand-v1",
+    "policySha256": "1c94934c6421ec72ed48079cea74966868a7a59f7d732e0207d0f7bdaeed3c50",
+    "gains": {
+      "p": 5,
+      "d": 20
+    }
+  }
+}

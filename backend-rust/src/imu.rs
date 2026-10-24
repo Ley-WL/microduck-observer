@@ -9,6 +9,27 @@ use std::{
     },
     time::{Duration, Instant},
 };
+/// Scoped over model loading, preflight, HOME and execution, including error exits.
+pub struct FullRateGuard(Arc<AtomicBool>);
+impl FullRateGuard {
+    pub fn enter(shared: &Shared) -> Self {
+        let flag = shared.read().unwrap().imu_full_rate.clone();
+        flag.store(true, Ordering::Release);
+        Self(flag)
+    }
+}
+impl Drop for FullRateGuard {
+    fn drop(&mut self) { self.0.store(false, Ordering::Release); }
+}
+type Frame = (u8, u8, Vec<u8>);
+/// Preserve register replies; discard superseded streaming samples before JSON work.
+fn latest_idle_frames(frames: Vec<Frame>) -> Vec<Frame> {
+    let last_q = frames.iter().rposition(|(h,k,_)| *h==0x55 && *k==2);
+    let last_raw = frames.iter().rposition(|(h,k,_)| *h==0x55 && *k==3);
+    frames.into_iter().enumerate().filter_map(|(i,f)| {
+        (f.0!=0x55 || !matches!(f.1,2|3) || Some(i)==last_q || Some(i)==last_raw).then_some(f)
+    }).collect()
+}
 pub struct Parser {
     buffer: Vec<u8>,
     pub bad: u64,
@@ -89,6 +110,7 @@ impl ReaderTiming {
     fn value(&self)->Value{json!({"maxReadGapMs":self.max_read_gap_ms,"lastSerialReadMs":self.last_read_ms,"maxSerialReadMs":self.max_read_ms,"maxPublishLockWaitMs":self.max_publish_wait_ms,"receivedBytes":self.bytes,"timestampBasis":"host_receive"})}
 }
 pub fn spawn_reader(port: String, shared: Shared, stop: Arc<AtomicBool>) {
+    let full_rate = shared.read().unwrap().imu_full_rate.clone();
     std::thread::Builder::new().name("imu-reader".into()).spawn(move || {
         let began = Instant::now(); let mut errors=0u64; let mut counts=[0u64;2];
         let mut timing=ReaderTiming::default();
@@ -97,11 +119,29 @@ pub fn spawn_reader(port: String, shared: Shared, stop: Arc<AtomicBool>) {
             let result=(||->Result<()> {
                 let mut reader=serialport::new(&port,115200).timeout(Duration::from_millis(20)).open()?;
                 let mut parser=Parser::new();let(mut ag,mut gd)=(None,None);
+                let mut fast=full_rate.load(Ordering::Acquire);
+                let mut next_read=Instant::now();
                 let mut queries=Instant::now()-Duration::from_secs(3);let mut last=Instant::now();let mut health=Instant::now()-Duration::from_secs(1);
                 while !stop.load(Ordering::Acquire) {
+                    // Read batches at 15Hz while idle. Check the model flag during
+                    // the wait so starting a model does not wait a whole idle tick.
+                    while !fast && Instant::now()<next_read && !stop.load(Ordering::Acquire) {
+                        if full_rate.load(Ordering::Acquire) { break; }
+                        std::thread::sleep(next_read.saturating_duration_since(Instant::now()).min(Duration::from_millis(5)));
+                    }
+                    if stop.load(Ordering::Acquire) { break; }
+                    let requested=full_rate.load(Ordering::Acquire);
+                    if requested && !fast {
+                        // Never present idle-buffered bytes as a new full-rate sample.
+                        reader.clear(serialport::ClearBuffer::Input)?;
+                        parser=Parser::new();
+                    }
+                    fast=requested;
+                    next_read=Instant::now()+crate::control::IDLE_FEEDBACK_PERIOD;
                     if queries.elapsed()>Duration::from_secs(2)&&(ag.is_none()||gd.is_none()){reader.write_all(&query(3))?;reader.write_all(&query(4))?;queries=Instant::now();}
                     let read_start=Instant::now();let mut buf=[0;4096];let n=match reader.read(&mut buf){Ok(n)=>n,Err(e)if e.kind()==std::io::ErrorKind::TimedOut=>0,Err(e)=>return Err(e.into())};
                     let now=Instant::now();timing.read(now,read_start.elapsed().as_secs_f64()*1000.,n);let bad=parser.bad;let parsed=parser.feed(&buf[..n]);checksum+=parser.bad-bad;
+                    let parsed=if fast {parsed}else{latest_idle_frames(parsed)};
                     for(head,kind,p)in parsed {
                         last=now;if head==0xaf {if p.len()==1&&p[0]<4{if kind==3{gd=Some([250.,500.,1000.,2000.][p[0]as usize]);}if kind==4{ag=Some([2.,4.,8.,16.][p[0]as usize]);}}continue;}
                         *frames.entry(format!("{kind:02x}")).or_default()+=1;
@@ -112,7 +152,7 @@ pub fn spawn_reader(port: String, shared: Shared, stop: Arc<AtomicBool>) {
                         }
                     }
                     if health.elapsed()>=Duration::from_millis(500) {
-                        let t=began.elapsed().as_secs_f64().max(0.001);shared.write().unwrap().imu=json!({"device":port,"address":null,"productId":null,"state":"unavailable","sampleAgeMs":null,"counts":{"quaternion":counts[0],"accel":counts[1],"gyro":counts[1]},"observedHz":{"quaternion":counts[0]as f64/t,"accel":counts[1]as f64/t,"gyro":counts[1]as f64/t},"ioErrors":errors,"unparsedReports":unparsed,"droppedEvents":0,"mountingCalibrated":false,"model":"MS901M","baud":115200,"ranges":{"accelG":ag,"gyroDps":gd},"checksumErrors":checksum,"frames":frames,"readerTiming":timing.value(),"rangeState":if ag.is_some()&&gd.is_some(){"confirmed"}else{"unknown"}});health=now;
+                        let t=began.elapsed().as_secs_f64().max(0.001);shared.write().unwrap().imu=json!({"device":port,"address":null,"productId":null,"state":"unavailable","sampleAgeMs":null,"counts":{"quaternion":counts[0],"accel":counts[1],"gyro":counts[1]},"observedHz":{"quaternion":counts[0]as f64/t,"accel":counts[1]as f64/t,"gyro":counts[1]as f64/t},"ioErrors":errors,"unparsedReports":unparsed,"droppedEvents":0,"mountingCalibrated":false,"model":"MS901M","baud":115200,"processingTargetHz":if fast {200}else{15},"rateMode":if fast {"model"}else{"idle"},"sensorRateChanged":false,"ranges":{"accelG":ag,"gyroDps":gd},"checksumErrors":checksum,"frames":frames,"readerTiming":timing.value(),"rangeState":if ag.is_some()&&gd.is_some(){"confirmed"}else{"unknown"}});health=now;
                     }
                     if last.elapsed()>Duration::from_secs(3){bail!("IMU 数据流中断")}
                 }Ok(())
@@ -125,6 +165,62 @@ pub fn spawn_reader(port: String, shared: Shared, stop: Arc<AtomicBool>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn idle_batch_keeps_latest_each_topic_and_register_replies() {
+        let frames=vec![(0x55,2,vec![1]),(0xaf,3,vec![3]),
+            (0x55,3,vec![2]),(0x55,2,vec![4]),(0x55,3,vec![5])];
+        assert_eq!(latest_idle_frames(frames),vec![(0xaf,3,vec![3]),
+            (0x55,2,vec![4]),(0x55,3,vec![5])]);
+    }
+    #[test]
+    fn model_rate_restored_on_success_and_preflight_error() {
+        let shared=Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(true)));
+        let flag=shared.read().unwrap().imu_full_rate.clone();
+        assert!(!flag.load(Ordering::Acquire));
+        let attempt=|fail:bool| -> Result<()> {
+            let _guard=FullRateGuard::enter(&shared);
+            assert!(flag.load(Ordering::Acquire));
+            if fail {bail!("preflight rejected")}
+            Ok(())
+        };
+        assert!(attempt(false).is_ok());assert!(!flag.load(Ordering::Acquire));
+        assert!(attempt(true).is_err());assert!(!flag.load(Ordering::Acquire));
+    }
+    #[cfg(target_os="linux")]
+    #[test]
+    fn serial_stream_switches_idle_model_idle_without_replaying_backlog() {
+        use serialport::SerialPort;
+        let (mut master,slave)=serialport::TTYPort::pair().unwrap();
+        let path=slave.name().unwrap();
+        let shared=Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(true)));
+        let stop=Arc::new(AtomicBool::new(false));
+        let writer_stop=stop.clone();
+        let writer=std::thread::spawn(move || {
+            let mut frame=vec![0x55,0x55,2,8,0,64,0,0,0,0,0,0];
+            frame.push(frame.iter().fold(0u8,|a,b|a.wrapping_add(*b)));
+            while !writer_stop.load(Ordering::Acquire) {
+                if master.write_all(&frame).is_err() {break;}
+                std::thread::sleep(Duration::from_millis(5));
+            }
+        });
+        spawn_reader(path,shared.clone(),stop.clone());
+        let seq=||shared.read().unwrap().latest.get("imu.orientation")
+            .and_then(|v|v["seq"].as_u64()).unwrap_or(0);
+        std::thread::sleep(Duration::from_millis(600));
+        let idle=seq();
+        let guard=FullRateGuard::enter(&shared);
+        std::thread::sleep(Duration::from_millis(400));
+        let active=seq()-idle;
+        drop(guard);
+        std::thread::sleep(Duration::from_millis(100));
+        let begin=seq();
+        std::thread::sleep(Duration::from_millis(400));
+        let idle_again=seq()-begin;
+        stop.store(true,Ordering::Release);writer.join().unwrap();
+        assert!((3..=11).contains(&idle),"idle samples: {idle}");
+        assert!(active>=20,"model samples: {active}");
+        assert!((2..=8).contains(&idle_again),"idle again samples: {idle_again}");
+    }
     #[test]
     fn quaternion_order() {
         assert_eq!(

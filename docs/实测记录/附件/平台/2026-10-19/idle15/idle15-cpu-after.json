@@ -1,0 +1,100 @@
+{
+  "seconds": 8.000226345000556,
+  "camera_fps": 9.999717076754088,
+  "freq_before": {
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq": "1608000",
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq": "1608000",
+    "/sys/class/devfreq/fdf80200.rkvdec/cur_freq": "0",
+    "/sys/class/devfreq/dmc/cur_freq": "1056000000",
+    "/sys/class/devfreq/fde40000.npu/cur_freq": "900000000",
+    "/sys/class/devfreq/fdf40000.rkvenc/cur_freq": "0",
+    "/sys/class/devfreq/fde60000.gpu/cur_freq": "200000000",
+    "/sys/class/thermal/thermal_zone0/temp": "85000",
+    "/sys/class/thermal/thermal_zone1/temp": "82222"
+  },
+  "freq_after": {
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq": "1800000",
+    "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq": "1800000",
+    "/sys/class/devfreq/fdf80200.rkvdec/cur_freq": "0",
+    "/sys/class/devfreq/dmc/cur_freq": "1056000000",
+    "/sys/class/devfreq/fde40000.npu/cur_freq": "900000000",
+    "/sys/class/devfreq/fdf40000.rkvenc/cur_freq": "0",
+    "/sys/class/devfreq/fde60000.gpu/cur_freq": "200000000",
+    "/sys/class/thermal/thermal_zone0/temp": "82777",
+    "/sys/class/thermal/thermal_zone1/temp": "81666"
+  },
+  "processes": [
+    {
+      "pid": "3683",
+      "name": "microduck-obser",
+      "cpu_one_core_pct": 12.49964634594261,
+      "cmd": "/home/radxa/microduck-observer/current/bin/microduck-observer "
+    },
+    {
+      "pid": "3699",
+      "name": "microduck-camer",
+      "cpu_one_core_pct": 7.124798417187288,
+      "cmd": "/home/radxa/microduck-observer/releases/runtime-20261019-idle15/bin/microduck-camera-mpp "
+    },
+    {
+      "pid": "3698",
+      "name": "v4l2-ctl",
+      "cpu_one_core_pct": 2.749922196107374,
+      "cmd": "/usr/bin/v4l2-ctl -d /dev/video0 --stream-mmap=3 --stream-to=- "
+    },
+    {
+      "pid": "3722",
+      "name": "python3",
+      "cpu_one_core_pct": 2.24993634226967,
+      "cmd": "python3 -c import pathlib,time,os,json,urllib.request,subprocess\nP=pathlib.Path('/proc');hz=os.sysconf('SC_CLK_TCK')\ndef snap():\n out={}\n for p in P.iterdir():\n  if not p.name.isdigit():continue\n  try:\n   s=(p/'stat').read_text();v=s[s.rfind(')')+2:].split();cmd=(p/'cmdline').read_bytes().replace(b'\\0',b' ').decode(errors='replace')\n   out[p.name]=(int(v[11])+int(v[12]),cmd,s[s.find('(')+1:s.rfind(')')])\n  except (OSError,ValueError):pass\n return out\ndef camera():return json.load(urllib.request.urlopen('http://127.0.0.1:8877/api/v1/camera'))\ndef freq():\n return {str(p):p.read_text().strip() for pattern in ['/sys/devices/system/cpu/cpufreq/policy*/scaling_cur_freq','/sys/devices/system/cpu/cpufreq/policy*/scaling_max_freq','/sys/class/devfreq/*/cur_freq','/sys/class/thermal/thermal_zone*/temp'] for p in pathlib.Path('/').glob(pattern.lstrip('/'))}\na=snap();ca=camera();f0=freq();t=time.monotonic();time.sleep(8);dt=time.monotonic()-t;b=snap();cb=camera()\nr={'seconds':dt,'camera_fps':(cb['sequence']-ca['sequence'])/dt,'freq_before':f0,'freq_after':freq(),'processes':sorted([{'pid':p,'name':v[2],'cpu_one_core_pct':100*(v[0]-a[p][0])/hz/dt,'cmd':v[1]} for p,v in b.items() if p in a],key=lambda x:-x['cpu_one_core_pct'])[:12]}\nprint(json.dumps(r,indent=2))\n "
+    },
+    {
+      "pid": "627",
+      "name": "dbus-daemon",
+      "cpu_one_core_pct": 1.249964634594261,
+      "cmd": "/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only "
+    },
+    {
+      "pid": "3570",
+      "name": "kworker/u8:3-events_unbound",
+      "cpu_one_core_pct": 1.124968171134835,
+      "cmd": ""
+    },
+    {
+      "pid": "2689",
+      "name": "kworker/u8:4-events_unbound",
+      "cpu_one_core_pct": 0.9999717076754088,
+      "cmd": ""
+    },
+    {
+      "pid": "619",
+      "name": "bluetoothd",
+      "cpu_one_core_pct": 0.8749752442159827,
+      "cmd": "/usr/libexec/bluetooth/bluetoothd "
+    },
+    {
+      "pid": "2333",
+      "name": "kworker/u8:0-events_unbound",
+      "cpu_one_core_pct": 0.8749752442159827,
+      "cmd": ""
+    },
+    {
+      "pid": "327",
+      "name": "aicwf_bustx_thread",
+      "cpu_one_core_pct": 0.6249823172971305,
+      "cmd": ""
+    },
+    {
+      "pid": "328",
+      "name": "aicwf_busrx_thread",
+      "cpu_one_core_pct": 0.6249823172971305,
+      "cmd": ""
+    },
+    {
+      "pid": "97",
+      "name": "kworker/u9:0-hci0",
+      "cpu_one_core_pct": 0.37498939037827833,
+      "cmd": ""
+    }
+  ]
+}

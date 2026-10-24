@@ -258,10 +258,6 @@ const value = (values: number[] | undefined, i: number) =>
       </section>
       <ServoPanel compact />
     </div>
-    <div class="bench-statusbar">
-      <span>实时观测 · 运动需手动操作</span
-      ><span>15 个舵机 · 已标定关节跟随反馈（嘴部为简化模型）</span>
-    </div>
   </section>
 </template>
 
@@ -562,15 +558,6 @@ const value = (values: number[] | undefined, i: number) =>
 }
 .bench-imu-note span {
   font-size: 8px;
-}
-.bench-statusbar {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: #9ba88f;
-  flex-shrink: 0;
-  height: 17px;
-  align-items: center;
 }
 @media (max-height: 720px) {
   .bench-calibration {

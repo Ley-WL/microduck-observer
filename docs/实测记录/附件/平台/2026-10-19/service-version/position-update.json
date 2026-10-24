@@ -1,0 +1,14 @@
+{
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261019-idle15-version",
+  "service": {
+    "release": "runtime-20261019-idle15-version",
+    "version": "0.9.1"
+  },
+  "assets": [
+    "/assets/index-_tTlXI1r.js",
+    "/assets/index-DiDvS2-L.css"
+  ],
+  "backup": "/home/radxa/service-version-stage/index-before-position.html",
+  "service_restarted": false,
+  "http_verified": true
+}

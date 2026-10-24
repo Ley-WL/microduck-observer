@@ -1,0 +1,42 @@
+[
+  {
+    "tid": "3695",
+    "name": "servo-owner",
+    "cpu_one_core_pct": 5.249831969940201
+  },
+  {
+    "tid": "3686",
+    "name": "tokio-rt-worker",
+    "cpu_one_core_pct": 1.499951991411486
+  },
+  {
+    "tid": "3687",
+    "name": "tokio-rt-worker",
+    "cpu_one_core_pct": 1.499951991411486
+  },
+  {
+    "tid": "3697",
+    "name": "imu-reader",
+    "cpu_one_core_pct": 1.499951991411486
+  },
+  {
+    "tid": "3685",
+    "name": "tokio-rt-worker",
+    "cpu_one_core_pct": 1.3749559921271957
+  },
+  {
+    "tid": "3688",
+    "name": "tokio-rt-worker",
+    "cpu_one_core_pct": 1.3749559921271957
+  },
+  {
+    "tid": "3696",
+    "name": "board-resources",
+    "cpu_one_core_pct": 0.1249959992842905
+  },
+  {
+    "tid": "3683",
+    "name": "microduck-obser",
+    "cpu_one_core_pct": 0.0
+  }
+]

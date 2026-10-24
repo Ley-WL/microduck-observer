@@ -1,0 +1,8 @@
+{
+  "/etc/systemd/system/microduck-observer.service.d/tof-j5.conf": null,
+  "/etc/udev/rules.d/99-microduck-tof-j5.rules": null,
+  "deviceBefore": {
+    "mode": "0o600",
+    "gid": 0
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "ok": true,
+  "imuVerified": false,
+  "knownIssue": "Pre-existing IMU unavailable; user authorized ToF deployment",
+  "candidateCalibrationSha256": "ee1e97aa07e961eb3467a5a2c7fe3d19c3111718f1628c6aed5494eff3791044",
+  "hardwareWrites": false,
+  "frontendReused": true,
+  "benchmark": {
+    "elapsedSeconds": 20.021499387000404,
+    "pids": [
+      2839,
+      2840
+    ],
+    "cpuPercentOneCore": 15.78303372249798,
+    "boardBefore": {
+      "temperatureC": 67.5,
+      "cpuFrequencyMhz": 1800.0
+    },
+    "boardAfter": {
+      "temperatureC": 64.444,
+      "cpuFrequencyMhz": 1800.0
+    },
+    "received": {
+      "joints": 300,
+      "system": 21
+    },
+    "receivedHz": {
+      "joints": 14.9838927745234,
+      "system": 1.0488724942166379
+    },
+    "observedSerialScanHz": {
+      "count": 300,
+      "mean": 14.951499338536074,
+      "p50": 14.951762634822934,
+      "p95": 14.964344120566183,
+      "max": 14.96514775511983
+    },
+    "jointOldestAgeMs": {
+      "count": 300,
+      "mean": 10.902383536666852,
+      "p50": 10.815876500000197,
+      "p95": 15.454252000000466,
+      "max": 41.797003999999966
+    },
+    "sampledJointFrames": 300,
+    "completeSampledJointFrames": 300,
+    "missingSampledRowsById": {},
+    "torqueBefore": {
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0,
+      "24": 0,
+      "30": 0,
+      "31": 0,
+      "32": 0,
+      "33": 0,
+      "34": 0
+    },
+    "torqueAfter": {
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0,
+      "24": 0,
+      "30": 0,
+      "31": 0,
+      "32": 0,
+      "33": 0,
+      "34": 0
+    }
+  }
+}

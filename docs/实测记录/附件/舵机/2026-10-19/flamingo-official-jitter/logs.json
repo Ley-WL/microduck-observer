@@ -1,0 +1,958 @@
+{
+  "gap": false,
+  "items": [
+    {
+      "ageMs": 475579.13516,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392142893,
+        "level": "INFO",
+        "message": "Rust 后端启动",
+        "module": "server"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 0.012833,
+      "seq": 1,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 475449.957439,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392143022,
+        "level": "INFO",
+        "message": "手柄不可用，控制已释放：未发现可读取的兼容手柄，等待连接（请检查input权限）",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 129.213304,
+      "seq": 2,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 358846.46063899994,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392259625,
+        "level": "INFO",
+        "message": "手柄已连接；长按 Y 起身，起身就绪后回中即可直接用摇杆控制",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 116732.727604,
+      "seq": 3,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 356404.590477,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392262067,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=1",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 119174.612057,
+      "seq": 4,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 354747.842853,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392263724,
+        "level": "INFO",
+        "message": "模型已切换：sitstand_stand → xgoduck",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 120831.37514,
+      "seq": 5,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 347645.148347,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392270827,
+        "level": "INFO",
+        "message": "控制动作已收到：flamingo，seq=220",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 127934.088896,
+      "seq": 6,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 347635.802762,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392270836,
+        "level": "INFO",
+        "message": "动作请求已排队：flamingo_hold，sequence=178",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 127943.451397,
+      "seq": 7,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 347628.084679,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392270844,
+        "level": "INFO",
+        "message": "模型已切换：xgoduck → flamingo_hold",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 127951.188147,
+      "seq": 8,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 342462.37028499995,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392276009,
+        "level": "WARN",
+        "message": "检测到行走中倒地，停止推理并卸力；stage=policy-loop；本帧缺失[]，读取4.373834ms，校验错误0，收到315字节；诊断已保存；15 个舵机已失能（卸力）",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 133116.920916,
+      "seq": 9,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 302924.843354,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392315547,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=1338",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 172654.46709700002,
+      "seq": 10,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 301540.43250600004,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392316931,
+        "level": "INFO",
+        "message": "模型已切换：sitstand_stand → xgoduck",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 174038.89573699998,
+      "seq": 11,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 286044.215949,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392332428,
+        "level": "INFO",
+        "message": "控制动作已收到：flamingo，seq=1760",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 189535.12746000002,
+      "seq": 12,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 286034.038531,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392332438,
+        "level": "INFO",
+        "message": "动作请求已排队：flamingo_hold，sequence=388",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 189545.318878,
+      "seq": 13,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 286019.709238,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392332452,
+        "level": "INFO",
+        "message": "模型已切换：xgoduck → flamingo_hold",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 189559.665671,
+      "seq": 14,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 276004.70498200005,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392342467,
+        "level": "INFO",
+        "message": "手柄已停止保持并释放控制",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 199574.685677,
+      "seq": 15,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 275964.891895,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392342507,
+        "level": "INFO",
+        "message": "手柄已停止保持并释放控制",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 199614.513931,
+      "seq": 16,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 275924.759724,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392342547,
+        "level": "INFO",
+        "message": "手柄已停止保持并释放控制",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 199654.660685,
+      "seq": 17,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 275884.881303,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392342587,
+        "level": "INFO",
+        "message": "手柄已停止保持并释放控制",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 199694.558648,
+      "seq": 18,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 273088.51898100006,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392345383,
+        "level": "INFO",
+        "message": "模型已停止，保持最后目标",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 202490.93701199998,
+      "seq": 19,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 252396.114401,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392366076,
+        "level": "INFO",
+        "message": "15 个舵机已失能（卸力）",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 223183.358508,
+      "seq": 20,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 252395.90644299999,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392366076,
+        "level": "INFO",
+        "message": "手柄急停卸力",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 223183.694216,
+      "seq": 21,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 252356.38502299998,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392366116,
+        "level": "INFO",
+        "message": "15 个舵机已失能（卸力）",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 223223.23342799998,
+      "seq": 22,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 252356.06739700004,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392366116,
+        "level": "INFO",
+        "message": "手柄急停卸力",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 223223.564762,
+      "seq": 23,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 252317.015561,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392366155,
+        "level": "INFO",
+        "message": "15 个舵机已失能（卸力）",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 223262.631182,
+      "seq": 24,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 252316.73585199998,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392366155,
+        "level": "INFO",
+        "message": "手柄急停卸力",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 223262.92605699998,
+      "seq": 25,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 242325.379098,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392376147,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=2011",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 233254.297395,
+      "seq": 26,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 240854.88478399997,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392377617,
+        "level": "INFO",
+        "message": "模型已切换：sitstand_stand → xgoduck",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 234724.807167,
+      "seq": 27,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 231525.03242900004,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392386947,
+        "level": "INFO",
+        "message": "控制动作已收到：flamingo，seq=2281",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 244054.67323,
+      "seq": 28,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 231506.681053,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392386966,
+        "level": "INFO",
+        "message": "动作请求已排队：flamingo_hold，sequence=234",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 244073.03919,
+      "seq": 29,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 231491.332676,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392386981,
+        "level": "INFO",
+        "message": "模型已切换：xgoduck → flamingo_hold",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 244088.403608,
+      "seq": 30,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 211725.27114899998,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392406747,
+        "level": "INFO",
+        "message": "控制动作已收到：flamingo，seq=2776",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 263854.478844,
+      "seq": 31,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 211716.13614799996,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392406756,
+        "level": "INFO",
+        "message": "动作请求已排队：flamingo_lower，sequence=235",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 263863.627845,
+      "seq": 32,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 211713.901397,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392406758,
+        "level": "INFO",
+        "message": "模型已切换：flamingo_hold → flamingo_lower",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 263865.878929,
+      "seq": 33,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 201284.211266,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392417188,
+        "level": "WARN",
+        "message": "火烈鸟落脚6秒内未确认稳定双脚姿态，停止并卸力；stage=policy-loop；本帧缺失[]，读取4.435667ms，校验错误0，收到315字节；诊断已保存；15 个舵机已失能（卸力）",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 274295.59035199997,
+      "seq": 34,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 180685.65586300002,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392437787,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=3552",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 294894.159463,
+      "seq": 35,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 179279.347847,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392439193,
+        "level": "INFO",
+        "message": "模型已切换：sitstand_stand → xgoduck",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 296300.483229,
+      "seq": 36,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 163565.75005899998,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392454907,
+        "level": "INFO",
+        "message": "控制动作已收到：flamingo，seq=3980",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 312014.0956,
+      "seq": 37,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 163556.96535,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392454915,
+        "level": "INFO",
+        "message": "动作请求已排队：flamingo_hold，sequence=393",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 312022.893726,
+      "seq": 38,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 163539.14918199996,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392454933,
+        "level": "INFO",
+        "message": "模型已切换：xgoduck → flamingo_hold",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 312040.72681100003,
+      "seq": 39,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 71605.60827800003,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392546867,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=6279",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 403974.282298,
+      "seq": 40,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 71596.81569400005,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392546876,
+        "level": "WARN",
+        "message": "动作请求拒绝：sitstand_stand，sequence=394，会话/序号或动作/反馈未就绪",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 403983.088299,
+      "seq": 41,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 71596.674527,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392546876,
+        "level": "WARN",
+        "message": "控制动作失败：stand，动作会话/序号无效，或当前动作/反馈尚未就绪",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 403983.24054900004,
+      "seq": 42,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 71596.38986,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392546876,
+        "level": "INFO",
+        "message": "动作会话/序号无效，或当前动作/反馈尚未就绪",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 403983.537174,
+      "seq": 43,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 70565.21742300002,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392547907,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=6305",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 405014.723028,
+      "seq": 44,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 70556.49046500004,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392547916,
+        "level": "WARN",
+        "message": "动作请求拒绝：sitstand_stand，sequence=395，会话/序号或动作/反馈未就绪",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 405023.459903,
+      "seq": 45,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 70556.33704799996,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392547916,
+        "level": "WARN",
+        "message": "控制动作失败：stand，动作会话/序号无效，或当前动作/反馈尚未就绪",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 405023.626445,
+      "seq": 46,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 70556.13200599997,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392547916,
+        "level": "INFO",
+        "message": "动作会话/序号无效，或当前动作/反馈尚未就绪",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 405023.844903,
+      "seq": 47,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 47245.787830000045,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392571227,
+        "level": "INFO",
+        "message": "控制动作已收到：flamingo，seq=6888",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 428334.20395399997,
+      "seq": 48,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 47236.632412999985,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392571236,
+        "level": "INFO",
+        "message": "动作请求已排队：flamingo_lower，sequence=396",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 428343.373955,
+      "seq": 49,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 47209.188618000015,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392571263,
+        "level": "INFO",
+        "message": "模型已切换：flamingo_hold → flamingo_lower",
+        "module": "policy-switch"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 428370.833208,
+      "seq": 50,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 40925.770112,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392577547,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=7046",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 434654.26542199997,
+      "seq": 51,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 40916.65961099998,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392577556,
+        "level": "WARN",
+        "message": "动作请求拒绝：sitstand_stand，sequence=397，会话/序号或动作/反馈未就绪",
+        "module": "policy-request"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 434663.390507,
+      "seq": 52,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 40916.524278,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392577556,
+        "level": "WARN",
+        "message": "控制动作失败：stand，动作会话/序号无效，或当前动作/反馈尚未就绪",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 434663.538965,
+      "seq": 53,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 40916.34052800003,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392577556,
+        "level": "INFO",
+        "message": "动作会话/序号无效，或当前动作/反馈尚未就绪",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 434663.736423,
+      "seq": 54,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 36544.05229599995,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392581929,
+        "level": "WARN",
+        "message": "火烈鸟落脚6秒内未确认稳定双脚姿态，停止并卸力；stage=policy-loop；本帧缺失[]，读取4.466292ms，校验错误0，收到315字节；诊断已保存；15 个舵机已失能（卸力）",
+        "module": "servo-control"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 439036.04098800005,
+      "seq": 55,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    },
+    {
+      "ageMs": 486.07654900004854,
+      "bootId": "ae1e5d2f-eaea-4d68-91bb-a84750e23c0b",
+      "data": {
+        "eventTimeMs": 1792392617987,
+        "level": "INFO",
+        "message": "控制动作已收到：stand，seq=8057",
+        "module": "gamepad"
+      },
+      "protocolVersion": 1,
+      "sampleMonoMs": 475094.031319,
+      "seq": 56,
+      "source": "hardware",
+      "topic": "logs",
+      "type": "sample",
+      "valid": true
+    }
+  ],
+  "nextCursor": 56
+}

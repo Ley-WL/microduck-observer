@@ -1,0 +1,146 @@
+{
+  "method": "Upright JPEG neutral-paper ROIs; exposure 500 for measurement only, restored 1500 after each capture. Non-identical scene, not color-chart calibration.",
+  "beforeGains": [
+    1.36,
+    1,
+    1.58
+  ],
+  "afterGains": [
+    1.46,
+    1,
+    1.57
+  ],
+  "gamma": 1.3,
+  "rois": {
+    "upper": {
+      "uprightBox": [
+        100,
+        345,
+        350,
+        400
+      ],
+      "before": {
+        "meanRgb": [
+          193.6005818181818,
+          202.21949090909092,
+          200.2786181818182
+        ],
+        "redDeficitRelativeGreen": 0.042621554688730745,
+        "clippedPixelFraction": 0.0
+      },
+      "after": {
+        "meanRgb": [
+          203.56712727272728,
+          202.86894545454547,
+          198.64792727272726
+        ],
+        "redDeficitRelativeGreen": -0.0034415411221144776,
+        "clippedPixelFraction": 0.0
+      }
+    },
+    "middle": {
+      "uprightBox": [
+        100,
+        420,
+        350,
+        480
+      ],
+      "before": {
+        "meanRgb": [
+          171.3848,
+          180.8072,
+          181.70693333333332
+        ],
+        "redDeficitRelativeGreen": 0.05211296895256379,
+        "clippedPixelFraction": 0.0
+      },
+      "after": {
+        "meanRgb": [
+          180.31593333333333,
+          181.66646666666668,
+          180.30833333333334
+        ],
+        "redDeficitRelativeGreen": 0.007434136624737686,
+        "clippedPixelFraction": 0.0
+      }
+    },
+    "lower": {
+      "uprightBox": [
+        100,
+        510,
+        350,
+        565
+      ],
+      "before": {
+        "meanRgb": [
+          134.09534545454545,
+          149.39294545454544,
+          154.31316363636364
+        ],
+        "redDeficitRelativeGreen": 0.10239840946609136,
+        "clippedPixelFraction": 0.0
+      },
+      "after": {
+        "meanRgb": [
+          142.79556363636362,
+          149.29345454545455,
+          153.01323636363637
+        ],
+        "redDeficitRelativeGreen": 0.04352428530021424,
+        "clippedPixelFraction": 0.0
+      }
+    },
+    "left": {
+      "uprightBox": [
+        30,
+        380,
+        80,
+        500
+      ],
+      "before": {
+        "meanRgb": [
+          132.862,
+          142.95066666666668,
+          149.12833333333333
+        ],
+        "redDeficitRelativeGreen": 0.07057446391762201,
+        "clippedPixelFraction": 0.0
+      },
+      "after": {
+        "meanRgb": [
+          139.6245,
+          143.52783333333332,
+          147.28933333333333
+        ],
+        "redDeficitRelativeGreen": 0.027195654269148495,
+        "clippedPixelFraction": 0.0
+      }
+    },
+    "right": {
+      "uprightBox": [
+        390,
+        380,
+        440,
+        500
+      ],
+      "before": {
+        "meanRgb": [
+          138.82883333333334,
+          154.25333333333333,
+          157.61316666666667
+        ],
+        "redDeficitRelativeGreen": 0.09999459763160168,
+        "clippedPixelFraction": 0.0
+      },
+      "after": {
+        "meanRgb": [
+          147.59783333333334,
+          154.64266666666666,
+          156.0425
+        ],
+        "redDeficitRelativeGreen": 0.045555560345570734,
+        "clippedPixelFraction": 0.0
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+/dts-v1/;
+/plugin/;
+
+// RK3566 vendor kernel: retain existing clocks, OPPs and board supply wiring.
+/ {
+    compatible = "radxa,zero3", "rockchip,rk3566";
+    fragment@0 {
+        target-path = "/npu@fde40000";
+        __overlay__ { status = "okay"; };
+    };
+    fragment@1 {
+        target-path = "/iommu@fde4b000";
+        __overlay__ { status = "okay"; };
+    };
+};

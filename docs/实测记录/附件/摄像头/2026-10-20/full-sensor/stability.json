@@ -1,0 +1,48 @@
+{
+  "seconds": 15.008081175000143,
+  "fps": 10.594292377952739,
+  "cpuPercentOneCore": {
+    "capture": 2.1321846295250793,
+    "encoder": 7.262753894319802
+  },
+  "start": {
+    "at": 1077.650509338,
+    "sequence": 1027,
+    "processes": {
+      "capture": {
+        "pid": 1700,
+        "ticks": 230,
+        "rssBytes": 1929216
+      },
+      "encoder": {
+        "pid": 1701,
+        "ticks": 756,
+        "rssBytes": 6627328
+      }
+    },
+    "temperatures": {
+      "thermal_zone0": 70555,
+      "thermal_zone1": 68125
+    }
+  },
+  "end": {
+    "at": 1092.658590513,
+    "sequence": 1186,
+    "processes": {
+      "capture": {
+        "pid": 1700,
+        "ticks": 262,
+        "rssBytes": 1929216
+      },
+      "encoder": {
+        "pid": 1701,
+        "ticks": 865,
+        "rssBytes": 6627328
+      }
+    },
+    "temperatures": {
+      "thermal_zone0": 68125,
+      "thermal_zone1": 67500
+    }
+  }
+}

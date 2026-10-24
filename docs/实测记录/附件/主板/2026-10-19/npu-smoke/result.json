@@ -1,0 +1,15 @@
+{
+  "irqBefore": [
+    " 34:          0          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu"
+  ],
+  "driver": "RKNPU driver: v0.9.8",
+  "temperatureBefore": "85000",
+  "exitCode": 0,
+  "stdout": "runtime=2.3.2 (429f97ae6b@2025-04-09T09:09:27) driver=0.9.8\ninput=1,224,224,3 format=NHWC output_elements=1001\ntop1 index=156 score=0.927734\ntop2 index=155 score=0.063110\ntop3 index=205 score=0.004295\ntop4 index=284 score=0.003851\ntop5 index=285 score=0.000212\nPASS runs=23 warmup=3 measured=20 mean_ms=5.381 min_ms=5.127 max_ms=6.001\n",
+  "stderr": "",
+  "irqAfter": [
+    " 34:         23          0          0          0     GICv3 183 Level     fde4b000.iommu, fde40000.npu"
+  ],
+  "temperatureAfter": "85000",
+  "calibrationUnchanged": true
+}

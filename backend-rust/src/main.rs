@@ -1,6 +1,11 @@
+mod autonomy;
+mod vision;
+mod demo;
 mod dance;
+mod camera;
 mod head_control;
 mod gamepad;
+mod pad_bindings;
 mod gamepad_bluetooth;
 mod calibration;
 mod control;
@@ -12,10 +17,13 @@ mod gains;
 mod imu;
 mod orientation;
 mod policy;
+mod model_registry;
 mod observer_ota;
+mod web_update;
 mod roll_exit;
 mod rear_hook;
 mod walk_profile;
+mod walk_handoff;
 mod power;
 mod quack;
 mod resources;
@@ -110,10 +118,23 @@ fn check_action(h: &HeaderMap, b: &Bytes, max: usize) -> Result<Value, Response>
         }
     })
 }
+// Resolve the running executable, not the mutable current symlink.
+fn service_version() -> &'static Value {
+    static VERSION: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+    VERSION.get_or_init(|| {
+        let release = std::env::current_exe().ok().and_then(|exe| {
+            let bin=exe.parent()?;
+            let dir=bin.parent()?;
+            (bin.file_name()?=="bin" && dir.parent()?.file_name()?=="releases")
+                .then(||dir.file_name()?.to_str().map(str::to_owned)).flatten()
+        });
+        json!({"version":env!("CARGO_PKG_VERSION"),"release":release})
+    })
+}
 async fn info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     Json(
-        json!({"name":if a.hardware{"MicroDuck · MS901M"}else{"MicroDuck Lab"},"imuModel":if a.hardware{json!("MS901M")}else{Value::Null},"protocolVersion":1,"bootId":s.boot,"source":s.source,"topics":a.topics,"capabilities":{"pose":!a.hardware,"imu":true,"sensorOrientation":a.hardware,"joints":a.servo,"camera":false,"tof":a.tof,"scenarios":!a.hardware}}),
+        json!({"name":if a.hardware{"MicroDuck · MS901M"}else{"MicroDuck Lab"},"imuModel":if a.hardware{json!("MS901M")}else{Value::Null},"protocolVersion":1,"service":service_version(),"bootId":s.boot,"source":s.source,"topics":a.topics,"capabilities":{"pose":!a.hardware,"imu":true,"sensorOrientation":a.hardware,"joints":a.servo,"camera":camera::available(),"tof":a.tof,"scenarios":!a.hardware}}),
     )
 }
 async fn health(State(a): State<App>) -> Json<Value> {
@@ -354,6 +375,36 @@ async fn policy_info(State(a): State<App>) -> Json<Value> {
         json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance","flamingo"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
+async fn pad_bindings_info()->Json<Value>{Json(pad_bindings::info())}
+async fn pad_bindings_update(State(a):State<App>,headers:HeaderMap,body:Bytes)->Response {
+    let body=match check_write(&headers,&body,4096){Ok(v)=>v,Err(r)=>return r};
+    let permit=match a.gate.clone().try_acquire_owned(){Ok(p)=>p,Err(_)=>return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务")};
+    if !model_registry::idle(a.telemetry.read().unwrap().control["state"].as_str().unwrap_or("")){return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务");}
+    match tokio::task::spawn_blocking(move||{let _permit=permit;pad_bindings::update(&body)}).await {
+        Ok(Ok(v))=>Json(v).into_response(),Ok(Err(e))=>error(StatusCode::CONFLICT,&format!("手柄配置未更改：{e:#}")),
+        Err(e)=>error(StatusCode::INTERNAL_SERVER_ERROR,&format!("手柄配置保存失败：{e}")),
+    }
+}
+async fn model_registry_info() -> Response {
+    match tokio::task::spawn_blocking(model_registry::snapshot).await {
+        Ok(value)=>Json(value).into_response(),
+        Err(e)=>error(StatusCode::INTERNAL_SERVER_ERROR,&format!("读取模型列表失败：{e}")),
+    }
+}
+async fn model_registry_action(State(a): State<App>, Path(action): Path<String>, headers: HeaderMap, body: Bytes) -> Response {
+    if !matches!(action.as_str(),"select"|"rollback"|"import") {return error(StatusCode::NOT_FOUND,"未知模型管理操作");}
+    let body=match check_write(&headers,&body,model_registry::MAX_REQUEST_BYTES) {Ok(v)=>v,Err(r)=>return r};
+    let permit=match a.gate.clone().try_acquire_owned() {Ok(p)=>p,Err(_)=>return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务")};
+    if !model_registry::idle(a.telemetry.read().unwrap().control["state"].as_str().unwrap_or("")) {
+        return error(StatusCode::CONFLICT,"请先停止模型及其他控制任务");
+    }
+    // The permit lives in the blocking task even if the HTTP client disconnects.
+    match tokio::task::spawn_blocking(move || {let _permit=permit;model_registry::update(&action,&body)}).await {
+        Ok(Ok(v))=>Json(v).into_response(),
+        Ok(Err(e))=>error(StatusCode::CONFLICT,&format!("模型配置未更改：{e:#}")),
+        Err(e)=>error(StatusCode::INTERNAL_SERVER_ERROR,&format!("模型管理任务失败：{e}")),
+    }
+}
 async fn model_gains_info() -> Json<Value> {
     let value=gains::ui_current();
     Json(json!({"supported":true,"p":value.p,"d":value.d,"appliesOn":"next-model-start","scope":"all-models","source":"model-gains.json"}))
@@ -361,6 +412,24 @@ async fn model_gains_info() -> Json<Value> {
 #[cfg(test)]
 mod gain_route_tests {
     use super::*;
+    #[tokio::test]
+    async fn registry_changes_share_motion_gate_and_reject_active_or_unknown_states() {
+        let tmp=tempfile::tempdir().unwrap();
+        let shared=Arc::new(std::sync::RwLock::new(Telemetry::new(false)));
+        let app=App {telemetry:shared.clone(),cal:Arc::new(Mutex::new(Calibration::open(tmp.path().join("cal.json")).unwrap())),topics:BTreeMap::new(),hardware:false,servo:false,tof:false,owner:None,gate:Arc::new(tokio::sync::Semaphore::new(1)),input_gate:Arc::new(tokio::sync::Semaphore::new(1)),plans:Arc::new(Mutex::new(None)),shutdown:Arc::new(AtomicBool::new(false)),gamepad_debug:Arc::new(AtomicBool::new(true))};
+        let mut headers=HeaderMap::new();headers.insert("content-type","application/json".parse().unwrap());
+        for state in ["policy","moving","preflight","disabling","calibrating",""] {
+            shared.write().unwrap().control=json!({"state":state});
+            assert_eq!(pad_bindings_update(State(app.clone()),headers.clone(),Bytes::from_static(b"{}")).await.status(),StatusCode::CONFLICT);
+            for action in ["select","rollback","import"] {
+                let result=model_registry_action(State(app.clone()),Path(action.into()),headers.clone(),Bytes::from_static(b"{}")).await;
+                assert_eq!(result.status(),StatusCode::CONFLICT);
+            }
+        }
+        shared.write().unwrap().control=json!({"state":"idle"});
+        let _permit=app.gate.clone().acquire_owned().await.unwrap();
+        assert_eq!(model_registry_action(State(app.clone()),Path("select".into()),headers,Bytes::from_static(b"{}")).await.status(),StatusCode::CONFLICT);
+    }
     #[tokio::test]
     async fn quack_route_is_registered_and_requires_real_hardware() {
         let tmp=tempfile::tempdir().unwrap();
@@ -418,6 +487,11 @@ fn policy_drive_command(shared: &mut Telemetry, body: &Value) -> Response {
             };
             return error(StatusCode::CONFLICT,message);
         }
+        if (twist!=[0.;3] || head!=[0.;2]) && shared.drive.as_ref().is_some_and(|d|d.session==body["session"].as_str().unwrap_or("") && sequence>d.sequence) {
+            shared.cancel_demo("人工摇杆接管",true);
+        }
+        if shared.autonomy.recovering(){return error(StatusCode::CONFLICT,"自主起身中，仅停止、卸力或关闭自主可中断");}
+        shared.autonomous_input(body["session"].as_str().unwrap_or(""),sequence,twist!=[0.;3] || head!=[0.;2]);
         let seated_head=shared.control["activeSkill"]=="sitstand_sit" && head_control::ready(&shared.control) && twist==[0.;3];
         if shared.control["activeSkill"]=="sitstand_sit" && !seated_head {
             return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
@@ -443,7 +517,7 @@ async fn policy_action(
     h: HeaderMap,
     b: Bytes,
 ) -> Response {
-    if !["start", "stop", "shadow", "home", "command", "skill", "mouth", "quack"].contains(&action.as_str()) {
+    if !["start", "stop", "shadow", "home", "command", "skill", "mouth", "quack", "demo", "autonomy"].contains(&action.as_str()) {
         return error(StatusCode::NOT_FOUND, "Not Found");
     }
     let body = match check_action(&h, &b, 1024) {
@@ -455,12 +529,68 @@ async fn policy_action(
     };
     if action == "stop" {
         let mut shared=a.telemetry.write().unwrap();shared.drive=None;shared.pending_skill=None;
+        shared.cancel_demo("停止模型",false);
+        shared.stop_autonomy("用户停止模型",false);
         owner.halt.store(true, Ordering::Release);
         return Json(json!({"state":"stopping","message":"停止模型请求已发送，保持最后目标"}))
             .into_response();
     }
+    if action=="autonomy" {
+        let session=body["session"].as_str().unwrap_or("");
+        let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少自主指令序号");};
+        let enabling=!a.telemetry.read().unwrap().autonomy.enabled();
+        if enabling {
+            if policy::metadata_for("xgoduck_getup").is_none(){return error(StatusCode::CONFLICT,"自主模式需要已就绪的起身模型");}
+            if let Err(e)=quack::ready(){return error(StatusCode::CONFLICT,&e.to_string());}
+        }
+        let mut state=a.telemetry.write().unwrap();
+        if !state.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence){return error(StatusCode::CONFLICT,"自主会话或序号已过期");}
+        if state.autonomy.enabled(){
+            state.cancel_vision_sound();
+            let recovering=state.autonomy.recovering();state.autonomy.stop("用户关闭自主");
+            if recovering {state.autonomy_notice=Some("auto_off");owner.cancel.store(true,Ordering::Release);}
+            else {state.quack_cancel=true;state.pending_quack=true;state.quack_voice="auto_off".into();}
+        } else {
+            let allowed=state.control["state"]=="policy" && state.control["activeSkill"]=="xgoduck" && state.control["runtimeProfile"]=="kissqy-sync50-v1" && state.control["feedbackHolding"]!=true && !state.demo.active && state.pending_skill.is_none() && !state.pending_quack && !state.quack_running && state.drive.as_ref().unwrap().current()==[0.;3] && state.head_intent.current(Instant::now())==[0.;2];
+            let result=if allowed {state.autonomy.start(session,Instant::now())}else{Err(anyhow::anyhow!("请先稳定站立、摇杆回中并结束其它动作"))};
+            if let Err(e)=result {
+                if state.control["state"]=="policy" && !state.pending_quack && !state.quack_running {state.pending_quack=true;state.quack_voice="auto_reject".into();}
+                return error(StatusCode::CONFLICT,&e.to_string());
+            }
+            state.pending_quack=true;state.quack_voice="auto_on".into();
+        }
+        state.drive.as_mut().unwrap().sequence=sequence;
+        state.log("INFO","autonomy",if enabling {"自主模式开启：原地待命"}else{"自主模式关闭"});
+        return Json(state.autonomy.status()).into_response();
+    }
+    if action=="demo" {
+        let session=body["session"].as_str().unwrap_or("");
+        let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少演示指令序号");};
+        let mode=body["mode"].as_str().unwrap_or("toggle");
+        if !["toggle","keepalive","cancel"].contains(&mode) {return error(StatusCode::BAD_REQUEST,"无效演示指令");}
+        if mode=="toggle" && !a.telemetry.read().unwrap().demo.active {
+            for kind in ["sitstand_sit","sitstand_stand","xgoduck_pick","dance10"] {
+                if policy::metadata_for(kind).is_none() {return error(StatusCode::CONFLICT,"演示所需动作模型不可用");}
+            }
+            if let Err(e)=quack::ready() {return error(StatusCode::CONFLICT,&e.to_string());}
+        }
+        let mut state=a.telemetry.write().unwrap();
+        if !state.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {return error(StatusCode::CONFLICT,"演示会话或序号已过期");}
+        if mode=="cancel" || (mode=="toggle" && state.demo.active) {state.cancel_demo("用户取消演示",true);}
+        else if mode=="keepalive" {state.demo.renew(session,Instant::now());}
+        else {
+            if state.control["state"]!="policy" || state.control["activeSkill"]!="xgoduck" || state.control["runtimeProfile"]!="kissqy-sync50-v1" || state.control["feedbackHolding"]==true || state.pending_skill.is_some() || state.pending_quack || state.quack_running || state.drive.as_ref().unwrap().current()!=[0.;3] || state.head_intent.current(Instant::now())!=[0.;2] {
+                return error(StatusCode::CONFLICT,"请先站立并等待稳定、摇杆回中、其它动作结束");
+            }
+            if state.autonomy.recovering(){return error(StatusCode::CONFLICT,"自主起身中，普通动作暂不可用");}
+            state.cancel_vision_sound();state.autonomy.action(Instant::now());
+            if let Err(e)=state.demo.start(session,Instant::now()) {return error(StatusCode::CONFLICT,&e.to_string());}
+        }
+        state.drive.as_mut().unwrap().sequence=sequence;
+        return Json(state.demo.status()).into_response();
+    }
     if action=="skill" {
-        let mut kind=match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())};
+        let mut kind=if body["skill"].as_str().is_some_and(model_registry::is_custom) {body["skill"].as_str().unwrap()} else {match policy::skill_kind(&body["skill"]) {Ok(v)=>v,Err(e)=>return error(StatusCode::BAD_REQUEST,&e.to_string())}};
         if body["skill"]=="flamingo" && a.telemetry.read().unwrap().control["activeSkill"]=="flamingo_hold" {kind="flamingo_lower";}
         if policy::metadata_for(kind).is_none() {return error(StatusCode::CONFLICT,"动作模型不可用");}
         let Some(sequence)=body["sequence"].as_u64() else {return error(StatusCode::BAD_REQUEST,"缺少动作序号");};
@@ -581,8 +711,13 @@ async fn shutdown_signal(a: App) {
         owner.cancel.store(true, Ordering::Release);
     }
     a.shutdown.store(true, Ordering::Release);
+    camera::shutdown().await;
+    tof::shutdown().await;
 }
 async fn api_errors(request: axum::extract::Request, next: axum::middleware::Next) -> Response {
+    if request.method()!=Method::GET && observer_ota::busy(&observer_ota::status()) && request.uri().path()!="/api/v1/servos/disable" {
+        return error(StatusCode::CONFLICT,"服务正在更新，请等待完成；急停卸力仍可用");
+    }
     let api = request.uri().path().starts_with("/api/");
     let response = next.run(request).await;
     if api && response.status() == StatusCode::NOT_FOUND {
@@ -640,6 +775,8 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
     gains::init()?;
+    model_registry::init()?;
+    pad_bindings::init()?;
     if args.get(1).is_some_and(|s|s=="--verify-gamepad") {
         println!("{}",gamepad::verify_input()?);return Ok(());
     }
@@ -659,6 +796,7 @@ async fn main() -> anyhow::Result<()> {
         anyhow::bail!("Invalid MICRODUCK_SOURCE")
     }
     let hardware = source == "hardware";
+    camera::init(hardware).await;
     if hardware {
         let voice_dir = env("MICRODUCK_VOICE_DIR", "/var/lib/microduck-observer/voice");
         if let Err(e) = quack::init(std::path::Path::new(&voice_dir)) { eprintln!("quack voice initialization failed: {e:#}"); }
@@ -667,10 +805,7 @@ async fn main() -> anyhow::Result<()> {
         anyhow::bail!("BNO085 native migration is pending; keep the existing production service")
     };
     let port = env("MICRODUCK_SERVO_PORT", "");
-    let tof_path = env(
-        "MICRODUCK_TOF_SOCKET",
-        if hardware { "/run/tofd/tof.sock" } else { "" },
-    );
+    let tof_enabled = hardware;
     let static_dir = env("MICRODUCK_STATIC_DIR", "../frontend/dist");
     let cal = Calibration::open(PathBuf::from(env(
         "MICRODUCK_CALIBRATION_FILE",
@@ -678,6 +813,7 @@ async fn main() -> anyhow::Result<()> {
     )))?;
     let shared = Arc::new(RwLock::new(Telemetry::new(hardware)));
     let stop = Arc::new(AtomicBool::new(false));
+    if hardware {vision::init(shared.clone(),stop.clone());}
     let gamepad_debug = Arc::new(AtomicBool::new(gamepad::initial_debug()));
     let owner = if !port.is_empty() {
         let ids = env("MICRODUCK_SERVO_IDS", "11,12,13,14,21,22,23,24")
@@ -702,10 +838,10 @@ async fn main() -> anyhow::Result<()> {
     let a = App {
         telemetry: shared.clone(),
         cal: Arc::new(Mutex::new(cal)),
-        topics: rates(hardware, !port.is_empty(), !tof_path.is_empty()),
+        topics: rates(hardware, !port.is_empty(), tof_enabled),
         hardware,
         servo: !port.is_empty(),
-        tof: !tof_path.is_empty(),
+        tof: tof_enabled,
         owner,
         gate: Arc::new(tokio::sync::Semaphore::new(1)),
         input_gate: Arc::new(tokio::sync::Semaphore::new(1)),
@@ -722,9 +858,7 @@ async fn main() -> anyhow::Result<()> {
             stop.clone(),
         );
     }
-    if !tof_path.is_empty() {
-        tokio::spawn(tof::run(tof_path.clone(), shared.clone()));
-    }
+    tof::init(hardware,shared.clone()).await;
     let data = shared.clone();
     let producer_stop = stop.clone();
     tokio::spawn(async move {
@@ -741,7 +875,7 @@ async fn main() -> anyhow::Result<()> {
                 s.simulate()
             }
             if system.elapsed() >= Duration::from_secs(1) {
-                let d = json!({"resources":s.resources,"uptimeSeconds":s.started.elapsed().as_secs_f64(),"servoControl":if !port.is_empty(){s.control.clone()}else{Value::Null},"tof":if !tof_path.is_empty(){s.tof_health()}else{Value::Null},"imu":s.imu_health(),"scenario":if hardware{Value::Null}else{json!(s.scenario)}});
+                let d = json!({"service":service_version(),"resources":s.resources,"uptimeSeconds":s.started.elapsed().as_secs_f64(),"servoControl":if !port.is_empty(){s.control.clone()}else{Value::Null},"tof":if tof_enabled{s.tof_health()}else{Value::Null},"imu":s.imu_health(),"scenario":if hardware{Value::Null}else{json!(s.scenario)}});
                 s.sample("system", d, true, Instant::now());
                 system = Instant::now();
             }
@@ -768,6 +902,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/servos/limits", get(limits))
         .route("/api/v1/logs", get(logs))
         .route("/api/v1/policy", get(policy_info))
+        .route("/api/v1/model-registry", get(model_registry_info))
+        .route("/api/v1/model-registry/{action}", post(model_registry_action).layer(DefaultBodyLimit::max(model_registry::MAX_REQUEST_BYTES)))
         .route("/api/v1/model-gains", get(model_gains_info).post(model_gains))
         .route("/api/v1/policy/{action}", post(policy_action))
         .route("/api/v1/servos/{action}", post(servo_action))
@@ -775,7 +911,11 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/debug/scenario", post(scenario))
         .route("/api/v1/stream", get(stream))
         .merge(gamepad::mode_router())
+        .route("/api/v1/gamepad/bindings", get(pad_bindings_info).post(pad_bindings_update))
         .merge(gamepad_bluetooth::router())
+        .merge(camera::router())
+        .merge(tof::router())
+        .merge(web_update::router())
         .fallback_service(ServeDir::new(static_dir).append_index_html_on_directories(true))
         .layer(DefaultBodyLimit::max(16384))
         .layer(cors)
@@ -806,6 +946,21 @@ mod web_gamepad_tests {
         let mut s=Telemetry::new(false);
         s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1"});
         s.drive=Some(telemetry::DriveCommand{session:"web".into(),sequence:0,twist:[0.;3],updated:Instant::now()});s
+    }
+    #[test] fn autonomous_recovery_blocks_drive_and_manual_skills_without_changing_sequence(){
+        let mut s=ready();let now=Instant::now();s.autonomy.observe(now- Duration::from_millis(600),"xgoduck",true,false,false);s.autonomy.observe(now,"xgoduck",true,false,false);s.autonomy.start("web",now).unwrap();s.autonomy.fall(now);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":1,"twist":[0.2,0,0]})).status(),StatusCode::CONFLICT);
+        assert!(!s.queue_skill("web",1,"xgoduck_getup"));assert!(!s.queue_quack("web",1));assert!(!s.queue_mouth("web",1,20.));
+        assert_eq!(s.drive.as_ref().unwrap().sequence,0);assert_eq!(s.drive.as_ref().unwrap().twist,[0.;3]);assert!(s.autonomy.recovering());
+    }
+    #[test] fn foreign_and_replayed_drive_cannot_take_over_autonomy(){
+        let mut s=ready();let now=Instant::now();s.autonomy.observe(now-Duration::from_millis(600),"xgoduck",true,false,false);s.autonomy.observe(now,"xgoduck",true,false,false);s.autonomy.start("web",now).unwrap();
+        s.vision.sound=true;s.pending_quack=true;
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"other","sequence":1,"twist":[0.2,0,0]})).status(),StatusCode::CONFLICT);assert_eq!(s.autonomy.mode,autonomy::Mode::Standby);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":0,"twist":[0.2,0,0]})).status(),StatusCode::CONFLICT);assert_eq!(s.autonomy.mode,autonomy::Mode::Standby);
+        assert!(s.pending_quack && s.vision.sound);
+        assert_eq!(policy_drive_command(&mut s,&json!({"session":"web","sequence":1,"twist":[0.2,0,0]})).status(),StatusCode::OK);assert_eq!(s.autonomy.mode,autonomy::Mode::Manual);
+        assert!(!s.pending_quack && !s.vision.sound);assert!(s.quack_cancel);
     }
     #[test]
     fn head_requires_current_session_and_sequence_and_legacy_packets_preserve_it() {

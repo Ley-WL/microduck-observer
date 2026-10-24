@@ -1,0 +1,41 @@
+{
+  "url": "http://192.168.137.23:8877",
+  "customActionApi": true,
+  "selectedModelsAvailable": true,
+  "selected": {
+    "dance": "dance-default",
+    "flamingo": "flamingo-right",
+    "getup": "getup-default",
+    "kick_left": "kick-left-default",
+    "kick_right": "kick-right-default",
+    "pick": "pick-default",
+    "roulade": "roulade-default",
+    "sitstand": "sitstand-default",
+    "walk": "walk-default"
+  },
+  "bindings": {
+    "bindings": {
+      "a": "standup",
+      "lb": "demo",
+      "left": "flamingo",
+      "rb": "pick",
+      "right": "roulade",
+      "up": "dance",
+      "x": "sit",
+      "y": "getup"
+    },
+    "revision": 0,
+    "schemaVersion": 1
+  },
+  "assets": {
+    "index.html": "e145f022621399327eae055d65b895821fa561367375f922c5cfdf8fa11de8f3",
+    "assets/index-D6V0rhs_.js": "4f460735c53898432314f7447204ca402798b608276d78f2031ca2fd005b5f0b",
+    "assets/index-NvDv4yd1.css": "385c8f9e6059f259efd9f3ea190d3844414b88c379929008d6e24ceae34bec3c",
+    "model/LICENSE": "48a029ca4cffafe32428e9f7d3f6a54ce637fac5327a9ccf88c93cb3c40e5a8a",
+    "model/meshes.bin": "d2252354ee5a04367aaf82242e08e52491b02ebbf27d48dc2c20350e6714d1a8",
+    "model/model.json": "afb68b1b75ed9c8e1e9a96de401cc2346bb913e7c4f8c6a82fd8bbc10ca69c9c",
+    "model/NOTICE.md": "40025b104ed58fdae7d4e3eec6703746a925cc2c626c84dd476aa50619e2f15a"
+  },
+  "idle15": true,
+  "hardwareMotion": false
+}

@@ -1,0 +1,61 @@
+{
+  "repository": "https://github.com/airockchip/rknn-toolkit2",
+  "revision": "42aa1d426c0a9e0869b6374edba009f7208a1926",
+  "files": [
+    {
+      "path": "rknpu2/examples/rknn_mobilenet_demo/src/main.cc",
+      "file": "main.cc",
+      "sha256": "44821e21a5809d69104a1d16322be024ae8d537c963702bc0eeaec3eba4c863d"
+    },
+    {
+      "path": "rknpu2/examples/rknn_mobilenet_demo/README.md",
+      "file": "README.md",
+      "sha256": "9d61bf98b1707769e2e0385e76c56e76f51ffdba60be538422c67370e7a8697e"
+    },
+    {
+      "path": "rknpu2/examples/rknn_mobilenet_demo/model/RK3566_RK3568/mobilenet_v1.rknn",
+      "file": "mobilenet_v1.rknn",
+      "sha256": "92b36515616fc568ddc573f07a345cf28441efe0d24ecc9b98051fe8bcfad980"
+    },
+    {
+      "path": "rknpu2/examples/rknn_mobilenet_demo/model/dog_224x224.jpg",
+      "file": "dog_224x224.jpg",
+      "sha256": "c350299c6283d5f62fecf1f845b6b3be9aafec8dff528ca09a129990f0a584b0"
+    },
+    {
+      "path": "rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so",
+      "file": "librknnrt.so",
+      "sha256": "d31fc19c85b85f6091b2bd0f6af9d962d5264a4e410bfb536402ec92bac738e8"
+    },
+    {
+      "path": "rknpu2/runtime/Linux/librknn_api/include/rknn_api.h",
+      "file": "rknn_api.h",
+      "sha256": "c48e11a6f41b451a5fd1e4ad774ea60252d3d94f78bee9b21ea3d21b21deba9a"
+    },
+    {
+      "path": "rknpu2/examples/3rdparty/stb/stb_image.h",
+      "file": "stb_image.h",
+      "sha256": "beef2cbf861508e6a74e7cfce2410f2258c1b829c3a1d81b052f71896ff93b93"
+    },
+    {
+      "path": "rknpu2/examples/3rdparty/stb/stb_image_resize.h",
+      "file": "stb_image_resize.h",
+      "sha256": "8ccae59e7826502791140b4074cb3bf6bb85246d06b384093c4efd52fbb4d638"
+    },
+    {
+      "path": "rknpu2/examples/3rdparty/stb/stb_image_write.h",
+      "file": "stb_image_write.h",
+      "sha256": "1a74145555e2e599f0a6b5a96d0a12a58199d513692362b09d8adefd70b6f1ec"
+    },
+    {
+      "path": "rknn-toolkit2/examples/tflite/mobilenet_v1/labels.txt",
+      "file": "labels.txt",
+      "sha256": "1e3ce2539ea02a81eac8ddc06bb7bfbbc7dfbd1e4e092672284410e8fd73ae57"
+    },
+    {
+      "path": "LICENSE",
+      "file": "LICENSE",
+      "sha256": "d846f57d942c7dfdca7b8b54f9e8bb39e1e226790dc4f5ee205d6fd678961720"
+    }
+  ]
+}

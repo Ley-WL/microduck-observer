@@ -194,8 +194,9 @@ impl Motion {
         if self.drive.as_ref()==Some(&current.session) {return false;}
         let session=uuid::Uuid::new_v4().to_string();
         s.drive=Some(crate::telemetry::DriveCommand{session:session.clone(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        s.autonomy.rebind(&session,Instant::now());
         s.gamepad_session=Some(session.clone());s.control["driveSession"]=json!(session);
-        s.head_intent.clear();s.pending_skill=None;s.pending_mouth=None;s.pending_quack=false;
+        s.head_intent.clear();if !s.autonomy.recovering(){s.pending_skill=None;}s.pending_mouth=None;s.pending_quack=false;
         s.log("INFO","gamepad","实体手柄已接管运行模型，旧控制会话失效");
         drop(s);
         self.drive=Some(session);self.drive_seq=0;self.leased=true;self.phase="active".into();self.pending=false;
@@ -207,7 +208,7 @@ impl Motion {
         if self.source == "gamepad" {
             let s=self.app.telemetry.read().unwrap();
             return json!({"flamingoReady":self.phase=="active" && !self.stopped && !self.pending && s.control["activeSkill"]=="flamingo_hold" && s.control["feedbackHolding"]!=true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
-                "motionError":self.error,"controlOwned":self.input_permit.is_some() || (self.drive.is_some() && self.drive==s.gamepad_session),
+                "autonomy":s.autonomy.status(),"demoActive":s.demo.active,"motionError":self.error,"controlOwned":self.input_permit.is_some() || (self.drive.is_some() && self.drive==s.gamepad_session),
                 "controlBusy":self.drive.is_none() && self.app.input_gate.available_permits()==0});
         }
         // Copy the small snapshot under the lock; formatting, calibration and disk I/O
@@ -390,9 +391,9 @@ impl Motion {
                 "standup",
                 "mouth_open",
                 "mouth_close",
-                "quack"
+                "quack", "demo", "autonomy"
             ]
-            .contains(&action),
+            .contains(&action) || crate::model_registry::is_custom(action),
             "不支持的指令"
         );
         let mut vals = [0.; 3];
@@ -415,7 +416,17 @@ impl Motion {
         self.sequence = Some(seq);
         self.last = Instant::now();
         self.sync();
+        {
+            let mut s=self.app.telemetry.write().unwrap();
+            if let Some(session)=self.drive.as_ref().filter(|session|s.drive.as_ref().is_some_and(|d| &d.session==*session)) {
+                s.demo.renew(session,Instant::now());
+                if action!="autonomy" && action!="drive" {s.cancel_vision_sound();s.autonomy.action(Instant::now());}
+                if action=="drive" && self.source!="gamepad" {if f!=0. || t!=0. || head!=[0.;2]{s.cancel_vision_sound();}s.autonomy.input(f!=0. || t!=0. || head!=[0.;2],Instant::now());}
+                if action!="demo" && action!="autonomy" && (action!="drive" || f!=0. || t!=0. || head!=[0.;2]) {s.cancel_demo("人工操作接管",true);}
+            }
+        }
         let execution:Result<()> = async {
+            ensure!(!self.app.telemetry.read().unwrap().autonomy.recovering() || matches!(action,"autonomy"|"estop"|"release"|"idle"|"drive"),"自主起身中，仅关闭、停止或卸力可中断");
             if self.drive.is_none() && self.control()["state"] == "policy"
                 && !matches!(action,"estop"|"release"|"reset"|"idle"|"drive"|"strafe_left"|"strafe_right") {
                 anyhow::bail!("另一端或其他会话正在运行模型，请先在原控制端停止保持，再用手柄或 App 启动");
@@ -441,13 +452,24 @@ impl Motion {
             },
             "stand"=>{self.zero();if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"standup"}))).await?;self.pending=true;}},
             "prepare"=>anyhow::bail!("请先停止模型，再进入坐下预备"),
+            "autonomy"=>{
+                self.zero();let session=self.drive.as_ref().ok_or_else(||anyhow::anyhow!("请先站起"))?;
+                self.drive_seq+=1;self.request("policy/autonomy",Some(json!({"session":session,"sequence":self.drive_seq}))).await?;self.error.clear();
+            },
+            "demo"=>{
+                self.zero();
+                let session=self.drive.as_ref().ok_or_else(||anyhow::anyhow!("请先站起"))?;
+                self.drive_seq+=1;
+                self.request("policy/demo",Some(json!({"session":session,"sequence":self.drive_seq}))).await?;
+                self.error.clear();
+            },
             "quack"=>{
                 self.quack_input(head);
                 if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/quack",Some(json!({"session":session,"sequence":self.drive_seq,"voice":body["voice"]}))).await?;}
                 else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"],"voice":body["voice"]}))).await?;}
                 self.error.clear();
             },
-            "flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close"=>{
+            value if matches!(value,"flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close") || crate::model_registry::is_custom(value)=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;
                     self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;
@@ -480,6 +502,14 @@ impl Motion {
         Ok(if body["compact"] == true {
             compact_status(status, &body)
         } else { status })
+    }
+    pub fn autonomous_input(&mut self,active:bool) {
+        let mut s=self.app.telemetry.write().unwrap();
+        if s.drive.as_ref().is_some_and(|d|self.drive.as_ref()==Some(&d.session)){if active{s.cancel_vision_sound();}s.autonomy.input(active,Instant::now());}
+    }
+    pub fn cancel_demo(&mut self) {
+        let mut s=self.app.telemetry.write().unwrap();
+        if s.drive.as_ref().is_some_and(|d|self.drive.as_ref()==Some(&d.session)) {s.cancel_demo("手柄摇杆接管",true);}
     }
     pub async fn tick(&mut self) {
         if !self.leased {

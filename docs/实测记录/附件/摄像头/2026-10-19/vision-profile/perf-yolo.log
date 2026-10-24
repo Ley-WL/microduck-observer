@@ -1,0 +1,165 @@
+load lable ./model/coco_80_labels_list.txt
+model input num: 1, output num: 3
+input tensors:
+  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+output tensors:
+  index=0, name=output0, n_dims=4, dims=[1, 255, 80, 80], n_elems=1632000, size=1632000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003917
+  index=1, name=343, n_dims=4, dims=[1, 255, 40, 40], n_elems=408000, size=408000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+  index=2, name=345, n_dims=4, dims=[1, 255, 20, 20], n_elems=102000, size=102000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+model is NHWC input fmt
+model input height=640, width=640, channel=3
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rga_api version 1.10.1_[0]
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+scale=1.000000 dst_box=(140 0 499 639) allow_slight_change=1 _left_offset=140 _top_offset=0 padding_w=280 padding_h=0
+fill dst image (x y w h)=(0 0 640 640) with color=0x72727272
+rknn_run
+BENCH pipeline mean_ms=72.303 p50_ms=72.303 p95_ms=72.303 min_ms=72.303 max_ms=72.303
+BENCH rknn_run mean_ms=55.272 p50_ms=55.272 p95_ms=55.272 min_ms=55.272 max_ms=55.272
+BENCH resize mean_ms=5.531 p50_ms=5.531 p95_ms=5.531 min_ms=5.531 max_ms=5.531
+BENCH inputs_set mean_ms=1.179 p50_ms=1.179 p95_ms=1.179 min_ms=1.179 max_ms=1.179
+BENCH outputs_get mean_ms=9.962 p50_ms=9.962 p95_ms=9.962 min_ms=9.962 max_ms=9.962
+BENCH postprocess_and_other mean_ms=0.360 p50_ms=0.360 p95_ms=0.360 min_ms=0.360 max_ms=0.360
+BENCH cpu_resize mean_ms=2.403 p50_ms=2.403 p95_ms=2.403 min_ms=2.403 max_ms=2.403
+BENCH cpu_inputs mean_ms=1.168 p50_ms=1.168 p95_ms=1.168 min_ms=1.168 max_ms=1.168
+BENCH cpu_run mean_ms=26.441 p50_ms=26.441 p95_ms=26.441 min_ms=26.441 max_ms=26.441
+BENCH cpu_outputs mean_ms=7.846 p50_ms=7.846 p95_ms=7.846 min_ms=7.846 max_ms=7.846
+BENCH cpu_other mean_ms=0.399 p50_ms=0.399 p95_ms=0.399 min_ms=0.399 max_ms=0.399
+BENCH runs=1 warmup=5 cpu_one_core_pct=52.98 peak_rss_kib=29284 input=360x640
+write_image path: perf-yolo.png width=360 height=640 channel=3 data=0xaaaabb0cd230
+PERF_DETAIL
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                Network Layer Information Table                                                                  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ID   OpType             DataType Target InputShape                               OutputShape            Cycles(DDR/NPU/Total)    Time(us)     MacUsage(%)  RW(KB)       FullName        
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+0    InputOperator      UINT8    CPU    \                                        (1,3,640,640)          0/0/0                    21                        0            InputOperator:images
+1    Conv               UINT8    NPU    (1,3,640,640),(12,3,2,2),(12)            (1,12,320,320)         687464/409600/687464     1232         2.60         2811         Conv:/model.0/convsp/Conv
+2    ConvExSwish        INT8     NPU    (1,12,320,320),(16,12,3,3),(16)          (1,16,320,320)         762188/921600/921600     2168         17.71        3291         Conv:/model.0/conv/conv/Conv
+3    ConvExSwish        INT8     NPU    (1,16,320,320),(32,16,3,3),(32)          (1,32,160,160)         507906/460800/507906     1160         22.07        2459         Conv:/model.1/conv/Conv
+4    ConvExSwish        INT8     NPU    (1,32,160,160),(16,32,1,1),(16)          (1,16,160,160)         251594/102400/251594     644          4.42         1214         Conv:/model.2/cv1/conv/Conv
+5    ConvExSwish        INT8     NPU    (1,32,160,160),(16,32,1,1),(16)          (1,16,160,160)         251594/102400/251594     641          4.44         1214         Conv:/model.2/cv2/conv/Conv
+6    ConvExSwish        INT8     NPU    (1,16,160,160),(16,16,1,1),(16)          (1,16,160,160)         188849/102400/188849     581          2.45         811          Conv:/model.2/m/m.0/cv1/conv/Conv
+7    ConvExSwish        INT8     NPU    (1,16,160,160),(16,16,3,3),(16)          (1,16,160,160)         189940/230400/230400     591          21.66        818          Conv:/model.2/m/m.0/cv2/conv/Conv
+8    Add                INT8     NPU    (1,16,160,160),(1,16,160,160)            (1,16,160,160)         0/0/0                    550                       1200         Add:/model.2/m/m.0/Add
+9    Concat             INT8     NPU    (1,16,160,160),(1,16,160,160)            (1,32,160,160)         0/0/0                    540                       1601         Concat:/model.2/Concat
+10   ConvExSwish        INT8     NPU    (1,32,160,160),(32,32,1,1),(32)          (1,32,160,160)         376417/204800/376417     1287         4.42         1615         Conv:/model.2/cv3/conv/Conv
+11   ConvExSwish        INT8     NPU    (1,32,160,160),(64,32,3,3),(64)          (1,64,80,80)           256892/230400/256892     819          31.26        1248         Conv:/model.3/conv/Conv
+12   ConvExSwish        INT8     NPU    (1,64,80,80),(32,64,1,1),(32)            (1,32,80,80)           126827/51200/126827      434          6.55         613          Conv:/model.4/cv1/conv/Conv
+13   ConvExSwish        INT8     NPU    (1,64,80,80),(32,64,1,1),(32)            (1,32,80,80)           126827/51200/126827      394          7.22         613          Conv:/model.4/cv2/conv/Conv
+14   ConvExSwish        INT8     NPU    (1,32,80,80),(32,32,1,1),(32)            (1,32,80,80)           95299/51200/95299        431          3.30         411          Conv:/model.4/m/m.0/cv1/conv/Conv
+15   ConvExSwish        INT8     NPU    (1,32,80,80),(32,32,3,3),(32)            (1,32,80,80)           96546/115200/115200      363          35.26        419          Conv:/model.4/m/m.0/cv2/conv/Conv
+16   Add                INT8     NPU    (1,32,80,80),(1,32,80,80)                (1,32,80,80)           0/0/0                    316                       600          Add:/model.4/m/m.0/Add
+17   ConvExSwish        INT8     NPU    (1,32,80,80),(32,32,1,1),(32)            (1,32,80,80)           95299/51200/95299        338          4.21         411          Conv:/model.4/m/m.1/cv1/conv/Conv
+18   ConvExSwish        INT8     NPU    (1,32,80,80),(32,32,3,3),(32)            (1,32,80,80)           96546/115200/115200      384          33.33        419          Conv:/model.4/m/m.1/cv2/conv/Conv
+19   Add                INT8     NPU    (1,32,80,80),(1,32,80,80)                (1,32,80,80)           0/0/0                    357                       600          Add:/model.4/m/m.1/Add
+20   Concat             INT8     NPU    (1,32,80,80),(1,32,80,80)                (1,64,80,80)           0/0/0                    391                       801          Concat:/model.4/Concat
+21   ConvExSwish        INT8     NPU    (1,64,80,80),(64,64,1,1),(64)            (1,64,80,80)           189550/102400/189550     672          8.47         816          Conv:/model.4/cv3/conv/Conv
+22   ConvExSwish        INT8     NPU    (1,64,80,80),(128,64,3,3),(128)          (1,128,40,40)          149968/230400/230400     486          52.67        762          Conv:/model.5/conv/Conv
+23   ConvExSwish        INT8     NPU    (1,128,40,40),(64,128,1,1),(64)          (1,64,40,40)           65262/25600/65262        225          12.64        318          Conv:/model.6/cv1/conv/Conv
+24   ConvExSwish        INT8     NPU    (1,128,40,40),(64,128,1,1),(64)          (1,64,40,40)           65262/25600/65262        220          12.93        318          Conv:/model.6/cv2/conv/Conv
+25   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,1,1),(64)            (1,64,40,40)           49055/25600/49055        205          6.94         214          Conv:/model.6/m/m.0/cv1/conv/Conv
+26   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,3,3),(64)            (1,64,40,40)           54042/115200/115200      227          56.39        246          Conv:/model.6/m/m.0/cv2/conv/Conv
+27   Add                INT8     NPU    (1,64,40,40),(1,64,40,40)                (1,64,40,40)           0/0/0                    288                       300          Add:/model.6/m/m.0/Add
+28   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,1,1),(64)            (1,64,40,40)           49055/25600/49055        245          5.80         214          Conv:/model.6/m/m.1/cv1/conv/Conv
+29   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,3,3),(64)            (1,64,40,40)           54042/115200/115200      246          52.03        246          Conv:/model.6/m/m.1/cv2/conv/Conv
+30   Add                INT8     NPU    (1,64,40,40),(1,64,40,40)                (1,64,40,40)           0/0/0                    191                       300          Add:/model.6/m/m.1/Add
+31   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,1,1),(64)            (1,64,40,40)           49055/25600/49055        218          6.52         214          Conv:/model.6/m/m.2/cv1/conv/Conv
+32   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,3,3),(64)            (1,64,40,40)           54042/115200/115200      417          30.70        246          Conv:/model.6/m/m.2/cv2/conv/Conv
+33   Add                INT8     NPU    (1,64,40,40),(1,64,40,40)                (1,64,40,40)           0/0/0                    214                       300          Add:/model.6/m/m.2/Add
+34   Concat             INT8     NPU    (1,64,40,40),(1,64,40,40)                (1,128,40,40)          0/0/0                    190                       401          Concat:/model.6/Concat
+35   ConvExSwish        INT8     NPU    (1,128,40,40),(128,128,1,1),(128)        (1,128,40,40)          97753/51200/97753        359          15.85        427          Conv:/model.6/cv3/conv/Conv
+36   ConvExSwish        INT8     NPU    (1,128,40,40),(256,128,3,3),(256)        (1,256,20,20)          109129/230400/230400     484          52.89        600          Conv:/model.7/conv/Conv
+37   ConvExSwish        INT8     NPU    (1,256,20,20),(128,256,1,1),(128)        (1,128,20,20)          37913/25600/37913        278          10.23        193          Conv:/model.8/cv1/conv/Conv
+38   ConvExSwish        INT8     NPU    (1,256,20,20),(128,256,1,1),(128)        (1,128,20,20)          37913/25600/37913        240          11.85        193          Conv:/model.8/cv2/conv/Conv
+39   ConvExSwish        INT8     NPU    (1,128,20,20),(128,128,1,1),(128)        (1,128,20,20)          27628/12800/27628        153          9.30         127          Conv:/model.8/m/m.0/cv1/conv/Conv
+40   ConvExSwish        INT8     NPU    (1,128,20,20),(128,128,3,3),(128)        (1,128,20,20)          47575/115200/115200      252          50.79        255          Conv:/model.8/m/m.0/cv2/conv/Conv
+41   Add                INT8     NPU    (1,128,20,20),(1,128,20,20)              (1,128,20,20)          0/0/0                    145                       150          Add:/model.8/m/m.0/Add
+42   Concat             INT8     NPU    (1,128,20,20),(1,128,20,20)              (1,256,20,20)          0/0/0                    156                       201          Concat:/model.8/Concat
+43   ConvExSwish        INT8     NPU    (1,256,20,20),(256,256,1,1),(256)        (1,256,20,20)          58639/51200/58639        235          24.21        276          Conv:/model.8/cv3/conv/Conv
+44   ConvExSwish        INT8     NPU    (1,256,20,20),(128,256,1,1),(128)        (1,128,20,20)          37913/25600/37913        165          17.24        193          Conv:/model.9/cv1/conv/Conv
+45   MaxPool            INT8     NPU    (1,128,20,20)                            (1,128,20,20)          0/0/0                    151                       100          MaxPool:/model.9/MaxPool
+46   MaxPool            INT8     NPU    (1,128,20,20)                            (1,128,20,20)          0/0/0                    187                       100          MaxPool:/model.9/MaxPool_1
+47   MaxPool            INT8     NPU    (1,128,20,20)                            (1,128,20,20)          0/0/0                    155                       100          MaxPool:/model.9/MaxPool_2
+48   MaxPool            INT8     NPU    (1,128,20,20)                            (1,128,20,20)          0/0/0                    148                       100          MaxPool:/model.9/MaxPool_3
+49   MaxPool            INT8     NPU    (1,128,20,20)                            (1,128,20,20)          0/0/0                    188                       100          MaxPool:/model.9/MaxPool_4
+50   MaxPool            INT8     NPU    (1,128,20,20)                            (1,128,20,20)          0/0/0                    160                       100          MaxPool:/model.9/MaxPool_5
+51   Concat             INT8     NPU    (1,128,20,20),(1,128,20,20),...          (1,512,20,20)          0/0/0                    243                       401          Concat:/model.9/Concat
+52   ConvExSwish        INT8     NPU    (1,512,20,20),(256,512,1,1),(256)        (1,256,20,20)          84696/102400/102400      287          39.64        443          Conv:/model.9/cv2/conv/Conv
+53   ConvExSwish        INT8     NPU    (1,256,20,20),(128,256,1,1),(128)        (1,128,20,20)          37913/25600/37913        185          15.38        193          Conv:/model.10/conv/Conv
+54   Resize             INT8     NPU    (1,128,20,20),(0),(4)                    (1,128,40,40)          0/0/0                    133                       252          Resize:/model.11/Resize
+55   Concat             INT8     NPU    (1,128,40,40),(1,128,40,40)              (1,256,40,40)          0/0/0                    256                       801          Concat:/model.12/Concat
+56   ConvExSwish        INT8     NPU    (1,256,40,40),(64,256,1,1),(64)          (1,64,40,40)           97920/51200/97920        268          21.23        528          Conv:/model.13/cv1/conv/Conv
+57   ConvExSwish        INT8     NPU    (1,256,40,40),(64,256,1,1),(64)          (1,64,40,40)           97920/51200/97920        261          21.80        528          Conv:/model.13/cv2/conv/Conv
+58   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,1,1),(64)            (1,64,40,40)           49055/25600/49055        242          5.88         214          Conv:/model.13/m/m.0/cv1/conv/Conv
+59   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,3,3),(64)            (1,64,40,40)           54042/115200/115200      344          37.21        246          Conv:/model.13/m/m.0/cv2/conv/Conv
+60   Concat             INT8     NPU    (1,64,40,40),(1,64,40,40)                (1,128,40,40)          0/0/0                    198                       401          Concat:/model.13/Concat
+61   ConvExSwish        INT8     NPU    (1,128,40,40),(128,128,1,1),(128)        (1,128,40,40)          97753/51200/97753        357          15.94        427          Conv:/model.13/cv3/conv/Conv
+62   ConvExSwish        INT8     NPU    (1,128,40,40),(64,128,1,1),(64)          (1,64,40,40)           65262/25600/65262        223          12.76        318          Conv:/model.14/conv/Conv
+63   Resize             INT8     NPU    (1,64,40,40),(0),(4)                     (1,64,80,80)           0/0/0                    192                       501          Resize:/model.15/Resize
+64   Concat             INT8     NPU    (1,64,80,80),(1,64,80,80)                (1,128,80,80)          0/0/0                    475                       1601         Concat:/model.16/Concat
+65   ConvExSwish        INT8     NPU    (1,128,80,80),(32,128,1,1),(32)          (1,32,80,80)           189884/51200/189884      533          10.67        1018         Conv:/model.17/cv1/conv/Conv
+66   ConvExSwish        INT8     NPU    (1,128,80,80),(32,128,1,1),(32)          (1,32,80,80)           189884/51200/189884      805          7.07         1018         Conv:/model.17/cv2/conv/Conv
+67   ConvExSwish        INT8     NPU    (1,32,80,80),(32,32,1,1),(32)            (1,32,80,80)           95299/51200/95299        568          2.50         411          Conv:/model.17/m/m.0/cv1/conv/Conv
+68   ConvExSwish        INT8     NPU    (1,32,80,80),(32,32,3,3),(32)            (1,32,80,80)           96546/115200/115200      545          23.49        419          Conv:/model.17/m/m.0/cv2/conv/Conv
+69   Concat             INT8     NPU    (1,32,80,80),(1,32,80,80)                (1,64,80,80)           0/0/0                    352                       801          Concat:/model.17/Concat
+70   ConvExSwish        INT8     NPU    (1,64,80,80),(64,64,1,1),(64)            (1,64,80,80)           189550/102400/189550     593          9.59         816          Conv:/model.17/cv3/conv/Conv
+71   ConvExSwish        INT8     NPU    (1,64,80,80),(64,64,3,3),(64)            (1,64,40,40)           107426/115200/115200     368          34.78        589          Conv:/model.18/conv/Conv
+72   Concat             INT8     NPU    (1,64,40,40),(1,64,40,40)                (1,128,40,40)          0/0/0                    258                       401          Concat:/model.19/Concat
+73   ConvSigmoid        INT8     NPU    (1,64,80,80),(255,64,1,1),(255)          (1,255,80,80)          565879/409600/565879     2145         10.57        2031         Conv:/model.24/m.0/Conv
+74   ConvExSwish        INT8     NPU    (1,128,40,40),(64,128,1,1),(64)          (1,64,40,40)           65262/25600/65262        236          12.05        318          Conv:/model.20/cv1/conv/Conv
+75   ConvExSwish        INT8     NPU    (1,128,40,40),(64,128,1,1),(64)          (1,64,40,40)           65262/25600/65262        221          12.87        318          Conv:/model.20/cv2/conv/Conv
+76   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,1,1),(64)            (1,64,40,40)           49055/25600/49055        267          5.33         214          Conv:/model.20/m/m.0/cv1/conv/Conv
+77   ConvExSwish        INT8     NPU    (1,64,40,40),(64,64,3,3),(64)            (1,64,40,40)           54042/115200/115200      311          41.16        246          Conv:/model.20/m/m.0/cv2/conv/Conv
+78   Concat             INT8     NPU    (1,64,40,40),(1,64,40,40)                (1,128,40,40)          0/0/0                    367                       401          Concat:/model.20/Concat
+79   ConvExSwish        INT8     NPU    (1,128,40,40),(128,128,1,1),(128)        (1,128,40,40)          97753/51200/97753        633          8.99         427          Conv:/model.20/cv3/conv/Conv
+80   ConvExSwish        INT8     NPU    (1,128,40,40),(128,128,3,3),(128)        (1,128,20,20)          70950/115200/115200      413          30.99        405          Conv:/model.21/conv/Conv
+81   Concat             INT8     NPU    (1,128,20,20),(1,128,20,20)              (1,256,20,20)          0/0/0                    237                       201          Concat:/model.22/Concat
+82   ConvSigmoid        INT8     NPU    (1,128,40,40),(255,128,1,1),(255)        (1,255,40,40)          162716/102400/162716     676          16.77        644          Conv:/model.24/m.1/Conv
+83   ConvExSwish        INT8     NPU    (1,256,20,20),(128,256,1,1),(128)        (1,128,20,20)          37913/25600/37913        300          9.48         193          Conv:/model.23/cv1/conv/Conv
+84   ConvExSwish        INT8     NPU    (1,256,20,20),(128,256,1,1),(128)        (1,128,20,20)          37913/25600/37913        319          8.92         193          Conv:/model.23/cv2/conv/Conv
+85   ConvExSwish        INT8     NPU    (1,128,20,20),(128,128,1,1),(128)        (1,128,20,20)          27628/12800/27628        586          2.43         127          Conv:/model.23/m/m.0/cv1/conv/Conv
+86   ConvExSwish        INT8     NPU    (1,128,20,20),(128,128,3,3),(128)        (1,128,20,20)          47575/115200/115200      532          24.06        255          Conv:/model.23/m/m.0/cv2/conv/Conv
+87   Concat             INT8     NPU    (1,128,20,20),(1,128,20,20)              (1,256,20,20)          0/0/0                    315                       201          Concat:/model.23/Concat
+88   ConvExSwish        INT8     NPU    (1,256,20,20),(256,256,1,1),(256)        (1,256,20,20)          58639/51200/58639        466          12.21        276          Conv:/model.23/cv3/conv/Conv
+89   ConvSigmoid        INT8     NPU    (1,256,20,20),(255,256,1,1),(255)        (1,255,20,20)          58600/51200/58600        358          15.83        276          Conv:/model.24/m.2/Conv
+90   OutputOperator     INT8     CPU    (1,255,80,80)                            \                      0/0/0                    2345                      1600         OutputOperator:output0
+91   OutputOperator     INT8     CPU    (1,255,40,40)                            \                      0/0/0                    568                       400          OutputOperator:343
+92   OutputOperator     INT8     CPU    (1,255,20,20)                            \                      0/0/0                    97                        100          OutputOperator:345
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total Operator Elapsed Per Frame Time(us): 40220
+Total Internal Memory Read/Write Per Frame Size(KB): 48443.77
+Total Weight Memory Read/Write Per Frame Size(KB): 1927.19
+Total Memory Read/Write Per Frame Size(KB): 50370.95
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+                                 Operator Time Consuming Ranking Table            
+---------------------------------------------------------------------------------------------------
+OpType             CallNumber   CPUTime(us)  GPUTime(us)  NPUTime(us)  TotalTime(us)  TimeRatio(%)  
+---------------------------------------------------------------------------------------------------
+ConvExSwish        57           0            0            25425        25425          63.21%        
+Concat             13           0            0            3978         3978           9.89%         
+ConvSigmoid        3            0            0            3179         3179           7.90%         
+OutputOperator     3            3010         0            0            3010           7.48%         
+Add                7            0            0            2061         2061           5.12%         
+Conv               1            0            0            1232         1232           3.06%         
+MaxPool            6            0            0            989          989            2.46%         
+Resize             2            0            0            325          325            0.81%         
+InputOperator      1            21           0            0            21             0.05%         
+---------------------------------------------------------------------------------------------------
+Total                           3031         0            37189        40220         
+---------------------------------------------------------------------------------------------------
+
