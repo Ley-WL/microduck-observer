@@ -145,9 +145,9 @@ impl Motion {
                 self.zero();
             } else if ctrl["state"] == "policy" && ctrl["driveSession"] == session.as_str() {
                 self.phase = "active".into();
-                if ctrl["feedbackHolding"] == true || (ctrl["activeSkill"] != "xgoduck" && !crate::head_control::ready(&ctrl)) {
+                if ctrl["feedbackHolding"] == true || (ctrl["activeSkill"] != "xgoduck" && !crate::swizzle::ready(&ctrl) && !crate::head_control::ready(&ctrl)) {
                     self.zero();
-                } else if ctrl["activeSkill"] != "xgoduck" {self.zero_drive();}
+                } else if ctrl["activeSkill"] != "xgoduck" && !crate::swizzle::ready(&ctrl) {self.zero_drive();}
                 if ctrl["activeSkill"] != "xgoduck" {
                     self.pending = false;
                 }
@@ -207,7 +207,7 @@ impl Motion {
         // Local evdev only consumes readiness/errors, never the App telemetry payload.
         if self.source == "gamepad" {
             let s=self.app.telemetry.read().unwrap();
-            return json!({"flamingoReady":self.phase=="active" && !self.stopped && !self.pending && s.control["activeSkill"]=="flamingo_hold" && s.control["feedbackHolding"]!=true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
+            return json!({"rollerMode":crate::swizzle::control_mode(&s.control),"rollerReady":self.phase=="active" && !self.stopped && !self.pending && crate::swizzle::ready(&s.control),"flamingoReady":self.phase=="active" && !self.stopped && !self.pending && s.control["activeSkill"]=="flamingo_hold" && s.control["feedbackHolding"]!=true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
                 "autonomy":s.autonomy.status(),"demoActive":s.demo.active,"motionError":self.error,"controlOwned":self.input_permit.is_some() || (self.drive.is_some() && self.drive==s.gamepad_session),
                 "controlBusy":self.drive.is_none() && self.app.input_gate.available_permits()==0});
         }
@@ -373,7 +373,7 @@ impl Motion {
             [
                 "drive",
                 "stand",
-                "prepare",
+                "prepare", "roller_prepare",
                 "idle",
                 "estop",
                 "reset",
@@ -437,19 +437,28 @@ impl Motion {
                 && (!matches!(action, "drive"|"strafe_left"|"strafe_right") || self.drive.is_some()) {
                 self.acquire_input()?;
             }
+            ensure!(!crate::swizzle::control_mode(&self.control()) || matches!(action,"stand"|"standup"|"drive"|"estop"|"release"|"idle"|"reset"),"轮滑模式只接受A平衡、摇杆、停止或卸力；拆轮前不运行步行技能");
             match action {
             "estop"=>{self.stopped=true;self.halt(true).await?;},
             "release"=>self.close().await,
             "reset"=>{self.zero();self.stopped=false;self.error.clear();},
             _ if self.stopped=>{},
             "idle"=>self.halt(false).await?,
-            "prepare"|"stand"|"getup"|"standup" if self.drive.is_none()=>{
+            "roller_prepare"|"prepare"|"stand"|"getup"|"standup" if self.drive.is_none()=>{
                 self.zero();let cal=self.request("calibration",None).await?;
-                let kind=match action {"prepare"=>"sitstand_sit","getup"=>"xgoduck_getup",_=>"sitstand_stand"};
+                let kind=match action {"roller_prepare"=>crate::swizzle::PREPARE,"prepare"=>"sitstand_sit","getup"=>"xgoduck_getup",_=>"sitstand_stand"};
                 let result=self.request("policy/start",Some(json!({"kind":kind,"speed":0,"revision":cal["revision"]}))).await?;
                 self.drive=Some(result["driveSession"].as_str().ok_or_else(||anyhow::anyhow!("missing drive session"))?.into());self.drive_seq=0;self.phase="starting".into();
                 self.error.clear();
             },
+            "stand"|"standup" if crate::swizzle::control_mode(&self.control())=>{
+                self.zero();
+                if self.control()["activeSkill"]==crate::swizzle::ACTIVE {self.error.clear();}
+                else if let Some(session)=&self.drive {
+                    self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"swizzle"}))).await?;self.pending=true;
+                }
+            },
+            "roller_prepare"=>anyhow::bail!("请先卸力，再进入轮滑安装姿势"),
             "stand"=>{self.zero();if let Some(session)=&self.drive {self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"standup"}))).await?;self.pending=true;}},
             "prepare"=>anyhow::bail!("请先停止模型，再进入坐下预备"),
             "autonomy"=>{
@@ -478,12 +487,12 @@ impl Motion {
             },
             "drive"|"strafe_left"|"strafe_right"=>{
                 let ctrl=self.control();
-                if self.phase=="active" && !self.stopped && ctrl["feedbackHolding"]!=true && (ctrl["activeSkill"]=="xgoduck" || crate::head_control::ready(&ctrl)) && !self.pending {
-                    ensure!(head==[0.;2] || crate::head_control::ready(&ctrl),"当前模型不支持头部控制");
+                if self.phase=="active" && !self.stopped && ctrl["feedbackHolding"]!=true && (ctrl["activeSkill"]=="xgoduck" || crate::swizzle::ready(&ctrl) || crate::head_control::ready(&ctrl)) && !self.pending {
+                    ensure!(head==[0.;2] || crate::swizzle::ready(&ctrl) || crate::head_control::ready(&ctrl),"当前模型不支持头部控制");
                     {let mut s=self.app.telemetry.write().unwrap();
                     ensure!(s.drive.as_ref().is_some_and(|d|self.drive.as_ref()==Some(&d.session)),"控制会话已变更");
-                    s.head_intent.set(head);}
-                    if ctrl["activeSkill"]!="xgoduck" {self.zero_drive();self.error.clear();return Ok(());}
+                    s.head_intent.set(if crate::swizzle::ready(&ctrl) {[0.;2]} else {head});}
+                    if ctrl["activeSkill"]!="xgoduck" && !crate::swizzle::ready(&ctrl) {self.zero_drive();self.error.clear();return Ok(());}
                     self.error.clear();self.forward=f*speed;self.turn=(t*speed).clamp(-1.0,1.0);self.lateral=if action=="strafe_left"{0.3*speed}else if action=="strafe_right"{-0.3*speed}else{0.};
                 }else{self.zero();}
             },_=>{}
@@ -526,7 +535,7 @@ impl Motion {
             return;
         }
         let ctrl = self.control();
-        if ctrl["activeSkill"] != "xgoduck" || ctrl["feedbackHolding"] == true {
+        if (ctrl["activeSkill"] != "xgoduck" && !crate::swizzle::ready(&ctrl)) || ctrl["feedbackHolding"] == true {
             if crate::head_control::ready(&ctrl) {self.zero_drive();} else {self.zero();}
             return;
         }
@@ -535,7 +544,7 @@ impl Motion {
         };
         self.drive_seq += 1;
         let twist = if !self.stopped && self.last.elapsed() < Duration::from_millis(250) {
-            [self.forward * 0.4, self.lateral, self.turn]
+            if crate::swizzle::ready(&ctrl) {[(self.forward * 0.8).clamp(-0.4,0.4),0.,self.turn*0.25]} else {[self.forward * 0.4, self.lateral, self.turn]}
         } else {
             [0.; 3]
         };
@@ -1011,4 +1020,32 @@ pub(crate) mod tests {
         assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,0.]);
     }
 
+}
+
+#[cfg(test)] mod roller_tests {
+    use super::*;
+    #[tokio::test] async fn roller_preparation_a_and_drive_use_the_owned_roller_session() {
+        let (mut m,calls,_tmp)=super::tests::fixture();m.open().unwrap();
+        // Real policy/start installs the shared lease before returning.
+        m.app.telemetry.write().unwrap().drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        m.command(json!({"seq":1,"action":"roller_prepare"})).await.unwrap();
+        assert_eq!(calls.lock().unwrap().last().unwrap().1["kind"],"swizzle_prepare");
+        {
+            let mut s=m.app.telemetry.write().unwrap();
+            s.drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+            s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare","driveSession":"ble-session"});
+        }
+        m.command(json!({"seq":2,"action":"stand"})).await.unwrap();
+        assert_eq!(calls.lock().unwrap().last().unwrap().1["skill"],"swizzle");
+        m.app.telemetry.write().unwrap().control["activeSkill"]=json!("swizzle");
+        m.command(json!({"seq":3,"action":"drive","forward":-0.5,"turn":1,"speed":1,"headYaw":1})).await.unwrap();
+        m.tick().await;
+        assert_eq!(calls.lock().unwrap().last().unwrap().1["twist"],json!([-0.4,0.0,0.25]));
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.;2]);
+        let count=calls.lock().unwrap().len();
+        m.command(json!({"seq":4,"action":"roulade"})).await.unwrap();
+        assert_eq!(calls.lock().unwrap().len(),count);assert!(!m.error.is_empty());
+        m.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(true);m.tick().await;
+        assert_eq!((m.forward,m.turn),(0.,0.));
+    }
 }

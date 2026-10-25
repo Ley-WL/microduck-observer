@@ -12,6 +12,7 @@ const physicalResult=computed(()=>{
   for(let i=state.logs.length-1;i>=0;i--){const log=state.logs[i];if(log.data.module==='gamepad')return '手柄最近事件：'+String(log.data.message||'');}
   return '';
 });
+const rollerAvailable=ref(false);
 const modelAvailable=ref(false),headAvailable=ref(false),wheelSpeed=ref(0.2);
 const padConfig=ref<PadConfig>();
 const customActions=ref<{id:string;label:string}[]>([]);
@@ -47,7 +48,13 @@ const canHead=computed(()=>(canDrive.value || seatedHead.value) && headAvailable
 const demoOwned=computed(()=>!!control.value?.demo?.active && !!session.value && control.value?.driveSession===session.value);
 const autonomousOwned=computed(()=>!!control.value?.autonomy?.enabled && !!session.value && control.value?.driveSession===session.value);
 const recovering=computed(()=>control.value?.autonomy?.state==='recovering');
-const allowed=computed(()=>({
+const rollerMode=computed(()=>['swizzle_prepare','swizzle'].includes(control.value?.activeSkill) && control.value?.state!=='disabled');
+const rollerOwned=computed(()=>live.value && control.value?.state==='policy' && rollerMode.value && !control.value?.feedbackHolding && !pending.value && !!session.value && control.value?.driveSession===session.value);
+const rollerDrive=computed(()=>rollerOwned.value && control.value?.activeSkill==='swizzle');
+const displayBindings=computed(()=>rollerMode.value ? {...padConfig.value?.bindings,a:'swizzle'} : padConfig.value?.bindings);
+const allowed=computed(():Record<string,boolean>=>{
+  if(rollerMode.value)return {swizzle:rollerOwned.value,stop:running.value && !pending.value,disable:state.connection==='在线'};
+  return {
   ...Object.fromEntries(customActions.value.map(a=>[a.id,canDrive.value])),
   autonomy:live.value && !pending.value && (autonomousOwned.value || (canDrive.value && !!control.value?.autonomy?.ready && !demoOwned.value)),
   demo:!recovering.value && live.value && !pending.value && (demoOwned.value || (canDrive.value && !!control.value?.demo?.ready)),
@@ -62,7 +69,7 @@ const allowed=computed(()=>({
     ? control.value?.kind==='xgoduck' && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value
     : !busy.value),
   stop:running.value && !pending.value,disable:state.connection==='在线',
-}));
+};});
 const quackPending=ref(false);
 const pending=ref(false),message=ref(''),failed=ref(false);
 const control=computed(()=>state.system?.data.servoControl);
@@ -80,7 +87,7 @@ const hold=gamepadInput(async(input,sequence)=>{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:requestSession,sequence,twist,headPitch,headYaw}),keepalive:true,signal:AbortSignal.timeout(1000)});
   if(!response.ok){const result=await response.json();throw new Error(result.detail || '行走指令未接受');}
   if(requestSession!==session.value || sequence<acknowledgedSequence)return;acknowledgedSequence=sequence;
-  commandState.value=twist.some(v=>v!==0)?'已接受：前后 '+twist[0].toFixed(2)+' · 转向 '+twist[2].toFixed(2)+' rad/s':'零速度指令已接受';
+  commandState.value=twist.some(v=>v!==0)?'已接受：前后 '+twist[0].toFixed(2)+' · 转向 '+twist[2].toFixed(2)+(rollerMode.value?' rad 航向误差':' rad/s'):'零输入指令已接受';
 },()=>lease.nextSequence(),error=>{resetSticks.value++;pressed.value='';failed.value=true;message.value='手柄指令失败：'+String(error);commandState.value='指令被拒绝 / 未收到响应';});
 watch(()=>[control.value?.activeSkill,control.value?.state],()=>{if(control.value?.activeSkill!=='xgoduck' || control.value?.state!=='policy')skillQueued.value=false;});
 let demoHeartbeat:ReturnType<typeof setInterval>|undefined;
@@ -101,6 +108,7 @@ function leaveDemo(){demoFocused=false;release();if(demoOwned.value)void demoCom
 onMounted(()=>{demoHeartbeat=setInterval(()=>{if(demoOwned.value && demoFocused && !document.hidden)void demoCommand('keepalive');},120);window.addEventListener('blur',leaveDemo);window.addEventListener('pagehide',leaveDemo);});
 onUnmounted(()=>{if(demoHeartbeat)clearInterval(demoHeartbeat);leaveDemo();window.removeEventListener('blur',leaveDemo);window.removeEventListener('pagehide',leaveDemo);});
 async function extra(action:string,angleDeg?:number){
+  if(action==='swizzle' && rollerDrive.value){release();message.value='已归零轮滑输入，继续平衡';return;}
   if(action==='autonomy'){
     release();pending.value=true;failed.value=false;
     try{
@@ -113,22 +121,23 @@ async function extra(action:string,angleDeg?:number){
   const independent=action==='quack';
   if(independent){if(quackPending.value)return;quackPending.value=true;}else{release();pending.value=true;}failed.value=false;
   try{
-    const start=['getup','standup','sit'].includes(action) && !running.value;
+    const start=action==='roller_prepare' || (['getup','standup','sit'].includes(action) && !running.value);
     const path=start?'start':action==='quack'?'quack':action==='mouth'?'mouth':'skill';
-    const body=start?{kind:action==='sit'?'sitstand_sit':action==='standup'?'sitstand_stand':'xgoduck_getup',speed:0,revision:board.data?.revision}:angleDeg!=null && !running.value?{id:34,angleDeg,revision:board.data?.revision}:{session:session.value,sequence:hold.nextSequence(),skill:action,angleDeg};
+    const body=start?{kind:action==='roller_prepare'?'swizzle_prepare':action==='sit'?'sitstand_sit':action==='standup'?'sitstand_stand':'xgoduck_getup',speed:0,revision:board.data?.revision}:angleDeg!=null && !running.value?{id:34,angleDeg,revision:board.data?.revision}:{session:session.value,sequence:hold.nextSequence(),skill:action,angleDeg};
     const url=action==='quack' && !running.value?'/api/v1/servos/quack':angleDeg!=null && !running.value?'/api/v1/servos/angle':'/api/v1/policy/'+path;
     if(action==='quack' && !running.value)Object.assign(body,{revision:board.data?.revision});
     const response=await fetch(state.endpoint.replace(/\/$/,'')+url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
     const result=await response.json();if(!response.ok)throw new Error(result.detail || '操作未接受');
     if(start){session.value=result.driveSession || '';lease.remember(session.value);}
     if(angleDeg==null && action!=='quack')skillQueued.value=control.value?.state==='policy' && control.value?.activeSkill==='xgoduck';
-    message.value=action==='flamingo'?(rearHook.value?'后抬脚已请求：右脚向后抬起，到位保持3秒后自动回正；再按提前返回':`火烈鸟切换已请求：首次抬${flamingoSide.value}脚保持，再按落脚`):action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
+    message.value=action==='roller_prepare'?'安装姿势已请求：扶稳装轮后按A平衡':action==='swizzle'?'轮滑平衡已请求':action==='flamingo'?(rearHook.value?'后抬脚已请求：右脚向后抬起，到位保持3秒后自动回正；再按提前返回':`火烈鸟切换已请求：首次抬${flamingoSide.value}脚保持，再按落脚`):action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
   }catch(e){failed.value=true;message.value=String(e);}finally{if(independent)quackPending.value=false;else pending.value=false;}
 }
 const driveReason=computed(()=>{
   if(!live.value)return '实机连接或关节反馈未就绪';
   if(pending.value)return '等待操作完成';
   if(control.value?.state==='failed')return control.value.message || '模型故障，手柄锁定';
+  if(rollerMode.value)return control.value?.message || '轮滑模式';
   if(control.value?.state==='holding')return '模型已停止：请站起后行走';
   if(control.value?.state!=='policy')return '点击当前绑定的站立或坐下按键预备';
   if(control.value?.kind!=='xgoduck')return '当前运行其他模型，请切换平衡行走';
@@ -138,22 +147,23 @@ const driveReason=computed(()=>{
   return '';
 });
 function release(){resetSticks.value++;pressed.value='';hold.release();}
-function wheel(twist:Twist|null){if(twist && !canDrive.value && !demoOwned.value)return;hold.body(twist);}
+function wheel(twist:Twist|null){if(twist && !canDrive.value && !rollerDrive.value && !demoOwned.value)return;hold.body(twist);}
 function head(value:[number,number]|null){if(value && !canHead.value && !demoOwned.value)return;hold.head(value);}
 function padAction(action:string){if(!allowed.value[action as keyof typeof allowed.value])return;if(action==='stop'||action==='disable')void run(action);else void extra(action);}
 watch(wheelSpeed,()=>release());
 function hidden(){if(document.hidden)leaveDemo();}
-watch(canDrive,value=>{if(!value)release();});
+watch(()=>canDrive.value || rollerDrive.value,value=>{if(!value)release();});
 watch(canHead,value=>{if(!value)release();});
 onMounted(()=>{window.addEventListener('blur',release);window.addEventListener('pagehide',release);document.addEventListener('visibilitychange',hidden);});
 onUnmounted(()=>{release();window.removeEventListener('blur',release);window.removeEventListener('pagehide',release);document.removeEventListener('visibilitychange',hidden);});
 let modelInfoGeneration=0;
 async function refreshModelInfo(){
   const token=++modelInfoGeneration;
-  modelAvailable.value=false;headAvailable.value=false;skillAvailable.value={};
+  rollerAvailable.value=false;modelAvailable.value=false;headAvailable.value=false;skillAvailable.value={};
   if(state.connection!=='在线')return;
   try { const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy');
     const result=await response.json();if(token!==modelInfoGeneration)return;headAvailable.value=response.ok && result.webHeadControl===true;modelAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='xgoduck')?.available;
+    rollerAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='swizzle_prepare')?.available;
     rearHook.value=['hd1910_rear_hook_v27','hd1910_rear_hook_native','hd1910_rear_hook_native_gated','hd1910_rear_hook_v62b'].includes(result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.runtimeKind);
     flamingoSide.value=result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.swingFoot==='right'?'右':'左';
     for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='flamingo'?'flamingo_hold':skill.key==='dance'?'dance10':skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':skill.key.startsWith('kick_')?skill.key:'xgoduck_'+skill.key))?.available;
@@ -191,9 +201,11 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
       <span v-if="control.autonomy.vision?.metrics?.totalMs">检测 {{ Number(control.autonomy.vision.metrics.totalMs).toFixed(0) }}ms · RGA / RKNN</span>
       <span v-if="control.autonomy.vision?.error">{{ control.autonomy.vision.error }}</span>
     </div>
-    <ModelGamepad :bindings="padConfig?.bindings" :action-labels="customLabels" :autonomy-active="!!control?.autonomy?.enabled" :rear-hook="rearHook" :flamingo-side="flamingoSide" :feedback="state.gamepadFeedback" :drive="canDrive || demoOwned" :head="canHead || demoOwned" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive" @body="wheel" @head="head" @action="padAction" />
-    <div class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
-    <details class="runtime-help"><summary>按键说明与诊断</summary><p><span v-for="key in padButtons" :key="key">{{ buttonLabels[key] }}：{{ bindingLabel(padConfig?.bindings,key,customLabels) }}{{ padConfig?.bindings[key]==='getup'?'（长按）':'' }} · </span>Back 急停卸力；B 停止保持；LT 加速×2；RT 嘎一下；十字键下长按1.5秒切换自主。Start 网页预留，实体长按2秒卸力并关机。先站立再行走，松开摇杆回中；起身动作无论绑在哪个键都需长按。实体调试模式仅高亮、不执行动作。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}（m/s · rad/s）</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
+    <div class="runtime-metrics"><button :disabled="!rollerAvailable || !live || !board.ready || busy || control?.state!=='disabled'" @click="extra('roller_prepare')">轮滑安装姿势</button><span>实体手柄：卸力后回中，LB＋RB长按1秒；扶稳装轮，松键后按A平衡。</span></div>
+    <p v-if="rollerMode" role="status">{{ control?.message }} · 左摇杆前后推力±0.4、左右航向±0.25rad；松杆滑行平衡，Back卸力。拆轮后再用普通动作。</p>
+    <ModelGamepad :roller="rollerMode" :bindings="displayBindings" :action-labels="{...customLabels,swizzle:'轮滑平衡'}" :autonomy-active="!!control?.autonomy?.enabled" :rear-hook="rearHook" :flamingo-side="flamingoSide" :feedback="state.gamepadFeedback" :drive="canDrive || rollerDrive || demoOwned" :head="canHead || demoOwned" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive || rollerDrive" @body="wheel" @head="head" @action="padAction" />
+    <div v-if="!rollerMode" class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
+    <details class="runtime-help"><summary>按键说明与诊断</summary><p><span v-for="key in padButtons" :key="key">{{ buttonLabels[key] }}：{{ bindingLabel(padConfig?.bindings,key,customLabels) }}{{ padConfig?.bindings[key]==='getup'?'（长按）':'' }} · </span>Back 急停卸力；B 停止保持；LT 加速×2；RT 嘎一下；十字键下长按1.5秒切换自主。Start 网页预留，实体长按2秒卸力并关机。先站立再行走，松开摇杆回中；起身动作无论绑在哪个键都需长按。实体调试模式仅高亮、不执行动作。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}{{ rollerMode ? '（推力 · 航向误差rad）' : '（m/s · rad/s）' }}</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
 </details>
     <div v-if="message || control?.action==='policy' || control?.state==='failed'" class="runtime-status" :class="{failed:failed || control?.state==='failed'}" role="status">{{ (control?.state==='failed' ? control.message : '') || message || (control?.action==='policy' ? control.message : '') || (available?'平衡行走模型就绪 · 等待开始':'模型未就绪') }}</div>
   </div>

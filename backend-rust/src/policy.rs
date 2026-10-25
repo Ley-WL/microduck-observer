@@ -146,11 +146,11 @@ pub fn path_for(kind: &str) -> Result<PathBuf> {
     crate::model_registry::selected_path(kind)
 }
 pub fn model_id(kind: &str) -> &'static str {
-    match kind { "flamingo_hold" | "flamingo_lower" => "flamingo", "dance10" => "dance10", "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "xgoduck" => "xgoduck_walk",
+    match kind { "swizzle" | "swizzle_prepare" => "swizzle_hd1910", "flamingo_hold" | "flamingo_lower" => "flamingo", "dance10" => "dance10", "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "xgoduck" => "xgoduck_walk",
         "xgoduck_getup" => "xgoduck_getup", "xgoduck_pick" => "xgoduck_pick",
         "xgoduck_roulade" => "xgoduck_roulade", "kick_left" => "kick_left", "kick_right" => "kick_right", _ => "unknown" }
 }
-pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "flamingo_hold" | "flamingo_lower" | "dance10" | "kick_left" | "kick_right" | "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
+pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "swizzle" | "swizzle_prepare" | "flamingo_hold" | "flamingo_lower" | "dance10" | "kick_left" | "kick_right" | "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
 #[cfg(test)]
 mod kick_tests {
     use super::*;
@@ -306,7 +306,7 @@ mod kick_tests {
 }
 pub fn skill_kind(value: &Value) -> Result<&str> {
     match value.as_str() {
-        Some("flamingo") => Ok("flamingo_hold"), Some("flamingo_lower") => Ok("flamingo_lower"), Some("dance") => Ok("dance10"), Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
+        Some("swizzle") => Ok("swizzle"), Some("flamingo") => Ok("flamingo_hold"), Some("flamingo_lower") => Ok("flamingo_lower"), Some("dance") => Ok("dance10"), Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
         Some("sit") => Ok("sitstand_sit"), Some("standup") => Ok("sitstand_stand"),
         Some("kick_left") => Ok("kick_left"), Some("kick_right") => Ok("kick_right"), Some("roulade") => Ok("xgoduck_roulade"), _ => bail!("动作须为getup/pick/roulade/sit/standup/kick_left/kick_right"),
     }
@@ -337,6 +337,10 @@ fn native_recovery_transition(active: &str, return_home: bool, fallen: bool) -> 
 enum NativeHandoff { Home, Skill(String), Continue }
 fn native_handoff(active: &str, finished: bool, donor_getup: bool, return_home: bool,
     recovery_resume: &str, requested: Option<String>) -> NativeHandoff {
+    if crate::swizzle::is_mode(active) {
+        return requested.filter(|next|crate::swizzle::transition(active,next))
+            .map_or(NativeHandoff::Continue,NativeHandoff::Skill);
+    }
     // HOME-origin recovery expires before new one-shot requests in robotd.
     // Repeated LB presses acknowledge the active recovery without restarting it.
     if finished && donor_getup && return_home {return NativeHandoff::Home;}
@@ -358,10 +362,10 @@ impl NativeRecoveryPosture {
     }
 }
 #[derive(Clone, Copy, Default)]
-struct SkillProfile { official_sit: bool, official_roll: bool, retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool, official_flamingo:bool, right_flamingo:bool, rear_hook:bool, transfer_settle:bool, pose_entry:bool }
+struct SkillProfile { swizzle: bool, official_sit: bool, official_roll: bool, retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool, official_flamingo:bool, right_flamingo:bool, rear_hook:bool, transfer_settle:bool, pose_entry:bool }
 impl SkillProfile {
     fn from_metadata(meta: &Value) -> Self {
-        Self { official_sit:meta["runtimeKind"]=="hd1910_official_sitstand", official_roll:meta["runtimeKind"]=="hd1910_official_roulade", rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), pose_entry:meta["runtimeKind"]=="hd1910_rear_hook_v62b", transfer_settle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), flamingo:matches!(meta["runtimeKind"].as_str(),Some("hd1910_flamingo"|"official_flamingo"|"hd1910_flamingo_right")), dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:matches!(meta["runtimeKind"].as_str(),Some("kissqy_roulade"|"hd1910_official_roulade")), donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
+        Self { swizzle:meta["runtimeKind"]=="hd1910_swizzle", official_sit:meta["runtimeKind"]=="hd1910_official_sitstand", official_roll:meta["runtimeKind"]=="hd1910_official_roulade", rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), pose_entry:meta["runtimeKind"]=="hd1910_rear_hook_v62b", transfer_settle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), flamingo:matches!(meta["runtimeKind"].as_str(),Some("hd1910_flamingo"|"official_flamingo"|"hd1910_flamingo_right")), dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:matches!(meta["runtimeKind"].as_str(),Some("kissqy_roulade"|"hd1910_official_roulade")), donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
             right_flamingo:meta["runtimeKind"]=="hd1910_flamingo_right", official_flamingo:meta["runtimeKind"]=="official_flamingo", kissqy: matches!(meta["runtimeKind"].as_str(),Some("kissqy_sitstand"|"hd1910_official_sitstand")), bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
     }
     fn twist(self,kind:&str,progress:f64)->[f32;3] {
@@ -369,14 +373,14 @@ impl SkillProfile {
         if self.right_flamingo && kind.starts_with("flamingo_") {command[1]=-1.;}
         command
     }
-    fn donor(self)->bool {self.flamingo || self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
+    fn donor(self)->bool {self.swizzle || self.flamingo || self.kissqy || self.donor_pick || self.donor_getup || self.donor_roll || self.donor_kick}
     // Roulade HD1910 deployment contract explicitly disables voltage adaptation.
     fn roll_timeout(self)->f64 {if self.official_roll {crate::roll_exit::RollToGetup::TIMEOUT} else {crate::roll_exit::RollExit::TIMEOUT}}
     fn roll_complete(self,progress:f64,exit:&crate::roll_exit::RollExit)->bool {
         // Native roll-to-getup requires an observed lying posture, never a timer alone.
         if self.official_roll {false} else {exit.complete(progress)}
     }
-    fn voltage_adapt(self)->bool {!self.official_sit && !self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook && !self.official_flamingo && !self.right_flamingo}
+    fn voltage_adapt(self)->bool {!self.swizzle && !self.official_sit && !self.donor_roll && !self.donor_kick && !self.dance && !self.rear_hook && !self.official_flamingo && !self.right_flamingo}
     fn voltage_scale(self,voltage:&mut NativeVoltage,feedback:&Feedback,now:Instant)->f32 {
         if self.voltage_adapt() {voltage.scale(feedback,now)} else {1.}
     }
@@ -417,6 +421,7 @@ fn validate_skill_metadata(kind: &str, meta: &Value) -> Result<()> {
     if sha.len()!=64 || !sha.bytes().all(|b|b.is_ascii_hexdigit() && !b.is_ascii_uppercase()) {bail!("模型SHA256格式无效");}
 
     let profile=SkillProfile::from_metadata(meta);
+    if crate::swizzle::is_mode(kind) || profile.swizzle {return crate::swizzle::validate(kind,meta);}
     if profile.official_sit || profile.official_roll {
         let correct_task=if profile.official_sit {kind.starts_with("sitstand_") && meta["task"]=="Mjlab-SitStand-Flat-MicroDuck" && meta["standSeconds"]==6 && meta["sitSettleSeconds"]==4 && meta["commandEncoding"]==json!({"slot":"twist.vx","sit":1,"stand":0})} else {kind=="xgoduck_roulade" && meta["task"]=="Mjlab-Roulade-Flat-MicroDuck" && meta["durationSeconds"]==1.5 && meta["commandEncoding"]=="all zero"};
         if !correct_task || meta["actionScale"]!=1 || meta["actionEmaOldWeight"]!=0 || meta["actionEmaNewWeight"]!=1 || meta["voltageAdaptation"]!=false || meta["targetLimits"]!="observer" {bail!("HD1910官方配方技能合同不匹配");}
@@ -553,7 +558,7 @@ fn tilt(obs: &[f32]) -> f64 {
 const FALL_TILT_DEG: f64 = 60.;
 const FALL_IMMEDIATE_DEG: f64 = 90.;
 const FALL_CONFIRM: Duration = Duration::from_millis(150);
-fn walking_policy(kind: &str) -> bool { kind=="xgoduck" || kind.starts_with("flamingo_") }
+fn walking_policy(kind: &str) -> bool { kind=="xgoduck" || kind==crate::swizzle::ACTIVE || kind.starts_with("flamingo_") }
 fn body_gravity(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<Vector3<f64>> {
     let imu=&cal["imu"];
     if imu["initialized"]!=true || imu["mountingQuaternion"].is_null() {
@@ -620,12 +625,12 @@ pub fn metadata_for(kind: &str) -> Option<Value> {
     verified_metadata_for(kind).ok()
 }
 fn optional_skill(kind: &str) -> bool {
-    matches!(kind,"kick_left"|"kick_right"|"dance10"|"flamingo_hold"|"flamingo_lower")
+    matches!(kind,"swizzle"|"swizzle_prepare"|"kick_left"|"kick_right"|"dance10"|"flamingo_hold"|"flamingo_lower")
 }
 pub fn verify_model_bank() -> Result<Value> {
     let expected=crate::gains::current();
     let mut rows=Vec::new();
-    for kind in ["xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"] {
+    for kind in ["swizzle_prepare","swizzle","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"] {
         if optional_skill(kind) && metadata_for(kind).is_none() {continue;}
         let model=Model::open_for(kind,0.)?;
         if model.gains!=expected {bail!("{kind} 未继承通用增益");}
@@ -1517,7 +1522,9 @@ fn native_policy_loop(
             // change. Never advance the native one-sample delay a second time.
             for n in 0..14 {obs[6+n]+=old_home[n]-model.home[n];obs[34+n]=model.last_action[n];}
         }
-        model.command_twist=if model.kind=="xgoduck" {
+        model.command_twist=if model.kind==crate::swizzle::ACTIVE {
+            read_shared().drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])
+        } else if model.kind=="xgoduck" {
             let state=read_shared();
             let fresh=state.demo.active || state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
             let target=if state.autonomy.mode==crate::autonomy::Mode::Standby {[0.;3]}else if state.demo.active {state.demo.output.twist}else{state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])};
@@ -1540,7 +1547,7 @@ fn native_policy_loop(
             trace.transition(json!({"type":"roll-extend","mono":crate::telemetry::monotonic(),"progressSeconds":model.progress,"tiltDegrees":tilt(&obs)}));
             write_shared().log("INFO","policy-switch","检测到背朝下姿态，停止翻滚输出，0.5秒伸腿后起身（非接触检测）");
         }
-        let (action,ms)=if let Some(target)=tuck {(target,0.)} else {model.infer(obs.clone())?};
+        let (action,ms)=if model.kind==crate::swizzle::PREPARE {([0.;14],0.)} else if let Some(target)=tuck {(target,0.)} else {model.infer(obs.clone())?};
 
         *infer_ms=ms;*last_obs=Some(obs.clone());
         let infer_done=Instant::now();
@@ -1602,7 +1609,7 @@ fn native_policy_loop(
             model.progress+=0.02;
             model.skill_profile.update_upright(&mut model.upright,&obs);
         }
-        {let mut c=costs.lock().unwrap();c.writes+=1;c.inferred(Instant::now());c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
+        {let mut c=costs.lock().unwrap();c.writes+=1;if model.kind!=crate::swizzle::PREPARE {c.inferred(Instant::now());}c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
         let status_at=Instant::now();
         let mut v=stats(model,timing,ms);v["state"]=json!("policy");v["action"]=json!("policy");v["policyPhase"]=json!("running");v["feedbackHolding"]=json!(false);
         v["runtimeProfile"]=json!("kissqy-sync50-v1");v["feedbackTargetHz"]=json!(50);
@@ -1619,7 +1626,9 @@ fn native_policy_loop(
         if model.skill_profile.rear_hook {v["commandTargetHz"]=json!(50);v["modelSource"]=json!(format!("microduck-rl/rear-hook/{}",model.sha));}
         if let Some((_,_,clearance,rear,_))=rear_pose {v["rearHook"]=model.rear_clock.status();v["flamingoSupportSide"]=json!("left");v["rearHook"]["estimatedSoleClearanceM"]=json!(clearance);v["rearHook"]["estimatedRearM"]=json!(rear);}
         if model.skill_profile.flamingo {v["flamingoFlag"]=json!(model.command_twist[0]);v["flamingoSupportSide"]=json!("right");}
-        v["message"]=json!(if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
+        v["rollerMode"]=json!(crate::swizzle::is_mode(&model.kind));
+        v["rollerPhase"]=json!(if model.kind==crate::swizzle::PREPARE {"installation"} else if model.kind==crate::swizzle::ACTIVE {"skating"} else {"off"});
+        v["message"]=json!(if model.kind==crate::swizzle::PREPARE {"轮滑安装姿势保持：扶稳装轮后，摇杆回中并按A启动平衡"} else if model.kind==crate::swizzle::ACTIVE {"轮滑平衡：左摇杆推力/航向；Back卸力"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
         let status_done=Instant::now();
         {
             let mut c=costs.lock().unwrap();
@@ -1659,11 +1668,12 @@ pub fn execute(
     // Load and warm before any enable/goal write; transitions never load a graph on UART.
     let mut bank = BTreeMap::new();
     if is_xgoduck(kind) && command["shadow"] != true {
-        for next in ["xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand", "kick_left", "kick_right", "dance10", "flamingo_hold", "flamingo_lower"] {
+        for next in ["swizzle_prepare", "swizzle", "xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand", "kick_left", "kick_right", "dance10", "flamingo_hold", "flamingo_lower"] {
+            if crate::swizzle::is_mode(next)!=crate::swizzle::is_mode(kind) {continue;}
             if next != kind && (!optional_skill(next) || metadata_for(next).is_some()) { bank.insert(next.to_owned(), Model::open_for(next, 0.)?); }
         }
     }
-    if is_xgoduck(kind) && command["shadow"] != true {
+    if is_xgoduck(kind) && !crate::swizzle::is_mode(kind) && command["shadow"] != true {
         for action in crate::model_registry::custom_actions() {
             let id=action["id"].as_str().ok_or_else(||anyhow::anyhow!("动作ID缺失"))?;
             if metadata_for(id).is_some() { bank.insert(id.to_owned(),Model::open_for(id,0.)?); }
@@ -1807,6 +1817,9 @@ pub fn execute(
             .zip(model.home.map(|v| v as f64))
             .collect();
         stage = if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") {"current-pose-enable"} else {"home-transition"};
+        if kind==crate::swizzle::PREPARE && IDS.iter().any(|id|feedback.get(id).is_none_or(|row|row["torque"]!=0)) {
+            bail!("轮滑安装姿势只能从15个舵机全部卸力状态进入");
+        }
         attempted = true;
         if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") {
             // Fallen starts must not use the upright HOME transition.
@@ -2837,5 +2850,20 @@ pub fn preflight_model_at(kind: &str, path: &std::path::Path) -> Result<()> {
         std::fs::write(&path,b"not the expected weights").unwrap();
         std::fs::write(path.with_extension("metadata.json"),include_str!("../../models/flamingo_right_hd1910.metadata.json")).unwrap();
         assert!(verified_metadata_at("flamingo_hold",&path).unwrap_err().to_string().contains("SHA256"));
+    }
+}
+
+#[cfg(test)] mod roller_tests {
+    use super::*;
+    #[test] fn roller_contract_has_native_unfiltered_outputs_and_no_auto_walk() {
+        let m:Value=serde_json::from_str(include_str!("../../models/swizzle_hd1910.metadata.json")).unwrap();
+        for k in ["swizzle","swizzle_prepare"] {validate_skill_metadata(k,&m).unwrap();assert!(is_xgoduck(k));}
+        assert!(validate_skill_metadata("xgoduck",&m).is_err());
+        let p=SkillProfile::from_metadata(&m);assert!(p.donor());assert!(!p.voltage_adapt());
+        assert!(!p.complete("swizzle",10000.,10000.));
+        assert_eq!(native_handoff("swizzle",true,false,false,"xgoduck",Some("xgoduck_getup".into())),NativeHandoff::Continue);
+        assert_eq!(native_handoff("swizzle_prepare",false,false,false,"xgoduck",Some("swizzle".into())),NativeHandoff::Skill("swizzle".into()));
+        assert!(walking_policy("swizzle"));assert!(!walking_policy("swizzle_prepare"));
+        let mut bad=m.clone();bad["actionEmaOldWeight"]=json!(0.45);assert!(validate_skill_metadata("swizzle",&bad).is_err());
     }
 }

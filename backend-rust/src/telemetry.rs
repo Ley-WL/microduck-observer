@@ -131,6 +131,14 @@ impl Telemetry {
         self.pending_mouth=Some(degrees);true
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
+        let active=self.control["activeSkill"].as_str().unwrap_or("");
+        if crate::swizzle::is_mode(active) || crate::swizzle::is_mode(kind) {
+            if !crate::swizzle::transition(active,kind) || self.control["state"]!="policy"
+                || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
+            let Some(drive)=self.drive.as_mut() else {return false;};
+            if !drive.update(session,sequence,[0.;3]) {return false;}
+            self.head_intent.clear();self.pending_skill=Some(kind.to_owned());return true;
+        }
         if self.autonomy.recovering(){return false;}
         if self.autonomous_input(session,sequence,true){self.autonomy.input(false,Instant::now());}
         if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
@@ -470,5 +478,21 @@ mod tests {
             assert!((lo.to_radians()-row["min_rad"].as_f64().unwrap()).abs()<1e-12);
             assert!((hi.to_radians()-row["max_rad"].as_f64().unwrap()).abs()<1e-12);
         }
+    }
+}
+
+#[cfg(test)] mod roller_tests {
+    use super::*;
+    #[test] fn roller_only_accepts_fresh_owned_prepare_to_active_transition() {
+        let mut s=Telemetry::new(true);
+        s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare"});
+        s.drive=Some(DriveCommand{session:"s".into(),sequence:1,twist:[0.;3],updated:Instant::now()});
+        for next in ["xgoduck","xgoduck_getup","sitstand_stand","xgoduck_roulade"] {assert!(!s.queue_skill("s",2,next));}
+        assert!(!s.queue_skill("other",2,"swizzle"));assert!(!s.queue_skill("s",1,"swizzle"));
+        s.control["feedbackHolding"]=json!(true);assert!(!s.queue_skill("s",2,"swizzle"));
+        s.control["feedbackHolding"]=json!(false);assert!(s.queue_skill("s",2,"swizzle"));
+        assert!(!s.queue_skill("s",3,"swizzle"));s.pending_skill=None;s.control["activeSkill"]=json!("swizzle");
+        assert!(!s.queue_skill("s",3,"xgoduck"));
+        s.control["activeSkill"]=json!("xgoduck");assert!(!s.queue_skill("s",3,"swizzle"));
     }
 }

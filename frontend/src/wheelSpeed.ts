@@ -10,3 +10,10 @@ export function gamepadSpeed(base:number,boost:boolean):number {
   if(!Number.isFinite(base))return .2;
   return Math.min(.4,Math.max(.02,base)*(boost?2:1));
 }
+
+/** Swizzle uses throttle and heading error, independently of the walking slider. */
+export function rollerTwist(x:number,y:number):Twist {
+  if (![x,y].every(Number.isFinite) || Math.hypot(x,y)<.15) return [0,0,0];
+  const scale=Math.max(1,Math.hypot(x,y));
+  return [-y/scale*.4,0,-x/scale*.25];
+}

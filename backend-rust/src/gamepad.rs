@@ -277,6 +277,9 @@ impl QuackGesture {
 }
 #[derive(Default)]
 struct Input {
+    roller_mode: bool,
+    roller_since: Option<std::time::Instant>,
+    roller_fired: bool,
     binding_revision: Option<u64>,
     getup_key: Option<&'static str>,
     quack:QuackGesture,
@@ -304,6 +307,7 @@ impl Input {
         if self.binding_revision.is_some_and(|revision|revision!=bindings.revision) {*self=Self::default();}
         self.binding_revision=Some(bindings.revision);
         if diagnostic_only {
+            self.roller_since=None;self.roller_fired=false;
             self.autonomy_since=None;self.autonomy_fired=false;
             self.quack=QuackGesture::default();
             self.start_since = None;
@@ -329,6 +333,12 @@ impl Input {
         else if self.neutral_seen && !self.previous.dpad[3] {self.autonomy_since=Some(now);}
         let long_autonomy=!self.autonomy_fired && self.autonomy_since.is_some_and(|at|now.duration_since(at)>=Duration::from_millis(1500));
         if long_autonomy {self.autonomy_fired=true;}
+        let roller_chord=sample.down(LB) && sample.down(RB) && sample.centered()
+            && sample.keys.iter().filter(|v|**v).count()==2 && !sample.dpad.iter().any(|v|*v);
+        if !roller_chord {self.roller_since=None;self.roller_fired=false;}
+        else if self.neutral_seen && self.roller_since.is_none() {self.roller_since=Some(now);}
+        let roller_start=!self.roller_mode && !self.roller_fired && self.roller_since.is_some_and(|at|now.duration_since(at)>=Duration::from_secs(1));
+        if roller_start {self.roller_fired=true;}
         let edge = |key| sample.down(key) && !self.previous.down(key);
         let getup_key=crate::pad_bindings::BUTTONS.into_iter().find(|key|bindings.action(key)=="getup" && sample.button(key));
         if getup_key!=self.getup_key {self.y_hold_ticks=0;self.y_hold_triggered=false;self.getup_key=getup_key;}
@@ -361,7 +371,11 @@ impl Input {
         let action = if edge(BACK) {Some("estop")}
             else if edge(B) {Some("release")}
             else if !self.neutral_seen {None}
+            else if roller_start {Some("roller_prepare")}
+            else if roller_chord {None}
+            else if self.roller_mode && edge(A) && sample.centered() && sample.keys.iter().filter(|v|**v).count()==1 {Some("stand")}
             else if long_start {Some("poweroff")}
+            else if self.roller_mode {None}
             else if long_autonomy {Some("autonomy")}
             else if long_y {Some("getup")}
             else {custom.or(quack_action)};
@@ -380,7 +394,7 @@ impl Input {
     fn drive(&self, sample: &Sample, seq: u64) -> serde_json::Value {
         let enabled = self.drive_armed;
         let [lx, ly, rx, ry] = if enabled { sample.axes } else { [0.; 4] };
-        let boosted = enabled && sample.down(LT);
+        let boosted = enabled && !self.roller_mode && sample.down(LT);
         // Encode axes independently: Motion multiplies both by speed, then vx by 0.4.
         // Use the walking policy command range: linear yaw up to 1 rad/s.
         let forward = -ly * if boosted { 1.0 } else { 0.5 };
@@ -549,9 +563,10 @@ pub fn spawn(app: App, router: Router) {
                         motion.autonomous_input(manual);
                     }
                     let status=motion.status();
+                    input.roller_mode=status["rollerMode"]==true;
                     let demo_active=status["demoActive"]==true;
                     if demo_active && !sample.centered() {motion.cancel_demo();input.drive_armed=true;}
-                    let ready = motion.leased && (demo_active || status["headReady"] == true || status["flamingoReady"] == true);
+                    let ready = motion.leased && (demo_active || status["rollerReady"] == true || status["headReady"] == true || status["flamingoReady"] == true);
                     if let Some(gesture) = input.update_mapped(&sample, ready, diagnostic_only, std::time::Instant::now(), &bindings) {
                         let voice=match gesture {"quack_double"=>"double","quack_long"=>"long",_=>"single"};
                         let action=if gesture.starts_with("quack") {"quack"} else {gesture};
@@ -575,7 +590,7 @@ pub fn spawn(app: App, router: Router) {
                             report(&app, "手柄已停止保持并释放控制");
                         } else {
                             if !motion.leased {
-                                if !matches!(action, "stand" | "getup" | "quack") {
+                                if !matches!(action, "roller_prepare" | "stand" | "getup" | "quack") {
                                     if action=="autonomy" {crate::quack::announce("auto_reject");}
                                     report(&app, "手柄尚未取得模型控制权，请先回中并使用配置的站立/起身键；若由网页/App启动，请先在原端停止保持");
                                     continue;
@@ -1024,5 +1039,43 @@ mod tests {
             i.update_at(&moved,true,diagnostic,t+Duration::from_secs(1));
             assert_eq!(i.update_at(&down,true,false,t+Duration::from_secs(2)),None);
         }
+    }
+}
+
+#[cfg(test)] mod roller_tests {
+    use super::*;
+    fn pad(keys:&[usize])->Sample {let mut s=Sample::default();for k in keys{s.keys[BUTTONS.iter().position(|v|v==k).unwrap()]=true;}s}
+    #[test] fn roller_combo_requires_neutral_hold_and_fires_once() {
+        let mut i=Input::default();let t=std::time::Instant::now();let chord=pad(&[LB,RB]);
+        assert_eq!(i.update_at(&chord,false,false,t),None);
+        i.update_at(&Sample::default(),false,false,t);
+        assert_eq!(i.update_at(&chord,false,false,t),None);
+        assert_eq!(i.update_at(&chord,false,false,t+Duration::from_millis(999)),None);
+        assert_eq!(i.update_at(&chord,false,false,t+Duration::from_secs(1)),Some("roller_prepare"));
+        assert_eq!(i.update_at(&chord,false,false,t+Duration::from_secs(5)),None);
+    }
+    #[test] fn roller_combo_cancels_on_stick_motion_and_diagnostic_mode() {
+        for debug in [false,true] {
+            let mut i=Input::default();let t=std::time::Instant::now();i.update_at(&Sample::default(),false,debug,t);
+            let mut chord=pad(&[LB,RB]);i.update_at(&chord,false,debug,t);chord.axes[0]=0.5;
+            assert_eq!(i.update_at(&chord,false,debug,t+Duration::from_secs(2)),None);
+            chord.axes=[0.;4];assert_eq!(i.update_at(&chord,false,debug,t+Duration::from_secs(3)),None);
+        }
+    }
+    #[test] fn roller_lt_does_not_change_throttle_and_unarmed_sticks_are_zero() {
+        let mut i=Input::default();i.roller_mode=true;i.drive_armed=true;
+        let mut s=pad(&[]);s.axes[1]=-0.5;let plain=i.drive(&s,1);
+        s.keys[BUTTONS.iter().position(|v|*v==LT).unwrap()]=true;
+        assert_eq!(i.drive(&s,2)["forward"],plain["forward"]);
+        i.drive_armed=false;assert_eq!(i.drive(&s,3)["forward"].as_f64(),Some(0.));
+    }
+    #[test] fn roller_a_overrides_binding_but_safety_controls_win() {
+        let t=std::time::Instant::now();let mut i=Input::default();i.update_at(&Sample::default(),false,false,t);i.roller_mode=true;
+        let mut config=crate::pad_bindings::Config::default();config.bindings.insert("a".into(),"roulade".into());
+        assert_eq!(i.update_mapped(&pad(&[A]),false,false,t,&config),Some("stand"));
+        i.update_at(&Sample::default(),false,false,t);
+        assert_eq!(i.update_at(&pad(&[X]),true,false,t),None);
+        assert_eq!(i.update_at(&pad(&[A,BACK]),true,false,t),Some("estop"));
+        assert_eq!(i.update_at(&pad(&[B]),true,false,t),Some("release"));
     }
 }

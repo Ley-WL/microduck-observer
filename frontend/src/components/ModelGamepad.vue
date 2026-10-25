@@ -3,11 +3,11 @@ import type {GamepadFeedback} from '../gamepadFeedback';
 import MappedPadButton from './MappedPadButton.vue';
 import { bindingLabel, type Bindings } from '../padBindings';
 import PadStick from './PadStick.vue';
-import {gamepadSpeed,wheelTwist} from '../wheelSpeed';
+import {gamepadSpeed,wheelTwist,rollerTwist} from '../wheelSpeed';
 import {computed,ref,watch,onUnmounted} from 'vue';
 import {longPress} from '../longPress';
 import type {Twist} from '../holdToWalk';
-const props=defineProps<{bindings?:Bindings;actionLabels?:Record<string,string>;autonomyActive?:boolean;rearHook?:boolean;flamingoSide?:string;drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
+const props=defineProps<{roller?:boolean;bindings?:Bindings;actionLabels?:Record<string,string>;autonomyActive?:boolean;rearHook?:boolean;flamingoSide?:string;drive:boolean;head:boolean;speed:number;reset:number;allowed:Record<string,boolean>;active:boolean;feedback?:GamepadFeedback|null}>();
 const emit=defineEmits<{action:[key:string];body:[value:Twist|null];head:[value:[number,number]|null]}>();
 const autonomyHold=longPress(()=>{if(props.allowed.autonomy)emit('action','autonomy');});
 function startAutonomy(event:PointerEvent){(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);autonomyHold.start();}
@@ -23,7 +23,7 @@ function enabled(key:string){return !!props.bindings && !!props.allowed[action(k
 function held(key:string){return !!props.feedback?.buttons[key];}
 const turboHeld=ref(false),boosted=computed(()=>turboHeld.value);
 let lastBody:[number,number]=[0,0],bodyEngaged=false;
-function body(x:number,y:number){lastBody=[x,y];bodyEngaged=true;emit('body',wheelTwist(x,y,gamepadSpeed(props.speed,boosted.value)));}
+function body(x:number,y:number){lastBody=[x,y];bodyEngaged=true;emit('body',props.roller ? rollerTwist(x,y) : wheelTwist(x,y,gamepadSpeed(props.speed,boosted.value)));}
 function releaseBody(){bodyEngaged=false;lastBody=[0,0];emit('body',null);}
 function setTurbo(value:boolean){turboHeld.value=value;}
 watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
@@ -32,11 +32,11 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
 <div class="pad-wrap">
   <div class="gamepad" aria-label="T4 Nova Lite 风格虚拟手柄">
     <svg class="pad-silhouette" viewBox="0 0 640 350" aria-hidden="true"><defs><linearGradient id="pad-shell" x2="0.3" y2="1"><stop stop-color="#515060"/><stop offset="1" stop-color="#262631"/></linearGradient></defs><path d="M144 35 Q192 16 253 41 Q320 54 387 41 Q448 16 496 35 Q548 49 570 115 L616 281 Q625 334 588 337 Q563 340 541 310 L474 290 Q320 260 166 290 L99 310 Q77 340 52 337 Q15 334 24 281 L70 115 Q92 49 144 35Z" fill="url(#pad-shell)" stroke="#656373" stroke-width="2"/><path d="M166 290 Q320 260 474 290" fill="none" stroke="#171720" stroke-width="3"/></svg>
-    <button class="trigger left" :class="{physical:held('lt')||turboHeld}" aria-label="LT 按住加速，速度翻倍" @pointerdown.prevent="setTurbo(true)" @pointerup="setTurbo(false)" @pointerleave="setTurbo(false)" @pointercancel="setTurbo(false)" @lostpointercapture="setTurbo(false)" @keydown.space.prevent="setTurbo(true)" @keyup.space.prevent="setTurbo(false)" @blur="setTurbo(false)"><b>LT</b><small>加速 ×2</small></button>
+    <button class="trigger left" :class="{physical:held('lt')||turboHeld}" :disabled="roller" aria-label="LT 按住加速，速度翻倍" @pointerdown.prevent="setTurbo(true)" @pointerup="setTurbo(false)" @pointerleave="setTurbo(false)" @pointercancel="setTurbo(false)" @lostpointercapture="setTurbo(false)" @keydown.space.prevent="setTurbo(true)" @keyup.space.prevent="setTurbo(false)" @blur="setTurbo(false)"><b>LT</b><small>加速 ×2</small></button>
     <button class="trigger right" :class="{physical:held('rt')}" :disabled="!allowed.quack" aria-label="RT 嘎一下" @click="emit('action','quack')"><b>RT</b><small>嘎一下</small></button>
     <MappedPadButton class="shoulder left" :class="{physical:held('lb')}" :action="action('lb')" :enabled="enabled('lb')" :reset="reset" :aria-label="title('lb')" :title="title('lb')" @action="emit('action',$event)"><b>LB</b><small>{{ label('lb') }}</small></MappedPadButton>
     <MappedPadButton class="shoulder right" :class="{physical:held('rb')}" :action="action('rb')" :enabled="enabled('rb')" :reset="reset" :aria-label="title('rb')" :title="title('rb')" @action="emit('action',$event)"><b>RB</b><small>{{ label('rb') }}</small></MappedPadButton>
-    <div class="stick-left"><PadStick :feedback="feedback ? [feedback.axes[0],feedback.axes[1]] : null" label="L · 行走 / 转向" :disabled="!drive" :reset="reset" @move="body" @release="releaseBody" /></div>
+    <div class="stick-left"><PadStick :feedback="feedback ? [feedback.axes[0],feedback.axes[1]] : null" :label="roller ? 'L · 推力 / 航向' : 'L · 行走 / 转向'" :disabled="!drive" :reset="reset" @move="body" @release="releaseBody" /></div>
     <div class="stick-right"><PadStick :feedback="feedback ? [feedback.axes[2],feedback.axes[3]] : null" label="R · 头部" :disabled="!head" :reset="reset" @move="(x,y)=>emit('head',[-y,-x])" @release="emit('head',null)" /></div>
     <div class="pad-brand"><span :class="{online:active}"/><strong>MICRODUCK</strong><small>VIRTUAL CONTROLLER</small></div>
     <button class="menu-button back" :class="{physical:held('back')}" :disabled="!allowed.disable" aria-label="Back 急停卸力" title="Back / Select · 急停卸力" @click="emit('action','disable')">■<small>急停卸力</small></button>

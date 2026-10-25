@@ -1,0 +1,79 @@
+{
+  "baseCommit": "f8058376f7853833f7f11ce454191593d2b36b82",
+  "deployed": false,
+  "hardwareMotion": false,
+  "tests": {
+    "rustPassed": 304,
+    "rustIgnored": 1,
+    "frontendPassed": 87,
+    "frontendBuild": true,
+    "arm64Build": true,
+    "installerSyntax": true
+  },
+  "modelSha256": "539e6b2e7e4c7603ddd35ef27bc06742b292f9f3eede567f82111c0975375160",
+  "arm64BinarySha256": "c349b19804bc50cd03c8a748bc3bbc4ece921087e45f3fdc47a401731a10062e",
+  "package": {
+    "path": "deploy/staging/observer-swizzle30001-20261025.zip",
+    "sha256": "83df35db3441d1b3233d8f05d5e3ec9d5a9633d57df09c33866f57f07dfc38ae",
+    "bytes": 7195609,
+    "signedWebBundle": false
+  },
+  "payloadFilesVerified": 26,
+  "otherModelsIncluded": false,
+  "readOnlyParity": {
+    "actionMaxAbsError": 0.0,
+    "encoderTargetsVerified": true,
+    "goals": {
+      "10": 1974,
+      "11": 2298,
+      "12": 1811,
+      "13": 2594,
+      "14": 2494,
+      "20": 2166,
+      "21": 1919,
+      "22": 1729,
+      "23": 1297,
+      "24": 1882,
+      "30": 1917,
+      "31": 1727,
+      "32": 1859,
+      "33": 2240
+    },
+    "hardwareAccess": false,
+    "inferenceMs": 0.202037,
+    "kdRun": 0,
+    "kpRun": 5,
+    "mechanicalTargetsVerified": true,
+    "observationMaxAbsError": 0.0,
+    "ok": true,
+    "policySha256": "539e6b2e7e4c7603ddd35ef27bc06742b292f9f3eede567f82111c0975375160",
+    "saturatedIds": [
+      11
+    ],
+    "savedTargetCasesVerified": 0,
+    "sentTargetDegrees": [
+      -10.37109375,
+      11.337890625,
+      28.037109375,
+      66.005859375,
+      14.589843750000002,
+      11.513671875,
+      28.212890625,
+      16.611328125,
+      -16.875,
+      6.50390625,
+      -21.97265625,
+      20.830078125,
+      -47.98828125,
+      -39.19921875
+    ],
+    "walkExecutionVerified": false
+  },
+  "encoding": "Modified source/Markdown/JSON checked UTF-8 without BOM, LF; no environment/credentials included",
+  "limitations": [
+    "No hardware installation or motion test",
+    "No board CPU/RSS/control-rate benchmark",
+    "Reverse turns weak; zero-throttle steering may be fast",
+    "Bootstrap installer only syntax/archive checked; not executed"
+  ]
+}

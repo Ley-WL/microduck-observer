@@ -5,11 +5,12 @@ use std::{collections::BTreeSet, io::Write, path::{Path, PathBuf}, sync::{Mutex,
 
 pub const MAX_MODEL_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = 24 * 1024 * 1024;
-pub const SLOTS: [&str; 9] = ["walk","sitstand","getup","pick","roulade","kick_left","kick_right","dance","flamingo"];
+pub const SLOTS: [&str; 10] = ["walk","sitstand","getup","pick","roulade","kick_left","kick_right","dance","flamingo","swizzle"];
 static CURRENT: OnceLock<Mutex<Value>> = OnceLock::new();
 
 fn builtin_kinds(slot: &str) -> Result<&'static [&'static str]> {
     Ok(match slot {
+        "swizzle" => &["swizzle_prepare","swizzle"],
         "walk" => &["xgoduck"], "sitstand" => &["sitstand_sit","sitstand_stand"],
         "getup" => &["xgoduck_getup"], "pick" => &["xgoduck_pick"], "roulade" => &["xgoduck_roulade"],
         "kick_left" => &["kick_left"], "kick_right" => &["kick_right"], "dance" => &["dance10"],
@@ -41,9 +42,22 @@ fn defaults() -> Value { serde_json::from_str(include_str!("../../models/registr
 fn current() -> &'static Mutex<Value> { CURRENT.get_or_init(|| Mutex::new(defaults())) }
 pub fn init() -> Result<()> {
     let file=state_path();
-    let value=if file.exists() {serde_json::from_slice(&std::fs::read(file)?)?} else {defaults()};
+    let mut value=if file.exists() {serde_json::from_slice(&std::fs::read(file)?)?} else {defaults()};
+    add_swizzle_slot(&mut value)?;
     validate(&value)?;
     *current().lock().unwrap()=value;
+    Ok(())
+}
+// Additive migration preserves saved choices and rollback entries.
+fn add_swizzle_slot(value: &mut Value) -> Result<()> {
+    if value["selected"]["swizzle"].is_null() {
+        let bundled=defaults();
+        let item=bundled["models"].as_array().unwrap().iter().find(|v|v["slot"]=="swizzle").unwrap().clone();
+        let id=item["id"].as_str().unwrap().to_owned();
+        ensure!(!value["models"].as_array().context("模型列表无效")?.iter().any(|m|m["id"]==id),"轮滑默认模型ID冲突");
+        value["models"].as_array_mut().unwrap().push(item);
+        value["selected"]["swizzle"]=json!(id);
+    }
     Ok(())
 }
 fn identifier(value: &str) -> bool {
@@ -368,5 +382,18 @@ pub fn update(action: &str, body: &Value) -> Result<Value> {
     #[test] fn mutation_requires_known_idle_state() {
         for state in ["policy","moving","preflight","disabling","calibrating",""] {assert!(!idle(state));}
         for state in ["idle","disabled","holding","failed"] {assert!(idle(state));}
+    }
+}
+
+#[cfg(test)] mod roller_migration_tests {
+    use super::*;
+    #[test] fn old_registry_gains_one_slot_without_replacing_user_choices() {
+        let mut r=defaults();r["selected"].as_object_mut().unwrap().remove("swizzle");
+        r["models"].as_array_mut().unwrap().retain(|m|m["slot"]!="swizzle");
+        r["selected"]["flamingo"]=json!("flamingo-official");r["revision"]=json!(42);
+        let before=r.clone();add_swizzle_slot(&mut r).unwrap();validate(&r).unwrap();
+        assert_eq!(r["revision"],42);assert_eq!(r["selected"]["flamingo"],"flamingo-official");
+        for (key,value) in before["selected"].as_object().unwrap(){assert_eq!(&r["selected"][key],value);}
+        let migrated=r.clone();add_swizzle_slot(&mut r).unwrap();assert_eq!(migrated,r);
     }
 }

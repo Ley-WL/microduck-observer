@@ -1,5 +1,5 @@
 import { describe,it,expect } from 'vitest';
-import { gamepadSpeed,wheelTwist } from './wheelSpeed';
+import { gamepadSpeed,wheelTwist,rollerTwist } from './wheelSpeed';
 describe('wheel speed commands',()=>{
   it('uses 0.2 m/s by default and LT doubles it up to 0.4 m/s',()=>{
     expect(gamepadSpeed(.2,false)).toBe(.2);
@@ -23,4 +23,11 @@ describe('wheel speed commands',()=>{
     expect(wheelTwist(.05,.05,.2)).toEqual([0,0,0]);
     expect(wheelTwist(0,-1,NaN)).toEqual([0,0,0]);
   });
+});
+
+it('roller throttle and heading stay bounded with centered and invalid inputs zeroed',()=>{
+  expect(rollerTwist(0,-1)).toEqual([.4,0,-0]);expect(rollerTwist(0,1)[0]).toBe(-.4);
+  expect(rollerTwist(1,0)[2]).toBe(-.25);expect(rollerTwist(-1,0)[2]).toBe(.25);
+  for(const [x,y] of [[.01,.01],[NaN,0],[0,Infinity]]) expect(rollerTwist(x!,y!)).toEqual([0,0,0]);
+  const v=rollerTwist(1,1);expect(Math.abs(v[0])).toBeLessThan(.4);expect(Math.abs(v[2])).toBeLessThan(.25);
 });
