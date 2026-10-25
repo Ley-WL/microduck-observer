@@ -1,0 +1,52 @@
+{
+  "remoteCommit": "44556ec62680cf487b8d2c702ecc8754dce5873b",
+  "trackedBackupStash": "17f382f3c43dcacdc7c7581fc49da2662fd7f97b",
+  "unresolvedFiles": [],
+  "allPriorUntrackedPathsPreserved": true,
+  "protectedFeatureHashesUnchanged": true,
+  "rustTestsPassed": 321,
+  "rustTestsIgnored": 1,
+  "frontendTestsPassed": 89,
+  "webBuildPassed": true,
+  "linuxNativeBuildPassed": true,
+  "arm64BuildPassed": true,
+  "nativeFixturePhases": 6,
+  "nativeObservationMaxError": 0,
+  "nativeActionMaxError": 0,
+  "modelBankExecutionStates": 14,
+  "combinedSimulation": {
+    "worlds": 112,
+    "completed": 112,
+    "seeds": [
+      25102711,
+      25102729
+    ],
+    "cases": [
+      "forward_coast",
+      "reverse_coast",
+      "stationary",
+      "swizzle_forward",
+      "swizzle_reverse",
+      "swizzle_turn_left",
+      "swizzle_turn_right"
+    ],
+    "maxTiltDegrees": 26.36065101623535,
+    "limits": "Nominal ideal-sensor simulation with Python heading controller; no UART replay or hardware acceptance."
+  },
+  "package": "deploy/staging/runtime-20261025-164240",
+  "packageSha256": "7e9c27fcb3c3c390d2476ced399098050a0e84ba721b7637a0bbfe1f39d767e6",
+  "packageByteChecks": {
+    "bin/microduck-observer": "33617a9b407ce215f2b214841bbaa46c0aacdd8927fb8f2f967b953ee4eb1c2a",
+    "models/roller_crouch_hd1910_1001.onnx": "dd2530b07591d825f1ef88b0c9f19e93779d2557591958995a14b9c8133d1453",
+    "models/roller_crouch_hd1910_1001.metadata.json": "a7aa2d93fc84b9ccab6a3d58030fb7829828e17126cc8958aebda7f1706d1417",
+    "policy-roller-crouch-0.json": "c7bbf1297f96f5c247e252a83db7c81f92e41f057247c36fe9a932c8b692b4f5",
+    "policy-roller-crouch-1.json": "847e7d4380d94ff32c644ce903857b73301bea88aedef60004822cf4a1540067",
+    "policy-roller-crouch-2.json": "10de6961cd1e5b369c993bc14d00a104731536d6ef4e59b13f4cf4799ad1415f",
+    "policy-roller-crouch-3.json": "6c2b4a3ba89091ba544f569fbf5c70278239c840f2b7e7b78b92f4391404cff7",
+    "policy-roller-crouch-4.json": "469976dc0b2995908c6eb902333a5ef2af957301279a7987d2cdc7b1d7b86876",
+    "policy-roller-crouch-5.json": "6424426dea00b3a7bb172712badaf803139cc573c3dd7a6da23d85848fc580a6"
+  },
+  "installerSyntaxPassed": true,
+  "deployed": false,
+  "hardwareAccess": false
+}

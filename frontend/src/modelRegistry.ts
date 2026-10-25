@@ -4,6 +4,7 @@ export const modelSlots = [
   { id: 'roulade', label: '翻滚' }, { id: 'kick_left', label: '左脚踢球' },
   { id: 'kick_right', label: '右脚踢球' }, { id: 'dance', label: '舞蹈' },
   { id: 'flamingo', label: '金鸡独立' }, { id: 'swizzle', label: '轮滑' },
+  { id: 'roller_crouch', label: '轮滑蹲滑' },
 ] as const;
 export interface RegisteredModel {
   id: string; label: string; slot: string; file: string; imported?: boolean;

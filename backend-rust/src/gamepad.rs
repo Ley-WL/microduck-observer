@@ -278,6 +278,7 @@ impl QuackGesture {
 #[derive(Default)]
 struct Input {
     roller_mode: bool,
+    roller_skating: bool,
     roller_since: Option<std::time::Instant>,
     roller_fired: bool,
     binding_revision: Option<u64>,
@@ -373,9 +374,10 @@ impl Input {
             else if !self.neutral_seen {None}
             else if roller_start {Some("roller_prepare")}
             else if roller_chord {None}
+            else if self.roller_mode && self.roller_skating && edge(X) && sample.keys.iter().filter(|v|**v).count()==1 {Some("roller_crouch")}
             else if self.roller_mode && edge(A) && sample.centered() && sample.keys.iter().filter(|v|**v).count()==1 {Some("stand")}
             else if long_start {Some("poweroff")}
-            else if self.roller_mode {None}
+            else if self.roller_mode {custom.filter(|action|*action=="quack").or(quack_action)}
             else if long_autonomy {Some("autonomy")}
             else if long_y {Some("getup")}
             else {custom.or(quack_action)};
@@ -564,6 +566,7 @@ pub fn spawn(app: App, router: Router) {
                     }
                     let status=motion.status();
                     input.roller_mode=status["rollerMode"]==true;
+                    input.roller_skating=status["rollerReady"]==true;
                     let demo_active=status["demoActive"]==true;
                     if demo_active && !sample.centered() {motion.cancel_demo();input.drive_armed=true;}
                     let ready = motion.leased && (demo_active || status["rollerReady"] == true || status["headReady"] == true || status["flamingoReady"] == true);
@@ -1045,6 +1048,28 @@ mod tests {
 #[cfg(test)] mod roller_tests {
     use super::*;
     fn pad(keys:&[usize])->Sample {let mut s=Sample::default();for k in keys{s.keys[BUTTONS.iter().position(|v|v==k).unwrap()]=true;}s}
+    #[test] fn roller_x_triggers_once_while_driving_and_overrides_the_ordinary_binding() {
+        let mut i=Input::default();let t=std::time::Instant::now();i.roller_mode=true;i.roller_skating=true;
+        i.update_at(&Sample::default(),true,false,t);
+        let mut config=crate::pad_bindings::Config::default();config.bindings.insert("x".into(),"roulade".into());
+        let mut pressed=pad(&[X]);pressed.axes[1]=-0.8;
+        assert_eq!(i.update_mapped(&pressed,true,false,t,&config),Some("roller_crouch"));
+        assert_eq!(i.update_mapped(&pressed,true,false,t+Duration::from_millis(20),&config),None);
+        i.update_at(&Sample::default(),true,false,t);i.roller_skating=false;
+        assert_ne!(i.update_mapped(&pressed,false,false,t,&config),Some("roller_crouch"));
+        assert_eq!(config.bindings["x"],"roulade");
+    }
+    #[test] fn roller_keeps_quack_and_right_stick_while_rejecting_leg_skills() {
+        let mut i=Input::default();let t=std::time::Instant::now();i.roller_mode=true;
+        i.update_at(&Sample::default(),true,false,t);
+        let mut config=crate::pad_bindings::Config::default();config.bindings.insert("x".into(),"quack".into());
+        assert_eq!(i.update_mapped(&pad(&[X]),true,false,t,&config),Some("quack"));
+        i.update_at(&Sample::default(),true,false,t);
+        config.bindings.insert("x".into(),"dance".into());
+        assert_eq!(i.update_mapped(&pad(&[X]),true,false,t,&config),None);
+        i.drive_armed=true;let mut s=pad(&[]);s.axes=[0.2,-0.4,0.6,-0.7];
+        let drive=i.drive(&s,1);assert_eq!(drive["headYaw"],-0.6);assert_eq!(drive["headPitch"],0.7);
+    }
     #[test] fn roller_combo_requires_neutral_hold_and_fires_once() {
         let mut i=Input::default();let t=std::time::Instant::now();let chord=pad(&[LB,RB]);
         assert_eq!(i.update_at(&chord,false,false,t),None);

@@ -4,7 +4,7 @@ use serde_json::Value;
 #[derive(Default)]
 pub struct HeadIntent { input:[f64;2], updated:Option<Instant> }
 pub fn ready(control:&Value)->bool {
-    control["state"]=="policy" && (control["activeSkill"]=="xgoduck" ||
+    control["state"]=="policy" && (control["activeSkill"]=="xgoduck" || crate::swizzle::manual_head(control["activeSkill"].as_str().unwrap_or("")) ||
         (control["activeSkill"]=="sitstand_sit" && control["skillProgressSeconds"].as_f64().zip(control["sitSettleSeconds"].as_f64()).is_some_and(|(p,s)|p>=s)))
         && control["runtimeProfile"]=="kissqy-sync50-v1" && control["feedbackHolding"]!=true
 }
@@ -78,5 +78,12 @@ pub fn step(offset:&mut [f64;2],input:[f64;2],base:[f64;2],bounds:[(f64,f64);2])
         let mut c=json!({"state":"policy","activeSkill":"xgoduck","runtimeProfile":"kissqy-sync50-v1"});assert!(ready(&c));
         c["feedbackHolding"]=json!(true);assert!(!ready(&c));c["feedbackHolding"]=json!(false);
         for skill in ["xgoduck_getup","xgoduck_pick","xgoduck_roulade","sitstand_sit"]{c["activeSkill"]=json!(skill);assert!(!ready(&c));}
+    }
+    #[test] fn roller_installation_and_balance_accept_head_only_with_ready_feedback() {
+        for skill in ["swizzle_prepare","swizzle"] {
+            let mut c=json!({"state":"policy","activeSkill":skill,"runtimeProfile":"kissqy-sync50-v1"});
+            assert!(ready(&c));c["feedbackHolding"]=json!(true);assert!(!ready(&c));
+            c["feedbackHolding"]=json!(false);c["state"]=json!("preflight");assert!(!ready(&c));
+        }
     }
 }

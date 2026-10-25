@@ -146,11 +146,11 @@ pub fn path_for(kind: &str) -> Result<PathBuf> {
     crate::model_registry::selected_path(kind)
 }
 pub fn model_id(kind: &str) -> &'static str {
-    match kind { "swizzle" | "swizzle_prepare" => "swizzle_hd1910", "flamingo_hold" | "flamingo_lower" => "flamingo", "dance10" => "dance10", "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "xgoduck" => "xgoduck_walk",
+    match kind { "swizzle_crouch" => "roller_crouch_hd1910_1001", "swizzle" | "swizzle_prepare" => "swizzle_hd1910", "flamingo_hold" | "flamingo_lower" => "flamingo", "dance10" => "dance10", "sitstand_sit" | "sitstand_stand" => "alpha_sitstand", "xgoduck" => "xgoduck_walk",
         "xgoduck_getup" => "xgoduck_getup", "xgoduck_pick" => "xgoduck_pick",
         "xgoduck_roulade" => "xgoduck_roulade", "kick_left" => "kick_left", "kick_right" => "kick_right", _ => "unknown" }
 }
-pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "swizzle" | "swizzle_prepare" | "flamingo_hold" | "flamingo_lower" | "dance10" | "kick_left" | "kick_right" | "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
+pub fn is_xgoduck(kind: &str) -> bool { matches!(kind, "swizzle_crouch" | "swizzle" | "swizzle_prepare" | "flamingo_hold" | "flamingo_lower" | "dance10" | "kick_left" | "kick_right" | "xgoduck" | "xgoduck_getup" | "xgoduck_pick" | "xgoduck_roulade" | "sitstand_sit" | "sitstand_stand") }
 #[cfg(test)]
 mod kick_tests {
     use super::*;
@@ -306,13 +306,13 @@ mod kick_tests {
 }
 pub fn skill_kind(value: &Value) -> Result<&str> {
     match value.as_str() {
-        Some("swizzle") => Ok("swizzle"), Some("flamingo") => Ok("flamingo_hold"), Some("flamingo_lower") => Ok("flamingo_lower"), Some("dance") => Ok("dance10"), Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
+        Some("roller_crouch") => Ok("swizzle_crouch"), Some("swizzle") => Ok("swizzle"), Some("flamingo") => Ok("flamingo_hold"), Some("flamingo_lower") => Ok("flamingo_lower"), Some("dance") => Ok("dance10"), Some("getup") => Ok("xgoduck_getup"), Some("pick") => Ok("xgoduck_pick"),
         Some("sit") => Ok("sitstand_sit"), Some("standup") => Ok("sitstand_stand"),
         Some("kick_left") => Ok("kick_left"), Some("kick_right") => Ok("kick_right"), Some("roulade") => Ok("xgoduck_roulade"), _ => bail!("动作须为getup/pick/roulade/sit/standup/kick_left/kick_right"),
     }
 }
 fn skill_twist(kind: &str, progress: f64) -> [f32;3] {
-    if kind == "flamingo_hold" {[1.,1.,0.]} else if kind == "flamingo_lower" {[0.,1.,0.]} else if kind == "sitstand_sit" { [1.,0.,0.] } else if kind == "xgoduck_pick" {
+    if kind == crate::swizzle::CROUCH {crate::swizzle::crouch_command(progress)} else if kind == "flamingo_hold" {[1.,1.,0.]} else if kind == "flamingo_lower" {[0.,1.,0.]} else if kind == "sitstand_sit" { [1.,0.,0.] } else if kind == "xgoduck_pick" {
         let phase = std::f64::consts::TAU * (progress / 4.).clamp(0., 1.);
         [phase.cos() as f32, phase.sin() as f32, 0.]
     } else { [0.;3] }
@@ -338,6 +338,7 @@ enum NativeHandoff { Home, Skill(String), Continue }
 fn native_handoff(active: &str, finished: bool, donor_getup: bool, return_home: bool,
     recovery_resume: &str, requested: Option<String>) -> NativeHandoff {
     if crate::swizzle::is_mode(active) {
+        if active==crate::swizzle::CROUCH && finished {return NativeHandoff::Skill(crate::swizzle::ACTIVE.into());}
         return requested.filter(|next|crate::swizzle::transition(active,next))
             .map_or(NativeHandoff::Continue,NativeHandoff::Skill);
     }
@@ -365,7 +366,7 @@ impl NativeRecoveryPosture {
 struct SkillProfile { swizzle: bool, official_sit: bool, official_roll: bool, retrained: bool, bounded_targets: bool, kissqy: bool, donor_pick: bool, donor_getup: bool, donor_roll:bool, donor_kick:bool, dance:bool, flamingo:bool, official_flamingo:bool, right_flamingo:bool, rear_hook:bool, transfer_settle:bool, pose_entry:bool }
 impl SkillProfile {
     fn from_metadata(meta: &Value) -> Self {
-        Self { swizzle:meta["runtimeKind"]=="hd1910_swizzle", official_sit:meta["runtimeKind"]=="hd1910_official_sitstand", official_roll:meta["runtimeKind"]=="hd1910_official_roulade", rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), pose_entry:meta["runtimeKind"]=="hd1910_rear_hook_v62b", transfer_settle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), flamingo:matches!(meta["runtimeKind"].as_str(),Some("hd1910_flamingo"|"official_flamingo"|"hd1910_flamingo_right")), dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:matches!(meta["runtimeKind"].as_str(),Some("kissqy_roulade"|"hd1910_official_roulade")), donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
+        Self { swizzle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_swizzle"|"hd1910_roller_crouch")), official_sit:meta["runtimeKind"]=="hd1910_official_sitstand", official_roll:meta["runtimeKind"]=="hd1910_official_roulade", rear_hook:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_v27"|"hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), pose_entry:meta["runtimeKind"]=="hd1910_rear_hook_v62b", transfer_settle:matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b")), flamingo:matches!(meta["runtimeKind"].as_str(),Some("hd1910_flamingo"|"official_flamingo"|"hd1910_flamingo_right")), dance:meta["runtimeKind"]=="hd1910_dance10", donor_kick:meta["runtimeKind"]=="official_ball_kick", donor_roll:matches!(meta["runtimeKind"].as_str(),Some("kissqy_roulade"|"hd1910_official_roulade")), donor_pick:meta["runtimeKind"]=="kissqy_ground_pick", donor_getup:meta["runtimeKind"]=="kissqy_stand", retrained: matches!(meta["runtimeKind"].as_str(), Some("hd1910_getup"|"hd1910_sitstand")),
             right_flamingo:meta["runtimeKind"]=="hd1910_flamingo_right", official_flamingo:meta["runtimeKind"]=="official_flamingo", kissqy: matches!(meta["runtimeKind"].as_str(),Some("kissqy_sitstand"|"hd1910_official_sitstand")), bounded_targets: meta["skillPhysicsRevision"]=="sit-self-contact-bounded-target-v3" }
     }
     fn twist(self,kind:&str,progress:f64)->[f32;3] {
@@ -388,6 +389,7 @@ impl SkillProfile {
     // Donor sit_toggle allows Sitting -> Rising without a dwell timer.
     fn stand_request_delay(self)->f64 {if self.kissqy {0.} else {self.sit_settle()}}
     fn complete(self, kind: &str, progress: f64, upright: f64) -> bool {
+        if kind==crate::swizzle::CROUCH {return progress>=crate::swizzle::CROUCH_END-1e-9;}
         if self.official_sit {return kind=="sitstand_stand" && upright>=0.5-1e-9;}
         if self.official_roll {return false;}
         if self.flamingo {return kind=="flamingo_lower" && progress>=1.5 && upright>=1.;}
@@ -558,7 +560,7 @@ fn tilt(obs: &[f32]) -> f64 {
 const FALL_TILT_DEG: f64 = 60.;
 const FALL_IMMEDIATE_DEG: f64 = 90.;
 const FALL_CONFIRM: Duration = Duration::from_millis(150);
-fn walking_policy(kind: &str) -> bool { kind=="xgoduck" || kind==crate::swizzle::ACTIVE || kind.starts_with("flamingo_") }
+fn walking_policy(kind: &str) -> bool { kind=="xgoduck" || matches!(kind,crate::swizzle::ACTIVE|crate::swizzle::CROUCH) || kind.starts_with("flamingo_") }
 fn body_rotation(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<nalgebra::Matrix3<f64>> {
     let imu=&cal["imu"];
     if imu["initialized"]!=true || imu["mountingQuaternion"].is_null() {
@@ -580,11 +582,13 @@ fn home_posture_allowed(angle:f64) -> Result<()> {
     }
     Ok(())
 }
-pub fn check_home_posture(shared:&Shared,cal:&Value) -> Result<f64> {
+pub fn check_home_posture(shared:&Shared,cal:&Value,require_upright:bool) -> Result<f64> {
     let sensors=imu_samples(shared)?;
     let gravity=body_gravity(&sensors,cal)?;
     let angle=(-gravity.z/gravity.norm()).clamp(-1.,1.).acos().to_degrees();
-    home_posture_allowed(angle)?;Ok(angle)
+    anyhow::ensure!(angle.is_finite(),"机身倾角无效");
+    if require_upright {home_posture_allowed(angle)?;}
+    Ok(angle)
 }
 #[derive(Default)]
 struct FallGuard { since:Option<Instant> }
@@ -626,12 +630,12 @@ pub fn metadata_for(kind: &str) -> Option<Value> {
     verified_metadata_for(kind).ok()
 }
 fn optional_skill(kind: &str) -> bool {
-    matches!(kind,"swizzle"|"swizzle_prepare"|"kick_left"|"kick_right"|"dance10"|"flamingo_hold"|"flamingo_lower")
+    matches!(kind,"swizzle_crouch"|"swizzle"|"swizzle_prepare"|"kick_left"|"kick_right"|"dance10"|"flamingo_hold"|"flamingo_lower")
 }
 pub fn verify_model_bank() -> Result<Value> {
     let expected=crate::gains::current();
     let mut rows=Vec::new();
-    for kind in ["swizzle_prepare","swizzle","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"] {
+    for kind in ["swizzle_prepare","swizzle","swizzle_crouch","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"] {
         if optional_skill(kind) && metadata_for(kind).is_none() {continue;}
         let model=Model::open_for(kind,0.)?;
         if model.gains!=expected {bail!("{kind} 未继承通用增益");}
@@ -650,8 +654,9 @@ pub fn verify_fixture(path: &std::path::Path) -> Result<Value> {
     let fixture: Value = serde_json::from_slice(&std::fs::read(path)?)?;
     let (kind, speed) = request_profile(&fixture)?;
     let mut model = Model::open_for(kind, speed)?;
-    if model.skill_profile.dance {
+    if model.skill_profile.dance || kind==crate::swizzle::CROUCH {
         model.progress=fixture["progressSeconds"].as_f64().unwrap_or(0.);
+        if kind==crate::swizzle::CROUCH {model.command_twist=crate::swizzle::crouch_command(model.progress);}
     }
     let shared = std::sync::Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(
         true,
@@ -1034,7 +1039,7 @@ impl Model {
             progress: 0., upright: 0.,
             session: std::sync::Arc::new(std::sync::Mutex::new(session)),
             body_yaw: 0.,
-            command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {SkillProfile::from_metadata(&meta).twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
+            command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo || kind==crate::swizzle::CROUCH) {SkillProfile::from_metadata(&meta).twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
             skill_profile: SkillProfile::from_metadata(&meta),
             encoder_contract: (matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b"))).then(||meta["encoderContract"].clone()),
             walk_profile, target_initialized:false,
@@ -1576,7 +1581,7 @@ fn native_policy_loop(
         if let Some(degrees)=mouth_request {write_shared().mouth_degrees=degrees;}
         if model.kind=="xgoduck_pick" {write_shared().mouth_degrees=pick_mouth_target(model.progress);}
         let quacking=advance_quack(shared,&mut quack_cycle);
-        if model.kind=="xgoduck" || (model.kind=="sitstand_sit" && model.progress>=model.skill_profile.sit_settle()) {
+        if crate::swizzle::manual_head(&model.kind) || model.kind=="xgoduck" || (model.kind=="sitstand_sit" && model.progress>=model.skill_profile.sit_settle()) {
             let input={let state=read_shared();if state.demo.active {state.demo.output.head}else{state.head_intent.current(Instant::now())}};
             let bounds=[control::effective_angle_limits(31,cal,limits[&31])?,control::effective_angle_limits(32,cal,limits[&32])?];
             let autonomous={let s=read_shared();model.kind=="xgoduck" && s.autonomy.mode==crate::autonomy::Mode::Standby};
@@ -1645,8 +1650,9 @@ fn native_policy_loop(
         v["rollerBodyYawRad"]=json!(if model.kind==crate::swizzle::ACTIVE {Some(model.body_yaw)}else{None});
         v["rollerHeadingErrorRad"]=json!(if model.kind==crate::swizzle::ACTIVE {Some(model.command_twist[2])}else{None});
         v["rollerMode"]=json!(crate::swizzle::is_mode(&model.kind));
-        v["rollerPhase"]=json!(if model.kind==crate::swizzle::PREPARE {"installation"} else if model.kind==crate::swizzle::ACTIVE {"skating"} else {"off"});
-        v["message"]=json!(if model.kind==crate::swizzle::PREPARE {"轮滑安装姿势保持：扶稳装轮后，摇杆回中并按A启动平衡"} else if model.kind==crate::swizzle::ACTIVE {"轮滑平衡：左摇杆推力/航向；Back卸力"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
+        if model.kind==crate::swizzle::CROUCH {v["rollerCrouchRemainingSeconds"]=json!((crate::swizzle::CROUCH_END-model.progress).max(0.));}
+        v["rollerPhase"]=json!(if model.kind==crate::swizzle::PREPARE {"installation"} else if model.kind==crate::swizzle::ACTIVE {"skating"} else if model.kind==crate::swizzle::CROUCH {"crouch"} else {"off"});
+        v["message"]=json!(if model.kind==crate::swizzle::PREPARE {"轮滑安装姿势保持：扶稳装轮后，摇杆回中并按A启动平衡"} else if model.kind==crate::swizzle::ACTIVE {"轮滑平衡：X蹲滑后自动站起；Back卸力"} else if model.kind==crate::swizzle::CROUCH {"官方轮滑蹲滑：自动站起并返回轮滑，无需按A"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
         let status_done=Instant::now();
         {
             let mut c=costs.lock().unwrap();
@@ -1686,7 +1692,7 @@ pub fn execute(
     // Load and warm before any enable/goal write; transitions never load a graph on UART.
     let mut bank = BTreeMap::new();
     if is_xgoduck(kind) && command["shadow"] != true {
-        for next in ["swizzle_prepare", "swizzle", "xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand", "kick_left", "kick_right", "dance10", "flamingo_hold", "flamingo_lower"] {
+        for next in ["swizzle_prepare", "swizzle", "swizzle_crouch", "xgoduck", "xgoduck_getup", "xgoduck_pick", "xgoduck_roulade", "sitstand_sit", "sitstand_stand", "kick_left", "kick_right", "dance10", "flamingo_hold", "flamingo_lower"] {
             if crate::swizzle::is_mode(next)!=crate::swizzle::is_mode(kind) {continue;}
             if next != kind && (!optional_skill(next) || metadata_for(next).is_some()) { bank.insert(next.to_owned(), Model::open_for(next, 0.)?); }
         }
@@ -1843,7 +1849,10 @@ pub fn execute(
             // Fallen starts must not use the upright HOME transition.
             arm_current_profile(bus,&ORDER,&feedback,(model.gains.p,model.gains.d),cancel,halt,model.donor_sensors())?;
         } else {
-            let mut home_command=json!({"action":"stand","calibration":cal,"standTargets":home,"requireUpright":true});
+            // Installation is a supported fixed pose, not upright balance.
+            // Keep fresh, calibrated IMU checks throughout its HOME trajectory.
+            let mut home_command=json!({"action":"stand","calibration":cal,"standTargets":home,
+                "requireUpright":kind!=crate::swizzle::PREPARE,"requireImu":true});
             home_command["nativePolicyGains"]=json!([model.gains.p,model.gains.d]);
             control::execute(bus,&home_command,cancel,shared)?;
         }
@@ -2888,6 +2897,33 @@ pub fn preflight_model_at(kind: &str, path: &std::path::Path) -> Result<()> {
 
 #[cfg(test)] mod roller_tests {
     use super::*;
+    #[test] fn official_crouch_retains_native_contract_and_automatically_returns_without_home() {
+        let meta:Value=serde_json::from_str(include_str!("../../models/roller_crouch_hd1910_1001.metadata.json")).unwrap();
+        validate_skill_metadata(crate::swizzle::CROUCH,&meta).unwrap();
+        assert!(validate_skill_metadata(crate::swizzle::ACTIVE,&meta).is_err());
+        let profile=SkillProfile::from_metadata(&meta);assert!(profile.donor());assert!(!profile.voltage_adapt());
+        assert!(!profile.complete(crate::swizzle::CROUCH,3.48,0.));assert!(profile.complete(crate::swizzle::CROUCH,3.5,0.));
+        assert_eq!(profile.twist(crate::swizzle::CROUCH,1.25),crate::swizzle::crouch_command(1.25));
+        assert_eq!(native_handoff(crate::swizzle::ACTIVE,false,false,false,"xgoduck",Some(crate::swizzle::CROUCH.into())),NativeHandoff::Skill(crate::swizzle::CROUCH.into()));
+        assert_eq!(native_handoff(crate::swizzle::CROUCH,false,false,false,"xgoduck",Some(crate::swizzle::ACTIVE.into())),NativeHandoff::Continue);
+        assert_eq!(native_handoff(crate::swizzle::CROUCH,true,false,false,"xgoduck",None),NativeHandoff::Skill(crate::swizzle::ACTIVE.into()));
+        let walk:Value=serde_json::from_str(include_str!("../../models/swizzle_hd1910.metadata.json")).unwrap();
+        assert_eq!(walk["homeRadians"],meta["homeRadians"]);assert!(SkillProfile::from_metadata(&walk).donor());
+    }
+    #[test] fn installation_accepts_supported_side_pose_but_still_requires_fresh_imu() {
+        let state=std::sync::Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(true)));
+        let cal=json!({"imu":{"initialized":true,"mountingQuaternion":[0,0,0,1],"quaternion":[0,0,0,1]}});
+        assert!(check_home_posture(&state,&cal,false).unwrap_err().is::<StaleImu>());
+        let rotation=nalgebra::UnitQuaternion::from_euler_angles(88.9f64.to_radians(),0.,0.);
+        let sample=json!({"quaternion":[rotation.i,rotation.j,rotation.k,rotation.w]});
+        for topic in ["imu.orientation","imu.raw"] {
+            state.write().unwrap().sample(topic,sample.clone(),true,Instant::now());
+        }
+        assert!((check_home_posture(&state,&cal,false).unwrap()-88.9).abs()<1e-6);
+        assert!(check_home_posture(&state,&cal,true).unwrap_err().to_string().contains("仍处于倒地姿态"));
+        state.write().unwrap().sample("imu.raw",sample,false,Instant::now());
+        assert!(check_home_posture(&state,&cal,false).unwrap_err().to_string().contains("IMU 数据无效"));
+    }
     #[test] fn roller_contract_has_native_unfiltered_outputs_and_no_auto_walk() {
         let m:Value=serde_json::from_str(include_str!("../../models/swizzle_hd1910.metadata.json")).unwrap();
         for k in ["swizzle","swizzle_prepare"] {validate_skill_metadata(k,&m).unwrap();assert!(is_xgoduck(k));}

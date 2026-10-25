@@ -1,0 +1,18 @@
+{
+  "rustTestsPassed": 318,
+  "rustTestsIgnored": 1,
+  "frontendTestsPassed": 89,
+  "frontendBuild": true,
+  "arm64Build": true,
+  "nativePhasesPassed": 6,
+  "nativeObservationMaxError": 0.0,
+  "nativeActionMaxError": 0.0,
+  "modelSha256": "dd2530b07591d825f1ef88b0c9f19e93779d2557591958995a14b9c8133d1453",
+  "arm64BinarySha256": "62c0895686a2ea5be1ea0a6b546f617176ac9353b55007e71fe343dbf68b168e",
+  "package": "deploy/staging/runtime-20261025-162207",
+  "payloadSha256": "791ecbc7e29a148fb6b59f035d3172ac0b94d44c510df2e176c462e5158fb4a6",
+  "packageFilesByteVerified": 9,
+  "installerSyntaxVerified": true,
+  "hardwareAccess": false,
+  "deployed": false
+}

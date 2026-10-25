@@ -125,7 +125,7 @@ impl Telemetry {
         if self.autonomy.recovering(){return false;}
         if self.autonomous_input(session,sequence,true){self.autonomy.input(false,Instant::now());}
         if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
-        if self.pending_quack || self.quack_running || !degrees.is_finite() || !(-5. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || self.control["activeSkill"]!="xgoduck" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
+        if self.pending_quack || self.quack_running || !degrees.is_finite() || !(-5. ..=30.).contains(&degrees) || self.control["state"]!="policy" || self.control["kind"]!="xgoduck" || !(self.control["activeSkill"]=="xgoduck" || crate::swizzle::is_mode(self.control["activeSkill"].as_str().unwrap_or(""))) || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
         self.pending_mouth=Some(degrees);true
@@ -483,6 +483,26 @@ mod tests {
 
 #[cfg(test)] mod roller_tests {
     use super::*;
+    #[test] fn crouch_request_requires_skating_session_and_cannot_restart_or_skip_rise() {
+        let mut s=Telemetry::new(true);s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare"});
+        s.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.4,0.,0.],updated:Instant::now()});
+        assert!(!s.queue_skill("s",1,crate::swizzle::CROUCH));s.control["activeSkill"]=json!(crate::swizzle::ACTIVE);
+        assert!(!s.queue_skill("other",1,crate::swizzle::CROUCH));assert!(s.queue_skill("s",1,crate::swizzle::CROUCH));
+        assert_eq!(s.drive.as_ref().unwrap().twist,[0.;3]);assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));
+        s.pending_skill=None;s.control["activeSkill"]=json!(crate::swizzle::CROUCH);s.control["skillProgressSeconds"]=json!(1.2);
+        assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));assert!(!s.queue_skill("s",2,crate::swizzle::ACTIVE));
+        assert_eq!(s.control["skillProgressSeconds"],1.2);assert_eq!(s.drive.as_ref().unwrap().sequence,1);
+    }
+    #[test] fn roller_quack_and_mouth_preserve_mode_and_reject_foreign_or_held_commands() {
+        for skill in ["swizzle_prepare","swizzle"] {
+            let mut s=Telemetry::new(true);s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":skill});
+            s.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+            assert!(!s.queue_quack("other",1));assert!(s.queue_quack("s",1));assert_eq!(s.control["activeSkill"],skill);
+            s.pending_quack=false;assert!(!s.queue_mouth("s",1,12.));assert!(s.queue_mouth("s",2,12.));
+            assert_eq!(s.pending_mouth,Some(12.));assert!(s.pending_skill.is_none());
+            s.control["feedbackHolding"]=json!(true);assert!(!s.queue_quack("s",3));assert!(!s.queue_mouth("s",3,12.));
+        }
+    }
     #[test] fn roller_only_accepts_fresh_owned_prepare_to_active_transition() {
         let mut s=Telemetry::new(true);
         s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare"});

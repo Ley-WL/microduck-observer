@@ -443,8 +443,8 @@ pub fn execute<T: Transport>(
             shared,
             json!({"state":"preflight","action":action,"message":"检查实时反馈、目标及硬件限位","progress":0}),
         );
-        if pose && command["requireUpright"]==true {
-            crate::policy::check_home_posture(shared,&command["calibration"])?;
+        if pose && (command["requireUpright"]==true || command["requireImu"]==true) {
+            crate::policy::check_home_posture(shared,&command["calibration"],command["requireUpright"]==true)?;
         }
         if action == "angle" || action == "profile" {
             let degree_value = if action == "angle" {
@@ -636,8 +636,8 @@ pub fn execute<T: Transport>(
 
         loop {
             guard()?;
-            if command["requireUpright"]==true {
-                crate::policy::check_home_posture(shared,&command["calibration"])?;
+            if command["requireUpright"]==true || command["requireImu"]==true {
+                crate::policy::check_home_posture(shared,&command["calibration"],command["requireUpright"]==true)?;
             }
             let (fresh, diagnostics) = poll_tick(bus, &IDS);
             for (id,row) in &fresh { validate(*id, Some(row), ids.contains(id))?; }
@@ -1111,6 +1111,22 @@ mod tests {
             &AtomicBool::new(false),&state).unwrap_err();
         assert!(error.to_string().contains("仍处于倒地姿态"));
         assert!(bus.writes.is_empty(),"fallen prepare must not enable or write a HOME target");
+    }
+    #[test]
+    fn supported_installation_pose_bypasses_only_tilt_not_servo_faults() {
+        let mut bus=Mock::new();let state=shared();
+        let rotation=nalgebra::UnitQuaternion::from_euler_angles(88.9f64.to_radians(),0.,0.);
+        state.write().unwrap().sample("imu.orientation",json!({"quaternion":[rotation.i,rotation.j,rotation.k,rotation.w]}),true,Instant::now());
+        state.write().unwrap().sample("imu.raw",json!({}),true,Instant::now());
+        bus.rows.get_mut(&10).unwrap()["fault"]=json!(1);
+        let references:BTreeMap<_,_>=IDS.into_iter().map(|id|(id.to_string(),2048)).collect();
+        let error=execute(&mut bus,&json!({"action":"stand","requireUpright":false,"requireImu":true,
+            "calibration":{"joints":{"references":references,"directions":{}},
+                "imu":{"initialized":true,"mountingQuaternion":[0,0,0,1],"quaternion":[0,0,0,1]}}}),
+            &AtomicBool::new(false),&state).unwrap_err();
+        assert!(!error.to_string().contains("倒地姿态"));
+        assert!(error.to_string().contains("#10"));
+        assert!(bus.writes.is_empty(),"installation must still reject servo faults before enabling");
     }
     #[test]
     fn native_home_completion_latches_ready_and_release_clears_it() {

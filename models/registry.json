@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "revision": 0,
   "models": [
+    {"id":"roller-crouch-hd1910-1001","label":"HD1910 轮滑蹲滑 1001","slot":"roller_crouch","file":"roller_crouch_hd1910_1001.onnx"},
     {"id":"swizzle-hd1910-30001","label":"HD1910 轮滑 30001","slot":"swizzle","file":"swizzle_hd1910.onnx"},
     {"id":"walk-default","label":"HD1910 行走 5000","slot":"walk","file":"xgoduck_walk.onnx"},
     {"id":"sitstand-default","label":"坐下 / 站起","slot":"sitstand","file":"alpha_sitstand.onnx"},
@@ -19,6 +20,6 @@
     {"id":"rear-v27","label":"后抬脚 v27 候选","slot":"flamingo","file":"rear_hook_v27.onnx"},
     {"id":"flamingo-gentle","label":"HD1910 Gentle 候选","slot":"flamingo","file":"flamingo.onnx"}
   ],
-  "selected": {"swizzle":"swizzle-hd1910-30001","walk":"walk-default","sitstand":"sitstand-default","getup":"getup-default","pick":"pick-default","roulade":"roulade-default","kick_left":"kick-left-default","kick_right":"kick-right-default","dance":"dance-default","flamingo":"flamingo-right"},
+  "selected": {"roller_crouch":"roller-crouch-hd1910-1001","swizzle":"swizzle-hd1910-30001","walk":"walk-default","sitstand":"sitstand-default","getup":"getup-default","pick":"pick-default","roulade":"roulade-default","kick_left":"kick-left-default","kick_right":"kick-right-default","dance":"dance-default","flamingo":"flamingo-right"},
   "previous": {}
 }

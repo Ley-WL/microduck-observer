@@ -31,17 +31,30 @@ impl Heading {
         Ok([if fresh {input[0].clamp(-0.4,0.4)}else{0.},0.,error as f32])
     }
 }
-pub fn is_mode(kind: &str) -> bool { matches!(kind, PREPARE | ACTIVE) }
+pub const CROUCH: &str = "swizzle_crouch";
+pub const CROUCH_PERIOD: f64 = 5.;
+pub const CROUCH_END: f64 = 3.5;
+pub fn is_mode(kind: &str) -> bool { matches!(kind, PREPARE | ACTIVE | CROUCH) }
+pub fn manual_head(kind: &str) -> bool { matches!(kind, PREPARE | ACTIVE) }
+pub fn crouch_command(seconds:f64)->[f32;3] {
+    let phase=std::f64::consts::TAU*(seconds/CROUCH_PERIOD).clamp(0.,0.7);
+    [phase.cos() as f32,phase.sin() as f32,0.]
+}
+// Startup idle and a failed preflight may already be physically limp.
+// The UART owner still verifies all 15 real torque flags before enabling.
+pub fn preparation_idle(control: &Value) -> bool {
+    matches!(control["state"].as_str(),Some("idle"|"disabled"|"failed"))
+}
 pub fn control_mode(control: &Value) -> bool {
     control["activeSkill"].as_str().is_some_and(is_mode)
-        && control["state"] != "disabled"
+        && !preparation_idle(control)
 }
 pub fn ready(control: &Value) -> bool {
     control["state"] == "policy" && control["activeSkill"] == ACTIVE
         && control["feedbackHolding"] != true
 }
 pub fn transition(active: &str, next: &str) -> bool {
-    active == PREPARE && next == ACTIVE
+    (active == PREPARE && next == ACTIVE) || (active == ACTIVE && next == CROUCH)
 }
 /// Throttle and turn demand, NOT m/s or a direct model heading error. Keep the first hardware
 /// trial inside the evaluated forward/backward and moderate-turn envelope.
@@ -52,11 +65,15 @@ pub fn command(body: &Value) -> Result<[f32; 3]> {
     Ok(value.map(|v| v as f32))
 }
 pub fn validate(kind: &str, meta: &Value) -> Result<()> {
-    ensure!(is_mode(kind) && meta["runtimeKind"] == "hd1910_swizzle"
-        && meta["task"] == "Mjlab-Velocity-Swizzle-MicroDuck"
+    let correct=if kind==CROUCH {
+        meta["runtimeKind"]=="hd1910_roller_crouch" && meta["task"]=="Mjlab-RollerCrouch-Flat-MicroDuck"
+            && meta["phasePeriodSeconds"]==5 && meta["endPhase"]==0.7 && meta["durationSeconds"]==3.5
+            && meta["commandEncoding"]=="cos(2*pi*phase),sin(2*pi*phase),zero"
+    } else {matches!(kind,PREPARE|ACTIVE) && meta["runtimeKind"]=="hd1910_swizzle"
+        && meta["task"]=="Mjlab-Velocity-Swizzle-MicroDuck" && meta["commandEncoding"]=="throttle,zero,heading_error"};
+    ensure!(correct
         && meta["actionScale"] == 1 && meta["actionEmaOldWeight"] == 0
         && meta["voltageAdaptation"] == false && meta["targetLimits"] == "observer"
-        && meta["commandEncoding"] == "throttle,zero,heading_error"
         && meta["observationNormalization"] == "embedded_in_onnx_once",
         "轮滑执行合同不匹配");
     Ok(())
@@ -86,6 +103,17 @@ pub fn validate(kind: &str, meta: &Value) -> Result<()> {
         assert!(h.step(f64::NAN,[0.;3],true,0.02).is_err());
         assert!(h.step(0.,[0.;3],true,-1.).is_err());
     }
+    #[test] fn limp_idle_and_failed_preflight_can_retry_without_becoming_active_roller_mode() {
+        for state in ["idle","disabled","failed"] {
+            let control=json!({"state":state,"activeSkill":PREPARE});
+            assert!(preparation_idle(&control));assert!(!control_mode(&control));
+        }
+        for state in ["preflight","moving","policy","holding","stopping","disabling"] {
+            let control=json!({"state":state,"activeSkill":PREPARE});
+            assert!(!preparation_idle(&control));assert!(control_mode(&control));
+        }
+        assert!(!preparation_idle(&json!({})));
+    }
     #[test] fn installation_only_enters_roller_and_never_walks() {
         assert!(transition(PREPARE, ACTIVE));
         for from in [PREPARE, ACTIVE, "xgoduck", "sitstand_sit"] {
@@ -102,5 +130,13 @@ pub fn validate(kind: &str, meta: &Value) -> Result<()> {
         for twist in [json!([0.41,0,0]),json!([0,0.01,0]),json!([0,0,0.251]),json!([0,0,"NaN"])] {
             assert!(command(&json!({"twist":twist})).is_err());
         }
+    }
+    #[test] fn crouch_only_enters_from_skating_and_phase_is_the_official_one_shot() {
+        assert!(transition(ACTIVE,CROUCH));assert!(!transition(PREPARE,CROUCH));
+        assert!(!transition(CROUCH,CROUCH));assert!(!transition(CROUCH,ACTIVE));
+        assert_eq!(crouch_command(0.),[1.,0.,0.]);
+        let middle=crouch_command(1.25);assert!(middle[0].abs()<1e-6);assert!((middle[1]-1.).abs()<1e-6);
+        assert_eq!(crouch_command(99.),crouch_command(CROUCH_END));
+        assert!(!manual_head(CROUCH));assert!(manual_head(ACTIVE));
     }
 }

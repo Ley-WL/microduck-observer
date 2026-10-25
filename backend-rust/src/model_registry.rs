@@ -5,12 +5,13 @@ use std::{collections::BTreeSet, io::Write, path::{Path, PathBuf}, sync::{Mutex,
 
 pub const MAX_MODEL_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = 24 * 1024 * 1024;
-pub const SLOTS: [&str; 10] = ["walk","sitstand","getup","pick","roulade","kick_left","kick_right","dance","flamingo","swizzle"];
+pub const SLOTS: [&str; 11] = ["walk","sitstand","getup","pick","roulade","kick_left","kick_right","dance","flamingo","swizzle","roller_crouch"];
 static CURRENT: OnceLock<Mutex<Value>> = OnceLock::new();
 
 fn builtin_kinds(slot: &str) -> Result<&'static [&'static str]> {
     Ok(match slot {
         "swizzle" => &["swizzle_prepare","swizzle"],
+        "roller_crouch" => &["swizzle_crouch"],
         "walk" => &["xgoduck"], "sitstand" => &["sitstand_sit","sitstand_stand"],
         "getup" => &["xgoduck_getup"], "pick" => &["xgoduck_pick"], "roulade" => &["xgoduck_roulade"],
         "kick_left" => &["kick_left"], "kick_right" => &["kick_right"], "dance" => &["dance10"],
@@ -50,13 +51,15 @@ pub fn init() -> Result<()> {
 }
 // Additive migration preserves saved choices and rollback entries.
 fn add_swizzle_slot(value: &mut Value) -> Result<()> {
-    if value["selected"]["swizzle"].is_null() {
+    for slot in ["swizzle","roller_crouch"] {
+    if value["selected"][slot].is_null() {
         let bundled=defaults();
-        let item=bundled["models"].as_array().unwrap().iter().find(|v|v["slot"]=="swizzle").unwrap().clone();
+        let item=bundled["models"].as_array().unwrap().iter().find(|v|v["slot"]==slot).unwrap().clone();
         let id=item["id"].as_str().unwrap().to_owned();
         ensure!(!value["models"].as_array().context("模型列表无效")?.iter().any(|m|m["id"]==id),"轮滑默认模型ID冲突");
         value["models"].as_array_mut().unwrap().push(item);
-        value["selected"]["swizzle"]=json!(id);
+        value["selected"][slot]=json!(id);
+    }
     }
     Ok(())
 }
@@ -136,7 +139,7 @@ fn inspect_path(slot: &str, path: &Path, warm: bool) -> Result<Value> {
 // Copy only execution settings, never a template model's training or acceptance claims.
 fn template_metadata(source: &Value) -> Value {
     let mut result=json!({});
-    for key in "artifactType controlHz actorObservationDim actionDim jointOrder homeRadians runtimeKind task actionScale actionEmaOldWeight actionEmaNewWeight actionSemantics runtimeActionAlpha observationNormalization normalization previousAction lastActionObservation headMapping commandEncoding commandGains commandHeightM commandSide durationSeconds lowerMinSeconds holdSeconds entrySeconds returnSeconds entryTimeoutSeconds settleSeconds transferSettleTicks poseEntryConsecutiveReadyTicks poseGate supportFoot swingFoot targetEncoding targetLimits voltageAdaptation encoderContract walkExecution skillExecution sitExecution kickFoot standSeconds sitSettleSeconds skillPhysicsRevision trainingTargetClipRadians mechanicalPhysicalJointLimitsRadians mechanicalExecutionContract assembledBodyGroundContactMeshes uprightHoldSeconds getupMinSeconds executionTargetLimitsDegrees angleLimitsRevision".split_whitespace() {
+    for key in "artifactType controlHz actorObservationDim actionDim jointOrder homeRadians runtimeKind task actionScale actionEmaOldWeight actionEmaNewWeight actionSemantics runtimeActionAlpha observationNormalization normalization previousAction lastActionObservation headMapping commandEncoding commandGains commandHeightM commandSide durationSeconds phasePeriodSeconds endPhase lowerMinSeconds holdSeconds entrySeconds returnSeconds entryTimeoutSeconds settleSeconds transferSettleTicks poseEntryConsecutiveReadyTicks poseGate supportFoot swingFoot targetEncoding targetLimits voltageAdaptation encoderContract walkExecution skillExecution sitExecution kickFoot standSeconds sitSettleSeconds skillPhysicsRevision trainingTargetClipRadians mechanicalPhysicalJointLimitsRadians mechanicalExecutionContract assembledBodyGroundContactMeshes uprightHoldSeconds getupMinSeconds executionTargetLimitsDegrees angleLimitsRevision".split_whitespace() {
         if let Some(value)=source.get(key) {result[key]=value.clone();}
     }
     for field in ["walkExecution","skillExecution","sitExecution"] {
@@ -387,6 +390,15 @@ pub fn update(action: &str, body: &Value) -> Result<Value> {
 
 #[cfg(test)] mod roller_migration_tests {
     use super::*;
+    #[test] fn existing_roller_choices_survive_additive_crouch_slot_migration() {
+        let mut r=defaults();r["selected"].as_object_mut().unwrap().remove("roller_crouch");
+        r["models"].as_array_mut().unwrap().retain(|m|m["slot"]!="roller_crouch");
+        let previous=r.clone();add_swizzle_slot(&mut r).unwrap();validate(&r).unwrap();
+        assert_eq!(r["selected"]["swizzle"],previous["selected"]["swizzle"]);
+        assert_eq!(r["revision"],previous["revision"]);assert_eq!(r["previous"],previous["previous"]);
+        assert!(r["selected"]["roller_crouch"].is_string());
+        let migrated=r.clone();add_swizzle_slot(&mut r).unwrap();assert_eq!(r,migrated);
+    }
     #[test] fn old_registry_gains_one_slot_without_replacing_user_choices() {
         let mut r=defaults();r["selected"].as_object_mut().unwrap().remove("swizzle");
         r["models"].as_array_mut().unwrap().retain(|m|m["slot"]!="swizzle");

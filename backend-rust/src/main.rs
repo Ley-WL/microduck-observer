@@ -367,13 +367,13 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
 async fn policy_info(State(a): State<App>) -> Json<Value> {
     let s = a.telemetry.read().unwrap();
     let meta = policy::metadata_for("xgoduck");
-    let models: Vec<Value> = ["swizzle_prepare","swizzle","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"].iter().map(|kind| {
+    let models: Vec<Value> = ["swizzle_prepare","swizzle","swizzle_crouch","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"].iter().map(|kind| {
         let metadata=policy::metadata_for(kind);
         let gains=gains::current();
         json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata,"runtimeGains":{"p":gains.p,"d":gains.d,"source":"model-gains.json","appliesOn":"next-model-start"}})
     }).collect();
     Json(
-        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["getup","pick","roulade","sit","standup","kick_left","kick_right","dance","flamingo"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["roller_crouch","getup","pick","roulade","sit","standup","kick_left","kick_right","dance","flamingo"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
     )
 }
 async fn pad_bindings_info()->Json<Value>{Json(pad_bindings::info())}
@@ -493,7 +493,7 @@ fn policy_drive_command(shared: &mut Telemetry, body: &Value) -> Response {
         }
         if shared.autonomy.recovering(){return error(StatusCode::CONFLICT,"自主起身中，仅停止、卸力或关闭自主可中断");}
         shared.autonomous_input(body["session"].as_str().unwrap_or(""),sequence,twist!=[0.;3] || head!=[0.;2]);
-        let seated_head=shared.control["activeSkill"]=="sitstand_sit" && head_control::ready(&shared.control) && twist==[0.;3];
+        let seated_head=(shared.control["activeSkill"]==swizzle::CROUCH && twist==[0.;3] && head==[0.;2]) || matches!(shared.control["activeSkill"].as_str(),Some("sitstand_sit"|"swizzle_prepare")) && head_control::ready(&shared.control) && twist==[0.;3];
         if shared.control["activeSkill"]=="sitstand_sit" && !seated_head {
             return error(StatusCode::CONFLICT,"坐姿维持中，请先执行站起，再按住方向行走");
         }
@@ -629,8 +629,8 @@ async fn policy_action(
     };
     if action!="shadow" {
         let s=a.telemetry.read().unwrap();
-        if kind==swizzle::ACTIVE {return error(StatusCode::CONFLICT,"请先卸力并进入轮滑安装姿势，再按A启动");}
-        if kind==swizzle::PREPARE && (action!="start" || s.control["state"]!="disabled") {
+        if matches!(kind,swizzle::ACTIVE|swizzle::CROUCH) {return error(StatusCode::CONFLICT,"请先卸力并进入轮滑安装姿势，再按A启动");}
+        if kind==swizzle::PREPARE && (action!="start" || !swizzle::preparation_idle(&s.control)) {
             return error(StatusCode::CONFLICT,"轮滑预备只能在已卸力状态启动");
         }
         if swizzle::control_mode(&s.control) {return error(StatusCode::CONFLICT,"轮滑模式中，先卸力并拆轮再启动普通动作");}
@@ -1019,6 +1019,31 @@ mod web_gamepad_tests {
 
 #[cfg(test)] mod roller_route_tests {
     use super::*;
+    #[test] fn crouch_allows_only_zero_cleanup_commands_without_affecting_its_clock() {
+        let mut s=Telemetry::new(true);s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_crouch","skillProgressSeconds":1.2});
+        s.drive=Some(crate::telemetry::DriveCommand{session:"s".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+        let mut b=json!({"session":"s","sequence":1,"twist":[0,0,0],"headPitch":0,"headYaw":0});
+        assert_eq!(policy_drive_command(&mut s,&b).status(),StatusCode::OK);
+        b["sequence"]=json!(2);b["twist"]=json!([0.1,0,0]);assert_eq!(policy_drive_command(&mut s,&b).status(),StatusCode::CONFLICT);
+        b["twist"]=json!([0,0,0]);b["headYaw"]=json!(0.4);assert_eq!(policy_drive_command(&mut s,&b).status(),StatusCode::CONFLICT);
+        assert_eq!(s.control["skillProgressSeconds"],1.2);assert_eq!(s.drive.as_ref().unwrap().sequence,1);
+    }
+    #[test] fn roller_head_uses_owned_sequence_and_installation_never_accepts_throttle() {
+        for skill in ["swizzle_prepare","swizzle"] {
+            let mut s=Telemetry::new(true);
+            s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":skill,"runtimeProfile":"kissqy-sync50-v1"});
+            s.drive=Some(crate::telemetry::DriveCommand{session:"s".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+            let mut body=json!({"session":"other","sequence":1,"twist":[0,0,0],"headPitch":0.4,"headYaw":-0.5});
+            assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+            body["session"]=json!("s");assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::OK);
+            assert_eq!(s.head_intent.current(Instant::now()),[0.4,-0.5]);
+            assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+            body["sequence"]=json!(2);body["twist"]=json!([0.2,0,0]);
+            assert_eq!(policy_drive_command(&mut s,&body).status(),if skill=="swizzle"{StatusCode::OK}else{StatusCode::CONFLICT});
+            s.control["feedbackHolding"]=json!(true);body["sequence"]=json!(3);body["twist"]=json!([0,0,0]);
+            assert_eq!(policy_drive_command(&mut s,&body).status(),StatusCode::CONFLICT);
+        }
+    }
     #[test] fn roller_route_checks_heading_units_and_session_without_enabling_preparation_drive() {
         let mut s=Telemetry::new(true);
         s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare"});

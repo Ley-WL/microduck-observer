@@ -373,7 +373,7 @@ impl Motion {
             [
                 "drive",
                 "stand",
-                "prepare", "roller_prepare",
+                "prepare", "roller_prepare", "roller_crouch",
                 "idle",
                 "estop",
                 "reset",
@@ -437,7 +437,7 @@ impl Motion {
                 && (!matches!(action, "drive"|"strafe_left"|"strafe_right") || self.drive.is_some()) {
                 self.acquire_input()?;
             }
-            ensure!(!crate::swizzle::control_mode(&self.control()) || matches!(action,"stand"|"standup"|"drive"|"estop"|"release"|"idle"|"reset"),"轮滑模式只接受A平衡、摇杆、停止或卸力；拆轮前不运行步行技能");
+            ensure!(!crate::swizzle::control_mode(&self.control()) || matches!(action,"roller_crouch"|"stand"|"standup"|"drive"|"quack"|"mouth_open"|"mouth_close"|"estop"|"release"|"idle"|"reset"),"轮滑模式支持X蹲滑、A平衡、摇杆、头控、鸭叫和嘴部控制；拆轮前不运行步行技能");
             match action {
             "estop"=>{self.stopped=true;self.halt(true).await?;},
             "release"=>self.close().await,
@@ -451,9 +451,15 @@ impl Motion {
                 self.drive=Some(result["driveSession"].as_str().ok_or_else(||anyhow::anyhow!("missing drive session"))?.into());self.drive_seq=0;self.phase="starting".into();
                 self.error.clear();
             },
+            "roller_crouch"=>{
+                ensure!(self.phase=="active" && !self.stopped && !self.pending && crate::swizzle::ready(&self.control()),"请先进入轮滑平衡；蹲滑执行中不能重复触发");
+                self.zero();let session=self.drive.as_ref().ok_or_else(||anyhow::anyhow!("轮滑会话已结束"))?;
+                self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"roller_crouch"}))).await?;
+                self.pending=true;self.error.clear();
+            },
             "stand"|"standup" if crate::swizzle::control_mode(&self.control())=>{
                 self.zero();
-                if self.control()["activeSkill"]==crate::swizzle::ACTIVE {self.error.clear();}
+                if matches!(self.control()["activeSkill"].as_str(),Some(crate::swizzle::ACTIVE|crate::swizzle::CROUCH)) {self.error.clear();}
                 else if let Some(session)=&self.drive {
                     self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"swizzle"}))).await?;self.pending=true;
                 }
@@ -491,7 +497,7 @@ impl Motion {
                     ensure!(head==[0.;2] || crate::swizzle::ready(&ctrl) || crate::head_control::ready(&ctrl),"当前模型不支持头部控制");
                     {let mut s=self.app.telemetry.write().unwrap();
                     ensure!(s.drive.as_ref().is_some_and(|d|self.drive.as_ref()==Some(&d.session)),"控制会话已变更");
-                    s.head_intent.set(if crate::swizzle::ready(&ctrl) {[0.;2]} else {head});}
+                    s.head_intent.set(head);}
                     if ctrl["activeSkill"]!="xgoduck" && !crate::swizzle::ready(&ctrl) {self.zero_drive();self.error.clear();return Ok(());}
                     self.error.clear();self.forward=f*speed;self.turn=(t*speed).clamp(-1.0,1.0);self.lateral=if action=="strafe_left"{0.3*speed}else if action=="strafe_right"{-0.3*speed}else{0.};
                 }else{self.zero();}
@@ -1024,6 +1030,21 @@ pub(crate) mod tests {
 
 #[cfg(test)] mod roller_tests {
     use super::*;
+    #[tokio::test] async fn roller_x_queues_one_cycle_and_a_does_not_interrupt_or_retrigger() {
+        let (mut m,calls,_tmp)=super::tests::fixture();m.open().unwrap();
+        m.drive=Some("ble-session".into());m.phase="active".into();
+        {let mut s=m.app.telemetry.write().unwrap();
+            s.drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.4,0.,0.],updated:Instant::now()});
+            s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle","driveSession":"ble-session","runtimeProfile":"kissqy-sync50-v1"});}
+        m.command(json!({"seq":1,"action":"roller_crouch"})).await.unwrap();assert!(m.error.is_empty());
+        assert_eq!(calls.lock().unwrap().last().unwrap().1["skill"],"roller_crouch");
+        {let mut s=m.app.telemetry.write().unwrap();s.control["activeSkill"]=json!(crate::swizzle::CROUCH);s.control["skillProgressSeconds"]=json!(1.2);}
+        let count=calls.lock().unwrap().len();
+        m.command(json!({"seq":2,"action":"stand"})).await.unwrap();assert!(m.error.is_empty());
+        m.command(json!({"seq":3,"action":"roller_crouch"})).await.unwrap();assert!(!m.error.is_empty());
+        assert_eq!(calls.lock().unwrap().len(),count);
+        assert_eq!(m.control()["skillProgressSeconds"],1.2);
+    }
     #[tokio::test] async fn roller_preparation_a_and_drive_use_the_owned_roller_session() {
         let (mut m,calls,_tmp)=super::tests::fixture();m.open().unwrap();
         // Real policy/start installs the shared lease before returning.
@@ -1033,7 +1054,7 @@ pub(crate) mod tests {
         {
             let mut s=m.app.telemetry.write().unwrap();
             s.drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
-            s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare","driveSession":"ble-session"});
+            s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare","driveSession":"ble-session","runtimeProfile":"kissqy-sync50-v1"});
         }
         m.command(json!({"seq":2,"action":"stand"})).await.unwrap();
         assert_eq!(calls.lock().unwrap().last().unwrap().1["skill"],"swizzle");
@@ -1041,9 +1062,14 @@ pub(crate) mod tests {
         m.command(json!({"seq":3,"action":"drive","forward":-0.5,"turn":1,"speed":1,"headYaw":1})).await.unwrap();
         m.tick().await;
         assert_eq!(calls.lock().unwrap().last().unwrap().1["twist"],json!([-0.4,0.0,0.25]));
-        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.;2]);
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,1.]);
+        m.command(json!({"seq":4,"action":"quack"})).await.unwrap();
+        assert!(m.error.is_empty());
+        assert!(calls.lock().unwrap().last().unwrap().0.ends_with("policy/quack"));
+        assert_eq!(m.app.telemetry.read().unwrap().head_intent.current(Instant::now()),[0.,1.]);
+        assert_eq!((m.forward,m.turn),(-0.5,1.));
         let count=calls.lock().unwrap().len();
-        m.command(json!({"seq":4,"action":"roulade"})).await.unwrap();
+        m.command(json!({"seq":5,"action":"roulade"})).await.unwrap();
         assert_eq!(calls.lock().unwrap().len(),count);assert!(!m.error.is_empty());
         m.app.telemetry.write().unwrap().control["feedbackHolding"]=json!(true);m.tick().await;
         assert_eq!((m.forward,m.turn),(0.,0.));

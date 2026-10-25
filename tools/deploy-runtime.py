@@ -17,6 +17,7 @@ parser.add_argument('--flamingo-model',action='store_true',help='Add flamingo ac
 parser.add_argument('--rear-hook-model',action='store_true',help='Add v27 rear-hook actor, preserve legacy models/settings, and verify native fixtures')
 parser.add_argument('--rear-hook-native-model',action='store_true',help='Add encoder-physics rear-hook candidate and verify board calibration plus ARM fixtures')
 parser.add_argument('--rear-hook-gated-model',action='store_true',help='Add settle-before-lift rear-hook candidate with an independent contract')
+parser.add_argument('--roller-crouch-model',action='store_true',help='Add official HD1910 roller crouch and verify six ARM phase fixtures; never start motion')
 parser.add_argument('--swizzle-model',action='store_true',help='Add HD1910 roller model and verify its ARM fixture; never start motion')
 parser.add_argument('--dance-model',action='store_true',help='Add the dance10 model and verify ARM inference before activation')
 parser.add_argument('--retire-legacy-models',action='store_true',help='Remove retired stand/walk files from the new release and verify common gains')
@@ -29,6 +30,8 @@ evidence.mkdir(parents=True)
 binary=root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer'
 assert binary.read_bytes()[:4]==b'\x7fELF' and int.from_bytes(binary.read_bytes()[18:20],'little')==183
 assert b'/api/v1/tof' in binary.read_bytes(), 'Build the current Observer source: ToF API missing from ARM binary'
+if args.roller_crouch_model:
+    assert all(marker in binary.read_bytes() for marker in [b'swizzle_crouch',b'rollerCrouchRemainingSeconds']),'Build the current crouch runtime before packaging'
 if args.rear_hook_native_model or args.rear_hook_gated_model:
     marker=b'RearHook-OneShot-3s-NativeEncoderGated' if args.rear_hook_gated_model else b'RearHook-OneShot-3s-NativeEncoder'
     assert marker in binary.read_bytes(),'Finish building native rear-hook runtime before packaging'
@@ -58,6 +61,11 @@ with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
             archive.add(root/('models/'+stem+'.'+suffix),arcname='models/'+stem+'.'+suffix)
         for tick in range(4):
             archive.add(root/f'backend-rust/tests/fixtures/policy-rear-native-{tick}.json',arcname=f'policy-rear-native-{tick}.json')
+    if args.roller_crouch_model:
+        model=root/'models/roller_crouch_hd1910_1001.onnx';meta=model.with_suffix('.metadata.json')
+        assert hashlib.sha256(model.read_bytes()).hexdigest()==json.loads(meta.read_text(encoding='utf-8'))['policySha256']
+        for path in [model,meta]:archive.add(path,arcname='models/'+path.name)
+        for tick in range(6):archive.add(root/f'backend-rust/tests/fixtures/policy-roller-crouch-{tick}.json',arcname=f'policy-roller-crouch-{tick}.json')
     if args.swizzle_model:
         model=root/'models/swizzle_hd1910.onnx'
         meta=model.with_suffix('.metadata.json')
@@ -183,6 +191,15 @@ if (new/'policy-flamingo_hold.json').exists():
         result=subprocess.run([str(new/'bin/microduck-observer'),'--verify-policy-fixture',str(fixture)],env=env,capture_output=True,text=True,check=True)
         flamingo_reports.append(json.loads(result.stdout.splitlines()[-1]));fixture.unlink()
     (stage/'flamingo-arm-fixtures.json').write_text(json.dumps(flamingo_reports,indent=2))
+crouch_reports=[]
+if (new/'policy-roller-crouch-0.json').exists():
+    env=dict(os.environ,MICRODUCK_POLICY_PATH=str(new/'models/xgoduck_walk.onnx'),ORT_DYLIB_PATH=str(new/'lib/libonnxruntime.so'))
+    for tick in range(6):
+        fixture=new/f'policy-roller-crouch-{tick}.json'
+        result=subprocess.run([str(new/'bin/microduck-observer'),'--verify-policy-fixture',str(fixture)],env=env,capture_output=True,text=True,check=True)
+        report=json.loads(result.stdout.splitlines()[-1]);assert report['ok'] and not report['hardwareAccess']
+        crouch_reports.append(report);fixture.unlink()
+    (stage/'roller-crouch-arm-fixtures.json').write_text(json.dumps(crouch_reports,indent=2))
 swizzle_report=None
 if (new/'policy-swizzle.json').exists():
     env=dict(os.environ,MICRODUCK_POLICY_PATH=str(new/'models/xgoduck_walk.onnx'),ORT_DYLIB_PATH=str(new/'lib/libonnxruntime.so'))
@@ -255,6 +272,8 @@ try:
     assets={p.relative_to(new/'frontend/dist').as_posix():sha(p) for p in (new/'frontend/dist').rglob('*') if p.is_file()}
     for p,v in assets.items():assert hashlib.sha256(urllib.request.urlopen('http://127.0.0.1:8877/'+p,timeout=8).read()).hexdigest()==v
     snapshots=[get('snapshot') for _ in range(20)];assert all(idle(s) for s in snapshots)
+    if crouch_reports:
+        assert any(m['kind']=='swizzle_crouch' and m['available'] and m['metadata']['policySha256']==crouch_reports[0]['policySha256'] for m in get('policy')['models'])
     if swizzle_report:
         model=get('policy')
         assert all(any(m['kind']==kind and m['available'] and m['metadata']['policySha256']==swizzle_report['policySha256'] for m in model['models']) for kind in ['swizzle_prepare','swizzle'])
@@ -277,6 +296,7 @@ try:
         with urllib.request.urlopen(request,timeout=5) as response:assert json.load(response)['debug']==gamepad_mode
     assert {svc:subprocess.run(['systemctl','is-enabled',svc],capture_output=True,text=True).stdout.strip() for svc in ['tofd','rsyslog']}==service_states
     result={'installed':True,'release':str(new),'previousRelease':str(old),'calibrationModelsGainsIdentityUnchanged':not legacy_installation,'legacyImuInstallationMigrated':legacy_installation,'assetsHttpVerified':True,'readonlySnapshots':20,'hardwareMotion':False,'audioPermissionsConfigured':True,'inputPermissionsConfigured':True,'serviceEnableStatesPreserved':service_states,'binarySha256':sha(new/'bin/microduck-observer')}
+    if crouch_reports:result.update(rollerCrouchModelSha256=crouch_reports[0]['policySha256'],rollerCrouchArmFixtures=crouch_reports,rollerCrouchAvailable=True,existingModelsUnchanged=True,physicalAccepted=False)
     if swizzle_report:result.update(swizzleModelSha256=swizzle_report['policySha256'],swizzleArmFixture=swizzle_report,swizzleAvailable=True,existingModelsUnchanged=True,physicalAccepted=False)
     if walk_update:result.update(walkScaleUpdate=walk_update,calibrationModelsGainsIdentityUnchanged=False,calibrationWeightsGainsIdentityUnchanged=True)
     if flamingo_reports:result.update(flamingoModelSha256=sha(new/'models/flamingo.onnx'),flamingoArmFixtures=flamingo_reports,flamingoAvailable=True)
