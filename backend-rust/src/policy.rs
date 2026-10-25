@@ -559,7 +559,7 @@ const FALL_TILT_DEG: f64 = 60.;
 const FALL_IMMEDIATE_DEG: f64 = 90.;
 const FALL_CONFIRM: Duration = Duration::from_millis(150);
 fn walking_policy(kind: &str) -> bool { kind=="xgoduck" || kind==crate::swizzle::ACTIVE || kind.starts_with("flamingo_") }
-fn body_gravity(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<Vector3<f64>> {
+fn body_rotation(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<nalgebra::Matrix3<f64>> {
     let imu=&cal["imu"];
     if imu["initialized"]!=true || imu["mountingQuaternion"].is_null() {
         bail!("请先完成 IMU 位置和安装方向标定");
@@ -569,9 +569,10 @@ fn body_gravity(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<Vector
     let target = orientation::rotation(imu.get("targetQuaternion").unwrap_or(&identity))?;
     let relative = orientation::rotation(&imu["quaternion"])?.transpose()
         * orientation::rotation(&sensors["imu.orientation"]["data"]["quaternion"])?;
-    let body = target * mounting.transpose() * relative * mounting;
-    let gravity = body.transpose() * Vector3::new(0., 0., -1.);
-    Ok(gravity)
+    Ok(target * mounting.transpose() * relative * mounting)
+}
+fn body_gravity(sensors:&BTreeMap<&'static str,Value>,cal:&Value)->Result<Vector3<f64>> {
+    Ok(body_rotation(sensors,cal)?.transpose() * Vector3::new(0.,0.,-1.))
 }
 fn home_posture_allowed(angle:f64) -> Result<()> {
     if !angle.is_finite() || angle>=FALL_TILT_DEG {
@@ -820,6 +821,7 @@ struct Model {
     upright: f64,
     session: std::sync::Arc<std::sync::Mutex<Session>>,
     command_twist: [f32;3],
+    body_yaw: f64,
     skill_profile: SkillProfile,
     encoder_contract: Option<Value>,
     walk_profile: Option<crate::walk_profile::WalkProfile>,
@@ -1031,6 +1033,7 @@ impl Model {
             kind: kind.to_owned(),
             progress: 0., upright: 0.,
             session: std::sync::Arc::new(std::sync::Mutex::new(session)),
+            body_yaw: 0.,
             command_twist: if SkillProfile::from_metadata(&meta).rear_hook {[if kind=="flamingo_hold" {1.} else {0.},0.,0.035]} else if (SkillProfile::from_metadata(&meta).donor_pick || SkillProfile::from_metadata(&meta).flamingo) {SkillProfile::from_metadata(&meta).twist(kind,0.)} else if kind=="sitstand_sit" {[1.,0.,0.]} else {[speed,0.,0.]},
             skill_profile: SkillProfile::from_metadata(&meta),
             encoder_contract: (matches!(meta["runtimeKind"].as_str(),Some("hd1910_rear_hook_native"|"hd1910_rear_hook_native_gated"|"hd1910_rear_hook_v62b"))).then(||meta["encoderContract"].clone()),
@@ -1057,7 +1060,9 @@ impl Model {
             bail!("请先完成 IMU 位置和安装方向标定")
         }
         let mounting = orientation::rotation(&imu["mountingQuaternion"])?;
-        let gravity = body_gravity(&sensors,cal)?;
+        let body = body_rotation(&sensors,cal)?;
+        self.body_yaw=body[(1,0)].atan2(body[(0,0)]);
+        let gravity = body.transpose() * Vector3::new(0.,0.,-1.);
         let gyro = mounting.transpose()
             * Vector3::from(orientation::vector::<3>(
                 &sensors["imu.raw"]["data"]["gyro"],
@@ -1303,6 +1308,8 @@ fn native_policy_loop(
     let return_home=model.skill_profile.donor_getup;
     let rear_geometry=crate::rear_hook::Geometry::default();
     let mut walk_twist=[0.;3];
+    let mut roller_heading=crate::swizzle::Heading::default();
+    let mut roller_at:Option<Instant>=None;
     let mut recovery_resume="xgoduck";
     let mut recovery_resume_progress=0.;
     let mut recovery_posture=NativeRecoveryPosture::default();
@@ -1361,6 +1368,7 @@ fn native_policy_loop(
         control::publish(shared,&fresh,&IDS,bus.diagnostics.clone());
         let publish_done=Instant::now();
         let Some(mut obs)=observed else {
+            roller_heading=crate::swizzle::Heading::default();roller_at=None;
             write_shared().autonomy.invalid_feedback();
             roll_exit.reset();
             roll_getup=crate::roll_exit::RollToGetup::default();
@@ -1492,6 +1500,8 @@ fn native_policy_loop(
                 else {selected.rear_clock=crate::rear_hook::Clock::with_profile(selected.skill_profile.transfer_settle,selected.skill_profile.pose_entry);selected.rear_clock.trigger();if next=="flamingo_lower" {selected.rear_clock.cancel();}}
             }
             roll_head_bridge=if roll_handoff || (roll_head_bridge.is_some() && next=="xgoduck") {Some([5,6,7].map(|i|model.sent[i].to_radians() as f32))}else{None};
+            selected.body_yaw=model.body_yaw;
+            roller_heading=crate::swizzle::Heading::default();roller_at=None;
             selected.previous=model.previous.take();selected.velocity=model.velocity;
             selected.filtered_gyro=model.filtered_gyro;
             selected.last_action=if retain {model.last_action}else{[0.;14]};
@@ -1523,7 +1533,12 @@ fn native_policy_loop(
             for n in 0..14 {obs[6+n]+=old_home[n]-model.home[n];obs[34+n]=model.last_action[n];}
         }
         model.command_twist=if model.kind==crate::swizzle::ACTIVE {
-            read_shared().drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])
+            let now=Instant::now();
+            let dt=roller_at.replace(now).map_or(0.,|at|now.duration_since(at).as_secs_f64());
+            let state=read_shared();
+            let fresh=state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
+            let input=state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3]);
+            roller_heading.step(model.body_yaw,input,fresh,dt)?
         } else if model.kind=="xgoduck" {
             let state=read_shared();
             let fresh=state.demo.active || state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
@@ -1626,6 +1641,9 @@ fn native_policy_loop(
         if model.skill_profile.rear_hook {v["commandTargetHz"]=json!(50);v["modelSource"]=json!(format!("microduck-rl/rear-hook/{}",model.sha));}
         if let Some((_,_,clearance,rear,_))=rear_pose {v["rearHook"]=model.rear_clock.status();v["flamingoSupportSide"]=json!("left");v["rearHook"]["estimatedSoleClearanceM"]=json!(clearance);v["rearHook"]["estimatedRearM"]=json!(rear);}
         if model.skill_profile.flamingo {v["flamingoFlag"]=json!(model.command_twist[0]);v["flamingoSupportSide"]=json!("right");}
+        v["rollerHeadingTargetRad"]=json!(roller_heading.target);
+        v["rollerBodyYawRad"]=json!(if model.kind==crate::swizzle::ACTIVE {Some(model.body_yaw)}else{None});
+        v["rollerHeadingErrorRad"]=json!(if model.kind==crate::swizzle::ACTIVE {Some(model.command_twist[2])}else{None});
         v["rollerMode"]=json!(crate::swizzle::is_mode(&model.kind));
         v["rollerPhase"]=json!(if model.kind==crate::swizzle::PREPARE {"installation"} else if model.kind==crate::swizzle::ACTIVE {"skating"} else {"off"});
         v["message"]=json!(if model.kind==crate::swizzle::PREPARE {"轮滑安装姿势保持：扶稳装轮后，摇杆回中并按A启动平衡"} else if model.kind==crate::swizzle::ACTIVE {"轮滑平衡：左摇杆推力/航向；Back卸力"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
@@ -2293,6 +2311,21 @@ mod tests {
             assert!(!guard.check(skill,Some(180.),now+Duration::from_secs(1)));
         }
         assert!(!guard.check("xgoduck",Some(65.),now+Duration::from_secs(2)));
+    }
+    #[test]
+    fn roller_yaw_uses_calibrated_body_axes_and_reference() {
+        let mount=nalgebra::UnitQuaternion::from_euler_angles(0.4,-0.8,0.2);
+        let reference=nalgebra::UnitQuaternion::from_euler_angles(-0.2,0.3,0.7);
+        let target=nalgebra::UnitQuaternion::from_euler_angles(0.,-std::f64::consts::FRAC_PI_2,0.);
+        let q=|q:nalgebra::UnitQuaternion<f64>|json!([q.i,q.j,q.k,q.w]);
+        let cal=json!({"imu":{"initialized":true,"mountingQuaternion":q(mount),"quaternion":q(reference),"targetQuaternion":q(target)}});
+        for yaw in [-3.13,-1.,0.,1.,3.13] {
+            let body=nalgebra::UnitQuaternion::from_euler_angles(0.1,-0.1,yaw);
+            let sensor=reference*mount*target.inverse()*body*mount.inverse();
+            let sensors=BTreeMap::from([("imu.orientation",json!({"data":{"quaternion":q(sensor)}}))]);
+            let rotation=body_rotation(&sensors,&cal).unwrap();
+            assert!((rotation[(1,0)].atan2(rotation[(0,0)])-yaw).abs()<1e-8);
+        }
     }
     #[test]
     fn fall_angle_uses_shared_reference_and_ignores_horizontal_yaw() {

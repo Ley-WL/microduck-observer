@@ -11,8 +11,8 @@
 | 安装姿势 | 维持模型 HOME 固定目标，运行传感器/故障监视，不用 actor 输出驱动关节；玩家扶稳机器人安装四个被动轮 |
 | 松开组合键，双摇杆回中后按 A | 从安装姿势进入零输入轮滑平衡；没有自动计时启动，也不经过坐站/步行模型 |
 | 左摇杆上下 | 有符号推力，最大 ±0.4；小输入可能不足以起滑 |
-| 左摇杆左右 | 航向误差，最大 ±0.25 rad；不是目标角速度 |
-| 松开摇杆 / 输入过期 250ms | 推力和航向输入归零，继续模型平衡；被动轮可能继续惯性滑行，不保证主动刹停 |
+| 左摇杆左右 | 转向意图±0.25；运行端按最大0.5rad/s更新目标航向，再计算夹紧±0.25rad的模型航向误差 |
+| 松开摇杆 / 输入过期 250ms | 推力和转向意图归零，保留航向纠偏并继续模型平衡；转向回中/输入过期时锁定当前航向，被动轮可能继续惯性滑行，不保证主动刹停 |
 | 再按 A | 归零输入，保持轮滑模式 |
 | B | 停止模型并保持最后目标；再次使用前先 Back 卸力并重新进入预备 |
 | Start 长按 | 保留原卸力后关机流程 |
@@ -26,7 +26,7 @@
 - 权重：[swizzle_hd1910.onnx](../models/swizzle_hd1910.onnx)，[metadata](../models/swizzle_hd1910.metadata.json)。来源 `microduck-rl/models/candidates/swizzle_hd1910_30000/policy.onnx`，检查点 `model_30000.pt`，实际更新 30001 次。
 - SHA256：`539e6b2e7e4c7603ddd35ef27bc06742b292f9f3eede567f82111c0975375160`。
 - 基于 HD1910 BAM、Observer 关节限位及四被动轮重新训练；任务 `Mjlab-Velocity-Swizzle-MicroDuck`。训练源码入口为 RL 仓库的 `src/mjlab_microduck/tasks/swizzle_observer_hd1910.py` 与 `scripts/server/train_swizzle_hd1910.py`。
-- 61→14，归一化内嵌一次，50Hz native 同步循环；HOME＋raw action，scale=1，无动作 EMA、无电压倍率；raw previous_action、关节速度一帧延迟、机械目标边界沿用对应训练合同。头/身体命令填零，第三个 twist 分量直接作为航向误差。
+- 61→14，归一化内嵌一次，50Hz native 同步循环；HOME＋raw action，scale=1，无动作 EMA、无电压倍率；raw previous_action、关节速度一帧延迟、机械目标边界沿用对应训练合同。头/身体命令填零，第三个外部 twist 分量为转向意图，经IMU航向闭环转换成模型航向误差。
 - 独立 `swizzle` 槽位包含 `swizzle_prepare` 与 `swizzle` 两种执行状态。旧注册表仅增补缺失槽位，保留已有选择、回退、版本号及设备配置；启动只预加载轮滑的两个状态，不加载普通动作。
 - 启动预备先检查软件卸力状态，再由唯一 UART owner 核查 15 个舵机实时 torque=0。模型哈希/加载/预热在使能前完成。A 切换复用控制会话、传感器与目标，不重新使能或重复 HOME。
 - 实机持久增益仍使用统一设置，不改 EEPROM/零点/方向/IMU 标定。原故障、电压、IMU/关节过期保护保持；轮滑推理适用原行走跌倒卸力保护，安装姿势不当作自行平衡。
