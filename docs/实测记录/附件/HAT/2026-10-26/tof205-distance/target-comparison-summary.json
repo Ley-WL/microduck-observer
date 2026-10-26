@@ -1,0 +1,407 @@
+[
+  {
+    "sec": 0,
+    "frames": 13,
+    "validZonesMean": 1.8,
+    "nearZonesMean": 8,
+    "median": 294.5,
+    "min": 107,
+    "max": 438
+  },
+  {
+    "sec": 2,
+    "frames": 12,
+    "validZonesMean": 1.4,
+    "nearZonesMean": 8,
+    "median": 296,
+    "min": 109,
+    "max": 458
+  },
+  {
+    "sec": 4,
+    "frames": 14,
+    "validZonesMean": 2.2,
+    "nearZonesMean": 8,
+    "median": 122,
+    "min": 105,
+    "max": 441
+  },
+  {
+    "sec": 6,
+    "frames": 12,
+    "validZonesMean": 1.9,
+    "nearZonesMean": 8,
+    "median": 285,
+    "min": 107,
+    "max": 441
+  },
+  {
+    "sec": 8,
+    "frames": 11,
+    "validZonesMean": 2.4,
+    "nearZonesMean": 8,
+    "median": 287.0,
+    "min": 108,
+    "max": 430
+  },
+  {
+    "sec": 10,
+    "frames": 4,
+    "validZonesMean": 1.5,
+    "nearZonesMean": 8,
+    "median": 285.0,
+    "min": 112,
+    "max": 357
+  },
+  {
+    "sec": 12,
+    "frames": 4,
+    "validZonesMean": 1.8,
+    "nearZonesMean": 8,
+    "median": 283,
+    "min": 107,
+    "max": 399
+  },
+  {
+    "sec": 14,
+    "frames": 9,
+    "validZonesMean": 1.7,
+    "nearZonesMean": 8,
+    "median": 289,
+    "min": 105,
+    "max": 429
+  },
+  {
+    "sec": 16,
+    "frames": 7,
+    "validZonesMean": 1.1,
+    "nearZonesMean": 8,
+    "median": 291.0,
+    "min": 109,
+    "max": 390
+  },
+  {
+    "sec": 18,
+    "frames": 7,
+    "validZonesMean": 1.9,
+    "nearZonesMean": 8,
+    "median": 268,
+    "min": 107,
+    "max": 437
+  },
+  {
+    "sec": 20,
+    "frames": 3,
+    "validZonesMean": 1,
+    "nearZonesMean": 8,
+    "median": 295,
+    "min": 293,
+    "max": 394
+  },
+  {
+    "sec": 22,
+    "frames": 5,
+    "validZonesMean": 1.4,
+    "nearZonesMean": 8,
+    "median": 292,
+    "min": 107,
+    "max": 449
+  },
+  {
+    "sec": 24,
+    "frames": 8,
+    "validZonesMean": 1.6,
+    "nearZonesMean": 8,
+    "median": 282,
+    "min": 106,
+    "max": 400
+  },
+  {
+    "sec": 26,
+    "frames": 8,
+    "validZonesMean": 1.6,
+    "nearZonesMean": 8,
+    "median": 338,
+    "min": 106,
+    "max": 384
+  },
+  {
+    "sec": 28,
+    "frames": 6,
+    "validZonesMean": 1.3,
+    "nearZonesMean": 8,
+    "median": 289.5,
+    "min": 110,
+    "max": 382
+  },
+  {
+    "sec": 30,
+    "frames": 7,
+    "validZonesMean": 1.7,
+    "nearZonesMean": 8,
+    "median": 296.5,
+    "min": 107,
+    "max": 427
+  },
+  {
+    "sec": 32,
+    "frames": 9,
+    "validZonesMean": 1.9,
+    "nearZonesMean": 8,
+    "median": 290,
+    "min": 107,
+    "max": 387
+  },
+  {
+    "sec": 34,
+    "frames": 7,
+    "validZonesMean": 1.9,
+    "nearZonesMean": 8,
+    "median": 380,
+    "min": 107,
+    "max": 431
+  },
+  {
+    "sec": 36,
+    "frames": 8,
+    "validZonesMean": 2,
+    "nearZonesMean": 8,
+    "median": 318.5,
+    "min": 107,
+    "max": 432
+  },
+  {
+    "sec": 38,
+    "frames": 8,
+    "validZonesMean": 1.4,
+    "nearZonesMean": 8,
+    "median": 288,
+    "min": 110,
+    "max": 384
+  },
+  {
+    "sec": 40,
+    "frames": 6,
+    "validZonesMean": 2.3,
+    "nearZonesMean": 8,
+    "median": 332.0,
+    "min": 109,
+    "max": 434
+  },
+  {
+    "sec": 42,
+    "frames": 8,
+    "validZonesMean": 1.1,
+    "nearZonesMean": 8,
+    "median": 291,
+    "min": 106,
+    "max": 388
+  },
+  {
+    "sec": 44,
+    "frames": 8,
+    "validZonesMean": 1.4,
+    "nearZonesMean": 8,
+    "median": 286,
+    "min": 107,
+    "max": 428
+  },
+  {
+    "sec": 46,
+    "frames": 5,
+    "validZonesMean": 2,
+    "nearZonesMean": 8,
+    "median": 356.5,
+    "min": 106,
+    "max": 425
+  },
+  {
+    "sec": 48,
+    "frames": 7,
+    "validZonesMean": 2,
+    "nearZonesMean": 8,
+    "median": 118.0,
+    "min": 107,
+    "max": 395
+  },
+  {
+    "sec": 50,
+    "frames": 4,
+    "validZonesMean": 1.8,
+    "nearZonesMean": 8,
+    "median": 289,
+    "min": 110,
+    "max": 406
+  },
+  {
+    "sec": 52,
+    "frames": 11,
+    "validZonesMean": 6,
+    "nearZonesMean": 8,
+    "median": 521.5,
+    "min": 110,
+    "max": 577
+  },
+  {
+    "sec": 54,
+    "frames": 9,
+    "validZonesMean": 21.8,
+    "nearZonesMean": 8,
+    "median": 603.0,
+    "min": 106,
+    "max": 654
+  },
+  {
+    "sec": 56,
+    "frames": 9,
+    "validZonesMean": 25.6,
+    "nearZonesMean": 8,
+    "median": 587.0,
+    "min": 111,
+    "max": 627
+  },
+  {
+    "sec": 58,
+    "frames": 11,
+    "validZonesMean": 22.4,
+    "nearZonesMean": 8,
+    "median": 605.0,
+    "min": 107,
+    "max": 631
+  },
+  {
+    "sec": 60,
+    "frames": 10,
+    "validZonesMean": 22.8,
+    "nearZonesMean": 8,
+    "median": 601.0,
+    "min": 112,
+    "max": 649
+  },
+  {
+    "sec": 62,
+    "frames": 9,
+    "validZonesMean": 9.3,
+    "nearZonesMean": 8,
+    "median": 625.5,
+    "min": 110,
+    "max": 956
+  },
+  {
+    "sec": 64,
+    "frames": 10,
+    "validZonesMean": 1.5,
+    "nearZonesMean": 8,
+    "median": 367,
+    "min": 107,
+    "max": 1166
+  },
+  {
+    "sec": 66,
+    "frames": 6,
+    "validZonesMean": 3.3,
+    "nearZonesMean": 8,
+    "median": 678.0,
+    "min": 113,
+    "max": 1002
+  },
+  {
+    "sec": 68,
+    "frames": 6,
+    "validZonesMean": 5.3,
+    "nearZonesMean": 8,
+    "median": 974.0,
+    "min": 108,
+    "max": 1047
+  },
+  {
+    "sec": 70,
+    "frames": 4,
+    "validZonesMean": 7,
+    "nearZonesMean": 8,
+    "median": 962.0,
+    "min": 289,
+    "max": 995
+  },
+  {
+    "sec": 72,
+    "frames": 6,
+    "validZonesMean": 7,
+    "nearZonesMean": 8,
+    "median": 950.5,
+    "min": 108,
+    "max": 985
+  },
+  {
+    "sec": 74,
+    "frames": 11,
+    "validZonesMean": 2,
+    "nearZonesMean": 8,
+    "median": 289.0,
+    "min": 107,
+    "max": 952
+  },
+  {
+    "sec": 76,
+    "frames": 8,
+    "validZonesMean": 1.5,
+    "nearZonesMean": 8,
+    "median": 324.5,
+    "min": 109,
+    "max": 413
+  },
+  {
+    "sec": 78,
+    "frames": 9,
+    "validZonesMean": 2,
+    "nearZonesMean": 8,
+    "median": 325.5,
+    "min": 106,
+    "max": 494
+  },
+  {
+    "sec": 80,
+    "frames": 12,
+    "validZonesMean": 1.1,
+    "nearZonesMean": 8,
+    "median": 297,
+    "min": 97,
+    "max": 440
+  },
+  {
+    "sec": 82,
+    "frames": 8,
+    "validZonesMean": 1.8,
+    "nearZonesMean": 8,
+    "median": 203.0,
+    "min": 106,
+    "max": 375
+  },
+  {
+    "sec": 84,
+    "frames": 10,
+    "validZonesMean": 1.9,
+    "nearZonesMean": 8,
+    "median": 285,
+    "min": 105,
+    "max": 440
+  },
+  {
+    "sec": 86,
+    "frames": 5,
+    "validZonesMean": 2.6,
+    "nearZonesMean": 8,
+    "median": 115,
+    "min": 106,
+    "max": 425
+  },
+  {
+    "sec": 88,
+    "frames": 10,
+    "validZonesMean": 1.7,
+    "nearZonesMean": 8,
+    "median": 373,
+    "min": 107,
+    "max": 452
+  }
+]

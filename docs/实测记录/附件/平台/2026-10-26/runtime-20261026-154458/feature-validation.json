@@ -1,0 +1,32 @@
+{
+  "rustTests": {
+    "passed": 351,
+    "ignored": 1
+  },
+  "armBuild": true,
+  "hardwareMotion": false,
+  "physicalAccepted": false,
+  "sounds": {
+    "depart": "greet",
+    "obstacle": "inquire",
+    "clear": "wheee",
+    "blocked": "alarm",
+    "ambient": [
+      "coo",
+      "chirp",
+      "peck"
+    ]
+  },
+  "ambientIntervalSeconds": [
+    15,
+    30
+  ],
+  "automaticReverse": false,
+  "files": {
+    "backend-rust\\src\\exploration.rs": "58c8ffe59786532eaeb61079a7aa7221dcaac4a452ba764e7fd8417dcc181cca",
+    "backend-rust\\src\\quack.rs": "18d20d5d3f7c965da4d67febd0ad7b82f77fbba9b295ef9ea3ad27ab80f27396",
+    "backend-rust\\src\\policy.rs": "1e5077ef213d97b69a5533c41181e36af11f2c5373e3208c0dd89e627e9ff4a1",
+    "backend-rust\\src\\telemetry.rs": "ea22bb71ae711ec99eb7d3baf5478546b8386a844194ffb42c85bf16e81f4009",
+    "backend-rust\\target\\aarch64-unknown-linux-gnu\\release\\microduck-observer": "956b5d010e2fa59a62fc57706560faa76f778e63a98f957176b58d9a44b514f6"
+  }
+}

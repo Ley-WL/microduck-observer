@@ -1,0 +1,17 @@
+{
+  "userReport": "Front is completely unobstructed",
+  "samples": 30,
+  "fixedNearZones": [
+    16,
+    24,
+    25,
+    32,
+    33,
+    34,
+    40,
+    41
+  ],
+  "softwareChanged": false,
+  "hardwareMotion": false,
+  "conclusion": "Repeated fixed near returns and mostly invalid remaining zones; cannot establish physical obstacle; known-distance target comparison required."
+}

@@ -1,0 +1,1151 @@
+{
+  "64": [
+    {
+      "zone": 0,
+      "distanceMedian": 1,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 12871,
+      "ambientMedian": 80,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 1,
+      "distanceMedian": 3,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 5368,
+      "ambientMedian": 24,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 2,
+      "distanceMedian": 5,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 3856,
+      "ambientMedian": 16,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 3,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2928,
+      "ambientMedian": 18,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 4,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2463,
+      "ambientMedian": 52,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 5,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2004,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 6,
+      "distanceMedian": 5,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1586,
+      "ambientMedian": 37,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 7,
+      "distanceMedian": 5,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2306,
+      "ambientMedian": 25,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 8,
+      "distanceMedian": 2,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 11671,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 9,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 5569,
+      "ambientMedian": 40,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 10,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 4391,
+      "ambientMedian": 29,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 11,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 3110,
+      "ambientMedian": 30,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 12,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2655,
+      "ambientMedian": 14,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 13,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1899,
+      "ambientMedian": 25,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 14,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1410,
+      "ambientMedian": 40,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 15,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1583,
+      "ambientMedian": 44,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 16,
+      "distanceMedian": 0,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 22486,
+      "ambientMedian": 14,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 17,
+      "distanceMedian": 3,
+      "status": {
+        "255": 44,
+        "4": 1
+      },
+      "targets": {
+        "0": 44,
+        "1": 1
+      },
+      "signalMedian": 9439,
+      "ambientMedian": 14,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 18,
+      "distanceMedian": 5,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 5690,
+      "ambientMedian": 34,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 19,
+      "distanceMedian": 4,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 3271,
+      "ambientMedian": 30,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 20,
+      "distanceMedian": 5,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2560,
+      "ambientMedian": 35,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 21,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2067,
+      "ambientMedian": 39,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 22,
+      "distanceMedian": 7,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1646,
+      "ambientMedian": 49,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 23,
+      "distanceMedian": 7,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1664,
+      "ambientMedian": 21,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 24,
+      "distanceMedian": 2,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 67184,
+      "ambientMedian": 13,
+      "sigmaMedian": 0,
+      "nearFrames": 44
+    },
+    {
+      "zone": 25,
+      "distanceMedian": 7,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 24307,
+      "ambientMedian": 14,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 26,
+      "distanceMedian": 4,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 8329,
+      "ambientMedian": 14,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 27,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 3447,
+      "ambientMedian": 49,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 28,
+      "distanceMedian": 5,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2572,
+      "ambientMedian": 20,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 29,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2298,
+      "ambientMedian": 14,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 30,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1954,
+      "ambientMedian": 24,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 31,
+      "distanceMedian": 7,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1835,
+      "ambientMedian": 50,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 32,
+      "distanceMedian": 0,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 87241,
+      "ambientMedian": 15,
+      "sigmaMedian": 0,
+      "nearFrames": 44
+    },
+    {
+      "zone": 33,
+      "distanceMedian": 3,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 28599,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 34,
+      "distanceMedian": 6,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 19661,
+      "ambientMedian": 12,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 35,
+      "distanceMedian": 7,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 4282,
+      "ambientMedian": 50,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 36,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2703,
+      "ambientMedian": 26,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 37,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2531,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 38,
+      "distanceMedian": 7,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2299,
+      "ambientMedian": 33,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 39,
+      "distanceMedian": 7,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1974,
+      "ambientMedian": 39,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 40,
+      "distanceMedian": 0,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 26449,
+      "ambientMedian": 251,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 41,
+      "distanceMedian": 5,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 23168,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 42,
+      "distanceMedian": 4,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 11548,
+      "ambientMedian": 56,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 43,
+      "distanceMedian": 6,
+      "status": {
+        "13": 1,
+        "255": 44
+      },
+      "targets": {
+        "1": 1,
+        "0": 44
+      },
+      "signalMedian": 4219,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 44,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2985,
+      "ambientMedian": 38,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 45,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2652,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 46,
+      "distanceMedian": 7,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2177,
+      "ambientMedian": 45,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 47,
+      "distanceMedian": 9,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2082,
+      "ambientMedian": 17,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 48,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 11184,
+      "ambientMedian": 18,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 49,
+      "distanceMedian": 8,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 7639,
+      "ambientMedian": 12,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 50,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 5987,
+      "ambientMedian": 11,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 51,
+      "distanceMedian": 5,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 4283,
+      "ambientMedian": 11,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 52,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 3396,
+      "ambientMedian": 24,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 53,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2770,
+      "ambientMedian": 11,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 54,
+      "distanceMedian": 9,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2279,
+      "ambientMedian": 21,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 55,
+      "distanceMedian": 8,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2248,
+      "ambientMedian": 44,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 56,
+      "distanceMedian": 3,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 10233,
+      "ambientMedian": 10,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 57,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 6493,
+      "ambientMedian": 12,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 58,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 4945,
+      "ambientMedian": 37,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 59,
+      "distanceMedian": 6,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 4223,
+      "ambientMedian": 21,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 60,
+      "distanceMedian": 6,
+      "status": {
+        "255": 44,
+        "4": 1
+      },
+      "targets": {
+        "0": 44,
+        "1": 1
+      },
+      "signalMedian": 3277,
+      "ambientMedian": 15,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 61,
+      "distanceMedian": 8,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2480,
+      "ambientMedian": 11,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 62,
+      "distanceMedian": 8,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2592,
+      "ambientMedian": 48,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 63,
+      "distanceMedian": 8,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 3059,
+      "ambientMedian": 16,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    }
+  ],
+  "16": [
+    {
+      "zone": 0,
+      "distanceMedian": 0,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 8302,
+      "ambientMedian": 10,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 1,
+      "distanceMedian": 0,
+      "status": {
+        "255": 44,
+        "4": 1
+      },
+      "targets": {
+        "0": 44,
+        "1": 1
+      },
+      "signalMedian": 3249,
+      "ambientMedian": 10,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 2,
+      "distanceMedian": 0,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2078,
+      "ambientMedian": 7,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 3,
+      "distanceMedian": 0,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1488,
+      "ambientMedian": 26,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 4,
+      "distanceMedian": 0,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 26365,
+      "ambientMedian": 9,
+      "sigmaMedian": 0,
+      "nearFrames": 44
+    },
+    {
+      "zone": 5,
+      "distanceMedian": 0,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 4938,
+      "ambientMedian": 10,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 6,
+      "distanceMedian": 0,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2173,
+      "ambientMedian": 13,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 7,
+      "distanceMedian": 1,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1619,
+      "ambientMedian": 10,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 8,
+      "distanceMedian": 0,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 35746,
+      "ambientMedian": 55,
+      "sigmaMedian": 0,
+      "nearFrames": 44
+    },
+    {
+      "zone": 9,
+      "distanceMedian": 0,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 8978,
+      "ambientMedian": 11,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 10,
+      "distanceMedian": 0,
+      "status": {
+        "255": 43,
+        "4": 2
+      },
+      "targets": {
+        "0": 43,
+        "1": 2
+      },
+      "signalMedian": 2459,
+      "ambientMedian": 7,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 11,
+      "distanceMedian": 1,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 1941,
+      "ambientMedian": 25,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 12,
+      "distanceMedian": 1,
+      "status": {
+        "6": 1,
+        "5": 44
+      },
+      "targets": {
+        "1": 45
+      },
+      "signalMedian": 7852,
+      "ambientMedian": 7,
+      "sigmaMedian": 1,
+      "nearFrames": 44
+    },
+    {
+      "zone": 13,
+      "distanceMedian": 0,
+      "status": {
+        "255": 44,
+        "4": 1
+      },
+      "targets": {
+        "0": 44,
+        "1": 1
+      },
+      "signalMedian": 4678,
+      "ambientMedian": 7,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 14,
+      "distanceMedian": 1,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2708,
+      "ambientMedian": 11,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    },
+    {
+      "zone": 15,
+      "distanceMedian": 1,
+      "status": {
+        "255": 45
+      },
+      "targets": {
+        "0": 45
+      },
+      "signalMedian": 2294,
+      "ambientMedian": 43,
+      "sigmaMedian": 1,
+      "nearFrames": 0
+    }
+  ]
+}

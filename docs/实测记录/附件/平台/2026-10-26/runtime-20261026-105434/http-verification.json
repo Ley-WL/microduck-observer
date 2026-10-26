@@ -1,0 +1,19 @@
+{
+  "rollerModels": [
+    {
+      "kind": "swizzle_prepare",
+      "available": true
+    },
+    {
+      "kind": "swizzle",
+      "available": true
+    },
+    {
+      "kind": "swizzle_crouch",
+      "available": true
+    }
+  ],
+  "state": "idle",
+  "online": 15,
+  "enabled": 0
+}

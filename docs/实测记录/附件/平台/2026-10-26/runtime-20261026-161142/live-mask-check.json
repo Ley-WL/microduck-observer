@@ -1,0 +1,17 @@
+{
+  "mask": [
+    16,
+    24,
+    25,
+    32,
+    33,
+    34,
+    40,
+    41
+  ],
+  "requiredZones": 56,
+  "assetsVerified": 7,
+  "remainingValidZones": 0,
+  "allReleased": true,
+  "autonomyEnabled": false
+}

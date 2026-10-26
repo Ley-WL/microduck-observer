@@ -1,0 +1,17 @@
+{
+  "rust": {
+    "passed": 337,
+    "failed": 0,
+    "ignored": 1
+  },
+  "frontend": {
+    "passed": 93,
+    "failed": 0,
+    "build": "passed"
+  },
+  "armBuild": "passed",
+  "armBinarySha256": "7c181df070a63cd826bf21faea05cf0ce2b16d94929f369f819ef164d74bf724",
+  "hardwareCommandsSent": false,
+  "deployed": false,
+  "calibration": "pending; user requested offline only"
+}

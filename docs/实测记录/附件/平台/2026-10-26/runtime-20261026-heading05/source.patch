@@ -1,0 +1,510 @@
+diff --git a/backend-rust/src/control.rs b/backend-rust/src/control.rs
+index 7b79194..b09587c 100644
+--- a/backend-rust/src/control.rs
++++ b/backend-rust/src/control.rs
+@@ -423,6 +423,13 @@ pub fn execute<T: Transport>(
+     let ramp_seconds=if native_pose {2.} else {1.5};
+     let budget = if pose && !native_pose { 3. } else { 5. };
+     let guard = || -> Result<()> {
++        // A model stop clears drive even when it requests hold rather than
++        // global disable. Do not finish a roller resume HOME after it.
++        if let Some(session)=command["rollerResumeSession"].as_str() {
++            if !shared.read().unwrap().drive.as_ref().is_some_and(|d|d.session==session) {
++                bail!("轮滑恢复会话已结束，取消回站并卸力");
++            }
++        }
+         if cancel.load(Ordering::Acquire) {
+             bail!("已取消动作，执行全部失能")
+         };
+@@ -1280,6 +1287,19 @@ mod tests {
+         assert_eq!(bus.writes[0].1.len(), 15);
+     }
+     #[test]
++    fn roller_resume_home_requires_the_original_live_session_before_any_write() {
++        for other in [None,Some("replacement")] {
++            let mut bus=Mock::new();let state=shared();
++            state.write().unwrap().drive=other.map(|session|crate::telemetry::DriveCommand {
++                session:session.into(),sequence:0,twist:[0.;3],updated:Instant::now(),
++            });
++            let mut c=command();c["rollerResumeSession"]=json!("original");
++            let error=execute(&mut bus,&c,&AtomicBool::new(false),&state).unwrap_err();
++            assert!(error.to_string().contains("轮滑恢复会话已结束"));
++            assert!(bus.writes.is_empty());
++        }
++    }
++    #[test]
+     fn cancelled_preflight_never_writes() {
+         let mut bus = Mock::new();
+         assert!(execute(&mut bus, &command(), &AtomicBool::new(true), &shared()).is_err());
+diff --git a/backend-rust/src/ducklink_motion.rs b/backend-rust/src/ducklink_motion.rs
+index 4a29d92..9e401e4 100644
+--- a/backend-rust/src/ducklink_motion.rs
++++ b/backend-rust/src/ducklink_motion.rs
+@@ -459,7 +459,7 @@ impl Motion {
+             },
+             "stand"|"standup" if crate::swizzle::control_mode(&self.control())=>{
+                 self.zero();
+-                if matches!(self.control()["activeSkill"].as_str(),Some(crate::swizzle::ACTIVE|crate::swizzle::CROUCH)) {self.error.clear();}
++                if self.control()["policyPhase"]!="roller-fallen-wait" && (self.control()["activeSkill"]==crate::swizzle::ACTIVE || self.control()["rollerCrouchReturning"]==true) {self.error.clear();}
+                 else if let Some(session)=&self.drive {
+                     self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"swizzle"}))).await?;self.pending=true;
+                 }
+@@ -1030,7 +1030,20 @@ pub(crate) mod tests {
+ 
+ #[cfg(test)] mod roller_tests {
+     use super::*;
+-    #[tokio::test] async fn roller_x_queues_one_cycle_and_a_does_not_interrupt_or_retrigger() {
++    #[tokio::test] async fn fallen_roller_a_sends_resume_instead_of_being_swallowed() {
++        for active in [crate::swizzle::ACTIVE,crate::swizzle::CROUCH] {
++            let (mut m,calls,_tmp)=super::tests::fixture();m.open().unwrap();
++            m.drive=Some("ble-session".into());m.phase="active".into();
++            {let mut s=m.app.telemetry.write().unwrap();
++                s.drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
++                s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":active,"driveSession":"ble-session","policyPhase":"roller-fallen-wait","rollerResumeReady":true,"feedbackHolding":true});}
++            m.command(json!({"seq":1,"action":"stand"})).await.unwrap();
++            assert!(m.error.is_empty());
++            let calls=calls.lock().unwrap();let (_,body)=calls.last().unwrap();
++            assert_eq!(body["skill"],"swizzle");assert_eq!(body["session"],"ble-session");
++        }
++    }
++    #[tokio::test] async fn roller_x_crouches_and_a_requests_rise_without_retriggering_x() {
+         let (mut m,calls,_tmp)=super::tests::fixture();m.open().unwrap();
+         m.drive=Some("ble-session".into());m.phase="active".into();
+         {let mut s=m.app.telemetry.write().unwrap();
+@@ -1042,7 +1055,11 @@ pub(crate) mod tests {
+         let count=calls.lock().unwrap().len();
+         m.command(json!({"seq":2,"action":"stand"})).await.unwrap();assert!(m.error.is_empty());
+         m.command(json!({"seq":3,"action":"roller_crouch"})).await.unwrap();assert!(!m.error.is_empty());
+-        assert_eq!(calls.lock().unwrap().len(),count);
++        assert_eq!(calls.lock().unwrap().len(),count+1);
++        assert_eq!(calls.lock().unwrap().last().unwrap().1["skill"],"swizzle");
++        m.app.telemetry.write().unwrap().control["rollerCrouchReturning"]=json!(true);
++        m.command(json!({"seq":4,"action":"stand"})).await.unwrap();
++        assert_eq!(calls.lock().unwrap().len(),count+1);
+         assert_eq!(m.control()["skillProgressSeconds"],1.2);
+     }
+     #[tokio::test] async fn roller_preparation_a_and_drive_use_the_owned_roller_session() {
+diff --git a/backend-rust/src/policy.rs b/backend-rust/src/policy.rs
+index 0ac5776..944c288 100644
+--- a/backend-rust/src/policy.rs
++++ b/backend-rust/src/policy.rs
+@@ -4,7 +4,7 @@ use crate::{
+     servos::Bus,
+     telemetry::{epoch_ms, limit, Shared, IDS},
+ };
+-use anyhow::{bail, Result};
++use anyhow::{bail, ensure, Result};
+ use nalgebra::Vector3;
+ use ort::{session::Session, value::Tensor};
+ use serde_json::{json, Value};
+@@ -1315,6 +1315,7 @@ fn native_policy_loop(
+     let mut walk_twist=[0.;3];
+     let mut roller_heading=crate::swizzle::Heading::default();
+     let mut roller_at:Option<Instant>=None;
++    let mut crouch_clock=crate::swizzle::CrouchClock::default();
+     let mut recovery_resume="xgoduck";
+     let mut recovery_resume_progress=0.;
+     let mut recovery_posture=NativeRecoveryPosture::default();
+@@ -1404,6 +1405,69 @@ fn native_policy_loop(
+         }
+         autonomy_deadline(shared)?;
+         if fall_guard.check(&model.kind,Some(tilt(&obs)),Instant::now()) || (autonomous_fall(&model.kind,tilt(&obs)) && read_shared().autonomy.enabled()) {
++            if crate::swizzle::resumes_after_fall(&model.kind) {
++                let session=read_shared().drive.as_ref().map(|d|d.session.clone());
++                pause_drive(shared);
++                write_shared().quack_cancel=true;
++                let unloaded=control::unload(bus)?;
++                ensure!(unloaded["state"]=="disabled","轮滑跌倒卸力未确认，取消恢复");
++                write_shared().native_homed=false;
++                trace.transition(json!({"type":"roller-fall-wait","mono":crate::telemetry::monotonic(),"from":model.kind}));
++                write_shared().log("WARN","policy","轮滑跌倒已卸力，扶正稳定后按A恢复；停止可取消");
++                let mut gate=crate::swizzle::ResumeGate::default();
++                loop {
++                    if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) {return control::unload(bus);}
++                    ensure!(session.is_some() && read_shared().drive.as_ref().map(|d|&d.session)==session.as_ref(),"轮滑控制会话结束，取消恢复");
++                    *feedback=bus.read_feedback(&IDS)?;
++                    for id in IDS {
++                        control::validate(id,feedback.get(&id),false)?;
++                        ensure!(feedback[&id]["torque"]==0,"轮滑等待扶正时舵机仍使能");
++                    }
++                    let upright=match model.observe(shared,feedback,cal) {
++                        Ok(sample)=>{imu_pause=ImuPause::default();gate.observe(&sample,Instant::now())},
++                        Err(e) if e.is::<StaleImu>()=>{gate=crate::swizzle::ResumeGate::default();imu_pause.assess(Err(e),Instant::now())?;false},
++                        Err(e)=>return Err(e),
++                    };
++                    control::publish(shared,feedback,&IDS,bus.diagnostics.clone());
++                    // Consume each A edge exactly once. An unstable current
++                    // sample discards it rather than arming a later restart.
++                    let requested=write_shared().pending_skill.take().as_deref()==Some(crate::swizzle::ACTIVE);
++                    let mut v=stats(model,timing,*infer_ms);
++                    v["state"]=json!("policy");v["action"]=json!("policy");v["feedbackHolding"]=json!(true);
++                    v["rollerMode"]=json!(true);v["rollerPhase"]=json!("fallen-wait");v["policyPhase"]=json!("roller-fallen-wait");
++                    v["rollerResumeReady"]=json!(upright);
++                    v["message"]=json!(if upright {"已扶正：按A恢复轮滑；停止/Back取消"} else {"轮滑跌倒已卸力：请扶正扶稳，稳定后按A恢复"});
++                    control::status(shared,v);
++                    if requested && upright {break;}
++                    clock.wait();
++                }
++                if model.kind!=crate::swizzle::ACTIVE {
++                    let selected=bank.remove(crate::swizzle::ACTIVE).ok_or_else(||anyhow::anyhow!("轮滑模型未预加载"))?;
++                    let old=std::mem::replace(model,selected);bank.insert(old.key.clone(),old);
++                }
++                if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) {return control::unload(bus);}
++                let home:BTreeMap<_,_>=ORDER.into_iter().zip(model.home.map(|v|v as f64)).collect();
++                control::execute(bus,&json!({"action":"stand","calibration":cal,"standTargets":home,
++                    "nativePolicyGains":[model.gains.p,model.gains.d],"requireUpright":true,"requireImu":true,
++                    "rollerResumeSession":session}),cancel,shared)?;
++                if cancel.load(Ordering::Acquire) || halt.load(Ordering::Acquire) {return control::unload(bus);}
++                *feedback=bus.read_feedback(&IDS)?;
++                for id in ORDER {control::validate(id,feedback.get(&id),true)?;}
++                arm_current_profile(bus,&[34],feedback,(10,20),cancel,halt,true)?;
++                model.previous=None;model.velocity=[0.;14];model.last_action=[0.;14];model.filtered_action=[0.;14];
++                model.filtered_gyro=None;model.target_initialized=false;model.progress=0.;model.upright=0.;model.command_twist=[0.;3];
++                *goals=model.targets([0.;14],feedback,cal,limits)?;
++                coast=control::FeedbackCoast::default();imu_pause=ImuPause::default();paused=None;
++                fall_guard=FallGuard::default();walk_gate.reset();recovery_posture=NativeRecoveryPosture::default();
++                roller_heading=crate::swizzle::Heading::default();roller_at=None;
++                crouch_clock=crate::swizzle::CrouchClock::default();
++                quack_cycle=None;head_offset=[0.;2];quack_head_offset=[0.;2];quack_neck_offset=[0.;2];
++                pause_drive(shared);*last_obs=None;previous.clear();
++                trace.transition(json!({"type":"roller-fall-resumed","mono":crate::telemetry::monotonic(),"to":model.kind}));
++                write_shared().log("INFO","policy","按A后已恢复零输入轮滑平衡");
++                clock=control::FrameClock::new(Instant::now());
++                continue;
++            }
+             let automatic={let mut state=write_shared();
+                 if state.autonomy.fall(Instant::now()) {
+                     state.cancel_demo("自主跌倒恢复",false);state.head_intent.clear();state.pending_quack=false;state.quack_cancel=true;
+@@ -1434,7 +1498,10 @@ fn native_policy_loop(
+             if let Some(voice)=out.voice {state.pending_quack=true;state.quack_voice=voice.into();}
+         }
+ 
+-        let requested=write_shared().pending_skill.take();
++        let mut requested=write_shared().pending_skill.take();
++        if model.kind==crate::swizzle::CROUCH && requested.as_deref()==Some(crate::swizzle::ACTIVE) {
++            crouch_clock.request_return();requested=None;
++        }
+         let finished=if (model.kind=="xgoduck_getup" && !return_home) || model.kind=="sitstand_stand" {
+             true
+         } else if model.skill_profile.rear_hook {
+@@ -1506,6 +1573,7 @@ fn native_policy_loop(
+             }
+             roll_head_bridge=if roll_handoff || (roll_head_bridge.is_some() && next=="xgoduck") {Some([5,6,7].map(|i|model.sent[i].to_radians() as f32))}else{None};
+             selected.body_yaw=model.body_yaw;
++            crouch_clock=crate::swizzle::CrouchClock::default();
+             roller_heading=crate::swizzle::Heading::default();roller_at=None;
+             selected.previous=model.previous.take();selected.velocity=model.velocity;
+             selected.filtered_gyro=model.filtered_gyro;
+@@ -1537,13 +1605,23 @@ fn native_policy_loop(
+             // change. Never advance the native one-sample delay a second time.
+             for n in 0..14 {obs[6+n]+=old_home[n]-model.home[n];obs[34+n]=model.last_action[n];}
+         }
++        let mut roller_diagnostic=Value::Null;
+         model.command_twist=if model.kind==crate::swizzle::ACTIVE {
+             let now=Instant::now();
+             let dt=roller_at.replace(now).map_or(0.,|at|now.duration_since(at).as_secs_f64());
+             let state=read_shared();
+             let fresh=state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
+             let input=state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3]);
+-            roller_heading.step(model.body_yaw,input,fresh,dt)?
++            let command=roller_heading.step(model.body_yaw,input,fresh,dt)?;
++            // Capture the exact command/IMU used by this inference, not a later
++            // shared-state snapshot. driveTwist is mapped input, not raw axes.
++            roller_diagnostic=json!({"sampleMono":crate::telemetry::monotonic(),
++                "driveTwist":state.drive.as_ref().map(|d|d.twist),"effectiveInput":input,
++                "driveSequence":state.drive.as_ref().map(|d|d.sequence),
++                "driveAgeMs":state.drive.as_ref().map(|d|d.updated.elapsed().as_secs_f64()*1000.),
++                "fresh":fresh,"dtSeconds":dt,"bodyYawRad":model.body_yaw,
++                "targetYawRad":roller_heading.target,"headingErrorRad":command[2]});
++            command
+         } else if model.kind=="xgoduck" {
+             let state=read_shared();
+             let fresh=state.demo.active || state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
+@@ -1620,13 +1698,14 @@ fn native_policy_loop(
+         let write_at=Instant::now();control::goals(bus,goals)?;timing.record(write_at);
+         let trace_at=Instant::now();
+         trace.frame(json!({"type":"inference","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha,"commandTwist":model.command_twist,
++            "rollerHeading":roller_diagnostic,
+             "observation":obs,"rawActionRadians":action,"emaPreviousRadians":model.filtered_action,"filteredActionRadians":filtered,"homeRadians":model.home,
+             "preClipTargetDegrees":model.raw,"sentTargetDegrees":model.sent,"goals":goals,"feedbackBeforeWrite":feedback,"readDiagnostics":bus.diagnostics,
+             "headOffsetDegrees":head_offset,"mouthTargetDegrees":read_shared().mouth_degrees,"mouthControlSource":if quacking {"quack"} else if model.kind=="xgoduck_pick" {"pickup-choreography"} else {"independent-intent"},"skillProgressSeconds":model.progress,"inferenceMs":ms,"resultAgeMs":0.,"voltageScale":scale,"filteredVoltage":filtered_voltage,"execution":"kissqy-sync50-v1"}));
+         let trace_done=Instant::now();
+         model.last_action=action;model.filtered_action=filtered;model.target_initialized=true;
+         if model.kind!="xgoduck" {
+-            model.progress+=0.02;
++            model.progress=if model.kind==crate::swizzle::CROUCH {crouch_clock.advance(model.progress)}else{model.progress+0.02};
+             model.skill_profile.update_upright(&mut model.upright,&obs);
+         }
+         {let mut c=costs.lock().unwrap();c.writes+=1;if model.kind!=crate::swizzle::PREPARE {c.inferred(Instant::now());}c.cost(2,write_at.elapsed().as_secs_f64()*1000.);c.cost(3,started.elapsed().as_secs_f64()*1000.);c.result_age_ms=0.;}
+@@ -1650,9 +1729,12 @@ fn native_policy_loop(
+         v["rollerBodyYawRad"]=json!(if model.kind==crate::swizzle::ACTIVE {Some(model.body_yaw)}else{None});
+         v["rollerHeadingErrorRad"]=json!(if model.kind==crate::swizzle::ACTIVE {Some(model.command_twist[2])}else{None});
+         v["rollerMode"]=json!(crate::swizzle::is_mode(&model.kind));
+-        if model.kind==crate::swizzle::CROUCH {v["rollerCrouchRemainingSeconds"]=json!((crate::swizzle::CROUCH_END-model.progress).max(0.));}
++        if model.kind==crate::swizzle::CROUCH {
++            v["rollerCrouchReturning"]=json!(crouch_clock.returning);
++            v["rollerCrouchRemainingSeconds"]=if crouch_clock.returning {json!((crate::swizzle::CROUCH_END-model.progress).max(0.))}else{Value::Null};
++        }
+         v["rollerPhase"]=json!(if model.kind==crate::swizzle::PREPARE {"installation"} else if model.kind==crate::swizzle::ACTIVE {"skating"} else if model.kind==crate::swizzle::CROUCH {"crouch"} else {"off"});
+-        v["message"]=json!(if model.kind==crate::swizzle::PREPARE {"轮滑安装姿势保持：扶稳装轮后，摇杆回中并按A启动平衡"} else if model.kind==crate::swizzle::ACTIVE {"轮滑平衡：X蹲滑后自动站起；Back卸力"} else if model.kind==crate::swizzle::CROUCH {"官方轮滑蹲滑：自动站起并返回轮滑，无需按A"} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
++        v["message"]=json!(if model.kind==crate::swizzle::PREPARE {"轮滑安装姿势保持：扶稳装轮后，摇杆回中并按A启动平衡"} else if model.kind==crate::swizzle::ACTIVE {"轮滑平衡：X持续蹲滑，A站起返回；Back卸力"} else if model.kind==crate::swizzle::CROUCH {if crouch_clock.returning {"正在站起，完成后返回轮滑"} else {"持续蹲滑：按A站起并返回轮滑；Back卸力"}} else if model.kind=="xgoduck_getup" {if model.skill_profile.donor_getup && return_home {"倒地起身，6秒后确认姿态返回HOME"} else {"起身中，站稳0.5秒后返回行走"}} else {"kissqy同步50Hz控制"});control::status(shared,v);
+         let status_done=Instant::now();
+         {
+             let mut c=costs.lock().unwrap();
+diff --git a/backend-rust/src/swizzle.rs b/backend-rust/src/swizzle.rs
+index 548eefa..f89442c 100644
+--- a/backend-rust/src/swizzle.rs
++++ b/backend-rust/src/swizzle.rs
+@@ -4,6 +4,29 @@ use serde_json::Value;
+ 
+ pub const PREPARE: &str = "swizzle_prepare";
+ pub const ACTIVE: &str = "swizzle";
++/// A supported upright body is sufficient: limp legs need not already be HOME.
++#[derive(Default)]
++pub struct ResumeGate { since: Option<std::time::Instant>, last: Option<std::time::Instant> }
++impl ResumeGate {
++    pub fn observe(&mut self, obs: &[f32], now: std::time::Instant) -> bool {
++        let contiguous=self.last.is_some_and(|last| now>=last && now.duration_since(last)<=std::time::Duration::from_millis(60));
++        if !contiguous {self.since=None;}
++        self.last=Some(now);
++        let stable=obs.len()>=6 && obs[..6].iter().all(|v|v.is_finite()) && {
++            let norm=obs[3..6].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
++            let gyro=obs[..3].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
++            (0.5..=1.5).contains(&norm) && (-(obs[5] as f64)/norm).clamp(-1.,1.).acos().to_degrees()<10. && gyro<0.5
++        };
++        if !stable {self.since=None;return false;}
++        now.duration_since(*self.since.get_or_insert(now))>=std::time::Duration::from_millis(500)
++    }
++}
++pub fn resumes_after_fall(kind:&str)->bool {matches!(kind,ACTIVE|CROUCH)}
++pub fn resume_ready(control:&Value)->bool {
++    control["state"]=="policy" && control["policyPhase"]=="roller-fallen-wait"
++        && control["rollerResumeReady"]==true
++        && control["activeSkill"].as_str().is_some_and(resumes_after_fall)
++}
+ /// The wire turn demand is +/-0.25; full stick slews heading at 0.5 rad/s.
+ /// The actor still receives a bounded heading error, never a yaw-rate target.
+ #[derive(Default)]
+@@ -34,6 +57,21 @@ impl Heading {
+ pub const CROUCH: &str = "swizzle_crouch";
+ pub const CROUCH_PERIOD: f64 = 5.;
+ pub const CROUCH_END: f64 = 3.5;
++pub const CROUCH_HOLD: f64 = 2.5;
++#[derive(Default)]
++pub struct CrouchClock { pub returning: bool }
++impl CrouchClock {
++    pub fn request_return(&mut self) {self.returning=true;}
++    /// Keep inferring at the end of the trained low plateau until A. Never
++    /// jump phase or freeze servo targets; feedback still drives the actor.
++    pub fn advance(&self, progress:f64)->f64 {
++        (progress+0.02).min(if self.returning {CROUCH_END}else{CROUCH_HOLD})
++    }
++}
++pub fn crouch_return_ready(control:&Value)->bool {
++    control["state"]=="policy" && control["activeSkill"]==CROUCH
++        && control["feedbackHolding"]!=true && control["rollerCrouchReturning"]!=true
++}
+ pub fn is_mode(kind: &str) -> bool { matches!(kind, PREPARE | ACTIVE | CROUCH) }
+ pub fn manual_head(kind: &str) -> bool { matches!(kind, PREPARE | ACTIVE) }
+ pub fn crouch_command(seconds:f64)->[f32;3] {
+@@ -82,6 +120,43 @@ pub fn validate(kind: &str, meta: &Value) -> Result<()> {
+ #[cfg(test)] mod tests {
+     use super::*;
+     use serde_json::json;
++    #[test] fn crouch_keeps_inference_phase_low_until_a_then_finishes_rise() {
++        let mut clock=CrouchClock::default();let mut phase=0.;
++        for _ in 0..30000 {phase=clock.advance(phase);assert!(phase<=CROUCH_HOLD);}
++        assert_eq!(phase,CROUCH_HOLD);assert!(!clock.returning);
++        clock.request_return();
++        for _ in 0..49 {phase=clock.advance(phase);assert!(phase<CROUCH_END);}
++        phase=clock.advance(phase);assert_eq!(phase,CROUCH_END);
++        clock.request_return();assert_eq!(clock.advance(phase),CROUCH_END);
++        let mut early=CrouchClock::default();early.request_return();
++        assert_eq!(early.advance(0.2),0.22); // no phase jump, even if A arrives during descent
++        assert_eq!(CrouchClock::default().advance(CROUCH_HOLD),CROUCH_HOLD);
++    }
++    #[test] fn fall_resume_is_only_for_running_roller_actors() {
++        for kind in [ACTIVE,CROUCH] {assert!(resumes_after_fall(kind));}
++        for kind in [PREPARE,"xgoduck","xgoduck_getup","sitstand_sit",""] {assert!(!resumes_after_fall(kind));}
++    }
++    #[test] fn supported_upright_resume_requires_half_second_of_continuous_samples() {
++        use std::time::{Duration,Instant};
++        let t=Instant::now();let mut gate=ResumeGate::default();
++        let pose=[0.,0.,0.,0.,0.,-1.];
++        for n in 0..25 {assert!(!gate.observe(&pose,t+Duration::from_millis(n*20)));}
++        assert!(gate.observe(&pose,t+Duration::from_millis(500)));
++        assert!(!gate.observe(&pose,t+Duration::from_millis(580)));
++        assert!(!gate.observe(&pose,t));
++    }
++    #[test] fn tilted_moving_invalid_or_missing_samples_restart_resume_dwell() {
++        use std::time::{Duration,Instant};
++        let pose=[0.,0.,0.,0.,0.,-1.];let t=Instant::now();
++        for bad in [vec![],vec![0.;6],vec![0.,0.,0.,1.,0.,0.],vec![0.5,0.,0.,0.,0.,-1.],vec![f32::NAN,0.,0.,0.,0.,-1.],vec![0.,0.,0.,0.,0.,f32::INFINITY]] {
++            let mut gate=ResumeGate::default();
++            for n in 0..25 {assert!(!gate.observe(&pose,t+Duration::from_millis(n*20)));}
++            assert!(!gate.observe(&bad,t+Duration::from_millis(500)));
++            assert!(!gate.observe(&pose,t+Duration::from_millis(520)));
++            for n in 27..51 {assert!(!gate.observe(&pose,t+Duration::from_millis(n*20)));}
++            assert!(gate.observe(&pose,t+Duration::from_millis(1020)));
++        }
++    }
+     #[test] fn heading_tracks_drift_and_latches_after_turn_release() {
+         let mut h=Heading::default();
+         assert_eq!(h.step(1.,[0.4,0.,0.],true,0.02).unwrap(),[0.4,0.,0.]);
+diff --git a/backend-rust/src/telemetry.rs b/backend-rust/src/telemetry.rs
+index e739263..ddd712a 100644
+--- a/backend-rust/src/telemetry.rs
++++ b/backend-rust/src/telemetry.rs
+@@ -132,6 +132,12 @@ impl Telemetry {
+     }
+     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
+         let active=self.control["activeSkill"].as_str().unwrap_or("");
++        if (crate::swizzle::resume_ready(&self.control) || crate::swizzle::crouch_return_ready(&self.control)) && kind==crate::swizzle::ACTIVE {
++            if self.pending_skill.is_some() {return false;}
++            let Some(drive)=self.drive.as_mut() else {return false;};
++            if !drive.update(session,sequence,[0.;3]) {return false;}
++            self.head_intent.clear();self.pending_skill=Some(kind.to_owned());return true;
++        }
+         if crate::swizzle::is_mode(active) || crate::swizzle::is_mode(kind) {
+             if !crate::swizzle::transition(active,kind) || self.control["state"]!="policy"
+                 || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
+@@ -483,15 +489,40 @@ mod tests {
+ 
+ #[cfg(test)] mod roller_tests {
+     use super::*;
+-    #[test] fn crouch_request_requires_skating_session_and_cannot_restart_or_skip_rise() {
++    #[test] fn fallen_roller_requires_a_new_owned_a_request_after_stability() {
++        for active in [crate::swizzle::ACTIVE,crate::swizzle::CROUCH] {
++            let mut s=Telemetry::new(true);
++            s.control=json!({"state":"policy","activeSkill":active,"policyPhase":"roller-fallen-wait","feedbackHolding":true,"rollerResumeReady":false});
++            s.drive=Some(DriveCommand{session:"s".into(),sequence:4,twist:[0.;3],updated:Instant::now()});
++            assert!(!s.queue_skill("s",5,crate::swizzle::ACTIVE));
++            s.control["rollerResumeReady"]=json!(true);
++            assert!(s.pending_skill.is_none()); // standing up alone never queues a restart
++            assert!(!s.queue_skill("foreign",5,crate::swizzle::ACTIVE));
++            assert!(!s.queue_skill("s",4,crate::swizzle::ACTIVE));
++            assert!(!s.queue_skill("s",5,crate::swizzle::CROUCH));
++            assert!(s.queue_skill("s",5,crate::swizzle::ACTIVE));
++            assert!(!s.queue_skill("s",6,crate::swizzle::ACTIVE));
++            assert_eq!(s.pending_skill.as_deref(),Some(crate::swizzle::ACTIVE));
++            s.pending_skill=None;s.control["rollerResumeReady"]=json!(false);
++            assert!(!s.queue_skill("s",6,crate::swizzle::ACTIVE));
++        }
++    }
++    #[test] fn crouch_request_requires_skating_session_and_a_queues_rise_once() {
+         let mut s=Telemetry::new(true);s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare"});
+         s.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.4,0.,0.],updated:Instant::now()});
+         assert!(!s.queue_skill("s",1,crate::swizzle::CROUCH));s.control["activeSkill"]=json!(crate::swizzle::ACTIVE);
+         assert!(!s.queue_skill("other",1,crate::swizzle::CROUCH));assert!(s.queue_skill("s",1,crate::swizzle::CROUCH));
+         assert_eq!(s.drive.as_ref().unwrap().twist,[0.;3]);assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));
+         s.pending_skill=None;s.control["activeSkill"]=json!(crate::swizzle::CROUCH);s.control["skillProgressSeconds"]=json!(1.2);
+-        assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));assert!(!s.queue_skill("s",2,crate::swizzle::ACTIVE));
+-        assert_eq!(s.control["skillProgressSeconds"],1.2);assert_eq!(s.drive.as_ref().unwrap().sequence,1);
++        assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));
++        assert!(!s.queue_skill("other",2,crate::swizzle::ACTIVE));
++        assert!(s.queue_skill("s",2,crate::swizzle::ACTIVE));
++        assert!(!s.queue_skill("s",3,crate::swizzle::ACTIVE));
++        assert_eq!(s.control["skillProgressSeconds"],1.2);assert_eq!(s.drive.as_ref().unwrap().sequence,2);
++        s.pending_skill=None;s.control["rollerCrouchReturning"]=json!(true);
++        assert!(!s.queue_skill("s",3,crate::swizzle::ACTIVE));
++        s.control["rollerCrouchReturning"]=json!(false);s.control["feedbackHolding"]=json!(true);
++        assert!(!s.queue_skill("s",3,crate::swizzle::ACTIVE));
+     }
+     #[test] fn roller_quack_and_mouth_preserve_mode_and_reject_foreign_or_held_commands() {
+         for skill in ["swizzle_prepare","swizzle"] {
+diff --git a/frontend/src/components/ModelRuntime.vue b/frontend/src/components/ModelRuntime.vue
+index 9dfdeb1..dddf2c5 100644
+--- a/frontend/src/components/ModelRuntime.vue
++++ b/frontend/src/components/ModelRuntime.vue
+@@ -6,7 +6,7 @@ import ModelGamepad from './ModelGamepad.vue';
+ import { gamepadInput } from '../gamepadInput';
+ import type { Twist } from '../holdToWalk';
+ import { useTelemetry } from '../store';
+-import { rollerBindings } from '../rollerMode';
++import { rollerBindings, rollerResumeReady, rollerCrouchReturnReady } from '../rollerMode';
+ import { useBoardCalibration } from '../boardCalibration';
+ const state=useTelemetry(),board=useBoardCalibration();
+ const physicalResult=computed(()=>{
+@@ -51,11 +51,12 @@ const autonomousOwned=computed(()=>!!control.value?.autonomy?.enabled && !!sessi
+ const recovering=computed(()=>control.value?.autonomy?.state==='recovering');
+ const rollerMode=computed(()=>['swizzle_prepare','swizzle','swizzle_crouch'].includes(control.value?.activeSkill) && !['idle','disabled','failed'].includes(control.value?.state || ''));
+ const rollerOwned=computed(()=>live.value && control.value?.state==='policy' && rollerMode.value && !control.value?.feedbackHolding && !pending.value && !!session.value && control.value?.driveSession===session.value);
++const canResumeRoller=computed(()=>live.value && rollerResumeReady(control.value) && !pending.value && !!session.value && control.value?.driveSession===session.value);
+ const rollerCrouching=computed(()=>control.value?.activeSkill==='swizzle_crouch');
+ const rollerDrive=computed(()=>rollerOwned.value && control.value?.activeSkill==='swizzle');
+ const displayBindings=computed(()=>rollerBindings(padConfig.value?.bindings,rollerMode.value));
+ const allowed=computed(():Record<string,boolean>=>{
+-  if(rollerMode.value)return {swizzle:rollerOwned.value && !rollerCrouching.value,roller_crouch:rollerDrive.value && crouchAvailable.value,quack:rollerOwned.value && !quackPending.value,mouth_open:rollerOwned.value,mouth_close:rollerOwned.value,stop:running.value && !pending.value,disable:state.connection==='在线'};
++  if(rollerMode.value)return {swizzle:canResumeRoller.value || (rollerOwned.value && (!rollerCrouching.value || rollerCrouchReturnReady(control.value))),roller_crouch:rollerDrive.value && crouchAvailable.value,quack:rollerOwned.value && !quackPending.value,mouth_open:rollerOwned.value,mouth_close:rollerOwned.value,stop:running.value && !pending.value,disable:state.connection==='在线'};
+   return {
+   ...Object.fromEntries(customActions.value.map(a=>[a.id,canDrive.value])),
+   autonomy:live.value && !pending.value && (autonomousOwned.value || (canDrive.value && !!control.value?.autonomy?.ready && !demoOwned.value)),
+@@ -132,7 +133,7 @@ async function extra(action:string,angleDeg?:number){
+     const result=await response.json();if(!response.ok)throw new Error(result.detail || '操作未接受');
+     if(start){session.value=result.driveSession || '';lease.remember(session.value);}
+     if(angleDeg==null && action!=='quack')skillQueued.value=control.value?.state==='policy' && control.value?.activeSkill==='xgoduck';
+-    message.value=action==='roller_prepare'?'安装姿势已请求：扶稳装轮后按A平衡':action==='roller_crouch'?'蹲滑已请求：到时自动站起并返回轮滑，无需按A':action==='swizzle'?'轮滑平衡已请求':action==='flamingo'?(rearHook.value?'后抬脚已请求：右脚向后抬起，到位保持3秒后自动回正；再按提前返回':`火烈鸟切换已请求：首次抬${flamingoSide.value}脚保持，再按落脚`):action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
++    message.value=action==='roller_prepare'?'安装姿势已请求：扶稳装轮后按A平衡':action==='roller_crouch'?'持续蹲滑已请求：按A站起并返回轮滑':action==='swizzle'?'轮滑平衡已请求':action==='flamingo'?(rearHook.value?'后抬脚已请求：右脚向后抬起，到位保持3秒后自动回正；再按提前返回':`火烈鸟切换已请求：首次抬${flamingoSide.value}脚保持，再按落脚`):action==='quack'?'嘎一下已请求':angleDeg!=null?'嘴部目标已发送':action==='sit'?'坐下已请求，模型将持续维持坐姿':'动作已请求，完成后回到原地平衡';
+   }catch(e){failed.value=true;message.value=String(e);}finally{if(independent)quackPending.value=false;else pending.value=false;}
+ }
+ const driveReason=computed(()=>{
+@@ -205,8 +206,8 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
+       <span v-if="control.autonomy.vision?.error">{{ control.autonomy.vision.error }}</span>
+     </div>
+     <div class="runtime-metrics"><button :disabled="!rollerAvailable || !live || !board.ready || busy || !['idle','disabled','failed'].includes(control?.state || '')" @click="extra('roller_prepare')">轮滑安装姿势</button><span>实体手柄：卸力后回中，LB＋RB长按1秒；扶稳装轮，松键后按A平衡。</span></div>
+-    <p v-if="rollerMode" role="status">{{ control?.message }} · 左摇杆前后推力±0.4、左右控制转向（目标航向最大变化0.5rad/s）；X 蹲滑后自动站起，无需再按A；松杆保持航向、滑行平衡，Back卸力。拆轮后再用普通动作。</p>
+-    <ModelGamepad :roller="rollerMode" :bindings="displayBindings" :action-labels="{...customLabels,swizzle:'轮滑平衡',roller_crouch:'蹲滑（自动站起）'}" :autonomy-active="!!control?.autonomy?.enabled" :rear-hook="rearHook" :flamingo-side="flamingoSide" :feedback="state.gamepadFeedback" :drive="canDrive || rollerDrive || demoOwned" :head="canHead || demoOwned" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive || rollerDrive" @body="wheel" @head="head" @action="padAction" />
++    <p v-if="rollerMode" role="status">{{ control?.message }} · 左摇杆前后推力±0.4、左右控制转向（目标航向最大变化0.5rad/s）；X 持续蹲滑，按A站起返回轮滑；松杆保持航向、滑行平衡，Back卸力。拆轮后再用普通动作。</p>
++    <ModelGamepad :roller="rollerMode" :bindings="displayBindings" :action-labels="{...customLabels,swizzle:'轮滑平衡',roller_crouch:'持续蹲滑（A站起）'}" :autonomy-active="!!control?.autonomy?.enabled" :rear-hook="rearHook" :flamingo-side="flamingoSide" :feedback="state.gamepadFeedback" :drive="canDrive || rollerDrive || demoOwned" :head="canHead || demoOwned" :speed="wheelSpeed" :reset="resetSticks" :allowed="allowed" :active="canDrive || rollerDrive" @body="wheel" @head="head" @action="padAction" />
+     <div v-if="!rollerMode" class="walk-speed-row"><label>行走速度 <input v-model.number="wheelSpeed" type="range" min="0.02" max="0.40" step="0.01" aria-label="手柄行走速度" /><output>{{ wheelSpeed.toFixed(2) }} m/s</output></label><small>指令速度 · 非实测速度</small></div>
+     <details class="runtime-help"><summary>按键说明与诊断</summary><p><span v-for="key in padButtons" :key="key">{{ buttonLabels[key] }}：{{ bindingLabel(padConfig?.bindings,key,customLabels) }}{{ padConfig?.bindings[key]==='getup'?'（长按）':'' }} · </span>Back 急停卸力；B 停止保持；LT 加速×2；RT 嘎一下；十字键下长按1.5秒切换自主。Start 网页预留，实体长按2秒卸力并关机。先站立再行走，松开摇杆回中；起身动作无论绑在哪个键都需长按。实体调试模式仅高亮、不执行动作。</p><button :disabled="!allowed.roulade" @click="padAction('roulade')">翻滚</button> <button :disabled="!available || !live || busy" @click="run('shadow')">只读推理检查</button>    <div class="runtime-metrics"><span>模型输入 <b>{{ control?.commandTwist?.[0]?.toFixed(2) ?? '—' }} / {{ control?.commandTwist?.[2]?.toFixed(2) ?? '—' }}{{ rollerMode ? '（推力 · 航向误差rad）' : '（m/s · rad/s）' }}</b></span><span>实际发令 <b>{{ control?.action==='policy' && control.commandHz!=null ? control.commandHz.toFixed(1)+' Hz' : '—' }}</b></span><span>推理 <b>{{ control?.action==='policy' && control.inferenceMs!=null ? control.inferenceMs.toFixed(2)+' ms' : '—' }}</b></span></div>
+ </details>
+diff --git a/frontend/src/rollerMode.test.ts b/frontend/src/rollerMode.test.ts
+index e8554ec..84be2fc 100644
+--- a/frontend/src/rollerMode.test.ts
++++ b/frontend/src/rollerMode.test.ts
+@@ -1,7 +1,24 @@
+ import { describe, expect, it } from 'vitest';
+-import { rollerBindings } from './rollerMode';
++import { rollerBindings, rollerResumeReady, rollerCrouchReturnReady } from './rollerMode';
+ 
+ describe('roller mode bindings', () => {
++  it('allows A during crouch but blocks repeated return and feedback pauses', () => {
++    const control = { state: 'policy', activeSkill: 'swizzle_crouch' };
++    expect(rollerCrouchReturnReady(control)).toBe(true);
++    expect(rollerCrouchReturnReady({ ...control, rollerCrouchReturning: true })).toBe(false);
++    expect(rollerCrouchReturnReady({ ...control, feedbackHolding: true })).toBe(false);
++    expect(rollerCrouchReturnReady({ ...control, state: 'disabled' })).toBe(false);
++    expect(rollerCrouchReturnReady(undefined)).toBe(false);
++  });
++  it('enables A only for a stable fallen roller session, including interrupted crouch', () => {
++    const control = { state: 'policy', policyPhase: 'roller-fallen-wait', rollerResumeReady: true, activeSkill: 'swizzle', feedbackHolding: true };
++    expect(rollerResumeReady(control)).toBe(true);
++    expect(rollerResumeReady({ ...control, activeSkill: 'swizzle_crouch' })).toBe(true);
++    for (const patch of [{ state: 'disabled' }, { policyPhase: 'feedback-hold' }, { rollerResumeReady: false }, { activeSkill: 'swizzle_prepare' }, { activeSkill: 'xgoduck' }]) {
++      expect(rollerResumeReady({ ...control, ...patch })).toBe(false);
++    }
++    expect(rollerResumeReady(undefined)).toBe(false);
++  });
+   it('uses X for one-shot crouch and A for balance without changing ordinary bindings', () => {
+     const saved = { a: 'standup', x: 'roulade', rb: 'quack' };
+     expect(rollerBindings(saved, true)).toEqual({ a: 'swizzle', x: 'roller_crouch', rb: 'quack' });
+diff --git a/frontend/src/rollerMode.ts b/frontend/src/rollerMode.ts
+index 4743a2d..2d44536 100644
+--- a/frontend/src/rollerMode.ts
++++ b/frontend/src/rollerMode.ts
+@@ -1,5 +1,14 @@
+ import type { Bindings } from './padBindings';
+ 
++export function rollerResumeReady(control: Record<string, unknown> | undefined): boolean {
++  return control?.state === 'policy' && control.policyPhase === 'roller-fallen-wait'
++    && control.rollerResumeReady === true && ['swizzle', 'swizzle_crouch'].includes(String(control.activeSkill));
++}
++export function rollerCrouchReturnReady(control: Record<string, unknown> | undefined): boolean {
++  return control?.state === 'policy' && control.activeSkill === 'swizzle_crouch'
++    && control.feedbackHolding !== true && control.rollerCrouchReturning !== true;
++}
++
+ /** Mode-local overrides never alter the user's saved ordinary-action bindings. */
+ export function rollerBindings(bindings: Bindings | undefined, roller: boolean): Bindings | undefined {
+   return roller ? { ...bindings, a: 'swizzle', x: 'roller_crouch' } : bindings;

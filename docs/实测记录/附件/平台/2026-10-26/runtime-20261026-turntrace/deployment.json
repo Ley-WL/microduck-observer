@@ -1,0 +1,70 @@
+{
+  "installed": true,
+  "release": "/home/radxa/microduck-observer/releases/runtime-20261026-turntrace",
+  "previousRelease": "/home/radxa/microduck-observer/releases/runtime-20261026-094010",
+  "calibrationModelsGainsIdentityUnchanged": true,
+  "legacyImuInstallationMigrated": false,
+  "assetsHttpVerified": true,
+  "readonlySnapshots": 20,
+  "hardwareMotion": false,
+  "audioPermissionsConfigured": true,
+  "inputPermissionsConfigured": true,
+  "serviceEnableStatesPreserved": {
+    "tofd": "not-found",
+    "rsyslog": "enabled"
+  },
+  "binarySha256": "7ed06b9072677eb33142966efbbc6743ec67f5a5664c3ecd151a406b410e871e",
+  "swizzleModelSha256": "539e6b2e7e4c7603ddd35ef27bc06742b292f9f3eede567f82111c0975375160",
+  "swizzleArmFixture": {
+    "actionMaxAbsError": 5.960464477539063e-08,
+    "encoderTargetsVerified": true,
+    "goals": {
+      "10": 1974,
+      "11": 2298,
+      "12": 1811,
+      "13": 2594,
+      "14": 2494,
+      "20": 2166,
+      "21": 1919,
+      "22": 1729,
+      "23": 1297,
+      "24": 1882,
+      "30": 1917,
+      "31": 1727,
+      "32": 1859,
+      "33": 2240
+    },
+    "hardwareAccess": false,
+    "inferenceMs": 1.36879,
+    "kdRun": 0,
+    "kpRun": 5,
+    "mechanicalTargetsVerified": true,
+    "observationMaxAbsError": 0.0,
+    "ok": true,
+    "policySha256": "539e6b2e7e4c7603ddd35ef27bc06742b292f9f3eede567f82111c0975375160",
+    "saturatedIds": [
+      11
+    ],
+    "savedTargetCasesVerified": 0,
+    "sentTargetDegrees": [
+      -10.37109375,
+      11.337890625,
+      28.037109375,
+      66.005859375,
+      14.589843750000002,
+      11.513671875,
+      28.212890625,
+      16.611328125,
+      -16.875,
+      6.50390625,
+      -21.97265625,
+      20.830078125,
+      -47.98828125,
+      -39.19921875
+    ],
+    "walkExecutionVerified": false
+  },
+  "swizzleAvailable": true,
+  "existingModelsUnchanged": true,
+  "physicalAccepted": false
+}

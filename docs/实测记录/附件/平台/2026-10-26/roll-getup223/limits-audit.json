@@ -1,0 +1,244 @@
+{
+  "scope": "roll plus post-roll getup, mono >=520.925; stall last 1.5 seconds",
+  "roundingToleranceDegrees": 0.0439453125,
+  "joints": [
+    {
+      "id": 20,
+      "joint": "left_hip_yaw",
+      "limits": [
+        -25,
+        30
+      ],
+      "finalMeasured": -9.755859375,
+      "finalTarget": -10.458984375,
+      "measuredMin": -19.599609375,
+      "measuredMax": 27.158203125,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 21,
+      "joint": "left_hip_roll",
+      "limits": [
+        -22,
+        22
+      ],
+      "finalMeasured": 6.943359375,
+      "finalTarget": 6.328125,
+      "measuredMin": -17.138671875,
+      "measuredMax": 21.796875,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 22,
+      "joint": "left_hip_pitch",
+      "limits": [
+        -90,
+        90
+      ],
+      "finalMeasured": -11.689453125,
+      "finalTarget": -11.337890625,
+      "measuredMin": -91.23046875,
+      "measuredMax": -0.966796875,
+      "maxMeasuredExcess": 1.23046875,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 23,
+      "joint": "left_knee",
+      "limits": [
+        -90,
+        90
+      ],
+      "finalMeasured": -8.349609375,
+      "finalTarget": -8.525390625,
+      "measuredMin": -46.93359375,
+      "measuredMax": 60.732421875,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 24,
+      "joint": "left_ankle",
+      "limits": [
+        -70,
+        70
+      ],
+      "finalMeasured": 9.052734375,
+      "finalTarget": 9.140625,
+      "measuredMin": -39.462890625,
+      "measuredMax": 63.193359375,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 30,
+      "joint": "neck_pitch",
+      "limits": [
+        -90,
+        70
+      ],
+      "finalMeasured": 43.857421875,
+      "finalTarget": 69.9609375,
+      "measuredMin": -86.220703125,
+      "measuredMax": 60.64453125,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 31,
+      "joint": "head_pitch",
+      "limits": [
+        -90,
+        90
+      ],
+      "finalMeasured": 32.080078125,
+      "finalTarget": 29.003906249999996,
+      "measuredMin": -70.6640625,
+      "measuredMax": 90.3515625,
+      "maxMeasuredExcess": 0.3515625,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 32,
+      "joint": "head_yaw",
+      "limits": [
+        -170,
+        170
+      ],
+      "finalMeasured": -28.4765625,
+      "finalTarget": -24.9609375,
+      "measuredMin": -30.9375,
+      "measuredMax": 21.4453125,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 33,
+      "joint": "head_roll",
+      "limits": [
+        -20,
+        20
+      ],
+      "finalMeasured": 4.130859375,
+      "finalTarget": 5.185546875,
+      "measuredMin": -12.392578125,
+      "measuredMax": 12.041015625,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0.0390625,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 10,
+      "joint": "right_hip_yaw",
+      "limits": [
+        -30,
+        25
+      ],
+      "finalMeasured": -0.3515625,
+      "finalTarget": 1.669921875,
+      "measuredMin": -26.806640625,
+      "measuredMax": 11.337890625,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 11,
+      "joint": "right_hip_roll",
+      "limits": [
+        -22,
+        22
+      ],
+      "finalMeasured": 21.884765625,
+      "finalTarget": 21.97265625,
+      "measuredMin": -22.060546875,
+      "measuredMax": 22.236328125,
+      "maxMeasuredExcess": 0.236328125,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 12,
+      "joint": "right_hip_pitch",
+      "limits": [
+        -90,
+        90
+      ],
+      "finalMeasured": 22.5,
+      "finalTarget": 15.380859374999998,
+      "measuredMin": -6.416015625,
+      "measuredMax": 87.978515625,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 13,
+      "joint": "right_knee",
+      "limits": [
+        -90,
+        90
+      ],
+      "finalMeasured": 26.279296875,
+      "finalTarget": 30.146484375000004,
+      "measuredMin": -64.951171875,
+      "measuredMax": 38.583984375,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    },
+    {
+      "id": 14,
+      "joint": "right_ankle",
+      "limits": [
+        -70,
+        70
+      ],
+      "finalMeasured": -33.046875,
+      "finalTarget": -33.57421875,
+      "measuredMin": -66.97265625,
+      "measuredMax": 30.41015625,
+      "maxMeasuredExcess": 0,
+      "maxSentExcess": 0,
+      "stallMaxExcess": 0
+    }
+  ],
+  "neckFaultConfirmation": {
+    "_profileMono": 525.66390525,
+    "_receivedMono": 526.244971976,
+    "accelerationRaw": 0,
+    "ageMs": 0.08808600000520528,
+    "angle": null,
+    "currentRaw": 562,
+    "fault": 8,
+    "goalCurrentRaw": 0,
+    "goalPositionRaw": 1252,
+    "id": 30,
+    "kdRaw": 0,
+    "kiRaw": 0,
+    "kpRaw": 5,
+    "load": 382,
+    "position": 1549,
+    "profileAgeMs": 581.1548120000225,
+    "profileFresh": false,
+    "readMs": 0.5979340000000001,
+    "speedLimitRaw": 0,
+    "target": 1252,
+    "temperature": 41,
+    "torque": 1,
+    "torqueLimitRaw": 1000,
+    "velocityRaw": 0,
+    "voltage": 7.4
+  },
+  "eepromLimitsNotPresentInThisCapture": true
+}

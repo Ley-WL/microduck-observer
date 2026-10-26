@@ -1,0 +1,48 @@
+{
+  "note": "Formula reference only; not measured motion/torque",
+  "tests": "354 passed, 1 ignored",
+  "rows": [
+    {
+      "volts": 8.4,
+      "previousWalkScale": 0.8809523809523809,
+      "newWalkAndGetupScale": 0.8809523809523809,
+      "previousWorkerGetupScale": 1.0
+    },
+    {
+      "volts": 7.4,
+      "previousWalkScale": 1.0,
+      "newWalkAndGetupScale": 1.0,
+      "previousWorkerGetupScale": 1.0
+    },
+    {
+      "volts": 7.0,
+      "previousWalkScale": 1.0571428571428572,
+      "newWalkAndGetupScale": 1.0857142857142859,
+      "previousWorkerGetupScale": 1.0
+    },
+    {
+      "volts": 6.9,
+      "previousWalkScale": 1.0724637681159421,
+      "newWalkAndGetupScale": 1.108695652173913,
+      "previousWorkerGetupScale": 1.0
+    },
+    {
+      "volts": 6.5,
+      "previousWalkScale": 1.1384615384615384,
+      "newWalkAndGetupScale": 1.2076923076923076,
+      "previousWorkerGetupScale": 1.0
+    },
+    {
+      "volts": 6.0,
+      "previousWalkScale": 1.2333333333333334,
+      "newWalkAndGetupScale": 1.35,
+      "previousWorkerGetupScale": 1.0
+    },
+    {
+      "volts": 4.0,
+      "previousWalkScale": 1.2333333333333334,
+      "newWalkAndGetupScale": 1.35,
+      "previousWorkerGetupScale": 1.0
+    }
+  ]
+}

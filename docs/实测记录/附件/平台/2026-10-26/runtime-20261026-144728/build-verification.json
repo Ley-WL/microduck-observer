@@ -1,0 +1,17 @@
+{
+  "binarySha256": "b8046c3653a1dfd86b2c43363f8a0d88708bc142728a13cb3371f3b6faee7ba8",
+  "rustPassed": 339,
+  "rustIgnored": 1,
+  "defaultRecoveryEnabled": true,
+  "phaseGains": {
+    "limp": {
+      "p": 5,
+      "d": 0
+    },
+    "pose": {
+      "p": 5,
+      "d": 0
+    }
+  },
+  "userRequestedDefaults": true
+}
