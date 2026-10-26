@@ -823,6 +823,13 @@ impl NativeVoltage {
         self.volts.map_or(1.,|v|(7.4/v.clamp(6.,9.5)) as f32)
     }
 }
+// User-requested extra low-voltage support, limited to walking and getup.
+// Preserve nominal/high-voltage behavior and never alter raw action history or HOME.
+fn support_voltage_scale(kind:&str,base:f32)->f32 {
+    if matches!(kind,"xgoduck"|"xgoduck_getup") && base>1. {
+        (1.+1.5*(base-1.)).min(1.35)
+    } else {base}
+}
 struct Model {
     key: String,
     kind: String,
@@ -1714,7 +1721,7 @@ fn native_policy_loop(
             if tilt(&obs)>=45. {bail!("舞蹈倾倒，停止推理并卸力");}}
         if walking_policy(&model.kind) && !(fall_calibration.is_some() && model.kind=="xgoduck") && tilt(&obs)>=FALL_TILT_DEG {bail!("检测到行走中倒地，停止推理并卸力");}
         let (scale,filtered_voltage)={let mut state=write_shared();
-            let scale=model.skill_profile.voltage_scale(&mut state.native_voltage,feedback,Instant::now());(scale,state.native_voltage.volts)};
+            let base=model.skill_profile.voltage_scale(&mut state.native_voltage,feedback,Instant::now());(support_voltage_scale(&model.kind,base),state.native_voltage.volts)};
         let infer_at=Instant::now();
         let (action,ms)=if model.kind==crate::swizzle::PREPARE {([0.;14],0.)}else{model.infer(obs.clone())?};
 
@@ -2072,6 +2079,8 @@ pub fn execute(
         let mut quack_cycle:Option<(Instant,crate::quack::Playback)>=None;
         if kind=="xgoduck_pick" { arm_current(bus,&[34],&feedback,control::MANUAL_GAINS,cancel,halt)?; mouth_owned=true; }
         let mut worker=InferenceWorker::new(model.session.clone());
+        let mut applied_voltage_scale=1.;
+        let mut applied_voltage=None;
         let mut generation=0u64;
         stage = "policy-loop";
         policy_trace.transition(json!({"type":"start","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha}));
@@ -2124,7 +2133,14 @@ pub fn execute(
                     if result_generation==generation && submitted.elapsed()<Duration::from_millis(150) {
                         costs.lock().unwrap().result_age_ms=submitted.elapsed().as_secs_f64()*1000.;
                         let (action,ms)=result?;infer_ms=ms;last_obs=Some(result_obs);
-                        let filtered=model.filter_action(&action);
+                        let (scale,volts)=if model.kind=="xgoduck_getup" {
+                            let mut state=shared.write().unwrap();
+                            let base=state.native_voltage.scale(&feedback,Instant::now());
+                            (support_voltage_scale(&model.kind,base),state.native_voltage.volts)
+                        } else {(1.,None)};
+                        applied_voltage_scale=scale;applied_voltage=volts;
+                        let adjusted=action.map(|v|v*scale);
+                        let filtered=model.filter_action(&adjusted);
                         if model.kind=="xgoduck_getup" || (model.skill_profile.retrained && model.kind=="sitstand_stand") {
                             model.skill_profile.update_upright(&mut model.upright,last_obs.as_ref().unwrap());
                         }
@@ -2133,7 +2149,7 @@ pub fn execute(
                             accepted_trace=Some(json!({"type":"inference","mono":crate::telemetry::monotonic(),
                                 "kind":model.kind,"policySha256":model.sha,"commandTwist":model.command_twist,
                                 "observation":last_obs,"rawActionRadians":action,"emaPreviousRadians":model.filtered_action,
-                                "filteredActionRadians":filtered,"homeRadians":model.home,
+                                "filteredActionRadians":filtered,"homeRadians":model.home,"voltageScale":scale,"filteredVoltage":volts,
                                 "preClipTargetDegrees":model.raw,"sentTargetDegrees":model.sent,"goals":goals,
                                 "saturatedIds":model.saturated,"inferenceMs":ms,"resultAgeMs":submitted.elapsed().as_secs_f64()*1000.}));
                         }
@@ -2345,6 +2361,8 @@ pub fn execute(
                 v["imuFreshLimitMs"]=json!(IMU_FRESH_MS);v["imuStopAgeMs"]=json!(IMU_STOP_MS);
                 v["action"] = json!("policy");
                 v["policyPhase"] = json!(if coast.misses > 0 { "coasting" } else { "running" });
+                v["voltageAdapt"]=json!(model.kind=="xgoduck_getup");
+                v["voltageScale"]=json!(applied_voltage_scale);v["filteredVoltage"]=json!(applied_voltage);
                 v["feedbackHolding"] = json!(false);
                 v["walkHandoffStableSeconds"]=json!(walk_gate.seconds());v["walkHandoffReady"]=json!(walk_gate.ready());v["walkHandoffRevision"]=json!("shared-standing-500ms-v1");
                 v["consecutiveFeedbackFailures"] = json!(coast.misses);
@@ -2559,6 +2577,18 @@ mod tests {
         let mut voltage=NativeVoltage::default();
         let scale=roll.voltage_scale(&mut voltage,&rows,Instant::now());
         assert_eq!(scale,1.);assert!(voltage.volts.is_none());
+    }
+    #[test]
+    fn low_voltage_support_is_bounded_and_scoped_to_walk_and_getup() {
+        for kind in ["xgoduck","xgoduck_getup"] {
+            assert!((support_voltage_scale(kind,7.4/6.9)-1.1086956).abs()<1e-6);
+            assert_eq!(support_voltage_scale(kind,1.),1.);
+            assert_eq!(support_voltage_scale(kind,0.925),0.925);
+            assert_eq!(support_voltage_scale(kind,2.),1.35);
+        }
+        for kind in ["xgoduck_roulade","sitstand_stand","swizzle","dance10"] {
+            assert_eq!(support_voltage_scale(kind,1.2),1.2);
+        }
     }
     #[test]
     fn native_voltage_matches_donor_mean_cadence_ema_and_clamp() {
