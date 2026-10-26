@@ -277,6 +277,7 @@ impl QuackGesture {
 }
 #[derive(Default)]
 struct Input {
+    roll_running: bool,
     roller_mode: bool,
     roller_skating: bool,
     roller_since: Option<std::time::Instant>,
@@ -356,15 +357,16 @@ impl Input {
         let quack_action=if self.neutral_seen {self.quack.update(sample.down(RT),now)} else {None};
         if edge(BACK)||edge(B)||long_y||long_start {self.quack=QuackGesture::default();}
         let custom=crate::pad_bindings::BUTTONS.into_iter().find_map(|key| {
-            if !sample.button(key) || self.previous.button(key) {return None;}
             let action=bindings.action(key);
+            if !sample.button(key) || (self.previous.button(key) && !(action=="roulade" && self.roll_running)) {return None;}
             let alone=sample.keys.iter().filter(|v|**v).count()+sample.dpad.iter().filter(|v|**v).count()==1;
             match action {
                 "standup" if sample.centered()=>Some("stand"),
                 "sit"=>Some("sit"),
                 "quack"=>Some("quack"),
                 "demo"|"pick" if ready && sample.centered() && alone=>Some(action),
-                "dance"|"flamingo"|"kick_left"|"kick_right"|"roulade" if ready && sample.centered()=>Some(action),
+                "roulade" if (ready || self.roll_running) && sample.centered()=>Some(action),
+                "dance"|"flamingo"|"kick_left"|"kick_right" if ready && sample.centered()=>Some(action),
                 value if value.starts_with("custom-") && ready && sample.centered() && alone=>Some(value),
                 _=>None,
             }
@@ -566,6 +568,7 @@ pub fn spawn(app: App, router: Router) {
                     }
                     let status=motion.status();
                     input.roller_mode=status["rollerMode"]==true;
+                    input.roll_running=status["rollRunning"]==true;
                     input.roller_skating=status["rollerReady"]==true;
                     let demo_active=status["demoActive"]==true;
                     if demo_active && !sample.centered() {motion.cancel_demo();input.drive_armed=true;}
@@ -992,6 +995,18 @@ mod tests {
         let mut up=Sample::default();up.dpad[0]=true;
         assert_eq!(input.update(&up,true,false),Some("dance"));
         assert_eq!(input.update(&up,true,false),None);
+    }
+    #[test]
+    fn held_roll_refreshes_while_busy_but_release_and_offcenter_stop_refresh() {
+        let mut input=Input::default();input.update(&Sample::default(),true,false);
+        let mut right=Sample::default();right.dpad[2]=true;
+        assert_eq!(input.update(&right,true,false),Some("roulade"));
+        input.roll_running=true;
+        for _ in 0..4 {assert_eq!(input.update(&right,false,false),Some("roulade"));}
+        let mut moving=right.clone();moving.axes[0]=1.;
+        assert_eq!(input.update(&moving,false,false),None);
+        assert_eq!(input.update(&Sample::default(),false,false),None);
+        input.roll_running=false;assert_eq!(input.update(&right,false,false),None);
     }
     #[test]
     fn diagnostic_only_never_dispatches_even_estop_or_start_actions() {

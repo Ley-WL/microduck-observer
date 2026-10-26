@@ -5,6 +5,7 @@ use serde_json::{json, Value};
 pub enum Mode { #[default] Off, Standby, Manual, Recovering }
 #[derive(Default)]
 pub struct Autonomy {
+    pub explorer:crate::exploration::Explorer,
     pub mode: Mode,
     pub session: String,
     pub reason: String,
@@ -22,23 +23,23 @@ impl Autonomy {
     pub fn recovering(&self)->bool {self.mode==Mode::Recovering}
     pub fn start(&mut self,session:&str,now:Instant)->anyhow::Result<()> {
         anyhow::ensure!(!self.enabled() && self.ready && self.observed.is_some_and(|at|now.saturating_duration_since(at)<Duration::from_millis(150)),"请先稳定站立、摇杆回中并等待动作结束");
-        self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Standby;self.session=session.into();self.reason.clear();self.manual_held=false;self.neutral_since=Some(now);self.recovery_started=None;self.recovery_stable=None;Ok(())
+        self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Standby;self.session=session.into();self.reason.clear();self.manual_held=false;self.neutral_since=Some(now);self.recovery_started=None;self.recovery_stable=None;Ok(())
     }
-    pub fn stop(&mut self,reason:&str) {self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Off;self.reason=reason.into();self.recovery_started=None;self.recovery_stable=None;self.neutral_since=None;self.manual_held=false;}
+    pub fn stop(&mut self,reason:&str) {self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Off;self.reason=reason.into();self.recovery_started=None;self.recovery_stable=None;self.neutral_since=None;self.manual_held=false;}
     pub fn input(&mut self,active:bool,now:Instant) {
         if !self.enabled() || self.recovering(){return;}
         self.manual_held=active;
-        if active {if self.mode!=Mode::Manual{self.epoch=self.epoch.wrapping_add(1);}self.mode=Mode::Manual;self.neutral_since=None;}else{self.neutral_since.get_or_insert(now);}
+        if active {if self.mode!=Mode::Manual{self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);}self.mode=Mode::Manual;self.neutral_since=None;}else{self.neutral_since.get_or_insert(now);}
     }
     pub fn action(&mut self,now:Instant){self.input(true,now);self.input(false,now);}
     pub fn rebind(&mut self,session:&str,now:Instant) {if self.enabled(){self.session=session.into();self.input(true,now);}}
     pub fn fall(&mut self,now:Instant)->bool {
         if !self.enabled(){return false;}
-        if !self.recovering(){self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Recovering;self.recovery_started=Some(now);self.recovery_stable=None;self.reason="跌倒恢复中".into();}
+        if !self.recovering(){self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Recovering;self.recovery_started=Some(now);self.recovery_stable=None;self.reason="跌倒恢复中".into();}
         true
     }
     pub fn expired(&self,now:Instant)->bool {self.recovery_started.is_some_and(|at|now.saturating_duration_since(at)>=Duration::from_secs(6))}
-    pub fn invalid_feedback(&mut self){self.stable_since=None;self.recovery_stable=None;self.ready=false;}
+    pub fn invalid_feedback(&mut self){self.explorer.reset();self.stable_since=None;self.recovery_stable=None;self.ready=false;}
     // Returns a single request to resume zero-speed balance after recovery.
     pub fn observe(&mut self,now:Instant,kind:&str,stable:bool,recovery_pose:bool,busy:bool)->bool {
         self.observed=Some(now);
@@ -53,7 +54,7 @@ impl Autonomy {
         } else if self.mode==Mode::Manual && !self.manual_held && self.ready && self.neutral_since.is_some_and(|at|now.saturating_duration_since(at)>=Duration::from_secs(1)) {self.mode=Mode::Standby;}
         false
     }
-    pub fn status(&self)->Value {json!({"enabled":self.enabled(),"state":match self.mode {Mode::Off=>"off",Mode::Standby=>"standby",Mode::Manual=>"manual",Mode::Recovering=>"recovering"},"ready":self.ready,"behavior":match self.mode {Mode::Off=>"已关闭",Mode::Standby=>"原地待命",Mode::Manual=>"人工接管",Mode::Recovering=>"限时起身"},"controlSource":if self.mode==Mode::Standby || self.recovering(){"autonomous"}else{"manual"},"recoveryRemainingSeconds":self.recovery_started.map(|at|(6.-at.elapsed().as_secs_f64()).max(0.)),"reason":self.reason})}
+    pub fn status(&self)->Value {json!({"exploration":self.explorer.status(),"selectedMode":if self.explorer.selected {"explore"}else{"interaction"},"enabled":self.enabled(),"state":match self.mode {Mode::Off=>"off",Mode::Standby=>"standby",Mode::Manual=>"manual",Mode::Recovering=>"recovering"},"ready":self.ready,"behavior":match self.mode {Mode::Off=>"已关闭",Mode::Standby=>"原地待命",Mode::Manual=>"人工接管",Mode::Recovering=>"限时起身"},"controlSource":if self.mode==Mode::Standby || self.recovering(){"autonomous"}else{"manual"},"recoveryRemainingSeconds":self.recovery_started.map(|at|(6.-at.elapsed().as_secs_f64()).max(0.)),"reason":self.reason})}
 }
 #[cfg(test)] mod tests {
  use super::*;

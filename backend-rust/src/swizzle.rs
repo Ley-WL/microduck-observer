@@ -4,8 +4,31 @@ use serde_json::Value;
 
 pub const PREPARE: &str = "swizzle_prepare";
 pub const ACTIVE: &str = "swizzle";
+/// A supported upright body is sufficient: limp legs need not already be HOME.
+#[derive(Default)]
+pub struct ResumeGate { since: Option<std::time::Instant>, last: Option<std::time::Instant> }
+impl ResumeGate {
+    pub fn observe(&mut self, obs: &[f32], now: std::time::Instant) -> bool {
+        let contiguous=self.last.is_some_and(|last| now>=last && now.duration_since(last)<=std::time::Duration::from_millis(60));
+        if !contiguous {self.since=None;}
+        self.last=Some(now);
+        let stable=obs.len()>=6 && obs[..6].iter().all(|v|v.is_finite()) && {
+            let norm=obs[3..6].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
+            let gyro=obs[..3].iter().map(|v|(*v as f64).powi(2)).sum::<f64>().sqrt();
+            (0.5..=1.5).contains(&norm) && (-(obs[5] as f64)/norm).clamp(-1.,1.).acos().to_degrees()<10. && gyro<0.5
+        };
+        if !stable {self.since=None;return false;}
+        now.duration_since(*self.since.get_or_insert(now))>=std::time::Duration::from_millis(500)
+    }
+}
+pub fn resumes_after_fall(kind:&str)->bool {matches!(kind,ACTIVE|CROUCH)}
+pub fn resume_ready(control:&Value)->bool {
+    control["state"]=="policy" && control["policyPhase"]=="roller-fallen-wait"
+        && control["rollerResumeReady"]==true
+        && control["activeSkill"].as_str().is_some_and(resumes_after_fall)
+}
 /// The wire turn demand is +/-0.25; full stick slews heading at 0.5 rad/s.
-/// The actor still receives a bounded heading error, never a yaw-rate target.
+/// The actor receives the trained +/-0.5 rad heading error, never a yaw-rate target.
 #[derive(Default)]
 pub struct Heading {
     pub target: Option<f64>,
@@ -25,7 +48,7 @@ impl Heading {
         // target. Stale input latches only once so subsequent drift is corrected.
         if (self.turning && !turning) || (!fresh && !self.stale) {*target=yaw;}
         *target=wrap(*target+turn*2.*dt.min(0.05));
-        let error=wrap(*target-yaw).clamp(-0.25,0.25);
+        let error=wrap(*target-yaw).clamp(-0.5,0.5);
         *target=wrap(yaw+error); // anti-windup during a blocked/slow turn
         self.turning=turning;self.stale=!fresh;
         Ok([if fresh {input[0].clamp(-0.4,0.4)}else{0.},0.,error as f32])
@@ -34,6 +57,21 @@ impl Heading {
 pub const CROUCH: &str = "swizzle_crouch";
 pub const CROUCH_PERIOD: f64 = 5.;
 pub const CROUCH_END: f64 = 3.5;
+pub const CROUCH_HOLD: f64 = 2.5;
+#[derive(Default)]
+pub struct CrouchClock { pub returning: bool }
+impl CrouchClock {
+    pub fn request_return(&mut self) {self.returning=true;}
+    /// Keep inferring at the end of the trained low plateau until A. Never
+    /// jump phase or freeze servo targets; feedback still drives the actor.
+    pub fn advance(&self, progress:f64)->f64 {
+        (progress+0.02).min(if self.returning {CROUCH_END}else{CROUCH_HOLD})
+    }
+}
+pub fn crouch_return_ready(control:&Value)->bool {
+    control["state"]=="policy" && control["activeSkill"]==CROUCH
+        && control["feedbackHolding"]!=true && control["rollerCrouchReturning"]!=true
+}
 pub fn is_mode(kind: &str) -> bool { matches!(kind, PREPARE | ACTIVE | CROUCH) }
 pub fn manual_head(kind: &str) -> bool { matches!(kind, PREPARE | ACTIVE) }
 pub fn crouch_command(seconds:f64)->[f32;3] {
@@ -82,6 +120,43 @@ pub fn validate(kind: &str, meta: &Value) -> Result<()> {
 #[cfg(test)] mod tests {
     use super::*;
     use serde_json::json;
+    #[test] fn crouch_keeps_inference_phase_low_until_a_then_finishes_rise() {
+        let mut clock=CrouchClock::default();let mut phase=0.;
+        for _ in 0..30000 {phase=clock.advance(phase);assert!(phase<=CROUCH_HOLD);}
+        assert_eq!(phase,CROUCH_HOLD);assert!(!clock.returning);
+        clock.request_return();
+        for _ in 0..49 {phase=clock.advance(phase);assert!(phase<CROUCH_END);}
+        phase=clock.advance(phase);assert_eq!(phase,CROUCH_END);
+        clock.request_return();assert_eq!(clock.advance(phase),CROUCH_END);
+        let mut early=CrouchClock::default();early.request_return();
+        assert_eq!(early.advance(0.2),0.22); // no phase jump, even if A arrives during descent
+        assert_eq!(CrouchClock::default().advance(CROUCH_HOLD),CROUCH_HOLD);
+    }
+    #[test] fn fall_resume_is_only_for_running_roller_actors() {
+        for kind in [ACTIVE,CROUCH] {assert!(resumes_after_fall(kind));}
+        for kind in [PREPARE,"xgoduck","xgoduck_getup","sitstand_sit",""] {assert!(!resumes_after_fall(kind));}
+    }
+    #[test] fn supported_upright_resume_requires_half_second_of_continuous_samples() {
+        use std::time::{Duration,Instant};
+        let t=Instant::now();let mut gate=ResumeGate::default();
+        let pose=[0.,0.,0.,0.,0.,-1.];
+        for n in 0..25 {assert!(!gate.observe(&pose,t+Duration::from_millis(n*20)));}
+        assert!(gate.observe(&pose,t+Duration::from_millis(500)));
+        assert!(!gate.observe(&pose,t+Duration::from_millis(580)));
+        assert!(!gate.observe(&pose,t));
+    }
+    #[test] fn tilted_moving_invalid_or_missing_samples_restart_resume_dwell() {
+        use std::time::{Duration,Instant};
+        let pose=[0.,0.,0.,0.,0.,-1.];let t=Instant::now();
+        for bad in [vec![],vec![0.;6],vec![0.,0.,0.,1.,0.,0.],vec![0.5,0.,0.,0.,0.,-1.],vec![f32::NAN,0.,0.,0.,0.,-1.],vec![0.,0.,0.,0.,0.,f32::INFINITY]] {
+            let mut gate=ResumeGate::default();
+            for n in 0..25 {assert!(!gate.observe(&pose,t+Duration::from_millis(n*20)));}
+            assert!(!gate.observe(&bad,t+Duration::from_millis(500)));
+            assert!(!gate.observe(&pose,t+Duration::from_millis(520)));
+            for n in 27..51 {assert!(!gate.observe(&pose,t+Duration::from_millis(n*20)));}
+            assert!(gate.observe(&pose,t+Duration::from_millis(1020)));
+        }
+    }
     #[test] fn heading_tracks_drift_and_latches_after_turn_release() {
         let mut h=Heading::default();
         assert_eq!(h.step(1.,[0.4,0.,0.],true,0.02).unwrap(),[0.4,0.,0.]);
@@ -90,12 +165,24 @@ pub fn validate(kind: &str, meta: &Value) -> Result<()> {
         assert_eq!(h.step(1.2,[0.4,0.,0.],true,0.02).unwrap()[2],0.);
         assert!(h.step(1.25,[0.;3],true,0.02).unwrap()[2]<0.);
     }
+    #[test] fn heading_full_training_range_preserves_slew_and_release() {
+        for sign in [-1.,1.] {
+            let mut h=Heading::default();
+            let input=[0.4,0.,sign*0.25];
+            assert!((h.step(0.,input,true,0.02).unwrap()[2]-sign*0.01).abs()<1e-6);
+            for _ in 0..100 {h.step(0.,input,true,0.02).unwrap();}
+            assert_eq!(h.step(0.,input,true,0.02).unwrap()[2],sign*0.5);
+            assert_eq!(h.step(0.2,[0.4,0.,0.],true,0.02).unwrap()[2],0.);
+            assert_eq!(h.step(0.2,input,false,0.02).unwrap(),[0.;3]);
+        }
+    }
     #[test] fn heading_wrap_timeout_reset_and_anti_windup() {
         let mut h=Heading::default();
         h.step(3.13,[0.;3],true,0.02).unwrap();
         assert!((h.step(-3.13,[0.;3],true,0.02).unwrap()[2]+0.0231853).abs()<1e-5);
         h=Heading::default();
-        for _ in 0..1000 {assert!(h.step(0.,[0.4,0.,0.25],true,0.02).unwrap()[2]<=0.25);}
+        for _ in 0..1000 {assert!(h.step(0.,[0.4,0.,0.25],true,0.02).unwrap()[2]<=0.5);}
+        assert_eq!(h.step(0.,[0.4,0.,0.25],true,0.02).unwrap()[2],0.5);
         assert_eq!(h.step(0.4,[0.4,0.,0.25],false,0.02).unwrap(),[0.;3]);
         assert!((h.step(0.5,[0.4,0.,0.25],false,0.02).unwrap()[2]+0.1).abs()<1e-5);
         h=Heading::default();

@@ -207,7 +207,7 @@ impl Motion {
         // Local evdev only consumes readiness/errors, never the App telemetry payload.
         if self.source == "gamepad" {
             let s=self.app.telemetry.read().unwrap();
-            return json!({"rollerMode":crate::swizzle::control_mode(&s.control),"rollerReady":self.phase=="active" && !self.stopped && !self.pending && crate::swizzle::ready(&s.control),"flamingoReady":self.phase=="active" && !self.stopped && !self.pending && s.control["activeSkill"]=="flamingo_hold" && s.control["feedbackHolding"]!=true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
+            return json!({"rollRunning":self.phase=="active" && !self.stopped && s.control["activeSkill"]=="xgoduck_roulade" && s.control["feedbackHolding"]!=true,"rollerMode":crate::swizzle::control_mode(&s.control),"rollerReady":self.phase=="active" && !self.stopped && !self.pending && crate::swizzle::ready(&s.control),"flamingoReady":self.phase=="active" && !self.stopped && !self.pending && s.control["activeSkill"]=="flamingo_hold" && s.control["feedbackHolding"]!=true,"headReady":self.phase=="active" && !self.stopped && !self.pending && crate::head_control::ready(&s.control),
                 "autonomy":s.autonomy.status(),"demoActive":s.demo.active,"motionError":self.error,"controlOwned":self.input_permit.is_some() || (self.drive.is_some() && self.drive==s.gamepad_session),
                 "controlBusy":self.drive.is_none() && self.app.input_gate.available_permits()==0});
         }
@@ -459,7 +459,7 @@ impl Motion {
             },
             "stand"|"standup" if crate::swizzle::control_mode(&self.control())=>{
                 self.zero();
-                if matches!(self.control()["activeSkill"].as_str(),Some(crate::swizzle::ACTIVE|crate::swizzle::CROUCH)) {self.error.clear();}
+                if self.control()["policyPhase"]!="roller-fallen-wait" && (self.control()["activeSkill"]==crate::swizzle::ACTIVE || self.control()["rollerCrouchReturning"]==true) {self.error.clear();}
                 else if let Some(session)=&self.drive {
                     self.drive_seq+=1;self.request("policy/skill",Some(json!({"session":session,"sequence":self.drive_seq,"skill":"swizzle"}))).await?;self.pending=true;
                 }
@@ -1030,7 +1030,20 @@ pub(crate) mod tests {
 
 #[cfg(test)] mod roller_tests {
     use super::*;
-    #[tokio::test] async fn roller_x_queues_one_cycle_and_a_does_not_interrupt_or_retrigger() {
+    #[tokio::test] async fn fallen_roller_a_sends_resume_instead_of_being_swallowed() {
+        for active in [crate::swizzle::ACTIVE,crate::swizzle::CROUCH] {
+            let (mut m,calls,_tmp)=super::tests::fixture();m.open().unwrap();
+            m.drive=Some("ble-session".into());m.phase="active".into();
+            {let mut s=m.app.telemetry.write().unwrap();
+                s.drive=Some(crate::telemetry::DriveCommand{session:"ble-session".into(),sequence:0,twist:[0.;3],updated:Instant::now()});
+                s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":active,"driveSession":"ble-session","policyPhase":"roller-fallen-wait","rollerResumeReady":true,"feedbackHolding":true});}
+            m.command(json!({"seq":1,"action":"stand"})).await.unwrap();
+            assert!(m.error.is_empty());
+            let calls=calls.lock().unwrap();let (_,body)=calls.last().unwrap();
+            assert_eq!(body["skill"],"swizzle");assert_eq!(body["session"],"ble-session");
+        }
+    }
+    #[tokio::test] async fn roller_x_crouches_and_a_requests_rise_without_retriggering_x() {
         let (mut m,calls,_tmp)=super::tests::fixture();m.open().unwrap();
         m.drive=Some("ble-session".into());m.phase="active".into();
         {let mut s=m.app.telemetry.write().unwrap();
@@ -1042,7 +1055,11 @@ pub(crate) mod tests {
         let count=calls.lock().unwrap().len();
         m.command(json!({"seq":2,"action":"stand"})).await.unwrap();assert!(m.error.is_empty());
         m.command(json!({"seq":3,"action":"roller_crouch"})).await.unwrap();assert!(!m.error.is_empty());
-        assert_eq!(calls.lock().unwrap().len(),count);
+        assert_eq!(calls.lock().unwrap().len(),count+1);
+        assert_eq!(calls.lock().unwrap().last().unwrap().1["skill"],"swizzle");
+        m.app.telemetry.write().unwrap().control["rollerCrouchReturning"]=json!(true);
+        m.command(json!({"seq":4,"action":"stand"})).await.unwrap();
+        assert_eq!(calls.lock().unwrap().len(),count+1);
         assert_eq!(m.control()["skillProgressSeconds"],1.2);
     }
     #[tokio::test] async fn roller_preparation_a_and_drive_use_the_owned_roller_session() {

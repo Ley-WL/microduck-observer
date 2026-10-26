@@ -423,6 +423,13 @@ pub fn execute<T: Transport>(
     let ramp_seconds=if native_pose {2.} else {1.5};
     let budget = if pose && !native_pose { 3. } else { 5. };
     let guard = || -> Result<()> {
+        // A model stop clears drive even when it requests hold rather than
+        // global disable. Do not finish a roller resume HOME after it.
+        if let Some(session)=command["rollerResumeSession"].as_str() {
+            if !shared.read().unwrap().drive.as_ref().is_some_and(|d|d.session==session) {
+                bail!("轮滑恢复会话已结束，取消回站并卸力");
+            }
+        }
         if cancel.load(Ordering::Acquire) {
             bail!("已取消动作，执行全部失能")
         };
@@ -1278,6 +1285,19 @@ mod tests {
         assert_eq!(bus.writes.len(), 1);
         assert_eq!(bus.writes[0].0, 40);
         assert_eq!(bus.writes[0].1.len(), 15);
+    }
+    #[test]
+    fn roller_resume_home_requires_the_original_live_session_before_any_write() {
+        for other in [None,Some("replacement")] {
+            let mut bus=Mock::new();let state=shared();
+            state.write().unwrap().drive=other.map(|session|crate::telemetry::DriveCommand {
+                session:session.into(),sequence:0,twist:[0.;3],updated:Instant::now(),
+            });
+            let mut c=command();c["rollerResumeSession"]=json!("original");
+            let error=execute(&mut bus,&c,&AtomicBool::new(false),&state).unwrap_err();
+            assert!(error.to_string().contains("轮滑恢复会话已结束"));
+            assert!(bus.writes.is_empty());
+        }
     }
     #[test]
     fn cancelled_preflight_never_writes() {

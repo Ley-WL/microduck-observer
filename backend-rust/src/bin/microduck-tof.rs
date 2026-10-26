@@ -40,7 +40,10 @@ mod native {
                 ensure!(unsafe{vl5_get_frame(distances.as_mut_ptr(),status.as_mut_ptr())}==0,"ToF frame I2C failure");
                 for i in 0..64 {if distances[i]<0 {distances[i]=0;status[i]=0;}}
                 seq+=1;last=Instant::now();
-                let frame=serde_json::json!({"rows":8,"cols":8,"seq":seq,"t_ns":clock.elapsed().as_nanos() as u64,"distance_mm":distances.as_slice(),"status":status.as_slice()});
+                let mut captured:libc::timespec=unsafe{std::mem::zeroed()};
+                ensure!(unsafe{libc::clock_gettime(libc::CLOCK_MONOTONIC,&mut captured)}==0,"ToF capture clock unavailable");
+                let captured_ns=captured.tv_sec as u64*1_000_000_000+captured.tv_nsec as u64;
+                let frame=serde_json::json!({"captured_mono_ns":captured_ns,"rows":8,"cols":8,"seq":seq,"t_ns":clock.elapsed().as_nanos() as u64,"distance_mm":distances.as_slice(),"status":status.as_slice()});
                 serde_json::to_writer(&mut out,&frame)?;writeln!(out)?;out.flush()?;
             }
             ensure!(last.elapsed()<Duration::from_secs(3),"ToF stopped producing frames");

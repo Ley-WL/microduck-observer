@@ -130,6 +130,15 @@ pub fn step_head(offset:&mut [f64;2],desired:[f64;2],base:[f64;2],bounds:[(f64,f
         offset[i]=(base[i]+offset[i]).clamp(bounds[i].0,bounds[i].1)-base[i];
     }
 }
+fn voice_tag(mode:&str)->Option<&'static str>{
+    match mode {
+        "single"|"double"|"auto_on"|"auto_off"|"auto_reject"=>Some("chirp"),
+        "long"|"auto_failed"|"explore_clear"=>Some("wheee"),
+        "explore_start"=>Some("greet"),"explore_obstacle"=>Some("inquire"),"explore_blocked"=>Some("alarm"),
+        "explore_idle"=>{let choices=["coo","chirp","peck"];Some(choices[rand::thread_rng().gen_range(0..choices.len())])},
+        _=>None
+    }
+}
 pub struct Playback { child: Child, started: Instant, duration: Duration, direction:[f64;2] }
 impl Playback {
     pub fn start() -> Result<Self> {Self::start_voice("random")}
@@ -137,7 +146,7 @@ impl Playback {
         ready()?;
         let voice = VOICE.get().unwrap();
         let mut rng=rand::thread_rng();
-        let tag=match mode {"single"|"double"|"auto_on"|"auto_off"|"auto_reject"=>Some("chirp"),"long"|"auto_failed"=>Some("wheee"),_=>None};
+        let tag=voice_tag(mode);
         let (group,variant)=if let Some(tag)=tag {
             let group=microduck_sounds::TAGS.iter().position(|(t,_)|*t==tag).unwrap();
             (group,rng.gen_range(0..voice.groups[group].len()))
@@ -168,6 +177,12 @@ impl Playback {
 impl Drop for Playback { fn drop(&mut self) { let _ = self.child.kill(); let _ = self.child.wait(); } }
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn exploration_uses_context_banks_and_idle_never_alarms(){
+        for (mode,tag) in [("explore_start","greet"),("explore_obstacle","inquire"),("explore_clear","wheee"),("explore_blocked","alarm")]{
+            assert_eq!(voice_tag(mode),Some(tag));assert!(microduck_sounds::TAGS.iter().any(|(t,_)|*t==tag));
+        }
+        for _ in 0..100{assert!(["coo","chirp","peck"].contains(&voice_tag("explore_idle").unwrap()));}
+    }
     #[test] fn short_calls_open_less_and_all_calls_close() {
         let short=Duration::from_millis(300);let long=Duration::from_secs(3);
         assert!(mouth_peak(short)<mouth_peak(long));assert_eq!(mouth_peak(long),12.);

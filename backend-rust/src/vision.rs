@@ -95,7 +95,7 @@ impl Interaction {
         } else {self.stable_since=None;self.stable_anchor=None;}
         Ok(())
     }
-    fn fresh(&self,now:Instant)->bool {self.frame.is_some_and(|t|now.saturating_duration_since(t)<Duration::from_millis(600)) && self.error.is_empty()}
+    pub fn fresh(&self,now:Instant)->bool {self.frame.is_some_and(|t|now.saturating_duration_since(t)<Duration::from_millis(600)) && self.error.is_empty()}
     pub fn tracking(&self)->bool {self.locked && self.target.is_some()}
     fn face_tracking(&self)->bool {self.tracking() && self.fresh(Instant::now()) && self.stable_since.zip(self.seen).is_some_and(|(start,end)|end.saturating_duration_since(start)>=Duration::from_millis(500) && end.elapsed()<Duration::from_millis(300))}
     pub fn desired(&mut self,now:Instant,epoch:u64)->[f64;2] {

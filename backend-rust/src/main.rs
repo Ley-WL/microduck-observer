@@ -1,4 +1,5 @@
 mod autonomy;
+mod exploration;
 mod vision;
 mod demo;
 mod dance;
@@ -18,6 +19,8 @@ mod imu;
 mod orientation;
 mod policy;
 mod swizzle;
+mod official_roll;
+mod official_fall;
 mod model_registry;
 mod observer_ota;
 mod web_update;
@@ -867,6 +870,7 @@ async fn main() -> anyhow::Result<()> {
             stop.clone(),
         );
     }
+    exploration::init(&shared);
     tof::init(hardware,shared.clone()).await;
     let data = shared.clone();
     let producer_stop = stop.clone();
@@ -924,6 +928,7 @@ async fn main() -> anyhow::Result<()> {
         .merge(gamepad_bluetooth::router())
         .merge(camera::router())
         .merge(tof::router())
+        .merge(exploration::router())
         .merge(web_update::router())
         .fallback_service(ServeDir::new(static_dir).append_index_html_on_directories(true))
         .layer(DefaultBodyLimit::max(16384))

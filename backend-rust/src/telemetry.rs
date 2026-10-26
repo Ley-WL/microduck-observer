@@ -94,7 +94,7 @@ impl Telemetry {
         if self.autonomy.enabled() {self.autonomy.stop(reason);self.autonomy_notice=Some(if failed {"auto_failed"}else{"auto_off"});}
     }
     pub fn cancel_vision_sound(&mut self) {
-        if self.vision.sound {self.vision.sound=false;self.pending_quack=false;self.quack_running=false;self.quack_cancel=true;}
+        if self.vision.sound || self.autonomy.explorer.sound {self.vision.sound=false;self.autonomy.explorer.sound=false;self.pending_quack=false;self.quack_running=false;self.quack_cancel=true;}
     }
     pub fn autonomous_input(&mut self,session:&str,sequence:u64,active:bool)->bool {
         if !self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence){return false;}
@@ -132,6 +132,18 @@ impl Telemetry {
     }
     pub fn queue_skill(&mut self, session:&str, sequence:u64, kind:&str) -> bool {
         let active=self.control["activeSkill"].as_str().unwrap_or("");
+        if active=="xgoduck_roulade" {
+            if kind!="xgoduck_roulade" || self.control["state"]!="policy" || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
+            let Some(drive)=self.drive.as_mut() else {return false;};
+            if !drive.update(session,sequence,[0.;3]) {return false;}
+            self.pending_skill=Some(kind.into());return true;
+        }
+        if (crate::swizzle::resume_ready(&self.control) || crate::swizzle::crouch_return_ready(&self.control)) && kind==crate::swizzle::ACTIVE {
+            if self.pending_skill.is_some() {return false;}
+            let Some(drive)=self.drive.as_mut() else {return false;};
+            if !drive.update(session,sequence,[0.;3]) {return false;}
+            self.head_intent.clear();self.pending_skill=Some(kind.to_owned());return true;
+        }
         if crate::swizzle::is_mode(active) || crate::swizzle::is_mode(kind) {
             if !crate::swizzle::transition(active,kind) || self.control["state"]!="policy"
                 || self.control["feedbackHolding"]==true || self.pending_skill.is_some() {return false;}
@@ -265,7 +277,7 @@ mod drive_tests {
     }
     #[test]
     fn recovery_preempts_fallen_moves_and_duplicate_press_does_not_restart() {
-        for active in ["sitstand_sit","sitstand_stand","xgoduck_pick","xgoduck_roulade"] {
+        for active in ["sitstand_sit","sitstand_stand","xgoduck_pick"] {
             let mut state=Telemetry::new(true);
             state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":active,"recoveryFallen":true});
             state.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.2,0.,0.],updated:Instant::now()});
@@ -291,6 +303,19 @@ mod drive_tests {
         assert!(!d.update("new",2,[0.2,0.,0.]));
         assert!(!d.update("old",4,[0.2,0.,0.]));
         assert_eq!(d.current(),[0.;3]);
+    }
+    #[test]
+    fn roll_only_refreshes_from_current_owner_without_preemption() {
+        let mut s=Telemetry::new(true);
+        s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"xgoduck_roulade","recoveryFallen":true});
+        s.drive=Some(DriveCommand{session:"live".into(),sequence:1,twist:[0.;3],updated:Instant::now()});
+        assert!(!s.queue_skill("foreign",2,"xgoduck_roulade"));
+        assert!(!s.queue_skill("live",1,"xgoduck_roulade"));
+        assert!(!s.queue_skill("live",2,"xgoduck_getup"));
+        assert!(s.queue_skill("live",2,"xgoduck_roulade"));
+        assert!(!s.queue_skill("live",3,"xgoduck_roulade"));
+        s.pending_skill=None;s.control["feedbackHolding"]=json!(true);
+        assert!(!s.queue_skill("live",3,"xgoduck_roulade"));
     }
     #[test]
     fn expired_held_command_returns_zero_without_a_browser_release() {
@@ -483,15 +508,40 @@ mod tests {
 
 #[cfg(test)] mod roller_tests {
     use super::*;
-    #[test] fn crouch_request_requires_skating_session_and_cannot_restart_or_skip_rise() {
+    #[test] fn fallen_roller_requires_a_new_owned_a_request_after_stability() {
+        for active in [crate::swizzle::ACTIVE,crate::swizzle::CROUCH] {
+            let mut s=Telemetry::new(true);
+            s.control=json!({"state":"policy","activeSkill":active,"policyPhase":"roller-fallen-wait","feedbackHolding":true,"rollerResumeReady":false});
+            s.drive=Some(DriveCommand{session:"s".into(),sequence:4,twist:[0.;3],updated:Instant::now()});
+            assert!(!s.queue_skill("s",5,crate::swizzle::ACTIVE));
+            s.control["rollerResumeReady"]=json!(true);
+            assert!(s.pending_skill.is_none()); // standing up alone never queues a restart
+            assert!(!s.queue_skill("foreign",5,crate::swizzle::ACTIVE));
+            assert!(!s.queue_skill("s",4,crate::swizzle::ACTIVE));
+            assert!(!s.queue_skill("s",5,crate::swizzle::CROUCH));
+            assert!(s.queue_skill("s",5,crate::swizzle::ACTIVE));
+            assert!(!s.queue_skill("s",6,crate::swizzle::ACTIVE));
+            assert_eq!(s.pending_skill.as_deref(),Some(crate::swizzle::ACTIVE));
+            s.pending_skill=None;s.control["rollerResumeReady"]=json!(false);
+            assert!(!s.queue_skill("s",6,crate::swizzle::ACTIVE));
+        }
+    }
+    #[test] fn crouch_request_requires_skating_session_and_a_queues_rise_once() {
         let mut s=Telemetry::new(true);s.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"swizzle_prepare"});
         s.drive=Some(DriveCommand{session:"s".into(),sequence:0,twist:[0.4,0.,0.],updated:Instant::now()});
         assert!(!s.queue_skill("s",1,crate::swizzle::CROUCH));s.control["activeSkill"]=json!(crate::swizzle::ACTIVE);
         assert!(!s.queue_skill("other",1,crate::swizzle::CROUCH));assert!(s.queue_skill("s",1,crate::swizzle::CROUCH));
         assert_eq!(s.drive.as_ref().unwrap().twist,[0.;3]);assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));
         s.pending_skill=None;s.control["activeSkill"]=json!(crate::swizzle::CROUCH);s.control["skillProgressSeconds"]=json!(1.2);
-        assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));assert!(!s.queue_skill("s",2,crate::swizzle::ACTIVE));
-        assert_eq!(s.control["skillProgressSeconds"],1.2);assert_eq!(s.drive.as_ref().unwrap().sequence,1);
+        assert!(!s.queue_skill("s",2,crate::swizzle::CROUCH));
+        assert!(!s.queue_skill("other",2,crate::swizzle::ACTIVE));
+        assert!(s.queue_skill("s",2,crate::swizzle::ACTIVE));
+        assert!(!s.queue_skill("s",3,crate::swizzle::ACTIVE));
+        assert_eq!(s.control["skillProgressSeconds"],1.2);assert_eq!(s.drive.as_ref().unwrap().sequence,2);
+        s.pending_skill=None;s.control["rollerCrouchReturning"]=json!(true);
+        assert!(!s.queue_skill("s",3,crate::swizzle::ACTIVE));
+        s.control["rollerCrouchReturning"]=json!(false);s.control["feedbackHolding"]=json!(true);
+        assert!(!s.queue_skill("s",3,crate::swizzle::ACTIVE));
     }
     #[test] fn roller_quack_and_mouth_preserve_mode_and_reject_foreign_or_held_commands() {
         for skill in ["swizzle_prepare","swizzle"] {

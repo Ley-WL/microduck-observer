@@ -86,9 +86,17 @@ async fn read_frames(child:&mut Child,shared:&Shared)->anyhow::Result<()> {
         anyhow::ensure!(!previous.is_some_and(|(s,t)|seq<=s||ns<=t),"ToF帧序号或时间戳异常");
         times.push_back(ns);if times.len()>30 {times.pop_front();}
         let hz=if times.len()>1{(times.len()-1) as f64*1e9/(ns-times[0]) as f64}else{0.};
+        let received=Instant::now();
+        let captured=if let Some(ns)=p["captured_mono_ns"].as_u64(){
+            let mut clock:libc::timespec=unsafe{std::mem::zeroed()};
+            anyhow::ensure!(unsafe{libc::clock_gettime(libc::CLOCK_MONOTONIC,&mut clock)}==0,"ToF主机时钟不可用");
+            let now_ns=clock.tv_sec as u64*1_000_000_000+clock.tv_nsec as u64;
+            anyhow::ensure!(ns<=now_ns,"ToF采集时间来自未来");
+            received.checked_sub(Duration::from_nanos(now_ns-ns))
+        }else{None};
         let mut state=shared.write().unwrap();
         state.tof=json!({"enabled":true,"state":"streaming","error":"","hz":hz,"capturePid":child.id()});
-        state.sample("tof",json!({"rows":8,"cols":8,"distanceMm":p["distance_mm"],"status":p["status"],"sensorSeq":seq,"sensorTimeNs":ns,"hz":hz,"sequenceGap":previous.map(|(s,_)|seq-s-1).unwrap_or(0),"sensor":"VL53L5CX"}),true,Instant::now());
+        state.sample("tof",json!({"captureClockVerified":captured.is_some(),"rows":8,"cols":8,"distanceMm":p["distance_mm"],"status":p["status"],"sensorSeq":seq,"sensorTimeNs":ns,"hz":hz,"sequenceGap":previous.map(|(s,_)|seq-s-1).unwrap_or(0),"sensor":"VL53L5CX"}),true,captured.unwrap_or(received));
         previous=Some((seq,ns));
     }
 }
