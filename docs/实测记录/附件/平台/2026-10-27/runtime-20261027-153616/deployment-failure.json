@@ -1,0 +1,14 @@
+{
+  "installed": false,
+  "rolledBackTo": "runtime-20261027-151932",
+  "cause": "Open frontend automatically rebound IMU bootId after service restart; strict calibration revision/hash preservation check rejected deployment",
+  "oldRevision": 125,
+  "observedRevisionAfterRollback": 127,
+  "changedKeys": [
+    "updatedAt",
+    "imu.bootId",
+    "revision"
+  ],
+  "calibrationAnglesUnchanged": true,
+  "nextAttempt": "runtime-20261027-154419"
+}

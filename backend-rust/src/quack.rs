@@ -1,5 +1,5 @@
 //! Per-device upstream Rust voice, generated before control starts; cached outside releases.
-use anyhow::{ensure, Context, Result};
+use anyhow::{ensure, Result};
 use microduck_sounds::{hardware_seed, Personality, BANK_VERSION};
 use sha2::{Digest, Sha256};
 use rand::Rng;
@@ -89,6 +89,18 @@ pub fn ready() -> Result<()> {
     })?;
     Ok(())
 }
+fn short_notice(mode:&str)->bool {mode.starts_with("explore_") || mode.starts_with("auto_")}
+// Select complete natural calls; never truncate a voice waveform.
+fn notice_variant(voice:&Voice,group:usize,rng:&mut impl Rng)->Result<(usize,usize)> {
+    let candidates:Vec<_>=voice.groups[group].iter().enumerate()
+        .filter(|(_,c)|c.duration<=Duration::from_millis(1500)).map(|(i,_)|(group,i)).collect();
+    if !candidates.is_empty(){return Ok(candidates[rng.gen_range(0..candidates.len())]);}
+    let fallback=microduck_sounds::TAGS.iter().position(|(tag,_)|*tag=="chirp").unwrap();
+    let candidates:Vec<_>=voice.groups[fallback].iter().enumerate()
+        .filter(|(_,c)|c.duration<=Duration::from_millis(1500)).map(|(i,_)|(fallback,i)).collect();
+    ensure!(!candidates.is_empty(),"没有可用的完整短叫音频");
+    Ok(candidates[rng.gen_range(0..candidates.len())])
+}
 fn double_clip(source:&Clip)->Result<Clip> {
     let mut reader=hound::WavReader::new(Cursor::new(&source.bytes))?;
     let spec=reader.spec();let samples=reader.samples::<i16>().collect::<std::result::Result<Vec<_>,_>>()?;
@@ -100,7 +112,7 @@ fn double_clip(source:&Clip)->Result<Clip> {
     clip(out.into_inner())
 }
 // Small expressions use the selected clip's duration, not a fixed full-open jaw.
-pub fn mouth_peak(duration:Duration)->f64 {2.+10.*((duration.as_secs_f64()-0.25)/1.75).clamp(0.,1.)}
+pub fn mouth_peak(duration:Duration)->f64 {20.+6.*((duration.as_secs_f64()-0.25)/1.25).clamp(0.,1.)}
 fn expression_envelope(duration:Duration,elapsed:Duration)->f64 {
     let t=elapsed.as_secs_f64();let end=duration.as_secs_f64()+0.1;
     (t/0.12).clamp(0.,1.).min(((end-t)/0.15).clamp(0.,1.))
@@ -133,15 +145,16 @@ pub fn step_head(offset:&mut [f64;2],desired:[f64;2],base:[f64;2],bounds:[(f64,f
 fn voice_tag(mode:&str)->Option<&'static str>{
     match mode {
         "single"|"double"|"auto_on"|"auto_off"|"auto_reject"=>Some("chirp"),
-        "long"|"auto_failed"|"explore_clear"=>Some("wheee"),
-        "explore_start"=>Some("greet"),"explore_obstacle"=>Some("inquire"),"explore_blocked"=>Some("alarm"),
+        "long"=>Some("wheee"),
+        "auto_failed"|"explore_clear"=>Some("chirp"),
+        "explore_start"=>Some("greet"),
+        "explore_obstacle"=>Some("inquire"),"explore_blocked"=>Some("alarm"),
         "explore_idle"=>{let choices=["coo","chirp","peck"];Some(choices[rand::thread_rng().gen_range(0..choices.len())])},
         _=>None
     }
 }
 pub struct Playback { child: Child, started: Instant, duration: Duration, direction:[f64;2] }
 impl Playback {
-    pub fn start() -> Result<Self> {Self::start_voice("random")}
     pub fn start_voice(mode:&str) -> Result<Self> {
         ready()?;
         let voice = VOICE.get().unwrap();
@@ -151,8 +164,9 @@ impl Playback {
             let group=microduck_sounds::TAGS.iter().position(|(t,_)|*t==tag).unwrap();
             (group,rng.gen_range(0..voice.groups[group].len()))
         } else {choose(voice,&mut rng)};
+        let (group,variant)=if short_notice(mode){notice_variant(voice,group,&mut rng)?}else{(group,variant)};
         let selected = &voice.groups[group][variant];
-        let repeated=if matches!(mode,"double"|"auto_on"|"auto_off"|"auto_failed") {Some(double_clip(selected)?)} else {None};
+        let repeated=if mode=="double" {Some(double_clip(selected)?)} else {None};
         let selected=repeated.as_ref().unwrap_or(selected);
         let mut child = Command::new("/usr/bin/aplay").args(["-q", "-D", "plughw:CARD=aic3104,DEV=0"])
             .stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::null()).spawn()?;
@@ -178,19 +192,26 @@ impl Drop for Playback { fn drop(&mut self) { let _ = self.child.kill(); let _ =
 #[cfg(test)] mod tests {
     use super::*;
     #[test] fn exploration_uses_context_banks_and_idle_never_alarms(){
-        for (mode,tag) in [("explore_start","greet"),("explore_obstacle","inquire"),("explore_clear","wheee"),("explore_blocked","alarm")]{
+        for (mode,tag) in [("explore_start","greet"),("explore_obstacle","inquire"),("explore_clear","chirp"),("explore_blocked","alarm"),("auto_failed","chirp")]{
             assert_eq!(voice_tag(mode),Some(tag));assert!(microduck_sounds::TAGS.iter().any(|(t,_)|*t==tag));
         }
         for _ in 0..100{assert!(["coo","chirp","peck"].contains(&voice_tag("explore_idle").unwrap()));}
     }
+    #[test] fn natural_notices_select_complete_short_variants(){
+        let chirp=microduck_sounds::TAGS.iter().position(|(tag,_)|*tag=="chirp").unwrap();
+        let mut voice=Voice{groups:microduck_sounds::TAGS.iter().map(|_|vec![Clip{bytes:vec![1,2],duration:Duration::from_secs(3)}]).collect()};
+        voice.groups[chirp].push(Clip{bytes:vec![3,4,5],duration:Duration::from_millis(900)});
+        for group in 0..voice.groups.len(){let (g,i)=notice_variant(&voice,group,&mut rand::thread_rng()).unwrap();assert_eq!((g,i),(chirp,1));assert_eq!(voice.groups[g][i].bytes,vec![3,4,5]);}
+        voice.groups[chirp].pop();assert!(notice_variant(&voice,chirp,&mut rand::thread_rng()).is_err());
+    }
     #[test] fn short_calls_open_less_and_all_calls_close() {
         let short=Duration::from_millis(300);let long=Duration::from_secs(3);
-        assert!(mouth_peak(short)<mouth_peak(long));assert_eq!(mouth_peak(long),12.);
+        assert!(mouth_peak(short)<mouth_peak(long));assert_eq!(mouth_peak(long),26.);
         for ms in [100,300,800,1500,3000,19000] {
             let duration=Duration::from_millis(ms);
             assert_eq!(mouth_expression(duration,Duration::ZERO),-5.);
             for t in (0..ms+400).step_by(20) {
-                assert!((-5. ..=12.).contains(&mouth_expression(duration,Duration::from_millis(t))));
+                assert!((-5. ..=26.).contains(&mouth_expression(duration,Duration::from_millis(t))));
                 let h=head_expression(duration,Duration::from_millis(t),[-1.,1.]);assert!(h[0].abs()<=12. && h[1].abs()<=18.);
             }
             assert_eq!(mouth_expression(duration,duration+Duration::from_millis(200)),-5.);

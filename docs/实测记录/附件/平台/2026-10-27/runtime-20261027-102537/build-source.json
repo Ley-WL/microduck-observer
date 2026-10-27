@@ -1,0 +1,15 @@
+{
+  "base": "0c0af236c5fdf1bccea2907f8df6c415cb62f339",
+  "overlays": [
+    "exploration.rs",
+    "quack.rs",
+    "official_fall.rs",
+    "policy.rs: fall resume guard only; staged getup excluded"
+  ],
+  "binarySha256": "05b46aa7b2404fb59aecd55de5d2e227f62caf0ecae578c1a3a0ed734ac1725b",
+  "tests": {
+    "passed": 361,
+    "ignored": 1
+  },
+  "physicalMotionTested": false
+}

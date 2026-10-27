@@ -19,6 +19,7 @@ impl Clock {
     pub fn pause(&mut self) {self.good=0;self.stand_run=0;self.transfer_run=0;self.pose_entry_run=0;}
     pub fn command(&self)->[f32;3] {[if matches!(self.stage,Stage::Enter|Stage::Hold) {1.} else {0.},self.progress,0.035]}
     pub fn done(&self)->bool {self.stage==Stage::Settle && self.settle>=100}
+    #[cfg(test)]
     pub fn step(&mut self,pose:bool,standing:bool) {
         self.step_with_transfer(pose,standing,false);
     }
@@ -76,6 +77,7 @@ impl Geometry {
             p+=r*g.shift;r*=g.fixed;(p,r)
         })
     }
+    #[cfg(test)]
     pub fn feet(&self,q:&[f64;14])->[Vec<Vector3<f64>>;2] {
         let transforms=self.transforms(q);
         std::array::from_fn(|side| {let (p,r)=transforms[side];self.geometry[side].vertices.iter().map(|v|p+r*v).collect()})

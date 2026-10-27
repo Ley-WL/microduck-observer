@@ -1,0 +1,15 @@
+Oct 27 10:34:25 microduck-e6fc56 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 27 10:34:25 microduck-e6fc56 systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 27 10:34:25 microduck-e6fc56 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 27 10:34:25 microduck-e6fc56 systemd[1]: microduck-observer.service: Consumed 4min 52.679s CPU time, 279.1M memory peak.
+Oct 27 10:34:51 microduck-e6fc56 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 27 10:34:52 microduck-e6fc56 microduck-observer[2271]: DuckLink BLE ready in Rust backend
+Oct 27 10:34:52 microduck-e6fc56 systemd[1]: Stopping microduck-observer.service - MicroDuck native Rust observer and explicit servo control...
+Oct 27 10:34:54 microduck-e6fc56 systemd[1]: microduck-observer.service: Deactivated successfully.
+Oct 27 10:34:54 microduck-e6fc56 systemd[1]: Stopped microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 27 10:34:56 microduck-e6fc56 systemd[1]: Started microduck-observer.service - MicroDuck native Rust observer and explicit servo control.
+Oct 27 10:34:57 microduck-e6fc56 microduck-observer[2364]: DuckLink BLE ready in Rust backend
+Oct 27 10:41:34 microduck-e6fc56 mpp[2425]: mpp_info: mpp version: unknown mpp version for missing VCS info
+Oct 27 10:41:34 microduck-e6fc56 mpp[2425]: mpp_enc: set prep cfg w:h [640:480] stride [640:480] fmt 0 rotate 0 mirror 0
+Oct 27 10:41:34 microduck-e6fc56 mpp[2425]: mpp_enc: set rc fixqp bps [0:0:0] fps [21:2:fix] - [21:2:fix] gop 0
+Oct 27 10:41:34 microduck-e6fc56 mpp[2425]: mpp_enc: set jpeg qfactor [80:80:80]

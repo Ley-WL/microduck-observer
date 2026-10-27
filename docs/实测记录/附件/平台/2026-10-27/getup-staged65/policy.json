@@ -1,0 +1,1863 @@
+{
+  "available": true,
+  "control": {
+    "autonomy": {
+      "behavior": "已关闭",
+      "controlSource": "manual",
+      "enabled": false,
+      "exploration": {
+        "attempts": 0,
+        "behavior": "观察前方",
+        "clearMm": 700.0,
+        "commandTwist": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distanceMm": null,
+        "excludedTofZones": [
+          16,
+          24,
+          25,
+          32,
+          33,
+          34,
+          40,
+          41,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63
+        ],
+        "headDegrees": [
+          0.0,
+          0.0
+        ],
+        "lastVoice": null,
+        "leftMm": null,
+        "reason": "",
+        "requiredTofZones": 40,
+        "rightMm": null,
+        "selected": false,
+        "stopMm": 450.0
+      },
+      "ready": false,
+      "reason": "",
+      "recoveryRemainingSeconds": null,
+      "selectedMode": "interaction",
+      "state": "off"
+    },
+    "message": "等待操作",
+    "state": "idle"
+  },
+  "controlHz": 50,
+  "kind": "xgoduck",
+  "metadata": {
+    "actionDim": 14,
+    "actionSemantics": "HOME + raw action; scale1; no EMA; observer mechanical target clamp",
+    "actorObservationDim": 61,
+    "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+    "artifactType": "training-policy",
+    "completedTrainingUpdates": 5000,
+    "controlHz": 50,
+    "deploymentProvenance": {
+      "formalAcceptancePassed": false,
+      "userRequested": true
+    },
+    "geometry": "replica / HD1910 / observer backend mechanical limits",
+    "hardwareValidated": false,
+    "homeRadians": [
+      0.0,
+      -0.0873,
+      -0.4579,
+      -0.0049,
+      0.453,
+      0.3491,
+      0.3491,
+      0.0,
+      0.0,
+      0.0,
+      0.0873,
+      0.4579,
+      0.0049,
+      -0.453
+    ],
+    "jointOrder": [
+      "left_hip_yaw",
+      "left_hip_roll",
+      "left_hip_pitch",
+      "left_knee",
+      "left_ankle",
+      "neck_pitch",
+      "head_pitch",
+      "head_yaw",
+      "head_roll",
+      "right_hip_yaw",
+      "right_hip_roll",
+      "right_hip_pitch",
+      "right_knee",
+      "right_ankle"
+    ],
+    "mechanicalPhysicalJointLimitsRadians": {
+      "head_pitch": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "head_roll": [
+        -0.3490658503988659,
+        0.3490658503988659
+      ],
+      "head_yaw": [
+        -2.9670597283903604,
+        2.9670597283903604
+      ],
+      "left_ankle": [
+        -1.2217304763960306,
+        1.2217304763960306
+      ],
+      "left_hip_pitch": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "left_hip_roll": [
+        -0.3839724354387525,
+        0.3839724354387525
+      ],
+      "left_hip_yaw": [
+        -0.4363323129985824,
+        0.5235987755982988
+      ],
+      "left_knee": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "neck_pitch": [
+        -1.5707963267948966,
+        1.2217304763960306
+      ],
+      "right_ankle": [
+        -1.2217304763960306,
+        1.2217304763960306
+      ],
+      "right_hip_pitch": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "right_hip_roll": [
+        -0.3839724354387525,
+        0.3839724354387525
+      ],
+      "right_hip_yaw": [
+        -0.5235987755982988,
+        0.4363323129985824
+      ],
+      "right_knee": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ]
+    },
+    "observationNormalization": "embedded_in_onnx_once",
+    "policySha256": "e3b90ac0e5359f91e14306b7e2143e0d5a1f4cd49cb256bca3fd71835250d895",
+    "runtimeActionAlpha": 0,
+    "runtimeKind": "xgoduck",
+    "sourceCheckpoint": "model_4999.pt",
+    "sourceExperiment": "/CodeRepo/Code/leiwu30/hd1910-walk-observer-20261020",
+    "task": "Mjlab-Velocity-Flat-MicroDuck",
+    "trainingTargetClipRadians": {
+      "head_pitch": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "head_roll": [
+        -0.3490658503988659,
+        0.3490658503988659
+      ],
+      "head_yaw": [
+        -2.9670597283903604,
+        2.9670597283903604
+      ],
+      "left_ankle": [
+        -1.2217304763960306,
+        1.2217304763960306
+      ],
+      "left_hip_pitch": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "left_hip_roll": [
+        -0.3839724354387525,
+        0.3839724354387525
+      ],
+      "left_hip_yaw": [
+        -0.4363323129985824,
+        0.5235987755982988
+      ],
+      "left_knee": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "neck_pitch": [
+        -1.5707963267948966,
+        1.2217304763960306
+      ],
+      "right_ankle": [
+        -1.2217304763960306,
+        1.2217304763960306
+      ],
+      "right_hip_pitch": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "right_hip_roll": [
+        -0.3839724354387525,
+        0.3839724354387525
+      ],
+      "right_hip_yaw": [
+        -0.5235987755982988,
+        0.4363323129985824
+      ],
+      "right_knee": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ]
+    },
+    "walkExecution": {
+      "actionScale": 1.0,
+      "gainSource": "existing board P5/D0; compatible execution schema, not donor provenance",
+      "gains": {
+        "d": 0,
+        "p": 5
+      },
+      "headNewWeight": 1.0,
+      "legsNewWeight": 1.0,
+      "policySha256": "e3b90ac0e5359f91e14306b7e2143e0d5a1f4cd49cb256bca3fd71835250d895",
+      "schema": "kissqy-r17-v1"
+    }
+  },
+  "models": [
+    {
+      "available": true,
+      "kind": "swizzle_prepare",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actionSemantics": "HOME + raw action; scale1; no EMA; Observer mechanical target clamp",
+        "actorObservationDim": 61,
+        "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+        "artifactType": "training-policy",
+        "commandEncoding": "throttle,zero,heading_error",
+        "completedTrainingUpdates": 30001,
+        "controlHz": 50,
+        "geometry": "HD1910 / four passive wheels / Observer limits",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "mechanicalPhysicalJointLimitsRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "observationNormalization": "embedded_in_onnx_once",
+        "policySha256": "539e6b2e7e4c7603ddd35ef27bc06742b292f9f3eede567f82111c0975375160",
+        "runtimeKind": "hd1910_swizzle",
+        "sourceCheckpoint": "model_30000.pt",
+        "targetLimits": "observer",
+        "task": "Mjlab-Velocity-Swizzle-MicroDuck",
+        "trainingTargetClipRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "voltageAdaptation": false
+      },
+      "policy": "swizzle_hd1910",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "swizzle",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actionSemantics": "HOME + raw action; scale1; no EMA; Observer mechanical target clamp",
+        "actorObservationDim": 61,
+        "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+        "artifactType": "training-policy",
+        "commandEncoding": "throttle,zero,heading_error",
+        "completedTrainingUpdates": 30001,
+        "controlHz": 50,
+        "geometry": "HD1910 / four passive wheels / Observer limits",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "mechanicalPhysicalJointLimitsRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "observationNormalization": "embedded_in_onnx_once",
+        "policySha256": "539e6b2e7e4c7603ddd35ef27bc06742b292f9f3eede567f82111c0975375160",
+        "runtimeKind": "hd1910_swizzle",
+        "sourceCheckpoint": "model_30000.pt",
+        "targetLimits": "observer",
+        "task": "Mjlab-Velocity-Swizzle-MicroDuck",
+        "trainingTargetClipRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "voltageAdaptation": false
+      },
+      "policy": "swizzle_hd1910",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "swizzle_crouch",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actionSemantics": "HOME + raw action; scale1; no EMA; Observer mechanical target clamp",
+        "actorObservationDim": 61,
+        "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+        "artifactType": "training-policy",
+        "commandEncoding": "cos(2*pi*phase),sin(2*pi*phase),zero",
+        "completedTrainingUpdates": 1001,
+        "controlHz": 50,
+        "durationSeconds": 3.5,
+        "endPhase": 0.7,
+        "geometry": "HD1910 / four passive wheels / Observer limits",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "mechanicalPhysicalJointLimitsRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "observationNormalization": "embedded_in_onnx_once",
+        "officialRevision": "b02fdea4902c2b93b7d34a83a6f05da4ececb7d3",
+        "phasePeriodSeconds": 5,
+        "policySha256": "dd2530b07591d825f1ef88b0c9f19e93779d2557591958995a14b9c8133d1453",
+        "preserveRawActionHistory": true,
+        "returnTo": "swizzle",
+        "runtimeKind": "hd1910_roller_crouch",
+        "selectedReason": "224/224 initial +448/448 new-seed nominal handoffs; lower tilt than3001; final8000 regressed",
+        "sourceCheckpoint": "model_1000.pt",
+        "startOnlyFrom": "swizzle",
+        "targetLimits": "observer",
+        "task": "Mjlab-RollerCrouch-Flat-MicroDuck",
+        "trainingRunCompletedUpdates": 8000,
+        "trainingTargetClipRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "voltageAdaptation": false
+      },
+      "policy": "roller_crouch_hd1910_1001",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "xgoduck",
+      "metadata": {
+        "actionDim": 14,
+        "actionSemantics": "HOME + raw action; scale1; no EMA; observer mechanical target clamp",
+        "actorObservationDim": 61,
+        "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+        "artifactType": "training-policy",
+        "completedTrainingUpdates": 5000,
+        "controlHz": 50,
+        "deploymentProvenance": {
+          "formalAcceptancePassed": false,
+          "userRequested": true
+        },
+        "geometry": "replica / HD1910 / observer backend mechanical limits",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "mechanicalPhysicalJointLimitsRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "observationNormalization": "embedded_in_onnx_once",
+        "policySha256": "e3b90ac0e5359f91e14306b7e2143e0d5a1f4cd49cb256bca3fd71835250d895",
+        "runtimeActionAlpha": 0,
+        "runtimeKind": "xgoduck",
+        "sourceCheckpoint": "model_4999.pt",
+        "sourceExperiment": "/CodeRepo/Code/leiwu30/hd1910-walk-observer-20261020",
+        "task": "Mjlab-Velocity-Flat-MicroDuck",
+        "trainingTargetClipRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "walkExecution": {
+          "actionScale": 1.0,
+          "gainSource": "existing board P5/D0; compatible execution schema, not donor provenance",
+          "gains": {
+            "d": 0,
+            "p": 5
+          },
+          "headNewWeight": 1.0,
+          "legsNewWeight": 1.0,
+          "policySha256": "e3b90ac0e5359f91e14306b7e2143e0d5a1f4cd49cb256bca3fd71835250d895",
+          "schema": "kissqy-r17-v1"
+        }
+      },
+      "policy": "xgoduck_walk",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "xgoduck_getup",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actionSemantics": "HOME + raw action, scale1, no EMA, no voltage amplitude correction",
+        "actorObservationDim": 61,
+        "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+        "artifactType": "training-policy",
+        "commandEncoding": "all zero",
+        "completedTrainingUpdates": 5001,
+        "controlHz": 50,
+        "deploymentProvenance": {
+          "purpose": "physical trial",
+          "userRequested": true
+        },
+        "formalAcceptance": false,
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "lastActionObservation": "raw policy output before clipping and encoding",
+        "mechanicalPhysicalJointLimitsRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "nominalEvaluation": {
+          "handoff": 128,
+          "neckMeanErrorDegrees": 4.036110877990723,
+          "terminalAlignedFraction": 0.7484375,
+          "trials": 128
+        },
+        "observationNormalization": "embedded_in_onnx_once",
+        "policySha256": "b9724f67d5443a2bdf675c73f3ba08a92219417da4ea438563b47a3645ff9e83",
+        "runtimeActionAlpha": 0,
+        "runtimeKind": "hd1910_getup_staged",
+        "sourceExperiment": "hd1910-standup-head-staged-resume-20261026",
+        "stagedHeadTrainingUpdates": 1500,
+        "targetLimits": "observer",
+        "task": "StandUp-HeadStaged-HD1910",
+        "trainingTargetClipRadians": {
+          "head_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "head_roll": [
+            -0.3490658503988659,
+            0.3490658503988659
+          ],
+          "head_yaw": [
+            -2.9670597283903604,
+            2.9670597283903604
+          ],
+          "left_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "left_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "left_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "left_hip_yaw": [
+            -0.4363323129985824,
+            0.5235987755982988
+          ],
+          "left_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "neck_pitch": [
+            -1.5707963267948966,
+            1.2217304763960306
+          ],
+          "right_ankle": [
+            -1.2217304763960306,
+            1.2217304763960306
+          ],
+          "right_hip_pitch": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ],
+          "right_hip_roll": [
+            -0.3839724354387525,
+            0.3839724354387525
+          ],
+          "right_hip_yaw": [
+            -0.5235987755982988,
+            0.4363323129985824
+          ],
+          "right_knee": [
+            -1.5707963267948966,
+            1.5707963267948966
+          ]
+        },
+        "voltageAdaptation": false
+      },
+      "policy": "xgoduck_getup",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "xgoduck_pick",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": "phase cos/sin, period4 end0.7",
+        "completedTrainingUpdates": 1001,
+        "controlHz": 50,
+        "deploymentNote": "Existing compatible ground-pick runtime schema; retained board P5/D20 and 2.8s window; not hardware acceptance.",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "modelSource": "Ley-WL/microduck-rl",
+        "observationNormalization": "baked into ONNX by upstream exporter",
+        "policySha256": "b9f88799be0f979115f8d22fefbc3d4db8c95e4567f6ac04f42c6203cece5141",
+        "runtimeKind": "kissqy_ground_pick",
+        "simulationValidated": false,
+        "sitExecution": null,
+        "skillExecution": {
+          "actionScale": 1,
+          "durationSeconds": 2.8,
+          "gains": {
+            "d": 20,
+            "p": 5
+          },
+          "policySha256": "b9f88799be0f979115f8d22fefbc3d4db8c95e4567f6ac04f42c6203cece5141",
+          "schema": "kissqy-skills-v1"
+        },
+        "sourceCheckpoint": "model_1000.pt",
+        "sourceExperiment": "/CodeRepo/Code/leiwu30/hd1910-pick-seed221149-20261022",
+        "task": "Mjlab-GroundPick-Flat-MicroDuck",
+        "trainingSeed": 221149,
+        "walkExecution": null
+      },
+      "policy": "xgoduck_pick",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "xgoduck_roulade",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actionSemantics": "HOME + raw action; raw previous action",
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": "all zero",
+        "controlHz": 50,
+        "durationSeconds": 1.5,
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "modelSource": "Ley-WL/microduck-rl",
+        "observationNormalization": "embedded_once",
+        "policySha256": "4d2b2a72ba69dfebc4762854352f5077b85a90e4b29d7845db72ffab5b4c23ec",
+        "runtimeKind": "hd1910_official_roulade",
+        "targetLimits": "observer",
+        "task": "Mjlab-Roulade-Flat-MicroDuck",
+        "trainingUpdates": 1001,
+        "voltageAdaptation": false
+      },
+      "policy": "xgoduck_roulade",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "kick_left",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": "all zero",
+        "controlHz": 50,
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "kickFoot": "left",
+        "modelSource": "pollen-robotics/microduck-policies",
+        "observationNormalization": "baked into ONNX by upstream exporter",
+        "policySha256": "d6928284dccd3dd61e08bf2f760effa74309fbefd97b2b31afb2a60f526d196a",
+        "runtimeKind": "official_ball_kick",
+        "simulationValidated": true,
+        "skillExecution": {
+          "actionScale": 1,
+          "durationSeconds": 0.5,
+          "gains": {
+            "d": 20,
+            "p": 5
+          },
+          "policySha256": "d6928284dccd3dd61e08bf2f760effa74309fbefd97b2b31afb2a60f526d196a",
+          "schema": "kissqy-skills-v1"
+        },
+        "sourceCommit": "665ae4eb20bfe13bca1ef4ea6d4bb6b4a096e448",
+        "sourceContract": "official manifest duration=0.5; local mechanical target clamp, no EMA or voltage adaptation; hardware PD not identified",
+        "sourceManifest": "https://huggingface.co/pollen-robotics/microduck-policies/blob/main/manifest.json",
+        "task": "Mjlab-BallKick-Flat-MicroDuck"
+      },
+      "policy": "kick_left",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "kick_right",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": "all zero",
+        "controlHz": 50,
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "kickFoot": "right",
+        "modelSource": "pollen-robotics/microduck-policies",
+        "observationNormalization": "baked into ONNX by upstream exporter",
+        "policySha256": "147a32c388c6b19111b3ac3b550a9a6dc8b8bf267118af4d8c3712522eedb5af",
+        "runtimeKind": "official_ball_kick",
+        "simulationValidated": true,
+        "skillExecution": {
+          "actionScale": 1,
+          "durationSeconds": 0.5,
+          "gains": {
+            "d": 20,
+            "p": 5
+          },
+          "policySha256": "147a32c388c6b19111b3ac3b550a9a6dc8b8bf267118af4d8c3712522eedb5af",
+          "schema": "kissqy-skills-v1"
+        },
+        "sourceCommit": "665ae4eb20bfe13bca1ef4ea6d4bb6b4a096e448",
+        "sourceContract": "official manifest duration=0.5; local mechanical target clamp, no EMA or voltage adaptation; hardware PD not identified",
+        "sourceManifest": "https://huggingface.co/pollen-robotics/microduck-policies/blob/main/manifest.json",
+        "task": "Mjlab-BallKick-Flat-MicroDuck"
+      },
+      "policy": "kick_right",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "dance10",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 0.55,
+        "actionEmaOldWeight": 0.45,
+        "actionSemantics": "joint position delta in radian from HOME, scale=1.0; runtime must add HOME",
+        "actorObservationDim": 61,
+        "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+        "artifactType": "training-policy",
+        "bodyGroundContactMeshes": 68,
+        "commandGains": [
+          2.0,
+          2.0,
+          2.0,
+          2.5,
+          1.0,
+          2.0,
+          2.5,
+          2.0,
+          1.0,
+          1.0
+        ],
+        "controlHz": 50,
+        "durationSeconds": 8,
+        "gainBaseline": 5,
+        "gains": {
+          "d": 20,
+          "p": 5
+        },
+        "geometry": "microduck-replica robot_walk.xml snapshot in robot/replica",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "intendedStart": "upright near HOME; not arbitrary fallen-pose recovery",
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "nominalTrunkHeightM": 0.11718236219874864,
+        "observationNormalization": "baked into ONNX by upstream exporter",
+        "policySha256": "cd353fb203dd8edeb468476651280d9e03dcaabca53aef0fbfb91d9c66c8ee02",
+        "runtimeKind": "hd1910_dance10",
+        "simulationAcceptance": false,
+        "simulationMassKg": 0.7372431799999999,
+        "sourceRun": "dance10-resilient-v5-20261014",
+        "task": "Mjlab-Dance10Resilient-Flat-MicroDuck-HD1910",
+        "unverified": "HD1910 firmware gain mapping, physical mass/inertia, original identification conditions"
+      },
+      "policy": "dance10",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "sitstand_sit",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actionSemantics": "HOME + raw action; raw previous action",
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": {
+          "sit": 1,
+          "slot": "twist.vx",
+          "stand": 0
+        },
+        "controlHz": 50,
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "modelSource": "Ley-WL/microduck-rl",
+        "observationNormalization": "embedded_once",
+        "policySha256": "9efda06548a55789bab1a5bcb424a6fca0d883c8ab02d0a534e2d799b3e93eba",
+        "runtimeKind": "hd1910_official_sitstand",
+        "sitSettleSeconds": 4,
+        "standSeconds": 6,
+        "targetLimits": "observer",
+        "task": "Mjlab-SitStand-Flat-MicroDuck",
+        "trainingUpdates": 3001,
+        "voltageAdaptation": false
+      },
+      "policy": "alpha_sitstand",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "sitstand_stand",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actionSemantics": "HOME + raw action; raw previous action",
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": {
+          "sit": 1,
+          "slot": "twist.vx",
+          "stand": 0
+        },
+        "controlHz": 50,
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "modelSource": "Ley-WL/microduck-rl",
+        "observationNormalization": "embedded_once",
+        "policySha256": "9efda06548a55789bab1a5bcb424a6fca0d883c8ab02d0a534e2d799b3e93eba",
+        "runtimeKind": "hd1910_official_sitstand",
+        "sitSettleSeconds": 4,
+        "standSeconds": 6,
+        "targetLimits": "observer",
+        "task": "Mjlab-SitStand-Flat-MicroDuck",
+        "trainingUpdates": 3001,
+        "voltageAdaptation": false
+      },
+      "policy": "alpha_sitstand",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "flamingo_hold",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": "flamingo_flag_side",
+        "commandSide": -1,
+        "controlHz": 50,
+        "deploymentNote": "Right lift only; user-authorized hardware trial. Keep holding until lower command; no motion validation yet.",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "lowerMinSeconds": 1.5,
+        "observationNormalization": "embedded_in_onnx_once",
+        "policySha256": "e01fa49f018b6ead35760b39df67102328cba439cfb985c1daf2ee9f213785f2",
+        "runtimeKind": "hd1910_flamingo_right",
+        "simulation": {
+          "leftCases": 48,
+          "leftHoldSuccess": 0,
+          "rightCases": 48,
+          "rightHoldSuccess": 48
+        },
+        "supportFoot": "left",
+        "swingFoot": "right",
+        "targetLimits": "observer",
+        "task": "Mjlab-FlamingoCycleHard-Flat-MicroDuck",
+        "trainingHardware": "HD1910-P5",
+        "trainingIterations": 3000,
+        "trainingRun": "hd1910-flamingo-author-scratch-20261021",
+        "voltageAdaptation": false
+      },
+      "policy": "flamingo",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    },
+    {
+      "available": true,
+      "kind": "flamingo_lower",
+      "metadata": {
+        "actionDim": 14,
+        "actionEmaNewWeight": 1,
+        "actionEmaOldWeight": 0,
+        "actionScale": 1,
+        "actorObservationDim": 61,
+        "artifactType": "training-policy",
+        "commandEncoding": "flamingo_flag_side",
+        "commandSide": -1,
+        "controlHz": 50,
+        "deploymentNote": "Right lift only; user-authorized hardware trial. Keep holding until lower command; no motion validation yet.",
+        "hardwareValidated": false,
+        "homeRadians": [
+          0.0,
+          -0.0873,
+          -0.4579,
+          -0.0049,
+          0.453,
+          0.3491,
+          0.3491,
+          0.0,
+          0.0,
+          0.0,
+          0.0873,
+          0.4579,
+          0.0049,
+          -0.453
+        ],
+        "jointOrder": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle",
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ],
+        "lowerMinSeconds": 1.5,
+        "observationNormalization": "embedded_in_onnx_once",
+        "policySha256": "e01fa49f018b6ead35760b39df67102328cba439cfb985c1daf2ee9f213785f2",
+        "runtimeKind": "hd1910_flamingo_right",
+        "simulation": {
+          "leftCases": 48,
+          "leftHoldSuccess": 0,
+          "rightCases": 48,
+          "rightHoldSuccess": 48
+        },
+        "supportFoot": "left",
+        "swingFoot": "right",
+        "targetLimits": "observer",
+        "task": "Mjlab-FlamingoCycleHard-Flat-MicroDuck",
+        "trainingHardware": "HD1910-P5",
+        "trainingIterations": 3000,
+        "trainingRun": "hd1910-flamingo-author-scratch-20261021",
+        "voltageAdaptation": false
+      },
+      "policy": "flamingo",
+      "runtimeGains": {
+        "appliesOn": "next-model-start",
+        "d": 0,
+        "p": 5,
+        "source": "model-gains.json"
+      }
+    }
+  ],
+  "policy": "xgoduck_walk",
+  "skillActions": [
+    "roller_crouch",
+    "getup",
+    "pick",
+    "roulade",
+    "sit",
+    "standup",
+    "kick_left",
+    "kick_right",
+    "dance",
+    "flamingo"
+  ],
+  "webHeadControl": true
+}

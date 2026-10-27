@@ -1,0 +1,13 @@
+{
+  "rustTests": {
+    "passed": 369,
+    "ignored": 1
+  },
+  "armBuild": true,
+  "headNewWeight": 1,
+  "legsNewWeight": 0.7,
+  "actionScale": 0.9,
+  "scope": "Repository default for gait and official roll; no per-device override",
+  "binarySha256": "5228b9aa421f58ec709db2f2904f593f246fd6099d807de16473810bd25937d3",
+  "sourceSha256": "3094dc854cce2034116c6406f9ae7a3c671a08473c5e547c97d30bf36d02fe35"
+}

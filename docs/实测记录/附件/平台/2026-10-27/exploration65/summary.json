@@ -1,0 +1,24 @@
+{
+  "samples": 12,
+  "distinctTofFrames": 12,
+  "usableRequiredCounts": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "excludedCount": 24,
+  "requiredCount": 40,
+  "allCommandsZero": true,
+  "tofState": "streaming",
+  "kp": 5,
+  "kd": 0
+}

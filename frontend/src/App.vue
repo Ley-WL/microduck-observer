@@ -10,7 +10,7 @@ import SensorWorkbench from "./components/SensorWorkbench.vue";
 import SystemUpdate from "./components/SystemUpdate.vue";
 import PowerControls from "./components/PowerControls.vue";
 import BoardResources from "./components/BoardResources.vue";
-import { validQuaternion, euler, type Sample } from "./protocol";
+import { euler, type Sample } from "./protocol";
 import { bodyRelativeQuaternion, savedDisplayReference } from "./calibration";
 import { useBoardCalibration } from "./boardCalibration";
 const state = useTelemetry();

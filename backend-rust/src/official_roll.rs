@@ -1,6 +1,7 @@
 //! robotd 942e58e3: complete a timed skill, refresh chaining, then hand back
 //! to the gait. Hardware calibration and fault handling remain in the owner.
-pub const DEFAULT_TUNING: crate::walk_profile::WalkProfile = crate::walk_profile::WalkProfile{scale:0.9,head:0.5,legs:0.7};
+// #30 neck and #31–#33 head axes: restore full new-target weight.
+pub const DEFAULT_TUNING: crate::walk_profile::WalkProfile = crate::walk_profile::WalkProfile{scale:0.9,head:1.0,legs:0.7};
 pub const DURATION: f64 = 1.0;
 pub const CHAIN_WINDOW: f64 = 0.15;
 pub const REVISION: &str = "robotd-942e58e3-timed-roll-v1";
@@ -19,7 +20,8 @@ impl Clock {
     pub fn wrote(&mut self) {self.chain=(self.chain-0.02).max(0.);}
 }
 /// In robotd a skill with no overrides inherits the resolved gait tuning.
-/// This migration resolves both gait and roulade to robotd's default tuning.
+/// Gait and roulade share tuning; head/neck use the current target without EMA.
+/// The existing amplitude scale and leg smoothing remain unchanged.
 /// Archived HD1910 training metadata remains unchanged for provenance.
 pub fn filter(profile:crate::walk_profile::WalkProfile,previous:&[f32;14],raw:&[f32;14],initialized:bool)->[f32;14] {
     profile.filter(previous,raw,initialized)
@@ -40,9 +42,9 @@ pub fn filter(profile:crate::walk_profile::WalkProfile,previous:&[f32;14],raw:&[
     }
     #[test] fn target_filter_keeps_raw_history_separate_and_continues_at_handoff() {
         let p=DEFAULT_TUNING;
-        assert_eq!((p.scale,p.head,p.legs),(0.9,0.5,0.7));
+        assert_eq!((p.scale,p.head,p.legs),(0.9,1.0,0.7));
         let raw=[-1.;14];let next=filter(p,&[1.;14],&raw,true);
-        for i in 0..14 {assert!((next[i]-if (5..9).contains(&i){0.05}else{-0.33}).abs()<1e-6);}
+        for i in 0..14 {assert!((next[i]-if (5..9).contains(&i){-0.9}else{-0.33}).abs()<1e-6);}
         assert_eq!(raw,[-1.;14]);assert_eq!(filter(p,&[1.;14],&raw,false),[-0.9;14]);
     }
 }

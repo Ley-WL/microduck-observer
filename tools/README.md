@@ -1,5 +1,14 @@
 # 当前工具
 
+- `capture-serial.py`：统一串口启动日志采集，替代6份写死COM5/COM6和日期的旧脚本。使用已有安装 `pyserial` 的Python环境；输出目录必须不存在，避免混入旧记录。默认只接收；`--switch-baud 115200` 可在BL31标记后切换波特率，`--interrupt-boot` 才会在标记后发送8秒空格中断启动。
+
+  ```powershell
+  python tools/capture-serial.py --port COM6 --baud 1500000 --seconds 600 --output .local/serial-capture-new
+  python -m unittest discover -s tests -p test_serial_capture.py
+  ```
+
+  第一条需要实际串口连接；第二条完全离线。已完成的一次性硬件归档脚本已移除，设计资料和 `hardware/power-hub/tools/verify_archive.py` 保留。
+
 - `deploy-new-board.cmd` / `.ps1` / `.py`：纯净新主板一键部署，输入IP和sudo密码，安装验证过的Rust服务包，生成独立BLE/App身份，配置UART和自启并重启验证。已有身份/标定拒绝覆盖，`--check`只读。安装包版本和边界见 [NEW-BOARD.md](../deploy/NEW-BOARD.md)。
 - `check-uart-loopback.py`：用户确认HAT/TTL拔除并Pin8/10跳线后，115200/1Mbps六轮外部回环、逐字节验收和证据保存；测试前后维护空闲服务生命周期，无舵机指令。完整配置阶段及边界见 [BOARD-SETUP.md](../deploy/BOARD-SETUP.md)。
 

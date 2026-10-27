@@ -12,6 +12,7 @@ const props = defineProps<{ quaternion: number[] | null; angles: number[] | null
 const emit = defineEmits<{ navigate: [page: '姿态与 IMU'] }>();
 const state = useTelemetry();
 const depthMode = ref('radar');
+const explorationTof = computed(() => { const a = state.system?.data.servoControl?.autonomy; return a?.enabled && a.selectedMode === 'explore'; });
 const tofSettings = ref<TofSettings>(), tofBusy = ref(false), tofError = ref('');
 let tofGeneration = 0, tofReading = false;
 async function loadTof() {
@@ -73,14 +74,14 @@ const distance = (n: number | null | undefined) => n == null ? '—' : `${(n/10)
       <section class="sensor-card depth-card">
         <div class="sensor-title-row"><div class="sensor-identity"><span class="sensor-icon">◉</span><div><h2>ToF 深度</h2><small>VL53L5CX · DEPTH</small></div></div><span class="live-badge" :class="{live:tofLive}">{{ tofStatus }}</span></div>
         <div class="stream-meta"><span>ToF · {{ tofLive ? fmt(state.tof?.data.hz) : '—' }} Hz</span><span>样本年龄 {{ age(state.tofAge) }}</span></div>
-        <div class="tof-switch"><span>HAT J5 · I²C3 · 8×8</span><button :disabled="!tofSettings || tofBusy || state.connection !== '在线' || (!tofSettings.available && !tofSettings.enabled)" @click="toggleTof">{{ tofBusy ? '处理中…' : tofSettings?.enabled ? '关闭 ToF' : '开启 ToF' }}</button></div>
+        <div class="tof-switch"><span>HAT J5 · I²C3 · 8×8</span><button :disabled="explorationTof || !tofSettings || tofBusy || state.connection !== '在线' || (!tofSettings.available && !tofSettings.enabled)" @click="toggleTof">{{ explorationTof ? '探索自动管理' : tofBusy ? '处理中…' : tofSettings?.enabled ? '关闭 ToF' : '开启 ToF' }}</button></div>
         <p v-if="tofError || tofSettings?.error" class="depth-warning">{{ tofError || tofSettings?.error }}</p>
         <div class="depth-controls"><select v-model="depthMode" aria-label="ToF显示方式"><option value="radar">扇环距离</option><option value="depth">灰度深度</option></select><label v-if="depthMode === 'depth'"><input v-model="smooth" type="checkbox" /> 平滑</label><select v-model.number="range"><option :value="1000">0–100 cm</option><option :value="2000">0–200 cm</option><option :value="4000">0–400 cm</option></select></div>
         <div class="depth-stage" :class="{ stale: !tofLive || state.paused }"><TofRadar v-if="depthMode === 'radar'" :cells="cells" :range="range" :selected="selected" :live="Boolean(tofLive) && !state.paused" @select="selected=$event" /><TofDepthMap v-else :cells="cells" :range="range" :smooth="smooth" :selected="selected" @select="selected=$event" /></div>
         <div v-if="depthMode === 'depth'" class="depth-legend"><span>近 0</span><i></i><span>{{ range / 10 }} cm 远</span></div>
         <div class="selected-depth"><span>选点 · {{ Math.floor(selected/8)+1 }}行 {{ selected%8+1 }}列</span><strong>{{ cells[selected].valid ? distance(cells[selected].distance) : '无效测量' }}</strong><small>状态 {{ state.tof?.data.status[selected] ?? '—' }} · 原始分区读数</small></div>
         <div class="depth-stats"><span>最近距离<b>{{ distance(stats.min) }}</b></span><span>中位距离<b>{{ distance(stats.median) }}</b></span><span>有效区域<b>{{ stats.count }} / 64</b></span></div>
-        <p v-if="!tofLive" class="depth-warning">{{ !tofSettings?.enabled ? 'ToF 已关闭，点击开启后开始测距。' : state.tof ? '当前为最后一帧，不代表实时距离。' : '等待 ToF 数据，首次启动需要初始化传感器。' }} {{ state.system?.data.tof?.error }}</p>
+        <p v-if="!tofLive" class="depth-warning">{{ explorationTof && !tofSettings?.enabled ? '探索正在自动开启 ToF。' : !tofSettings?.enabled ? 'ToF 已关闭，点击开启后开始测距。' : state.tof ? '当前为最后一帧，不代表实时距离。' : '等待 ToF 数据，首次启动需要初始化传感器。' }} {{ state.system?.data.tof?.error }}</p>
         <p class="depth-help">扇环按8列取最近有效回波，金色圈标记最近点；点击查看原始距离。</p>
       </section>
     </div>

@@ -1,0 +1,1 @@
+The policy-session-latest.json, policy-failure-latest.json and journal.txt in this folder were overwritten by the later short-stop read on 2026-10-27. The later files are also archived under explore-short-stop65. Do not attribute these three files to the initial fall; the original snapshot.json and logs.json remain from the initial fall.

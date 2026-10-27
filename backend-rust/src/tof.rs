@@ -5,8 +5,19 @@ use serde_json::{json,Value};
 use std::{path::{Path,PathBuf},sync::{Arc,OnceLock},time::{Duration,Instant}};
 use tokio::{process::{Child,Command},sync::{Mutex,oneshot},task::JoinHandle};
 static TOF:OnceLock<Arc<Tof>>=OnceLock::new();
+static EXPLORATION:OnceLock<tokio::sync::watch::Sender<bool>>=OnceLock::new();
+// Called under the control lock: enqueue only; never wait for I2C or child exit.
+pub fn exploration_capture(enabled:bool) {if let Some(tx)=EXPLORATION.get(){tx.send_replace(enabled);}}
+async fn follow_exploration(tof:Arc<Tof>,mut rx:tokio::sync::watch::Receiver<bool>) {
+    while rx.changed().await.is_ok() {
+        let enabled=*rx.borrow_and_update();
+        if let Err(e)=tof.set(enabled).await {
+            tof.shared.write().unwrap().tof["error"]=json!(format!("探索ToF切换失败：{e}"));
+        }
+    }
+}
 struct Worker {stop:oneshot::Sender<()>,task:JoinHandle<()>}
-struct Tof {path:PathBuf,bus:String,helper:PathBuf,available:bool,shared:Shared,worker:Mutex<Option<Worker>>}
+struct Tof {path:PathBuf,bus:String,helper:PathBuf,available:bool,shared:Shared,worker:Mutex<Option<Worker>>,controller:Mutex<Option<JoinHandle<()>>>}
 fn parse_enabled(v:&Value)->anyhow::Result<bool> {
     anyhow::ensure!(v.as_object().is_some_and(|o|o.len()==1),"仅接受 enabled 布尔值");
     v["enabled"].as_bool().ok_or_else(||anyhow::anyhow!("enabled 必须为布尔值"))
@@ -31,8 +42,13 @@ impl Tof {
     async fn stop(w:&mut Option<Worker>) {
         if let Some(w)=w.take(){let _=w.stop.send(());if let Err(e)=w.task.await {eprintln!("ToF worker join failed: {e}");}}
     }
-    async fn set(&self,enabled:bool)->anyhow::Result<Value> {
+    async fn set(&self,enabled:bool)->anyhow::Result<Value> {self.set_inner(enabled,false).await}
+    async fn set_inner(&self,enabled:bool,manual:bool)->anyhow::Result<Value> {
         let mut worker=self.worker.lock().await;
+        if manual {
+            let s=self.shared.read().unwrap();
+            anyhow::ensure!(!(s.autonomy.enabled() && s.autonomy.explorer.selected),"避障探索正在自动管理ToF，请先关闭探索");
+        }
         anyhow::ensure!(!enabled || self.available,"当前设备未配置ToF驱动");
         save(&self.path,enabled)?;
         if !enabled {
@@ -53,18 +69,28 @@ pub async fn init(hardware:bool,shared:Shared) {
     let saved=match std::fs::read(&path) {Ok(b)=>serde_json::from_slice(&b).map_err(anyhow::Error::from).and_then(|v|parse_enabled(&v)),Err(e) if e.kind()==std::io::ErrorKind::NotFound=>Ok(false),Err(e)=>Err(e.into())};
     let available=hardware && cfg!(target_os="linux") && helper.is_file() && Path::new(&bus).exists();
     shared.write().unwrap().tof=json!({"enabled":false,"state":"disabled","error":saved.as_ref().err().map(ToString::to_string).unwrap_or_default(),"hz":0,"capturePid":0});
-    let tof=Arc::new(Tof{path,bus,helper,available,shared,worker:Mutex::new(None)});
+    let tof=Arc::new(Tof{path,bus,helper,available,shared,worker:Mutex::new(None),controller:Mutex::new(None)});
     if saved.unwrap_or(false) && available {if let Err(e)=tof.set(true).await {tof.shared.write().unwrap().tof["error"]=json!(e.to_string());}}
+    let (tx,rx)=tokio::sync::watch::channel(false);
+    assert!(EXPLORATION.set(tx).is_ok(),"ToF exploration already initialized");
+    *tof.controller.lock().await=Some(tokio::spawn(follow_exploration(tof.clone(),rx)));
     assert!(TOF.set(tof).is_ok(),"ToF already initialized");
 }
-pub async fn shutdown(){if let Some(t)=TOF.get(){Tof::stop(&mut *t.worker.lock().await).await;}}
+pub async fn shutdown(){if let Some(t)=TOF.get(){
+    if let Some(task)=t.controller.lock().await.take(){task.abort();let _=task.await;}
+    if EXPLORATION.get().is_some_and(|tx|*tx.borrow()) {let _=save(&t.path,false);}
+    Tof::stop(&mut *t.worker.lock().await).await;
+}}
 pub fn router()->Router<App>{Router::new().route("/api/v1/tof",get(status).post(set))}
 async fn status()->Response {match TOF.get(){Some(t)=>Json(t.status()).into_response(),None=>error(StatusCode::SERVICE_UNAVAILABLE,"ToF未初始化")}}
 async fn set(State(app):State<App>,headers:HeaderMap,body:Bytes)->Response {
     let v=match check_write(&headers,&body,256){Ok(v)=>v,Err(e)=>return e};
     let enabled=match parse_enabled(&v){Ok(v)=>v,Err(e)=>return error(StatusCode::UNPROCESSABLE_ENTITY,&e.to_string())};
     let Some(t)=TOF.get().filter(|_|app.hardware) else {return error(StatusCode::FORBIDDEN,"模拟模式不可控制ToF硬件")};
-    match t.set(enabled).await {Ok(v)=>Json(v).into_response(),Err(e)=>error(StatusCode::SERVICE_UNAVAILABLE,&e.to_string())}
+    if {let s=app.telemetry.read().unwrap();s.autonomy.enabled() && s.autonomy.explorer.selected} {
+        return error(StatusCode::CONFLICT,"避障探索正在自动管理ToF，请先关闭探索");
+    }
+    match t.set_inner(enabled,true).await {Ok(v)=>Json(v).into_response(),Err(e)=>error(StatusCode::SERVICE_UNAVAILABLE,&e.to_string())}
 }
 async fn stop_child(child:&mut Child) {
     #[cfg(unix)] if let Some(id)=child.id(){unsafe{libc::kill(id as i32,libc::SIGTERM);}}
@@ -185,12 +211,36 @@ mod tests {
         std::fs::write(&helper,"#!/bin/sh\nexec sleep 60\n").unwrap();std::fs::set_permissions(&helper,std::fs::Permissions::from_mode(0o700)).unwrap();
         let shared=Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(true)));
         shared.write().unwrap().sample("tof",json!({}),true,Instant::now());
-        let t=Tof{path:temp.path().join("tof.json"),bus:"unused".into(),helper,available:true,shared:shared.clone(),worker:Mutex::new(None)};
+        let t=Tof{path:temp.path().join("tof.json"),bus:"unused".into(),helper,available:true,shared:shared.clone(),worker:Mutex::new(None),controller:Mutex::new(None)};
         assert_eq!(t.set(true).await.unwrap()["enabled"],true);
         tokio::time::sleep(Duration::from_millis(80)).await;
         let status=tokio::time::timeout(Duration::from_secs(3),t.set(false)).await.unwrap().unwrap();
         assert_eq!(status["enabled"],false);assert_eq!(status["streaming"],false);assert!(t.worker.lock().await.is_none());assert!(!shared.read().unwrap().latest.contains_key("tof"));
         assert_eq!(t.set(false).await.unwrap()["state"],"disabled");
+    }
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn exploration_switch_starts_stops_and_coalesces_pending_requests() {
+        use std::os::unix::fs::PermissionsExt;
+        let temp=tempfile::tempdir().unwrap();let helper=temp.path().join("fake-sensor");
+        std::fs::write(&helper,"#!/bin/sh\nexec sleep 60\n").unwrap();
+        std::fs::set_permissions(&helper,std::fs::Permissions::from_mode(0o700)).unwrap();
+        let shared=Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(true)));
+        let tof=Arc::new(Tof{path:temp.path().join("tof.json"),bus:"unused".into(),helper,available:true,shared:shared.clone(),worker:Mutex::new(None),controller:Mutex::new(None)});
+        let (tx,rx)=tokio::sync::watch::channel(false);
+        let task=tokio::spawn(follow_exploration(tof.clone(),rx));
+        tx.send_replace(true);
+        tokio::time::timeout(Duration::from_secs(3),async {
+            while tof.worker.lock().await.is_none(){tokio::task::yield_now().await;}
+        }).await.unwrap();
+        shared.write().unwrap().sample("tof",json!({}),true,Instant::now());
+        tx.send_replace(false);tx.send_replace(true);tx.send_replace(false);
+        tokio::time::timeout(Duration::from_secs(3),async {
+            while tof.worker.lock().await.is_some(){tokio::task::yield_now().await;}
+        }).await.unwrap();
+        assert!(!shared.read().unwrap().latest.contains_key("tof"));
+        assert_eq!(serde_json::from_slice::<Value>(&std::fs::read(&tof.path).unwrap()).unwrap()["enabled"],false);
+        drop(tx);task.await.unwrap();
     }
     #[test]
     fn invalid_frames() {

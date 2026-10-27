@@ -1,0 +1,107 @@
+{
+  "autonomy": {
+    "behavior": "已关闭",
+    "controlSource": "manual",
+    "enabled": false,
+    "exploration": {
+      "attempts": 0,
+      "behavior": "抬头观察",
+      "clearMm": 700.0,
+      "commandTwist": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "distanceMm": null,
+      "excludedTofZones": [
+        16,
+        24,
+        25,
+        32,
+        33,
+        34,
+        40,
+        41,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "forwardBurstRangeSeconds": [
+        3,
+        10
+      ],
+      "forwardBurstSeconds": 0.0,
+      "headDegrees": [
+        0.0,
+        0.0
+      ],
+      "lastVoice": null,
+      "leftMm": null,
+      "leftNoTarget": false,
+      "rangeAssessment": "unavailable",
+      "reason": "",
+      "requiredTofZones": 40,
+      "retreatSeconds": 0.0,
+      "rightMm": null,
+      "rightNoTarget": false,
+      "selected": true,
+      "stopMm": 450.0,
+      "turnDegrees": 0.0
+    },
+    "ready": false,
+    "reason": "用户关闭自主",
+    "recoveryRemainingSeconds": null,
+    "selectedMode": "explore",
+    "state": "off",
+    "vision": {
+      "behavior": "已关闭",
+      "error": "",
+      "frameAgeMs": null,
+      "hardware": "RGA + RKNN",
+      "headOffsetDegrees": [
+        0.0,
+        0.0
+      ],
+      "metrics": {
+        "cpuMs": 6.434,
+        "faceMs": 0.0,
+        "frameIntervalMs": 188.728755,
+        "maxRssKiB": 82796,
+        "personMs": 33.605,
+        "resizeMs": 3.266,
+        "rotationMs": 2.14,
+        "totalMs": 36.646
+      },
+      "state": "off",
+      "target": null
+    }
+  },
+  "demo": {
+    "active": false,
+    "completedStages": [],
+    "elapsedSeconds": null,
+    "expectedSeconds": 30,
+    "name": "开场招呼与转头",
+    "ready": false,
+    "reason": "",
+    "step": 1,
+    "steps": 9,
+    "timeoutSeconds": 55
+  },
+  "message": "15 个舵机已失能（卸力）",
+  "state": "disabled",
+  "unconfirmedIds": []
+}

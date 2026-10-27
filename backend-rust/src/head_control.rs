@@ -30,8 +30,28 @@ pub fn step(offset:&mut [f64;2],input:[f64;2],base:[f64;2],bounds:[(f64,f64);2])
         offset[i]=(base[i]+offset[i]).clamp(lo,hi)-base[i];
     }
 }
+// Slew an absolute sensing target independently of the actor's changing output.
+pub fn sensing_target(previous:&mut Option<[f64;2]>,measured:[f64;2],desired:[f64;2],bounds:[(f64,f64);2])->[f64;2] {
+    let target=previous.get_or_insert(measured);
+    for n in 0..2 {
+        let desired=desired[n].clamp(bounds[n].0,bounds[n].1);
+        target[n]=(target[n]+(desired-target[n]).clamp(-0.72,0.72)).clamp(bounds[n].0,bounds[n].1);
+    }
+    *target
+}
 #[cfg(test)] mod tests {
     use super::*;use serde_json::json;
+    #[test] fn sensing_pose_holds_absolute_pitch_and_slews_only_scan_target(){
+        let mut previous=None;let bounds=[(-90.,90.),(-170.,170.)];
+        let mut result=[0.;2];
+        for n in 0..100 {result=sensing_target(&mut previous,[20.+n as f64,30.-n as f64],[10.,0.],bounds);}
+        assert_eq!(result,[10.,0.]);
+        for n in 0..100 {assert_eq!(sensing_target(&mut previous,[n as f64,-(n as f64)],[10.,0.],bounds),[10.,0.]);}
+        let next=sensing_target(&mut previous,[80.,80.],[10.,25.],bounds);assert_eq!(next,[10.,0.72]);
+        for _ in 0..100 {result=sensing_target(&mut previous,[80.,80.],[10.,25.],bounds);}
+        assert_eq!(result,[10.,25.]);previous=None;
+        assert_eq!(sensing_target(&mut previous,[0.,0.],[100.,100.],[(-5.,5.);2]),[0.72,0.72]);
+    }
     #[test] fn parsing_rejects_invalid_and_accepts_legacy(){
         assert_eq!(parse(&json!({})).unwrap(),[0.;2]);
         for value in [json!(2),json!(-1.1),json!("1"),Value::Null]{assert!(parse(&json!({"headYaw":value})).is_err());}

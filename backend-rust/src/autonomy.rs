@@ -23,9 +23,9 @@ impl Autonomy {
     pub fn recovering(&self)->bool {self.mode==Mode::Recovering}
     pub fn start(&mut self,session:&str,now:Instant)->anyhow::Result<()> {
         anyhow::ensure!(!self.enabled() && self.ready && self.observed.is_some_and(|at|now.saturating_duration_since(at)<Duration::from_millis(150)),"请先稳定站立、摇杆回中并等待动作结束");
-        self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Standby;self.session=session.into();self.reason.clear();self.manual_held=false;self.neutral_since=Some(now);self.recovery_started=None;self.recovery_stable=None;Ok(())
+        self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Standby;self.session=session.into();self.reason.clear();self.manual_held=false;self.neutral_since=Some(now);self.recovery_started=None;self.recovery_stable=None;if self.explorer.selected {crate::tof::exploration_capture(true);}Ok(())
     }
-    pub fn stop(&mut self,reason:&str) {self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Off;self.reason=reason.into();self.recovery_started=None;self.recovery_stable=None;self.neutral_since=None;self.manual_held=false;}
+    pub fn stop(&mut self,reason:&str) {if self.enabled() && self.explorer.selected {crate::tof::exploration_capture(false);}self.explorer.reset();self.epoch=self.epoch.wrapping_add(1);self.mode=Mode::Off;self.reason=reason.into();self.recovery_started=None;self.recovery_stable=None;self.neutral_since=None;self.manual_held=false;}
     pub fn input(&mut self,active:bool,now:Instant) {
         if !self.enabled() || self.recovering(){return;}
         self.manual_held=active;
@@ -39,7 +39,7 @@ impl Autonomy {
         true
     }
     pub fn expired(&self,now:Instant)->bool {self.recovery_started.is_some_and(|at|now.saturating_duration_since(at)>=Duration::from_secs(6))}
-    pub fn invalid_feedback(&mut self){self.explorer.reset();self.stable_since=None;self.recovery_stable=None;self.ready=false;}
+    pub fn invalid_feedback(&mut self){self.explorer.pause_feedback();self.stable_since=None;self.recovery_stable=None;self.ready=false;}
     // Returns a single request to resume zero-speed balance after recovery.
     pub fn observe(&mut self,now:Instant,kind:&str,stable:bool,recovery_pose:bool,busy:bool)->bool {
         self.observed=Some(now);

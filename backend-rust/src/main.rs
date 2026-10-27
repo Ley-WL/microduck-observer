@@ -368,15 +368,16 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
     Json(json!({"scenario":name})).into_response()
 }
 async fn policy_info(State(a): State<App>) -> Json<Value> {
-    let s = a.telemetry.read().unwrap();
     let meta = policy::metadata_for("xgoduck");
     let models: Vec<Value> = ["swizzle_prepare","swizzle","swizzle_crouch","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"].iter().map(|kind| {
         let metadata=policy::metadata_for(kind);
         let gains=gains::current();
         json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata,"runtimeGains":{"p":gains.p,"d":gains.d,"source":"model-gains.json","appliesOn":"next-model-start"}})
     }).collect();
+    // Model metadata validation performs file I/O; never hold the control lock there.
+    let control=if a.servo {a.telemetry.read().unwrap().control.clone()}else{Value::Null};
     Json(
-        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["roller_crouch","getup","pick","roulade","sit","standup","kick_left","kick_right","dance","flamingo"],"control":if a.servo{s.control.clone()}else{Value::Null}}),
+        json!({"webHeadControl":true,"available":meta.is_some(),"policy":"xgoduck_walk","kind":"xgoduck","controlHz":50,"metadata":meta,"models":models,"skillActions":["roller_crouch","getup","pick","roulade","sit","standup","kick_left","kick_right","dance","flamingo"],"control":control}),
     )
 }
 async fn pad_bindings_info()->Json<Value>{Json(pad_bindings::info())}

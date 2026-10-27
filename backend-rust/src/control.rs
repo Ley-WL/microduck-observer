@@ -357,6 +357,7 @@ fn profile<T: Transport>(bus: &mut T, id: u8, f: &Value) -> Result<()> {
     profiles(bus, &[id], &BTreeMap::from([(id, f.clone())]))
 }
 pub const MANUAL_GAINS: (u8,u8) = (32,40);
+#[cfg(test)]
 pub const POLICY_GAINS: (u8,u8) = (6,20);
 pub fn profiles<T: Transport>(bus: &mut T, ids: &[u8], feedback: &Feedback) -> Result<()> {
     profiles_with_gains(bus,ids,feedback,MANUAL_GAINS)

@@ -14,6 +14,7 @@ impl Reflex {
         self.falling=0.;self.fallen=0.;
         if let Phase::Limp{still,..}=&mut self.phase {*still=0.;}
     }
+    #[cfg(test)]
     pub fn active(&self)->bool {!matches!(self.phase,Phase::Idle)}
     /// `q` is the current measured position, never the preceding target.
     pub fn tick(&mut self, now:f64, fresh:bool, eligible:bool, gyro:[f32;3], g:[f32;3], q:[f32;14], home:[f32;14])->Output {
@@ -40,6 +41,11 @@ impl Reflex {
     }
 }
 
+/// A timed HOME interpolation alone is not evidence that the body is upright.
+pub fn can_resume(fresh:bool,tilt:f64,gyro:&[f32])->bool {
+    fresh && tilt.is_finite() && tilt<20. && gyro.len()==3 && gyro.iter().all(|v|v.is_finite() && v.abs()<0.5)
+}
+
 pub struct Calibration {pub limp:Gains,pub pose:Gains,pub measured:bool}
 impl Calibration {
     pub fn defaults(base:Gains)->Self {Self{limp:base,pose:base,measured:false}}
@@ -64,6 +70,11 @@ impl Calibration {
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn fallen_or_moving_body_cannot_resume_gait_after_timed_pose(){
+        assert!(can_resume(true,5.,&[0.;3]));
+        for tilt in [20.,60.,84.,91.,f64::NAN]{assert!(!can_resume(true,tilt,&[0.;3]));}
+        assert!(!can_resume(false,5.,&[0.;3]));assert!(!can_resume(true,5.,&[0.,0.6,0.]));
+    }
     #[test] fn missing_calibration_enables_both_phases_with_saved_default_gains() {
         let temp=tempfile::tempdir().unwrap();let base=Gains{p:5,d:0};
         let config=Calibration::from_path(&temp.path().join("absent.json"),base,"policy").unwrap().unwrap();
