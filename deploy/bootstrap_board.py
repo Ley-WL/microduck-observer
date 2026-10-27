@@ -167,6 +167,10 @@ def install(bundle, digest, release_name):
     audio = release / 'hardware/audio'
     if not (audio / 'audio_prepare.py').is_file():
         raise RuntimeError('Bundle lacks required automatic audio preparation; rebuild bundle')
+    # Use the current checked-in preparation logic even with a frozen binary bundle.
+    audio_source = Path(__file__).with_name('audio_prepare.py')
+    if audio_source.is_file():
+        shutil.copy2(audio_source, audio / 'audio_prepare.py')
     run('/usr/bin/python3', str(audio / 'audio_prepare.py'), '--install', str(audio))
     # Optional, fixed-layout assets from the validated NPU installation bundle.
     vision = release / 'hardware/vision'

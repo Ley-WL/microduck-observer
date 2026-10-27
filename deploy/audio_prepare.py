@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -50,15 +51,75 @@ def install(source):
     drop = Path('/etc/systemd/system/microduck-observer.service.d/audio.conf')
     drop.parent.mkdir(parents=True, exist_ok=True); drop.write_text(AUDIO_DROP)
 
-def mixer_plan(controls, initialize):
-    changes = [(n, 'off') for n in controls if 'Mixer' in n and 'Bypass' in n]
-    changes += [('Right Line Mixer DACR1', 'on')]
+def mixer_state(output):
+    """Parse raw ALSA controls, avoiding ambiguous simple-mixer stereo writes."""
+    result = {}
+    for block in re.split(r"(?=^numid=)", output, flags=re.M):
+        header = re.search(r"^numid=(\d+),.*name='([^']+)'", block)
+        kind = re.search(r"type=(BOOLEAN|INTEGER),", block)
+        values = re.search(r"^\s*: values=(.*)$", block, re.M)
+        if not header or not kind or not values:
+            continue
+        name = header[2]
+        tokens = values[1].strip().split(',')
+        if kind[1] == 'BOOLEAN':
+            if any(v not in ('on', 'off') for v in tokens):
+                raise RuntimeError('Invalid switch readback: ' + name)
+            parsed = [v == 'on' for v in tokens]
+        else:
+            low = re.search(r'min=(-?\d+),max=(-?\d+)', block)
+            if not low:
+                raise RuntimeError('Missing control bounds: ' + name)
+            parsed = [int(v) for v in tokens]
+            if any(not int(low[1]) <= v <= int(low[2]) for v in parsed):
+                raise RuntimeError('Out-of-range mixer readback: ' + name)
+        count = re.search(r'values=(\d+)', block)
+        if not count or len(parsed) != int(count[1]):
+            raise RuntimeError('Incomplete mixer readback: ' + name)
+        result[name] = {'id': header[1], 'type': kind[1], 'values': parsed}
+    return result
+
+
+def configure_mixer(initialize, runner=run):
+    before = mixer_state(runner('amixer', '-c', 'aic3104', 'contents'))
+    required = {'Line Playback Switch': True,
+                'Right Line Mixer DACR1 Switch': True}
+    required.update({n: False for n, c in before.items()
+                     if c['type'] == 'BOOLEAN' and 'Mixer' in n and 'Bypass' in n})
+    expected = {}
+    for name, value in required.items():
+        if name not in before or before[name]['type'] != 'BOOLEAN':
+            raise RuntimeError('Missing output switch: ' + name)
+        expected[name] = [value] * len(before[name]['values'])
+    volumes = ['PCM Playback Volume', 'Line DAC Playback Volume', 'Line Playback Volume']
+    for name in volumes:
+        if name not in before or before[name]['type'] != 'INTEGER':
+            raise RuntimeError('Missing playback volume: ' + name)
+    preserved = {n: c['values'] for n, c in before.items()
+                 if c['type'] == 'INTEGER' and 'Playback Volume' in n}
     if initialize:
-        changes += [('PCM', '0dB'), ('Line DAC', '0dB'), ('Line', '0dB,unmute')]
-    return changes
+        for name, value in zip(volumes, [127, 118, 0]):
+            expected[name] = [value] * len(before[name]['values'])
+    repaired = []
+    for name, values in expected.items():
+        if before[name]['values'] == values:
+            continue
+        raw = ','.join(('on' if v else 'off') if isinstance(v, bool) else str(v)
+                       for v in values)
+        runner('amixer', '-q', '-c', 'aic3104', 'cset',
+               'numid=' + before[name]['id'], raw)
+        repaired.append(name)
+    after = mixer_state(runner('amixer', '-c', 'aic3104', 'contents'))
+    for name, values in {**preserved, **expected}.items():
+        if name not in after or after[name]['values'] != values:
+            raise RuntimeError('Audio readback verification failed: ' + name)
+    return {'outputVerified': True, 'volumePreserved': not initialize,
+            'repairedControls': repaired,
+            'playbackVolumes': {n: after[n]['values'] for n in volumes}}
+
 
 def prepare():
-    status = {'ready': False, 'motionSent': False}
+    status = {'ready': False, 'motionSent': False, 'outputVerified': False}
     Path('/run/microduck-audio.json').write_text(json.dumps(status))
     try:
         run('modprobe', 'snd-soc-tlv320aic3x-i2c')
@@ -68,13 +129,12 @@ def prepare():
         if 'aic3104' not in Path('/proc/asound/cards').read_text():
             raise RuntimeError('AIC3104 not registered; check HAT/overlay/power')
         marker = Path('/var/lib/microduck-audio/initialized')
-        controls = [line.split("'")[1] for line in run('amixer','-c','aic3104','scontrols').splitlines()]
-        for name, value in mixer_plan(controls, not marker.exists()):
-            run('amixer','-q','-c','aic3104','--','sset',name,value)
+        status.update(configure_mixer(not marker.exists()))
         run('alsactl','store','1')
         marker.parent.mkdir(parents=True,exist_ok=True); marker.touch()
         status['ready'] = True
     except Exception as exc:
+        status['outputVerified'] = False
         status['error'] = str(exc)
     # A disconnected HAT must not block the robot service or cause reboot loops.
     Path('/run/microduck-audio.json').write_text(json.dumps(status))

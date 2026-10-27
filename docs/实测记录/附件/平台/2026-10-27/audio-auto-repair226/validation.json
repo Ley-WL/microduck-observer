@@ -1,0 +1,52 @@
+{
+  "installed": true,
+  "helperSha256": "c680863bd75beb380511206fb89945bbf63b8c3741f1e87a520d2f578017b929",
+  "repairTest": {
+    "ready": true,
+    "motionSent": false,
+    "outputVerified": true,
+    "volumePreserved": true,
+    "repairedControls": [
+      "Line Playback Switch"
+    ],
+    "playbackVolumes": {
+      "PCM Playback Volume": [
+        127,
+        127
+      ],
+      "Line DAC Playback Volume": [
+        118,
+        118
+      ],
+      "Line Playback Volume": [
+        0,
+        0
+      ]
+    }
+  },
+  "idempotentTest": {
+    "ready": true,
+    "motionSent": false,
+    "outputVerified": true,
+    "volumePreserved": true,
+    "repairedControls": [],
+    "playbackVolumes": {
+      "PCM Playback Volume": [
+        127,
+        127
+      ],
+      "Line DAC Playback Volume": [
+        118,
+        118
+      ],
+      "Line Playback Volume": [
+        0,
+        0
+      ]
+    }
+  },
+  "allPlaybackVolumesPreserved": true,
+  "observerRestarted": false,
+  "motionSent": false,
+  "audioPlayed": false
+}

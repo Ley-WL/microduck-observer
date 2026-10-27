@@ -1,3 +1,5 @@
+> 2026-10-27：新板工具上传当前audio_prepare.py，安装器在校验冻结包后使用该准备逻辑；音频每次启动精确核对Line输出、右DAC路由及旁路，修复静音并回读，已有设备保留全部播放音量。硬件I²C错误仍报告ready=false，不用重试或自动调大音量掩盖。226已验证单侧静音自动修复及重复执行无写入。
+
 > 2026-10-17 自动准备包：包含已校验的6.1.115 HAT codec模块及`hardware/audio/audio_prepare.py`。新板/普通runtime安装器均安装root拥有的音频准备服务，在Observer前执行有限等待；失败写`/run/microduck-audio.json`而不重启机器人。ALSA权限使用`char-alsa`允许晚注册设备；首次初始化默认PCM0dB/Line0dB，以后保留音量，仅纠正DAC/Bypass路由。模块kernel/vermagic/SHA不符拒绝安装，不在线下载任意驱动。冻结包已更新但新板整板重启验收待做。
 >
 > 服务首次读到旧标定缺少mountingQuaternion时，自动补项目默认安装方向、yaw及缺失位置，保留已有位置/关节零点/IMU归零与target，revision加1并保留previous备份；已有明确安装四元数不覆盖。普通runtime验证仅放行这项精确迁移，不能忽略其它标定变化。手柄自动发现/重连已有，明确输入接管运行中的兼容模型采用现有控制权保护；未取得会话的X/技能请求现在给明确提示，不再静默忽略，不自动启动或退出保护。
