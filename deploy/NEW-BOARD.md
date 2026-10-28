@@ -1,3 +1,5 @@
+> 2026-10-27补充：音量以root持有的 `/var/lib/microduck-audio/playback-levels.json` 为持久目标，成功首次配置/迁移后创建并原子落盘；后续启动恢复该目标，不再将芯片故障后仍落在合法范围内的−56dB误当用户音量。需要修改持久音量时应更新该目标；单独amixer或alsactl值会在下次准备时恢复。已有设备首次迁移仍须确认当前音量可靠；226已用用户确认0dB值建立目标。I²C失联或越界回读仍明确失败，不强行写入。
+
 > 2026-10-27：新板工具上传当前audio_prepare.py，安装器在校验冻结包后使用该准备逻辑；音频每次启动精确核对Line输出、右DAC路由及旁路，修复静音并回读，已有设备保留全部播放音量。硬件I²C错误仍报告ready=false，不用重试或自动调大音量掩盖。226已验证单侧静音自动修复及重复执行无写入。
 
 > 2026-10-17 自动准备包：包含已校验的6.1.115 HAT codec模块及`hardware/audio/audio_prepare.py`。新板/普通runtime安装器均安装root拥有的音频准备服务，在Observer前执行有限等待；失败写`/run/microduck-audio.json`而不重启机器人。ALSA权限使用`char-alsa`允许晚注册设备；首次初始化默认PCM0dB/Line0dB，以后保留音量，仅纠正DAC/Bypass路由。模块kernel/vermagic/SHA不符拒绝安装，不在线下载任意驱动。冻结包已更新但新板整板重启验收待做。

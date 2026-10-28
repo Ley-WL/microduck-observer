@@ -1,0 +1,80 @@
+{
+  "installed": true,
+  "helperSha256": "f938940de8ff078b2f4d6c6ac75efda7edfce22f254bfe4dc22b97e9430a1ae6",
+  "simulatedPersistedFault": {
+    "pcm": [
+      15,
+      15
+    ],
+    "lineSwitch": [
+      "off",
+      "off"
+    ]
+  },
+  "repair": {
+    "ready": true,
+    "motionSent": false,
+    "outputVerified": true,
+    "volumePreserved": true,
+    "volumeReference": "saved-target",
+    "savedVolumeRestored": true,
+    "repairedControls": [
+      "Line Playback Switch",
+      "PCM Playback Volume"
+    ],
+    "playbackVolumes": {
+      "PCM Playback Volume": [
+        127,
+        127
+      ],
+      "Line DAC Playback Volume": [
+        118,
+        118
+      ],
+      "Line Playback Volume": [
+        0,
+        0
+      ]
+    }
+  },
+  "repeat": {
+    "ready": true,
+    "motionSent": false,
+    "outputVerified": true,
+    "volumePreserved": true,
+    "volumeReference": "saved-target",
+    "savedVolumeRestored": false,
+    "repairedControls": [],
+    "playbackVolumes": {
+      "PCM Playback Volume": [
+        127,
+        127
+      ],
+      "Line DAC Playback Volume": [
+        118,
+        118
+      ],
+      "Line Playback Volume": [
+        0,
+        0
+      ]
+    }
+  },
+  "savedReference": {
+    "PCM Playback Volume": [
+      127,
+      127
+    ],
+    "Line DAC Playback Volume": [
+      118,
+      118
+    ],
+    "Line Playback Volume": [
+      0,
+      0
+    ]
+  },
+  "observerRestarted": false,
+  "audioPlayed": false,
+  "motionSent": false
+}

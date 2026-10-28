@@ -80,7 +80,49 @@ def mixer_state(output):
     return result
 
 
-def configure_mixer(initialize, runner=run):
+PLAYBACK_LIMITS = {'PCM Playback Volume': 127, 'Line DAC Playback Volume': 118,
+                   'Line Playback Volume': 9}
+LEVELS = Path('/var/lib/microduck-audio/playback-levels.json')
+
+
+def validate_levels(levels):
+    if not isinstance(levels, dict) or set(levels) != set(PLAYBACK_LIMITS):
+        raise RuntimeError('Invalid saved audio volume controls')
+    for name, maximum in PLAYBACK_LIMITS.items():
+        values = levels[name]
+        if not isinstance(values, list) or len(values) != 2 or any(
+                type(v) is not int or not 0 <= v <= maximum for v in values):
+            raise RuntimeError('Invalid saved audio volume: ' + name)
+    return levels
+
+
+def load_levels(path):
+    if not path.exists():
+        return None
+    document = json.loads(path.read_text())
+    if document.get('schemaVersion') != 1:
+        raise RuntimeError('Invalid saved audio volume schema')
+    return validate_levels(document.get('playbackVolumes'))
+
+
+def save_levels(path, levels):
+    validate_levels(levels)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix('.tmp')
+    with temp.open('w') as output:
+        json.dump({'schemaVersion': 1, 'playbackVolumes': levels}, output)
+        output.flush()
+        os.fsync(output.fileno())
+    os.chmod(temp, 0o600)
+    os.replace(temp, path)
+    directory = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+
+
+def configure_mixer(initialize, runner=run, saved_levels=None):
     before = mixer_state(runner('amixer', '-c', 'aic3104', 'contents'))
     required = {'Line Playback Switch': True,
                 'Right Line Mixer DACR1 Switch': True}
@@ -100,6 +142,8 @@ def configure_mixer(initialize, runner=run):
     if initialize:
         for name, value in zip(volumes, [127, 118, 0]):
             expected[name] = [value] * len(before[name]['values'])
+    if saved_levels is not None:
+        expected.update(validate_levels(saved_levels))
     repaired = []
     for name, values in expected.items():
         if before[name]['values'] == values:
@@ -114,6 +158,8 @@ def configure_mixer(initialize, runner=run):
         if name not in after or after[name]['values'] != values:
             raise RuntimeError('Audio readback verification failed: ' + name)
     return {'outputVerified': True, 'volumePreserved': not initialize,
+            'volumeReference': 'saved-target' if saved_levels is not None else 'initial-readback',
+            'savedVolumeRestored': saved_levels is not None and any(n in repaired for n in volumes),
             'repairedControls': repaired,
             'playbackVolumes': {n: after[n]['values'] for n in volumes}}
 
@@ -129,8 +175,11 @@ def prepare():
         if 'aic3104' not in Path('/proc/asound/cards').read_text():
             raise RuntimeError('AIC3104 not registered; check HAT/overlay/power')
         marker = Path('/var/lib/microduck-audio/initialized')
-        status.update(configure_mixer(not marker.exists()))
+        saved_levels = load_levels(LEVELS)
+        status.update(configure_mixer(not marker.exists(), saved_levels=saved_levels))
         run('alsactl','store','1')
+        if saved_levels is None:
+            save_levels(LEVELS, status['playbackVolumes'])
         marker.parent.mkdir(parents=True,exist_ok=True); marker.touch()
         status['ready'] = True
     except Exception as exc:

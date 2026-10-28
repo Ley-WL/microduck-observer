@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 spec=importlib.util.spec_from_file_location('audio',Path(__file__).parents[1]/'deploy/audio_prepare.py')
 a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
 class AudioTests(unittest.TestCase):
@@ -68,6 +69,32 @@ class AudioTests(unittest.TestCase):
    a.mixer_state("numid=1,iface=MIXER,name='Line Playback Volume'\n ; type=INTEGER,values=2,min=0,max=9\n : values=15,15\n")
   with self.assertRaisesRegex(RuntimeError,'Incomplete'):
    a.mixer_state("numid=1,iface=MIXER,name='Line Playback Switch'\n ; type=BOOLEAN,values=2\n : values=on\n")
+ def test_legal_fault_volume_is_restored_from_saved_reference(self):
+  values,calls,runner=self.mixer(muted=True)
+  values['PCM Playback Volume']=('INTEGER',[15,15],0,127)
+  target={'PCM Playback Volume':[127,127],'Line DAC Playback Volume':[118,118],'Line Playback Volume':[0,0]}
+  result=a.configure_mixer(False,runner,saved_levels=target)
+  self.assertTrue(result['savedVolumeRestored'])
+  self.assertEqual(values['PCM Playback Volume'][1],[127,127])
+  self.assertEqual(values['Line Playback Switch'][1],[True,True])
+ def test_saved_custom_volume_is_preserved_instead_of_forcing_zero_db(self):
+  values,calls,runner=self.mixer()
+  target={'PCM Playback Volume':[90,100],'Line DAC Playback Volume':[110,105],'Line Playback Volume':[1,2]}
+  result=a.configure_mixer(False,runner,saved_levels=target)
+  self.assertEqual(result['playbackVolumes'],target)
+  self.assertEqual(a.configure_mixer(False,runner,saved_levels=target)['repairedControls'],[])
+ def test_invalid_saved_volume_never_writes_mixer(self):
+  values,calls,runner=self.mixer()
+  with self.assertRaisesRegex(RuntimeError,'Invalid saved'):
+   a.configure_mixer(False,runner,saved_levels={'PCM Playback Volume':[999,999]})
+  self.assertTrue(all(c[-1]=='contents' for c in calls))
+ def test_saved_reference_survives_reload_and_bad_input_keeps_old_file(self):
+  target={'PCM Playback Volume':[127,109],'Line DAC Playback Volume':[100,118],'Line Playback Volume':[0,0]}
+  with tempfile.TemporaryDirectory() as folder:
+   path=Path(folder)/'levels.json';self.assertIsNone(a.load_levels(path))
+   a.save_levels(path,target);self.assertEqual(a.load_levels(path),target)
+   with self.assertRaises(RuntimeError):a.save_levels(path,{})
+   self.assertEqual(a.load_levels(path),target)
  def test_late_alsa_devices_and_order(self):
   self.assertIn('DeviceAllow=char-alsa rw',a.AUDIO_DROP)
   self.assertIn('After=microduck-audio-prepare.service',a.AUDIO_DROP)
