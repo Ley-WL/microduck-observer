@@ -1,0 +1,12 @@
+{
+  "host": "192.168.137.3",
+  "release": "runtime-20261029-110644",
+  "previousRelease": "runtime-20261029-105234",
+  "binarySha256": "0eff37e46ce42fd37ae9f2e1c08304b5c04aa0f5c44d4ba86c4840b4f88209e0",
+  "all15Unloaded": true,
+  "completeJointFrames": 300,
+  "sampledJointFrames": 300,
+  "modelsAvailable": 14,
+  "scanTimeoutRetry": true,
+  "hardwareMotionTested": false
+}

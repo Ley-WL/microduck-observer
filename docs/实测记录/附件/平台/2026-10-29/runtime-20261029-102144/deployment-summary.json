@@ -1,0 +1,12 @@
+{
+  "host": "192.168.137.3",
+  "release": "runtime-20261029-102144",
+  "previousRelease": "runtime-20261029-100203",
+  "completeJointFrames": 300,
+  "sampledJointFrames": 300,
+  "modelsAvailable": 14,
+  "all15Unloaded": true,
+  "cameraCaptureEnabledAfter": false,
+  "autonomyStartedForTest": false,
+  "hardwareMotion": false
+}

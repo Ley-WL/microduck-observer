@@ -1,0 +1,461 @@
+{
+  "blend": {
+    "worlds": 1792,
+    "falls": 0,
+    "elapsedSeconds": 78.25804787315428,
+    "peakRssKiB": 3305400,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 1536,
+        "less10": 55,
+        "wrongBeyond5": 0,
+        "min": 5.690093517303467,
+        "max": 467.16326904296875
+      },
+      "glide": {
+        "n": 256,
+        "less10": 9,
+        "wrongBeyond5": 0,
+        "min": 6.931152820587158,
+        "max": 133.82339477539062
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 8,
+        "wrongBeyond5": 0,
+        "min": 1.3208013772964478,
+        "max": 132.71490478515625
+      },
+      "centered": {
+        "n": 256,
+        "less10": 22,
+        "wrongBeyond5": 1,
+        "min": -7.383638858795166,
+        "max": 107.08667755126953
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 23,
+        "wrongBeyond5": 0,
+        "min": -0.04969645291566849,
+        "max": 162.2149658203125
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 14,
+        "min": -6.625098705291748,
+        "max": 6.257415771484375
+      }
+    }
+  },
+  "plateau": {
+    "worlds": 1792,
+    "falls": 0,
+    "elapsedSeconds": 77.87176377698779,
+    "peakRssKiB": 3317684,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 1536,
+        "less10": 29,
+        "wrongBeyond5": 0,
+        "min": 5.496184825897217,
+        "max": 510.1983947753906
+      },
+      "glide": {
+        "n": 256,
+        "less10": 12,
+        "wrongBeyond5": 0,
+        "min": 7.341414928436279,
+        "max": 134.50746154785156
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 5,
+        "wrongBeyond5": 0,
+        "min": 4.697530746459961,
+        "max": 138.2899169921875
+      },
+      "centered": {
+        "n": 256,
+        "less10": 18,
+        "wrongBeyond5": 0,
+        "min": -3.7339072227478027,
+        "max": 105.03140258789062
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 21,
+        "wrongBeyond5": 1,
+        "min": -8.2600679397583,
+        "max": 165.4727783203125
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 16,
+        "min": -6.5493340492248535,
+        "max": 6.09071159362793
+      }
+    }
+  },
+  "suppress": {
+    "worlds": 1792,
+    "falls": 0,
+    "elapsedSeconds": 78.85088158864528,
+    "peakRssKiB": 3366268,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 1536,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 35.50004196166992,
+        "max": 489.27593994140625
+      },
+      "glide": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 50.32688522338867,
+        "max": 135.222900390625
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 73.467041015625,
+        "max": 139.78717041015625
+      },
+      "centered": {
+        "n": 256,
+        "less10": 2,
+        "wrongBeyond5": 0,
+        "min": 6.152654647827148,
+        "max": 106.80744934082031
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 5,
+        "wrongBeyond5": 1,
+        "min": -5.866735935211182,
+        "max": 169.54202270507812
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 18,
+        "min": -6.04301643371582,
+        "max": 6.369547367095947
+      }
+    }
+  },
+  "validation": {
+    "worlds": 1792,
+    "falls": 0,
+    "elapsedSeconds": 77.86899963673204,
+    "peakRssKiB": 3322024,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 1536,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 37.583866119384766,
+        "max": 480.71868896484375
+      },
+      "glide": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 50.19713592529297,
+        "max": 136.21107482910156
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 59.1450080871582,
+        "max": 141.382568359375
+      },
+      "centered": {
+        "n": 256,
+        "less10": 5,
+        "wrongBeyond5": 1,
+        "min": -9.454948425292969,
+        "max": 107.21755981445312
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 9,
+        "wrongBeyond5": 1,
+        "min": -7.5401458740234375,
+        "max": 170.20167541503906
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 18,
+        "min": -6.716479778289795,
+        "max": 6.0593061447143555
+      }
+    }
+  },
+  "dense": {
+    "worlds": 2304,
+    "falls": 0,
+    "elapsedSeconds": 101.4358523208648,
+    "peakRssKiB": 3462028,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 2048,
+        "less10": 122,
+        "wrongBeyond5": 0,
+        "min": 4.4947967529296875,
+        "max": 481.90679931640625
+      },
+      "glide": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 77.16848754882812,
+        "max": 137.55763244628906
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 59.08246612548828,
+        "max": 138.66976928710938
+      },
+      "centered": {
+        "n": 256,
+        "less10": 3,
+        "wrongBeyond5": 0,
+        "min": 0.04430060461163521,
+        "max": 102.07330322265625
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 9,
+        "wrongBeyond5": 4,
+        "min": -9.109217643737793,
+        "max": 164.0626678466797
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 18,
+        "min": -7.203923225402832,
+        "max": 6.156909942626953
+      }
+    }
+  },
+  "rate1.2": {
+    "worlds": 2304,
+    "falls": 0,
+    "elapsedSeconds": 94.1472824672237,
+    "peakRssKiB": 3505104,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 2048,
+        "less10": 95,
+        "wrongBeyond5": 0,
+        "min": 4.951026439666748,
+        "max": 624.3093872070312
+      },
+      "glide": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 76.2771987915039,
+        "max": 187.87289428710938
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 69.76786041259766,
+        "max": 184.77288818359375
+      },
+      "centered": {
+        "n": 256,
+        "less10": 2,
+        "wrongBeyond5": 0,
+        "min": -0.5178649425506592,
+        "max": 139.22755432128906
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 7,
+        "wrongBeyond5": 1,
+        "min": -8.500279426574707,
+        "max": 196.9705047607422
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 40,
+        "min": -6.6723432540893555,
+        "max": 7.000267505645752
+      }
+    }
+  },
+  "rate1.5": {
+    "worlds": 2304,
+    "falls": 0,
+    "elapsedSeconds": 93.01555246580392,
+    "peakRssKiB": 3479560,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 2048,
+        "less10": 87,
+        "wrongBeyond5": 0,
+        "min": 5.070855140686035,
+        "max": 793.24609375
+      },
+      "glide": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 80.68229675292969,
+        "max": 206.75521850585938
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 73.32015991210938,
+        "max": 199.03489685058594
+      },
+      "centered": {
+        "n": 256,
+        "less10": 2,
+        "wrongBeyond5": 0,
+        "min": -2.200174570083618,
+        "max": 165.03443908691406
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 2,
+        "wrongBeyond5": 0,
+        "min": 0.02655278518795967,
+        "max": 239.85464477539062
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 29,
+        "min": -6.859565258026123,
+        "max": 9.001082420349121
+      }
+    }
+  },
+  "assist": {
+    "worlds": 2944,
+    "falls": 0,
+    "elapsedSeconds": 106.92261855583638,
+    "peakRssKiB": 3825876,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 2688,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 37.854347229003906,
+        "max": 500.3013916015625
+      },
+      "glide": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 44.22194290161133,
+        "max": 137.05084228515625
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 16.62698745727539,
+        "max": 135.52993774414062
+      },
+      "centered": {
+        "n": 256,
+        "less10": 6,
+        "wrongBeyond5": 0,
+        "min": -4.478243350982666,
+        "max": 105.31420135498047
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 43.78127670288086,
+        "max": 169.7655792236328
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 18,
+        "min": -6.638861656188965,
+        "max": 6.229091167449951
+      }
+    }
+  },
+  "final": {
+    "worlds": 3840,
+    "falls": 0,
+    "elapsedSeconds": 123.43887202627957,
+    "peakRssKiB": 4244284,
+    "sourceHashesVerified": 342,
+    "phases": {
+      "hold": {
+        "n": 3584,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 15.618660926818848,
+        "max": 490.8335876464844
+      },
+      "glide": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 73.03504180908203,
+        "max": 138.03614807128906
+      },
+      "reverse_turn": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 66.0100326538086,
+        "max": 131.4916229248047
+      },
+      "centered": {
+        "n": 256,
+        "less10": 1,
+        "wrongBeyond5": 0,
+        "min": 8.935484886169434,
+        "max": 111.34294128417969
+      },
+      "deadzone_crossing": {
+        "n": 256,
+        "less10": 0,
+        "wrongBeyond5": 0,
+        "min": 53.109745025634766,
+        "max": 162.93235778808594
+      },
+      "release": {
+        "n": 256,
+        "less10": 256,
+        "wrongBeyond5": 19,
+        "min": -6.963362216949463,
+        "max": 9.579899787902832
+      }
+    }
+  }
+}

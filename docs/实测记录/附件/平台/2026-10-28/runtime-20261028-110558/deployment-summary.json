@@ -1,0 +1,14 @@
+{
+  "release": "runtime-20261028-110558",
+  "host": "192.168.137.242",
+  "knownGoodFallback": "runtime-20261028-093238",
+  "processSha256": "ed7e1930d02f621c5f61be61bc159c9a2b3211133aa8eb72bbf773c17981b48f",
+  "tofBinarySha256": "8331be77ce1476d5b040b1087f65c921406bff7049cdc0dd4f4058f628991d74",
+  "completeFrames": 298,
+  "sampledFrames": 298,
+  "freshTofVerifiedFrames": 5,
+  "tofEnabledAfter": false,
+  "all15Unloaded": true,
+  "modelsAvailable": 14,
+  "hardwareMotion": false
+}

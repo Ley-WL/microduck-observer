@@ -1,0 +1,1070 @@
+{
+  "total": 1792,
+  "survived": 1791,
+  "failed": [
+    {
+      "case": "switch_v+0.40_s-1",
+      "seed": 291507,
+      "replicate": 5,
+      "survived": false,
+      "failureSeconds": 2.92,
+      "forwardMeters": -1.28139066696167,
+      "lateralMeters": 3.0942394733428955,
+      "maxCrossTrackMeters": 3.104466676712036,
+      "maxExcursionMeters": 3.349071502685547,
+      "pathMeters": 4.295633316040039,
+      "releaseYawDegrees": 73.55014038085938,
+      "yawChangeDegrees": 252.90402221679688,
+      "meanForwardMps": 0.36758190393447876,
+      "meanLateralMps": -0.0008634895202703774,
+      "meanYawRate": 0.31019672751426697,
+      "maxTiltDegrees": 66.32536315917969,
+      "releaseTravelMeters": 0.04493704438209534,
+      "releaseFinalSpeedMps": 0.014827457256615162,
+      "nearFailureTrace": [
+        [
+          -0.337890625,
+          -0.32794249057769775,
+          0.11392834782600403,
+          -0.30542832612991333,
+          -0.2788189649581909,
+          2.1398940086364746,
+          0.5984448194503784,
+          -0.4834563732147217,
+          0.4000000059604645,
+          -0.25,
+          -0.5
+        ],
+        [
+          -0.3438091278076172,
+          -0.3340485095977783,
+          0.16487546265125275,
+          -0.46530523896217346,
+          -0.2576862871646881,
+          1.9139294624328613,
+          0.6109830141067505,
+          -0.5,
+          0.4000000059604645,
+          -0.25,
+          -0.5
+        ],
+        [
+          -0.34908485412597656,
+          -0.3410540819168091,
+          0.17970828711986542,
+          -0.5844153761863708,
+          -0.35673636198043823,
+          -0.4110899865627289,
+          0.6296197175979614,
+          -0.5,
+          0.4000000059604645,
+          -0.25,
+          -0.5
+        ],
+        [
+          -0.3534679412841797,
+          -0.3478546142578125,
+          0.1697656363248825,
+          -0.36222904920578003,
+          -0.17052477598190308,
+          2.4583451747894287,
+          0.6649214625358582,
+          -0.5,
+          0.4000000059604645,
+          -0.25,
+          -0.5
+        ],
+        [
+          -0.35797882080078125,
+          -0.3474634885787964,
+          0.27101561427116394,
+          -0.011263981461524963,
+          0.20210100710391998,
+          5.326715469360352,
+          0.7910032868385315,
+          -0.5,
+          0.4000000059604645,
+          -0.25,
+          -0.5
+        ],
+        [
+          -0.3651103973388672,
+          -0.3454688787460327,
+          0.3777194321155548,
+          0.003716766834259033,
+          0.2777518332004547,
+          3.8552000522613525,
+          0.9248315691947937,
+          -0.5,
+          0.4000000059604645,
+          -0.25,
+          -0.5
+        ]
+      ]
+    }
+  ],
+  "cleanSegments": [
+    {
+      "case": "grid_v-0.40_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 23.822052001953125,
+      "max": 34.112422943115234,
+      "mean": 29.109783709049225,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.40_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 22.233083724975586,
+      "max": 35.58648681640625,
+      "mean": 28.48725062608719,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.40_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 135.14755249023438,
+      "max": 148.88943481445312,
+      "mean": 142.56107711791992,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.40_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 134.84335327148438,
+      "max": 150.62889099121094,
+      "mean": 141.9899697303772,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.40_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 278.3302917480469,
+      "max": 291.51055908203125,
+      "mean": 284.66350841522217,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.40_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 273.0301818847656,
+      "max": 287.0877380371094,
+      "mean": 282.4764060974121,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.20_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.850282669067383,
+      "max": 16.50737762451172,
+      "mean": 14.85747566819191,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.20_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.421648025512695,
+      "max": 13.711542129516602,
+      "mean": 12.887946099042892,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.20_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 107.22103118896484,
+      "max": 136.4788818359375,
+      "mean": 125.79660654067993,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.20_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 8.055292129516602,
+      "max": 119.00035858154297,
+      "mean": 93.19361335039139,
+      "less10": 4,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.20_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 208.52574157714844,
+      "max": 278.8387145996094,
+      "mean": 253.1516981124878,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.20_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 7.90904426574707,
+      "max": 222.40553283691406,
+      "mean": 131.67023421823978,
+      "less10": 6,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.10_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 13.113594055175781,
+      "max": 16.4437198638916,
+      "mean": 14.758358150720596,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.10_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.429945945739746,
+      "max": 13.780550956726074,
+      "mean": 12.821847200393677,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.10_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 99.7557144165039,
+      "max": 141.14173889160156,
+      "mean": 125.66454315185547,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.10_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 7.497224807739258,
+      "max": 119.40421295166016,
+      "mean": 74.84544724225998,
+      "less10": 8,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.10_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 213.17344665527344,
+      "max": 281.3233337402344,
+      "mean": 252.63228702545166,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.10_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 7.762120246887207,
+      "max": 220.06027221679688,
+      "mean": 65.98640993237495,
+      "less10": 16,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.02_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.816251754760742,
+      "max": 16.332157135009766,
+      "mean": 14.891343027353287,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.02_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.290428161621094,
+      "max": 13.536396026611328,
+      "mean": 12.782907515764236,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.02_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 86.9869613647461,
+      "max": 139.5513916015625,
+      "mean": 120.05390906333923,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.02_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 7.0492262840271,
+      "max": 115.42509460449219,
+      "mean": 53.021628364920616,
+      "less10": 14,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.02_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 109.08295440673828,
+      "max": 283.3046569824219,
+      "mean": 237.17469573020935,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v-0.02_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 7.440678119659424,
+      "max": 218.83575439453125,
+      "mean": 119.77387522161007,
+      "less10": 3,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.02_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.863724708557129,
+      "max": 16.14435386657715,
+      "mean": 15.137173235416412,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.02_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.26558780670166,
+      "max": 13.675663948059082,
+      "mean": 12.713124990463257,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.02_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 81.05488586425781,
+      "max": 135.70596313476562,
+      "mean": 115.50913524627686,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.02_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 7.095323085784912,
+      "max": 116.38137817382812,
+      "mean": 54.57978720963001,
+      "less10": 12,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.02_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.593806266784668,
+      "max": 265.4398498535156,
+      "mean": 225.89106354117393,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.02_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 6.0932183265686035,
+      "max": 224.57949829101562,
+      "mean": 108.71734201908112,
+      "less10": 2,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.10_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 14.554859161376953,
+      "max": 16.075511932373047,
+      "mean": 15.390638172626495,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.10_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.256681442260742,
+      "max": 13.543663024902344,
+      "mean": 12.742353975772858,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.10_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 40.06547927856445,
+      "max": 126.30744171142578,
+      "mean": 106.32038629055023,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.10_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 6.508787631988525,
+      "max": 84.73461151123047,
+      "mean": 17.97538773715496,
+      "less10": 22,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.10_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 12.81557846069336,
+      "max": 263.5387878417969,
+      "mean": 213.94872510433197,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.10_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 6.432138919830322,
+      "max": 192.34869384765625,
+      "mean": 38.65825527906418,
+      "less10": 20,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.20_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 13.459966659545898,
+      "max": 15.577570915222168,
+      "mean": 14.47657361626625,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.20_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 11.71593189239502,
+      "max": 13.587076187133789,
+      "mean": 12.557705372571945,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.20_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 7.7021989822387695,
+      "max": 133.18267822265625,
+      "mean": 76.21969547867775,
+      "less10": 1,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.20_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 104.48896026611328,
+      "max": 122.49939727783203,
+      "mean": 115.38252377510071,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.20_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 44.655338287353516,
+      "max": 271.1148376464844,
+      "mean": 162.11756539344788,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.20_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 193.1160430908203,
+      "max": 232.04656982421875,
+      "mean": 220.75680255889893,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.40_t+0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 17.992963790893555,
+      "max": 34.282344818115234,
+      "mean": 25.572799921035767,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.40_t-0.025",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 20.197586059570312,
+      "max": 39.34807586669922,
+      "mean": 29.45779699087143,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.40_t+0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 133.2469024658203,
+      "max": 150.4874725341797,
+      "mean": 140.19076776504517,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.40_t-0.125",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 135.53977966308594,
+      "max": 150.10462951660156,
+      "mean": 143.99383449554443,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.40_t+0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 269.6998596191406,
+      "max": 290.3898010253906,
+      "mean": 281.40914154052734,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "grid_v+0.40_t-0.250",
+      "phase": "hold",
+      "survivedWorlds": 32,
+      "min": 277.6018371582031,
+      "max": 291.2906188964844,
+      "mean": 284.9539518356323,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s+1",
+      "phase": "glide",
+      "survivedWorlds": 32,
+      "min": 74.04922485351562,
+      "max": 89.46253967285156,
+      "mean": 81.69615936279297,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s+1",
+      "phase": "straight",
+      "survivedWorlds": 32,
+      "min": -7.185891151428223,
+      "max": 8.821763038635254,
+      "mean": 0.5382838046352845,
+      "less10": 32,
+      "wrongBeyond5": 1
+    },
+    {
+      "case": "switch_v-0.40_s+1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 32,
+      "min": 77.23146057128906,
+      "max": 90.09599304199219,
+      "mean": 83.56410932540894,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s+1",
+      "phase": "centered",
+      "survivedWorlds": 32,
+      "min": 53.1394157409668,
+      "max": 83.28491973876953,
+      "mean": 70.6640864610672,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s+1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 32,
+      "min": -4.105489730834961,
+      "max": 110.51752471923828,
+      "mean": 86.8725454211235,
+      "less10": 1,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s+1",
+      "phase": "release",
+      "survivedWorlds": 32,
+      "min": -1.0631462335586548,
+      "max": 6.001613140106201,
+      "mean": 4.193822558037937,
+      "less10": 32,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s-1",
+      "phase": "glide",
+      "survivedWorlds": 32,
+      "min": 73.43273162841797,
+      "max": 88.63892364501953,
+      "mean": 81.31772541999817,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s-1",
+      "phase": "straight",
+      "survivedWorlds": 32,
+      "min": -8.842321395874023,
+      "max": 7.523056983947754,
+      "mean": -1.2331904582679272,
+      "less10": 32,
+      "wrongBeyond5": 5
+    },
+    {
+      "case": "switch_v-0.40_s-1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 32,
+      "min": 75.2769546508789,
+      "max": 97.13253021240234,
+      "mean": 84.74891805648804,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s-1",
+      "phase": "centered",
+      "survivedWorlds": 32,
+      "min": 53.62285614013672,
+      "max": 93.73016357421875,
+      "mean": 82.65138816833496,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s-1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 32,
+      "min": 68.10334777832031,
+      "max": 116.20067596435547,
+      "mean": 98.69994854927063,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.40_s-1",
+      "phase": "release",
+      "survivedWorlds": 32,
+      "min": -6.324994087219238,
+      "max": 3.435530424118042,
+      "mean": -1.6957681458443403,
+      "less10": 32,
+      "wrongBeyond5": 4
+    },
+    {
+      "case": "switch_v-0.10_s+1",
+      "phase": "glide",
+      "survivedWorlds": 32,
+      "min": 44.43258285522461,
+      "max": 72.57506561279297,
+      "mean": 64.49682712554932,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s+1",
+      "phase": "straight",
+      "survivedWorlds": 32,
+      "min": -5.954585075378418,
+      "max": -0.07872475683689117,
+      "mean": -4.42698795767501,
+      "less10": 32,
+      "wrongBeyond5": 11
+    },
+    {
+      "case": "switch_v-0.10_s+1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 32,
+      "min": 15.81502914428711,
+      "max": 63.240211486816406,
+      "mean": 49.861615002155304,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s+1",
+      "phase": "centered",
+      "survivedWorlds": 32,
+      "min": -0.08035033941268921,
+      "max": 86.24803161621094,
+      "mean": 53.757771156786475,
+      "less10": 6,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s+1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 32,
+      "min": 0.010993189178407192,
+      "max": 113.60037231445312,
+      "mean": 71.16850219809567,
+      "less10": 6,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s+1",
+      "phase": "release",
+      "survivedWorlds": 32,
+      "min": -2.611208438873291,
+      "max": 6.190186500549316,
+      "mean": 2.0166468848474324,
+      "less10": 32,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s-1",
+      "phase": "glide",
+      "survivedWorlds": 32,
+      "min": 8.072853088378906,
+      "max": 59.17145538330078,
+      "mean": 34.094601571559906,
+      "less10": 12,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s-1",
+      "phase": "straight",
+      "survivedWorlds": 32,
+      "min": 1.6717023849487305,
+      "max": 5.7284111976623535,
+      "mean": 4.3348158821463585,
+      "less10": 32,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s-1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 32,
+      "min": 56.40614318847656,
+      "max": 73.99262237548828,
+      "mean": 66.84292793273926,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s-1",
+      "phase": "centered",
+      "survivedWorlds": 32,
+      "min": 48.65626907348633,
+      "max": 101.36436462402344,
+      "mean": 79.63099956512451,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s-1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 32,
+      "min": 62.05543518066406,
+      "max": 118.33074951171875,
+      "mean": 96.19236707687378,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v-0.10_s-1",
+      "phase": "release",
+      "survivedWorlds": 32,
+      "min": -5.874139785766602,
+      "max": 6.917113304138184,
+      "mean": -1.0490921456366777,
+      "less10": 32,
+      "wrongBeyond5": 5
+    },
+    {
+      "case": "switch_v+0.10_s+1",
+      "phase": "glide",
+      "survivedWorlds": 32,
+      "min": 54.03716278076172,
+      "max": 71.01817321777344,
+      "mean": 60.54948592185974,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s+1",
+      "phase": "straight",
+      "survivedWorlds": 32,
+      "min": -7.140293121337891,
+      "max": -2.9256021976470947,
+      "mean": -4.954634144902229,
+      "less10": 32,
+      "wrongBeyond5": 12
+    },
+    {
+      "case": "switch_v+0.10_s+1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 32,
+      "min": 10.365043640136719,
+      "max": 58.23503494262695,
+      "mean": 18.474675744771957,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s+1",
+      "phase": "centered",
+      "survivedWorlds": 32,
+      "min": 0.8579878211021423,
+      "max": 67.99092864990234,
+      "mean": 8.784986669197679,
+      "less10": 28,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s+1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 32,
+      "min": -0.11455592513084412,
+      "max": 110.93740844726562,
+      "mean": 12.122807757936243,
+      "less10": 28,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s+1",
+      "phase": "release",
+      "survivedWorlds": 32,
+      "min": -0.9040642976760864,
+      "max": 5.765581130981445,
+      "mean": 3.2972582783550024,
+      "less10": 32,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s-1",
+      "phase": "glide",
+      "survivedWorlds": 32,
+      "min": 5.649947643280029,
+      "max": 59.129066467285156,
+      "mean": 24.72691498696804,
+      "less10": 19,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s-1",
+      "phase": "straight",
+      "survivedWorlds": 32,
+      "min": 1.423107385635376,
+      "max": 5.83528995513916,
+      "mean": 3.2648452669382095,
+      "less10": 32,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s-1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 32,
+      "min": 15.290566444396973,
+      "max": 69.1146240234375,
+      "mean": 58.73180630803108,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s-1",
+      "phase": "centered",
+      "survivedWorlds": 32,
+      "min": -0.06623917073011398,
+      "max": 98.89983367919922,
+      "mean": 65.93396145687439,
+      "less10": 1,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s-1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 32,
+      "min": -0.07011871784925461,
+      "max": 124.01622772216797,
+      "mean": 94.89536842680536,
+      "less10": 2,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.10_s-1",
+      "phase": "release",
+      "survivedWorlds": 32,
+      "min": -6.945864677429199,
+      "max": 3.7454347610473633,
+      "mean": -2.187405090779066,
+      "less10": 32,
+      "wrongBeyond5": 12
+    },
+    {
+      "case": "switch_v+0.40_s+1",
+      "phase": "glide",
+      "survivedWorlds": 32,
+      "min": 74.41709899902344,
+      "max": 86.1764907836914,
+      "mean": 78.35032367706299,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s+1",
+      "phase": "straight",
+      "survivedWorlds": 32,
+      "min": -10.516158103942871,
+      "max": 7.471086025238037,
+      "mean": -4.25744221941568,
+      "less10": 32,
+      "wrongBeyond5": 15
+    },
+    {
+      "case": "switch_v+0.40_s+1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 32,
+      "min": 71.22692108154297,
+      "max": 95.82003021240234,
+      "mean": 79.53111505508423,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s+1",
+      "phase": "centered",
+      "survivedWorlds": 32,
+      "min": 52.47090530395508,
+      "max": 97.96248626708984,
+      "mean": 79.3451122045517,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s+1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 32,
+      "min": -8.745715141296387,
+      "max": 101.93492126464844,
+      "mean": 77.869622990489,
+      "less10": 3,
+      "wrongBeyond5": 1
+    },
+    {
+      "case": "switch_v+0.40_s+1",
+      "phase": "release",
+      "survivedWorlds": 32,
+      "min": -2.278714895248413,
+      "max": 5.640636444091797,
+      "mean": 1.7608368746004999,
+      "less10": 32,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s-1",
+      "phase": "glide",
+      "survivedWorlds": 31,
+      "min": 78.54077911376953,
+      "max": 90.33592987060547,
+      "mean": 84.57912395846459,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s-1",
+      "phase": "straight",
+      "survivedWorlds": 31,
+      "min": -8.142951011657715,
+      "max": 4.300792217254639,
+      "mean": -3.091718566033148,
+      "less10": 31,
+      "wrongBeyond5": 8
+    },
+    {
+      "case": "switch_v+0.40_s-1",
+      "phase": "reverse_turn",
+      "survivedWorlds": 31,
+      "min": 73.5129623413086,
+      "max": 91.5342025756836,
+      "mean": 81.83517283778036,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s-1",
+      "phase": "centered",
+      "survivedWorlds": 31,
+      "min": 39.78523635864258,
+      "max": 103.68072509765625,
+      "mean": 79.12032957999936,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s-1",
+      "phase": "deadzone_crossing",
+      "survivedWorlds": 31,
+      "min": 61.76467514038086,
+      "max": 124.53425598144531,
+      "mean": 100.92468741632277,
+      "less10": 0,
+      "wrongBeyond5": 0
+    },
+    {
+      "case": "switch_v+0.40_s-1",
+      "phase": "release",
+      "survivedWorlds": 31,
+      "min": -6.245683670043945,
+      "max": 6.12369441986084,
+      "mean": -3.355003917409528,
+      "less10": 31,
+      "wrongBeyond5": 14
+    }
+  ],
+  "rule": "Exclude entire failed worlds from phase motion statistics; no post-reset success claims",
+  "python": "3.12.3"
+}

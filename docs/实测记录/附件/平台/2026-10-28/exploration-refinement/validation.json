@@ -1,0 +1,15 @@
+{
+  "deployed": false,
+  "backendTestsPassed": 387,
+  "backendTestsIgnored": 1,
+  "explorationTestsPassed": 40,
+  "armBuild": "passed",
+  "binarySha256": "1c639f68643526c1781f435c95569b1721727f4437b25ae4c5c791ccdbbf4821",
+  "tofBinarySha256": "8331be77ce1476d5b040b1087f65c921406bff7049cdc0dd4f4058f628991d74",
+  "sourceSha256": {
+    "backend-rust/src/exploration.rs": "7e4d130679ce079e39b920631772b21972fc93035b6db891c3fd18b15973f50e",
+    "backend-rust/src/exploration/parameters.rs": "89141eb766bdb507e46163ed66f29782320163fdbd449cef54024433876663c8",
+    "backend-rust/src/exploration/interaction.rs": "cbb370515199993be710bdd28db3ebe2d5fda6d87adc16061e1c3683b427d528",
+    "backend-rust/src/policy.rs": "5209efeeca3348208a93a4ad097e53a9dbc9c6016930a7c92d1b3156d645e573"
+  }
+}

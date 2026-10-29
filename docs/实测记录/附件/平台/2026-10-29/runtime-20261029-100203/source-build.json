@@ -1,0 +1,31 @@
+{
+  "deployed": false,
+  "backendTestsPassed": 390,
+  "backendTestsIgnored": 1,
+  "armBuild": "passed",
+  "binarySha256": "0a724640505e01f164066bf45b63e0d20f662d5d4ad89b1cf0dee3b2086702f8",
+  "tofBinarySha256": "8331be77ce1476d5b040b1087f65c921406bff7049cdc0dd4f4058f628991d74",
+  "sourceSha256": {
+    "backend-rust/src/autonomy.rs": "1439d23bb39f88154532d58e16f7a09482998b7266ddc685d1c2e9ce28d067ee",
+    "backend-rust/src/exploration.rs": "1d390282008c073439cd1a6e04439be1f66dfdd2ab9c1360e1b00f68d8e84a6e",
+    "backend-rust/src/exploration/parameters.rs": "840bc84063442c45680dc85637ab2a5e96f0ebd10ae966ee176c763fc5fac5d9",
+    "backend-rust/src/exploration/interaction.rs": "cbb370515199993be710bdd28db3ebe2d5fda6d87adc16061e1c3683b427d528",
+    "backend-rust/src/exploration/behavior.rs": "3d76409f72f9fc518dfb4c10969ceb7cb6710644373f89067b25f039e227d72e",
+    "backend-rust/src/head_control.rs": "9a72dd52c296aa9cdd7e0bb68d4b55d9cbeb980c78561d1aef9ceb61659ef6b6",
+    "backend-rust/src/policy.rs": "2f1660494252cc08f068bbc42d09d9eaa47ba0641f760c86d7c02c29ee1c5cc0",
+    "frontend/src/components/ModelRuntime.vue": "18450e2fd2f86b67a5c05c9e2d6e73a06adb8619a60ddd13b34af1474c1a0ed5",
+    "frontend/src/components/ModelGamepad.vue": "9f407083cefc4eef831ce9b8c676831cd37ef8669f6f385faf34a8794966efd6"
+  },
+  "change": "Mixed exploration, conditional scans, 0.5-second acceleration, raised gaze, 180-degree U-turn, 10-second autonomous recovery",
+  "baseCommit": "63feec42dc7ab6b04cb58cdc743eb063a8bdac1c",
+  "webAssets": {
+    "index.html": "45c6bda89db0b359dc32f3c41e03d7c7220a27c9f45417b9b22bfb15761a4ac5",
+    "assets/index-CEfnpD57.css": "3376969d1ec9593e7b9bdaef858988165b10a35e98648179bdae8f103b5adb5f",
+    "assets/index-Ctw9souL.js": "065bdb2302690341553987df632d977e6b71f54f5bb288ddc3dd6310091f297e",
+    "model/LICENSE": "48a029ca4cffafe32428e9f7d3f6a54ce637fac5327a9ccf88c93cb3c40e5a8a",
+    "model/meshes.bin": "d2252354ee5a04367aaf82242e08e52491b02ebbf27d48dc2c20350e6714d1a8",
+    "model/model.json": "afb68b1b75ed9c8e1e9a96de401cc2346bb913e7c4f8c6a82fd8bbc10ca69c9c",
+    "model/NOTICE.md": "40025b104ed58fdae7d4e3eec6703746a925cc2c626c84dd476aa50619e2f15a"
+  },
+  "fallbackPolicy": "retain target current release; see previous-release.txt"
+}

@@ -1,0 +1,439 @@
+{
+  "phases": "2s settle, 3s first turn, 2s release, 3s opposite, 2s release, 3s first, 1s release",
+  "cases": [
+    {
+      "case": "baseline_left",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 62.67317920923233,
+        "min": 51.18887710571289,
+        "max": 78.36383819580078
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.06561008095741272,
+      "releaseYawDegrees": {
+        "min": -6.072468280792236,
+        "max": 1.4993493556976318
+      }
+    },
+    {
+      "case": "baseline_left",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 44.5832703858614,
+        "min": 12.728316307067871,
+        "max": 61.74026107788086
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.050034116953611374,
+      "releaseYawDegrees": {
+        "min": -0.4373096823692322,
+        "max": 5.980957508087158
+      }
+    },
+    {
+      "case": "baseline_left",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 64.23755943775177,
+        "min": 52.88184356689453,
+        "max": 73.59622192382812
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.06973810493946075,
+      "releaseYawDegrees": {
+        "min": -7.023141860961914,
+        "max": -1.8757269382476807
+      }
+    },
+    {
+      "case": "baseline_right",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 48.86372587829828,
+        "min": 6.497032642364502,
+        "max": 62.26002502441406
+      },
+      "less10": 7,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.047401852905750275,
+      "releaseYawDegrees": {
+        "min": -0.40744125843048096,
+        "max": 6.2536115646362305
+      }
+    },
+    {
+      "case": "baseline_right",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 65.01713997125626,
+        "min": 53.425086975097656,
+        "max": 72.62171173095703
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.06084151193499565,
+      "releaseYawDegrees": {
+        "min": -5.966415882110596,
+        "max": -0.15588539838790894
+      }
+    },
+    {
+      "case": "baseline_right",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 42.67717495560646,
+        "min": 10.560182571411133,
+        "max": 61.148555755615234
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.0471864715218544,
+      "releaseYawDegrees": {
+        "min": -1.8390710353851318,
+        "max": 5.817749977111816
+      }
+    },
+    {
+      "case": "selected_left",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 118.91901087760925,
+        "min": 99.62047576904297,
+        "max": 138.3427276611328
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.11411917954683304,
+      "releaseYawDegrees": {
+        "min": -6.562513828277588,
+        "max": 0.05214166268706322
+      }
+    },
+    {
+      "case": "selected_left",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 111.7921894788742,
+        "min": 101.65277099609375,
+        "max": 119.39665985107422
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.07863849401473999,
+      "releaseYawDegrees": {
+        "min": -0.7518125176429749,
+        "max": 6.100799560546875
+      }
+    },
+    {
+      "case": "selected_left",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 119.38780474662781,
+        "min": 86.50978088378906,
+        "max": 135.57640075683594
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.11121825128793716,
+      "releaseYawDegrees": {
+        "min": -4.993387222290039,
+        "max": 4.021331787109375
+      }
+    },
+    {
+      "case": "selected_right",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 112.1100926399231,
+        "min": 91.65311431884766,
+        "max": 122.77366638183594
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.07270512729883194,
+      "releaseYawDegrees": {
+        "min": -0.10761645436286926,
+        "max": 6.182809829711914
+      }
+    },
+    {
+      "case": "selected_right",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 118.73918104171753,
+        "min": 84.64888763427734,
+        "max": 138.3081817626953
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.10481180995702744,
+      "releaseYawDegrees": {
+        "min": -5.036130428314209,
+        "max": 0.8126353621482849
+      }
+    },
+    {
+      "case": "selected_right",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 111.83879560232162,
+        "min": 59.9428825378418,
+        "max": 121.9739761352539
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.07116744667291641,
+      "releaseYawDegrees": {
+        "min": 0.48623430728912354,
+        "max": 5.949408531188965
+      }
+    },
+    {
+      "case": "forward_left",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 79.39079999923706,
+        "min": 70.36791229248047,
+        "max": 88.80612182617188
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.9596157073974609,
+      "releaseYawDegrees": {
+        "min": -6.677083492279053,
+        "max": 10.713973999023438
+      }
+    },
+    {
+      "case": "forward_left",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 85.68875515460968,
+        "min": 76.6537857055664,
+        "max": 95.95771026611328
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 1.079966425895691,
+      "releaseYawDegrees": {
+        "min": -12.365913391113281,
+        "max": 1.4239577054977417
+      }
+    },
+    {
+      "case": "forward_left",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 82.02419447898865,
+        "min": 72.41130828857422,
+        "max": 98.58179473876953
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 1.1794906854629517,
+      "releaseYawDegrees": {
+        "min": -0.8812856078147888,
+        "max": 11.955821990966797
+      }
+    },
+    {
+      "case": "forward_right",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 84.19046115875244,
+        "min": 74.14337158203125,
+        "max": 95.6087417602539
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.9167274236679077,
+      "releaseYawDegrees": {
+        "min": -8.957355499267578,
+        "max": 1.6249566078186035
+      }
+    },
+    {
+      "case": "forward_right",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 80.8886091709137,
+        "min": 70.31892395019531,
+        "max": 91.24436950683594
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 1.1761144399642944,
+      "releaseYawDegrees": {
+        "min": -0.37852907180786133,
+        "max": 6.758825302124023
+      }
+    },
+    {
+      "case": "forward_right",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 86.67715203762054,
+        "min": 74.861083984375,
+        "max": 99.29234313964844
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 1.0669502019882202,
+      "releaseYawDegrees": {
+        "min": -12.818891525268555,
+        "max": 1.6079766750335693
+      }
+    },
+    {
+      "case": "reverse_left",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 81.47317790985107,
+        "min": 70.76387023925781,
+        "max": 88.38383483886719
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.6231659650802612,
+      "releaseYawDegrees": {
+        "min": -1.0604004859924316,
+        "max": 1.8830749988555908
+      }
+    },
+    {
+      "case": "reverse_left",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 81.4210832118988,
+        "min": 71.89994812011719,
+        "max": 88.36578369140625
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.6079772114753723,
+      "releaseYawDegrees": {
+        "min": -1.2345975637435913,
+        "max": 1.790745735168457
+      }
+    },
+    {
+      "case": "reverse_left",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 83.45891916751862,
+        "min": 73.45938110351562,
+        "max": 90.29902648925781
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.6500399708747864,
+      "releaseYawDegrees": {
+        "min": -1.1811718940734863,
+        "max": 2.0962259769439697
+      }
+    },
+    {
+      "case": "reverse_right",
+      "startSeconds": 2.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 80.88219285011292,
+        "min": 73.04277801513672,
+        "max": 87.60700988769531
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.6358180642127991,
+      "releaseYawDegrees": {
+        "min": -1.2323846817016602,
+        "max": 1.2234596014022827
+      }
+    },
+    {
+      "case": "reverse_right",
+      "startSeconds": 7.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 81.6549061536789,
+        "min": 71.09220123291016,
+        "max": 88.81806182861328
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.6670460104942322,
+      "releaseYawDegrees": {
+        "min": -2.015352964401245,
+        "max": 2.1665358543395996
+      }
+    },
+    {
+      "case": "reverse_right",
+      "startSeconds": 12.0,
+      "durationSeconds": 3.0,
+      "worlds": 64,
+      "directedYawDegrees": {
+        "mean": 80.97717308998108,
+        "min": 69.05113983154297,
+        "max": 87.67742156982422
+      },
+      "less10": 0,
+      "wrongDirection": 0,
+      "maxExcursionMeters": 0.7303948402404785,
+      "releaseYawDegrees": {
+        "min": -3.706258535385132,
+        "max": 1.7338024377822876
+      }
+    }
+  ],
+  "elapsedSeconds": 38.43120411876589,
+  "peakRssKiB": 2958836
+}

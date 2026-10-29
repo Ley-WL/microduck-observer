@@ -1,0 +1,18 @@
+{
+  "host": "192.168.137.188",
+  "identity": "microduck-789ce1",
+  "release": "runtime-20261029-134917",
+  "previousRelease": "runtime-20261029-110644",
+  "processSha256": "22d459c7fc4d6b7fa794f3bcbf882a9d3e0417a5f08b1b70e15914fe6b46eda2",
+  "modelsAvailable": 14,
+  "completeJointFrames": 295,
+  "sampledJointFrames": 295,
+  "tofFreshVerifiedFrames": 5,
+  "tofEnabledRestored": false,
+  "all15Unloaded": true,
+  "hardwareMotion": false,
+  "backendTestsPassed": 407,
+  "backendTestsIgnored": 1,
+  "armBuild": true,
+  "webBuild": true
+}
