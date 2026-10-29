@@ -13,32 +13,16 @@ const physicalResult=computed(()=>{
   for(let i=state.logs.length-1;i>=0;i--){const log=state.logs[i];if(log.data.module==='gamepad')return '手柄最近事件：'+String(log.data.message||'');}
   return '';
 });
-const autonomyChoice=ref('interaction'),autonomySaving=ref(false),autonomyError=ref('');
 const explorationTofHint=computed(()=>{
   if(state.connection!=='在线')return 'ToF状态未知（设备未连接）';
   if(state.paused)return 'ToF状态未更新（遥测已暂停）';
   const tof=state.system?.data.tof;
   if(!tof || typeof tof.enabled!=='boolean')return '正在读取ToF状态';
-  if(!tof.enabled)return 'ToF已关闭，请先开启';
+  if(!tof.enabled)return '开启互动探索后自动启动ToF';
   if(tof.state==='starting')return 'ToF已开启，正在启动';
   if(tof.state==='streaming' && state.tof?.valid && state.tofAge<1500)return 'ToF已开启，正在采集';
   return 'ToF已开启，等待新鲜测距数据';
 });
-let autonomyLoad=0;
-watch(()=>[state.endpoint,state.connection],async()=>{
-  const token=++autonomyLoad;
-  try {const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/autonomy/settings',{signal:AbortSignal.timeout(2000)});
-    if(!response.ok)throw new Error('无法读取自主模式');const value=await response.json();
-    if(token===autonomyLoad){autonomyChoice.value=value.mode;autonomyError.value='';}
-  }catch(e){if(token===autonomyLoad)autonomyError.value=String(e);}
-},{immediate:true});
-async function selectAutonomy(event:Event){
-  const choice=(event.target as HTMLSelectElement).value;autonomySaving.value=true;autonomyError.value='';
-  try {const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/autonomy/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:choice}),signal:AbortSignal.timeout(3000)});
-    const value=await response.json();if(!response.ok)throw new Error(value.detail || '保存失败');autonomyChoice.value=value.mode;
-  }catch(e){autonomyError.value=String(e);(event.target as HTMLSelectElement).value=autonomyChoice.value;}
-  finally{autonomySaving.value=false;}
-}
 const rollerAvailable=ref(false),crouchAvailable=ref(false);
 const modelAvailable=ref(false),headAvailable=ref(false),wheelSpeed=ref(0.2);
 const padConfig=ref<PadConfig>();
@@ -154,7 +138,7 @@ async function extra(action:string,angleDeg?:number){
     try{
       const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/policy/autonomy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:session.value,sequence:hold.nextSequence()}),signal:AbortSignal.timeout(2000)});
       const result=await response.json();if(!response.ok)throw new Error(result.detail||'自主请求失败');
-      message.value=result.enabled?'自主开启：原地待命，手柄输入优先':'自主已关闭';
+      message.value=result.enabled?'自主已开启，手柄输入优先':'自主已关闭';
     }catch(e){failed.value=true;message.value=String(e);}finally{pending.value=false;}return;
   }
   if(action==='demo'){demoFocused=true;release();await demoCommand();return;}
@@ -235,18 +219,20 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
     <div v-if="control?.demo?.active" class="runtime-metrics" role="status"><b>演示 {{ control.demo.step }}/{{ control.demo.steps }} · {{ control.demo.name }}</b><span>{{ Math.floor(control.demo.elapsedSeconds || 0) }} 秒 · LB 再按取消，摇杆接管</span></div>
     <p v-else-if="control?.demo?.reason" role="status">{{ control.demo.reason }}</p>
     <div class="runtime-metrics">
-      <label>自主行为 <select :value="autonomyChoice" :disabled="autonomySaving || !!control?.autonomy?.enabled" @change="selectAutonomy"><option value="interaction">原地互动</option><option value="explore">避障探索</option></select></label>
-          <span v-if="autonomyChoice==='explore'">普通双足慢行 · {{ explorationTofHint }} · 仅用于无台阶的平坦地面</span>
-      <span v-if="autonomyError" role="alert">{{ autonomyError }}</span>
+      <b>互动探索</b>
+          <span>普通双足慢行 · {{ explorationTofHint }} · 仅用于无台阶的平坦地面</span>
+      <span>站立或坐下观察时开启摄像头，看人互动；其他阶段暂停采集</span>
     </div>
     <div v-if="control?.autonomy?.enabled && control.autonomy.selectedMode==='explore'" class="runtime-metrics" role="status">
-      <b>探索：{{ control.autonomy.exploration?.behavior }}</b>
+      <b>当前行为：{{ control.autonomy.mixedBehavior?.activity || control.autonomy.exploration?.behavior }}</b>
+      <span v-if="control.autonomy.mixedBehavior?.activity==='避障探索'">{{ control.autonomy.exploration?.behavior }}</span>
+      <span v-if="control.autonomy.mixedBehavior?.reason">{{ control.autonomy.mixedBehavior.reason }}</span>
       <span v-if="control.autonomy.exploration?.distanceMm!=null">当前朝向距离 {{ Math.round(control.autonomy.exploration.distanceMm) }} mm</span>
       <span v-if="control.autonomy.exploration?.excludedTofZones?.length">已临时排除 {{ control.autonomy.exploration.excludedTofZones.length }} 个ToF区域</span>
       <span>{{ control.autonomy.exploration?.reason }}</span>
     </div>
     <div class="runtime-metrics" role="status"><b>自主：{{ control?.autonomy?.behavior || '已关闭' }}</b><span v-if="control?.autonomy?.enabled">控制：{{ control.autonomy.controlSource==='autonomous'?'自主':'人工' }}</span><span v-if="recovering">起身剩余 {{ Number(control.autonomy.recoveryRemainingSeconds || 0).toFixed(1) }} 秒</span><span v-if="control?.autonomy?.reason">{{ control.autonomy.reason }}</span></div>
-    <div v-if="control?.autonomy?.enabled && control.autonomy.selectedMode!=='explore'" class="runtime-metrics" role="status">
+    <div v-if="control?.autonomy?.enabled && control.autonomy.mixedBehavior?.observing" class="runtime-metrics" role="status">
       <b>看人互动：{{ control.autonomy.vision?.behavior || '等待摄像头' }}</b>
       <span v-if="control.autonomy.vision?.target">{{ control.autonomy.vision.target.kind==='face'?'人脸':'人体' }} · {{ Math.round(control.autonomy.vision.target.score*100) }}%</span>
       <span v-if="control.autonomy.vision?.target">位置 {{ Math.round((control.autonomy.vision.target.bounds[0]+control.autonomy.vision.target.bounds[2])*50) }}% / {{ Math.round((control.autonomy.vision.target.bounds[1]+control.autonomy.vision.target.bounds[3])*50) }}%</span>

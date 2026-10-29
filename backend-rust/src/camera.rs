@@ -33,6 +33,7 @@ struct Camera {
     closing: AtomicBool,
     preview: AtomicBool,
     vision: AtomicBool,
+    managed: AtomicBool,
     worker: Mutex<Option<Worker>>,
     state: watch::Sender<Frame>,
     viewers: Arc<Semaphore>,
@@ -73,11 +74,11 @@ impl Camera {
         let preview=AtomicBool::new(frame.enabled);
         let (state,_)=watch::channel(frame);
         Self { path,available,closing:AtomicBool::new(false),worker:Mutex::new(None),
-            preview,vision:AtomicBool::new(false),state,viewers:Arc::new(Semaphore::new(8)) }
+            preview,vision:AtomicBool::new(false),managed:AtomicBool::new(false),state,viewers:Arc::new(Semaphore::new(8)) }
     }
     fn status(&self) -> Value {
         let f=self.state.borrow();
-        json!({"available":self.available,"enabled":self.preview.load(Ordering::Acquire),"captureEnabled":f.enabled,"autonomousUse":self.vision.load(Ordering::Acquire),
+        json!({"available":self.available,"enabled":self.preview.load(Ordering::Acquire),"captureEnabled":f.enabled,"autonomousUse":self.vision.load(Ordering::Acquire),"autonomousManaged":self.managed.load(Ordering::Acquire),
             "streaming":!f.jpeg.is_empty() && f.at.elapsed()<Duration::from_secs(5),
             "error":f.error,"device":f.device,"transport":"mjpeg","width":640,"height":480,
             "targetFps":10.5,"sequence":f.seq,"capturePid":f.capture_pid,"encoderPid":f.encoder_pid,
@@ -101,7 +102,7 @@ impl Camera {
         let path=self.path.clone();
         tokio::task::spawn_blocking(move || save_enabled(&path,enabled)).await??;
         self.preview.store(enabled,Ordering::Release);
-        if !(enabled || self.vision.load(Ordering::Acquire)) {
+        if !capture_needed(enabled,self.vision.load(Ordering::Acquire),self.managed.load(Ordering::Acquire)) {
             Self::stop_worker(&mut worker).await;
             self.state.send_modify(|s|{s.enabled=false;s.error.clear();s.jpeg=Bytes::new();});
         } else {
@@ -128,16 +129,21 @@ pub async fn init(hardware: bool) {
 }
 pub fn available() -> bool { CAMERA.get().is_some_and(|c|c.available) }
 // A temporary consumer must never change the user's persisted preview preference.
-pub async fn vision_lease(enabled:bool)->anyhow::Result<()> {
+pub async fn vision_lease(enabled:bool,managed:bool)->anyhow::Result<()> {
     let Some(c)=CAMERA.get() else {anyhow::ensure!(!enabled,"摄像头未初始化");return Ok(());};
-    lease(c,enabled).await
+    lease_managed(c,enabled,managed).await
 }
-async fn lease(c:&Camera,enabled:bool)->anyhow::Result<()> {
-    if !enabled && !c.vision.load(Ordering::Acquire){return Ok(());}
-    anyhow::ensure!(c.available && !c.closing.load(Ordering::Acquire),"摄像头不可用");
+fn capture_needed(preview:bool,vision:bool,managed:bool)->bool {vision || (preview && !managed)}
+#[cfg(test)]
+async fn lease(c:&Camera,enabled:bool)->anyhow::Result<()> {lease_managed(c,enabled,false).await}
+async fn lease_managed(c:&Camera,enabled:bool,managed:bool)->anyhow::Result<()> {
+    if !enabled && !c.vision.load(Ordering::Acquire) && c.managed.load(Ordering::Acquire)==managed{return Ok(());}
+    if c.closing.load(Ordering::Acquire){anyhow::ensure!(!enabled,"摄像头已关闭");return Ok(());}
+    anyhow::ensure!(!enabled || c.available,"摄像头不可用");
     let mut worker=c.worker.lock().await;
     let changed=c.vision.swap(enabled,Ordering::AcqRel)!=enabled;
-    let active=enabled || c.preview.load(Ordering::Acquire);
+    let changed=(c.managed.swap(managed,Ordering::AcqRel)!=managed) || changed;
+    let active=capture_needed(c.preview.load(Ordering::Acquire),enabled,managed);
     if !active {Camera::stop_worker(&mut worker).await;c.state.send_modify(|s|{s.enabled=false;s.jpeg=Bytes::new();});}
     else if changed {if worker.as_ref().is_some_and(|w|w.task.is_finished()){Camera::stop_worker(&mut worker).await;}
         c.state.send_modify(|s|s.enabled=true);if worker.is_none(){*worker=Some(c.spawn_worker());}}
@@ -351,6 +357,26 @@ mod tests {
             lease(&c,false).await.unwrap();assert_eq!(read_enabled(&p).unwrap(),preview);assert_eq!(c.worker.lock().await.is_some(),preview);
             c.shutdown().await;
         }
+    }
+    #[tokio::test]
+    async fn managed_non_observation_reaps_capture_even_with_preview_and_restores_preference(){
+        let tmp=tempfile::tempdir().unwrap();let p=tmp.path().join("camera.json");save_enabled(&p,true).unwrap();let c=Camera::new(p.clone(),true);
+        let (cancel,rx)=oneshot::channel();*c.worker.lock().await=Some(Worker{cancel,task:tokio::spawn(async move{let _=rx.await;})});
+        lease_managed(&c,true,true).await.unwrap();assert_eq!(c.status()["captureEnabled"],true);
+        lease_managed(&c,false,true).await.unwrap();assert!(c.worker.lock().await.is_none());assert_eq!(c.status()["captureEnabled"],false);
+        assert!(read_enabled(&p).unwrap());assert_eq!(c.status()["autonomousManaged"],true);
+        c.set(true).await.unwrap();assert!(c.worker.lock().await.is_none());assert_eq!(c.status()["captureEnabled"],false);
+        // Supply an inert worker so restoring the preview does not touch real hardware.
+        let (cancel,rx)=oneshot::channel();*c.worker.lock().await=Some(Worker{cancel,task:tokio::spawn(async move{let _=rx.await;})});
+        lease_managed(&c,false,false).await.unwrap();assert_eq!(c.status()["captureEnabled"],true);assert_eq!(c.status()["autonomousManaged"],false);
+        assert!(read_enabled(&p).unwrap());c.shutdown().await;
+    }
+    #[tokio::test]
+    async fn camera_absence_does_not_block_managed_navigation(){
+        let tmp=tempfile::tempdir().unwrap();let c=Camera::new(tmp.path().join("camera.json"),false);
+        lease_managed(&c,false,true).await.unwrap();assert!(c.worker.lock().await.is_none());
+        assert!(lease_managed(&c,true,true).await.is_err());lease_managed(&c,false,false).await.unwrap();
+        assert!(!capture_needed(true,false,true));assert!(capture_needed(true,false,false));assert!(capture_needed(false,true,true));
     }
     #[tokio::test]
     async fn preview_disable_during_autonomy_is_saved_but_does_not_kill_its_camera() {

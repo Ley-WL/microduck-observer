@@ -333,7 +333,9 @@ pub fn status(shared: &Shared, mut v: Value) {
         if let Some(voice)=state.autonomy_notice.take(){crate::quack::announce(voice);}
     }
     v["autonomy"]=state.autonomy.status();
-    v["autonomy"]["vision"]=state.vision.status(state.autonomy.mode);
+    let vision_mode=if state.autonomy.mode==crate::autonomy::Mode::Standby && !state.autonomy.vision_active(){crate::autonomy::Mode::Manual}else{state.autonomy.mode};
+    v["autonomy"]["vision"]=state.vision.status(vision_mode);
+    v["autonomy"]["vision"]["active"]=json!(state.autonomy.vision_active());
     v["demo"]=state.demo.status();
     state.control = v;
 }

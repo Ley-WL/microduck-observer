@@ -52,7 +52,7 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
       <MappedPadButton :class="{physical:held('left')}" :action="action('left')" :enabled="enabled('left')" :reset="reset" :aria-label="title('left')" :title="title('left')" @action="emit('action',$event)">←<small>{{ label('left') }}</small></MappedPadButton>
       <span/>
       <MappedPadButton :class="{physical:held('right')}" :action="action('right')" :enabled="enabled('right')" :reset="reset" :aria-label="title('right')" :title="title('right')" @action="emit('action',$event)">→<small>{{ label('right') }}</small></MappedPadButton>
-      <button :class="{physical:held('down')}" :disabled="!allowed.autonomy" title="长按1.5秒开启或关闭自主；第一版原地待命" aria-label="十字键下 长按1.5秒切换自主行动" @pointerdown.prevent="startAutonomy" @pointerup="cancelAutonomy" @pointercancel="cancelAutonomy" @lostpointercapture="cancelAutonomy" @keydown.space.prevent="autonomyHold.start()" @keyup.space.prevent="cancelAutonomy" @keydown.enter.prevent="autonomyHold.start()" @keyup.enter.prevent="cancelAutonomy" @blur="cancelAutonomy"><small>{{ autonomyActive?'关闭自主':'自主行动' }}<br>长按1.5秒</small></button>
+      <button :class="{physical:held('down')}" :disabled="!allowed.autonomy" title="长按1.5秒开启或关闭自主；按所选模式自主互动" aria-label="十字键下 长按1.5秒切换自主行动" @pointerdown.prevent="startAutonomy" @pointerup="cancelAutonomy" @pointercancel="cancelAutonomy" @lostpointercapture="cancelAutonomy" @keydown.space.prevent="autonomyHold.start()" @keyup.space.prevent="cancelAutonomy" @keydown.enter.prevent="autonomyHold.start()" @keyup.enter.prevent="cancelAutonomy" @blur="cancelAutonomy"><small>{{ autonomyActive?'关闭自主':'自主行动' }}<br>长按1.5秒</small></button>
     </div>
     <span class="grip left-grip">按住拖动</span><span class="grip right-grip">松开回中</span>
   </div>

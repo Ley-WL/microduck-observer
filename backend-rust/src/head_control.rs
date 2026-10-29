@@ -31,9 +31,9 @@ pub fn step(offset:&mut [f64;2],input:[f64;2],base:[f64;2],bounds:[(f64,f64);2])
     }
 }
 // Slew an absolute sensing target independently of the actor's changing output.
-pub fn sensing_target(previous:&mut Option<[f64;2]>,measured:[f64;2],desired:[f64;2],bounds:[(f64,f64);2])->[f64;2] {
+pub fn sensing_target<const N:usize>(previous:&mut Option<[f64;N]>,measured:[f64;N],desired:[f64;N],bounds:[(f64,f64);N])->[f64;N] {
     let target=previous.get_or_insert(measured);
-    for n in 0..2 {
+    for n in 0..N {
         let desired=desired[n].clamp(bounds[n].0,bounds[n].1);
         target[n]=(target[n]+(desired-target[n]).clamp(-0.72,0.72)).clamp(bounds[n].0,bounds[n].1);
     }
@@ -41,6 +41,16 @@ pub fn sensing_target(previous:&mut Option<[f64;2]>,measured:[f64;2],desired:[f6
 }
 #[cfg(test)] mod tests {
     use super::*;use serde_json::json;
+    #[test] fn three_axis_leisure_target_obeys_each_actual_limit_and_slew(){
+        let mut previous=None;let bounds=[(-5.,10.),(-30.,30.),(-2.,3.)];
+        let mut last=[0.;3];
+        for _ in 0..100 {
+            let target=sensing_target(&mut previous,[0.;3],[20.,90.,-10.],bounds);
+            for n in 0..3 {assert!((target[n]-last[n]).abs()<=0.7200001);assert!((bounds[n].0..=bounds[n].1).contains(&target[n]));}
+            last=target;
+        }
+        assert_eq!(last,[10.,30.,-2.]);
+    }
     #[test] fn sensing_pose_holds_absolute_pitch_and_slews_only_scan_target(){
         let mut previous=None;let bounds=[(-90.,90.),(-170.,170.)];
         let mut result=[0.;2];

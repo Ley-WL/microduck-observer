@@ -106,6 +106,18 @@ impl Interaction {
         // Mechanical negative pitch looks up, relative to the standing model pose.
         self.offset=[-10.,self.search.advance(now,self.offset[1])];self.offset
     }
+    pub fn tracking_pose(&mut self,now:Instant,epoch:u64)->Option<[f64;2]> {
+        let pose=self.desired(now,epoch);
+        (self.tracking() && self.fresh(now) && self.seen.is_some_and(|at|now.saturating_duration_since(at)<Duration::from_millis(450))).then_some(pose)
+    }
+    pub fn observe_leisure(&mut self,now:Instant,epoch:u64,mut head:[f64;3],obstacle:bool,busy:bool)->([f64;3],Option<&'static str>) {
+        if obstacle{return (head,None);}
+        if let Some(pose)=self.tracking_pose(now,epoch) {
+            head[0]=crate::exploration::parameters::LOOK_UP+pose[0];head[1]=pose[1];
+            return (head,self.call(now,busy));
+        }
+        (head,None)
+    }
     pub fn call(&mut self,now:Instant,audio_busy:bool)->Option<&'static str> {
         if audio_busy || !self.locked || !self.fresh(now) || !self.seen.is_some_and(|t|now.saturating_duration_since(t)<Duration::from_millis(450)){return None;}
         let elapsed=self.last_call.map(|t|now.saturating_duration_since(t).as_secs_f64()).unwrap_or(100.);
@@ -153,9 +165,9 @@ impl Worker {
 pub fn init(shared:Shared,stop:Arc<AtomicBool>){tokio::spawn(async move{
     let mut worker:Option<Worker>=None;let mut last=Instant::now()-Duration::from_secs(10);let mut retry=last;
     loop {
-        let (enabled,active,epoch,tracking,face_tracking)={let s=shared.read().unwrap();(s.autonomy.enabled(),s.autonomy.mode==Mode::Standby,s.autonomy.epoch,s.vision.tracking(),s.vision.face_tracking())};
-        if stop.load(Ordering::Acquire){if let Some(w)=worker.take(){w.stop().await;}let _=crate::camera::vision_lease(false).await;break;}
-        if let Err(e)=crate::camera::vision_lease(enabled).await {shared.write().unwrap().vision.error=format!("摄像头：{e}");
+        let (enabled,active,epoch,tracking,face_tracking)={let s=shared.read().unwrap();(s.autonomy.enabled(),s.autonomy.vision_active(),s.autonomy.epoch,s.vision.tracking(),s.vision.face_tracking())};
+        if stop.load(Ordering::Acquire){if let Some(w)=worker.take(){w.stop().await;}let _=crate::camera::vision_lease(false,false).await;break;}
+        if let Err(e)=crate::camera::vision_lease(active,enabled).await {shared.write().unwrap().vision.error=format!("摄像头：{e}");
             if let Some(w)=worker.take(){w.stop().await;}
             tokio::time::sleep(Duration::from_millis(200)).await;continue;
         }
@@ -168,11 +180,11 @@ pub fn init(shared:Shared,stop:Arc<AtomicBool>){tokio::spawn(async move{
                 // Start-to-start cadence; do not queue catch-up requests.
                 last=Instant::now();
                 let cancelled=async {loop {tokio::time::sleep(Duration::from_millis(40)).await;
-                    let s=shared.read().unwrap();if stop.load(Ordering::Acquire) || s.autonomy.mode!=Mode::Standby || s.autonomy.epoch!=epoch{break;}}};
+                    let s=shared.read().unwrap();if stop.load(Ordering::Acquire) || !s.autonomy.vision_active() || s.autonomy.epoch!=epoch{break;}}};
                 let result=tokio::select!{r=tokio::time::timeout(Duration::from_secs(3),w.request(face_tracking))=>Some(r),_=cancelled=>None};
                 let Some(result)=result else{if let Some(w)=worker.take(){w.stop().await;}continue;};
                 let failure={let mut s=shared.write().unwrap();
-                    if s.autonomy.mode!=Mode::Standby || s.autonomy.epoch!=epoch{None}else{
+                    if !s.autonomy.vision_active() || s.autonomy.epoch!=epoch{None}else{
                         match result {Ok(Ok(v))=>s.vision.ingest(&v,Instant::now(),epoch).err().map(|e|e.to_string()),Ok(Err(e))=>Some(e.to_string()),Err(_)=>Some("NPU处理超时".into())}}};
                 if let Some(e)=failure{eprintln!("vision: {e}");shared.write().unwrap().vision.error=e;retry=Instant::now()+Duration::from_secs(5);if let Some(w)=worker.take(){w.stop().await;}}
             }
@@ -186,6 +198,19 @@ pub fn init(shared:Shared,stop:Arc<AtomicBool>){tokio::spawn(async move{
     fn frame(seq:u64,x:f64,face:bool)->Value {json!({"sequence":seq,"ageMs":0.,"boxes":[{"kind":0,"score":if face{0.9}else{0.8},"bounds":[x,100.,x+50.,200.]}]})}
     fn locked()->(Interaction,Instant) {let mut v=Interaction::default();let t=Instant::now();
         for i in 0..4{v.ingest(&frame(i+1,150.,true),t+Duration::from_millis(i*200),1).unwrap();}(v,t+Duration::from_millis(600))}
+    #[test] fn observation_tracking_needs_fresh_person_and_discards_old_session(){
+        let(mut v,t)=locked();assert!(v.tracking_pose(t,1).is_some());
+        assert!(v.tracking_pose(t+Duration::from_millis(450),1).is_none());
+        let(mut v,t)=locked();assert!(v.tracking_pose(t,2).is_none());
+        let(mut v,t)=locked();v.suspend(1);assert!(v.tracking_pose(t,1).is_none());
+    }
+    #[test] fn obstacle_response_precedes_person_tracking_and_stale_vision_falls_back(){
+        let(mut v,t)=locked();let head=[-7.,20.,3.];
+        assert_eq!(v.observe_leisure(t,1,head,true,false),(head,None));
+        let (tracking,voice)=v.observe_leisure(t,1,head,false,false);assert_ne!(tracking[1],head[1]);assert_eq!(tracking[2],head[2]);assert_eq!(voice,Some("single"));
+        assert_eq!(v.observe_leisure(t+Duration::from_secs(1),1,head,false,false),(head,None));
+        let(mut v,t)=locked();assert!(v.observe_leisure(t,1,head,false,true).1.is_none());
+    }
     #[test] fn search_is_raised_bounded_accelerated_and_stops_on_camera_loss(){
         let mut v=Interaction::default();let t=Instant::now();let mut previous=0.;let mut max_yaw=0_f64;
         for i in 0..1500 {let now=t+Duration::from_millis(i*20);

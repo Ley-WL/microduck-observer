@@ -75,9 +75,9 @@ fn autonomous_fall(kind:&str,angle:f64)->bool {
 fn autonomy_deadline(shared:&Shared)->Result<()> {
     let mut state=shared.write().unwrap();
     if state.autonomy.expired(Instant::now()) {
-        state.stop_autonomy("起身超过6秒，已退出并卸力",true);
+        state.stop_autonomy("起身超过10秒，已退出并卸力",true);
         state.pending_skill=None;state.pending_quack=false;state.head_intent.clear();
-        bail!("自主起身总时限6秒已到，终止并卸力");
+        bail!("自主起身总时限10秒已到，终止并卸力");
     }
     Ok(())
 }
@@ -88,7 +88,7 @@ fn autonomous_reflex(state:&mut crate::telemetry::Telemetry,out:crate::official_
     let starting=!state.autonomy.recovering();
     state.autonomy.fall(now);
     state.quack_cancel=true;
-    if starting {state.log("WARN","autonomy","跌倒反射开始，纳入6秒总时限起身");}
+    if starting {state.log("WARN","autonomy","跌倒反射开始，纳入10秒总时限起身");}
     if out==crate::official_fall::Output::Reset {state.pending_skill=Some("xgoduck_getup".into());}
     true
 }
@@ -185,8 +185,8 @@ mod kick_tests {
         assert_eq!(s.pending_skill.as_deref(),Some("xgoduck_getup"));
         assert!(s.autonomy.recovering());
         assert!(!s.autonomy.observe(t+Duration::from_secs(3),"xgoduck",true,true,false));
-        assert!(!s.autonomy.expired(t+Duration::from_millis(6039)));
-        assert!(s.autonomy.expired(t+Duration::from_millis(6040)));
+        assert!(!s.autonomy.expired(t+Duration::from_millis(10039)));
+        assert!(s.autonomy.expired(t+Duration::from_millis(10040)));
         assert!(!s.autonomy.observe(t+Duration::from_secs(4),"xgoduck_getup",true,true,false));
         assert!(s.autonomy.observe(t+Duration::from_millis(4500),"xgoduck_getup",true,true,false));
         assert_eq!(s.autonomy.mode,crate::autonomy::Mode::Standby);
@@ -204,9 +204,9 @@ mod kick_tests {
     }
     #[test] fn autonomous_deadline_failure_clears_pending_commands_and_retains_failure_reason(){
         let shared=std::sync::Arc::new(std::sync::RwLock::new(crate::telemetry::Telemetry::new(false)));
-        {let mut s=shared.write().unwrap();let t=Instant::now();s.autonomy.observe(t-Duration::from_millis(600),"xgoduck",true,false,false);s.autonomy.observe(t,"xgoduck",true,false,false);s.autonomy.start("s",t).unwrap();s.autonomy.fall(t-Duration::from_secs(6));s.pending_skill=Some("xgoduck_getup".into());s.pending_quack=true;}
+        {let mut s=shared.write().unwrap();let t=Instant::now();s.autonomy.observe(t-Duration::from_millis(600),"xgoduck",true,false,false);s.autonomy.observe(t,"xgoduck",true,false,false);s.autonomy.start("s",t).unwrap();s.autonomy.fall(t-crate::autonomy::RECOVERY_TIMEOUT);s.pending_skill=Some("xgoduck_getup".into());s.pending_quack=true;}
         assert!(autonomy_deadline(&shared).is_err());
-        let s=shared.read().unwrap();assert!(!s.autonomy.enabled());assert!(s.pending_skill.is_none());assert!(!s.pending_quack);assert_eq!(s.autonomy_notice,Some("auto_failed"));assert!(s.autonomy.reason.contains("6秒"));
+        let s=shared.read().unwrap();assert!(!s.autonomy.enabled());assert!(s.pending_skill.is_none());assert!(!s.pending_quack);assert_eq!(s.autonomy_notice,Some("auto_failed"));assert!(s.autonomy.reason.contains("10秒"));
     }
     #[test]
     fn native_rear_contract_rejects_fake_stops_and_wrong_board() {
@@ -1406,6 +1406,7 @@ fn native_policy_loop(
     let mut quack_head_offset=[0.;2];
     let mut quack_neck_offset=[0.;2];
     let mut sensing_head:Option<[f64;2]>=None;
+    let mut leisure_head:Option<[f64;3]>=None;
     let mut quack_cycle:Option<(Instant,crate::quack::Playback)>=None;
     shared.write().unwrap().mouth_degrees=-5.;
     let mouth_limits=control::configuration(bus,34)?;
@@ -1453,7 +1454,7 @@ fn native_policy_loop(
             walk_gate.reset();
             model.rear_clock.pause();
             quack_cycle=None;write_shared().mouth_degrees=-5.;
-            pause_drive(shared);head_offset=[0.;2];model.command_twist=[0.;3];model.upright=0.;
+            pause_drive(shared);leisure_head=None;sensing_head=None;head_offset=[0.;2];model.command_twist=[0.;3];model.upright=0.;
             if paused.is_none() {
                 paused=Some(Instant::now());
                 if let Some(rows)=&coast.last {
@@ -1590,7 +1591,7 @@ fn native_policy_loop(
                     state.cancel_demo("自主跌倒恢复",false);state.head_intent.clear();state.pending_quack=false;state.quack_cancel=true;
                     if let Some(d)=state.drive.as_mut(){d.twist=[0.;3];}
                     state.pending_skill=Some("xgoduck_getup".into());
-                    state.log("WARN","autonomy","确认跌倒，开始6秒总时限起身");true
+                    state.log("WARN","autonomy","确认跌倒，开始10秒总时限起身");true
                 }else{false}
             };
             if !automatic {pause_drive(shared);bail!("检测到行走跌倒，停止推理并卸力");}
@@ -1609,6 +1610,27 @@ fn native_policy_loop(
                 state.pending_skill=Some("xgoduck".into());fall_guard=FallGuard::default();
                 state.log("INFO","autonomy","已确认稳定起身，恢复自主待命");
             }
+            let now=Instant::now();
+            let active=state.autonomy.mode==crate::autonomy::Mode::Standby && state.autonomy.explorer.selected && !state.demo.active;
+            let input=crate::exploration::behavior::Input {now,active,kind:&model.kind,progress:model.progress,
+                sit_settle:model.skill_profile.sit_settle(),ready:state.autonomy.ready,busy:busy || state.pending_skill.is_some(),
+                obstacle:crate::exploration::range(&state).is_some_and(|r|r.mm<=crate::exploration::parameters::STOP_MM),
+                round_done:state.autonomy.explorer.round_done,
+                available:[bank.contains_key("sitstand_sit") && bank.contains_key("sitstand_stand"),bank.contains_key("xgoduck_roulade"),bank.contains_key("dance10")]};
+            let was_exploring=state.autonomy.behavior.exploring();
+            let obstacle=input.obstacle;
+            let mut behavior=state.autonomy.behavior.tick(input)?;
+            if state.autonomy.vision_active() {
+                let epoch=state.autonomy.epoch;
+                if let Some(head)=state.autonomy.behavior.head {
+                    let (head,voice)=state.vision.observe_leisure(now,epoch,head,obstacle,busy || behavior.voice.is_some());
+                    state.autonomy.behavior.head=Some(head);
+                    if behavior.voice.is_none(){behavior.voice=voice;}
+                }
+            }
+            if was_exploring && !state.autonomy.behavior.exploring(){state.autonomy.explorer.reset();}
+            if state.pending_skill.is_none(){state.pending_skill=behavior.skill.map(str::to_owned);}
+            if let Some(voice)=behavior.voice {state.pending_quack=true;state.quack_voice=voice.into();state.autonomy.explorer.sound=true;}
             let out=state.demo.tick(Instant::now(),&model.kind,model.progress,model.skill_profile.sit_settle(),stable,busy);
             if out.stopped {state.pending_quack=false;state.quack_running=false;state.quack_cancel=true;state.head_intent.clear();}
             if state.pending_skill.is_none() {state.pending_skill=out.skill;}
@@ -1730,7 +1752,8 @@ fn native_policy_loop(
             // change. Never advance the native one-sample delay a second time.
             for n in 0..14 {obs[6+n]+=old_home[n]-model.home[n];obs[34+n]=model.last_action[n];}
         }
-        let exploration_epoch={let s=read_shared();(model.kind=="xgoduck" && s.autonomy.mode==crate::autonomy::Mode::Standby && s.autonomy.explorer.selected).then_some(s.autonomy.epoch)};
+        let autonomy_epoch={let s=read_shared();(s.autonomy.mode==crate::autonomy::Mode::Standby && s.autonomy.explorer.selected).then_some(s.autonomy.epoch)};
+        let exploration_epoch={let s=read_shared();(model.kind=="xgoduck" && s.autonomy.mode==crate::autonomy::Mode::Standby && s.autonomy.explorer.selected && s.autonomy.behavior.exploring()).then_some(s.autonomy.epoch)};
         let mut roller_diagnostic=Value::Null;
         model.command_twist=if model.kind==crate::swizzle::ACTIVE {
             let now=Instant::now();
@@ -1751,12 +1774,12 @@ fn native_policy_loop(
         } else if model.kind=="xgoduck" {
             let mut state=write_shared();
             let autonomous=state.autonomy.mode==crate::autonomy::Mode::Standby;
-            let exploring=state.autonomy.explorer.selected && autonomous;
+            let exploring=state.autonomy.explorer.selected && autonomous && state.autonomy.behavior.exploring();
             let now=Instant::now();
             let audio_busy=state.quack_running || state.pending_quack;
             if !audio_busy{state.autonomy.explorer.sound=false;}
-            let input=crate::exploration::Input {active:autonomous,
-                epoch:state.autonomy.epoch,camera:state.vision.fresh(now) && (!audio_busy || state.autonomy.explorer.sound),range:crate::exploration::range(&state),
+            let input=crate::exploration::Input {active:exploring,
+                epoch:state.autonomy.epoch,range:crate::exploration::range(&state),
                 head:[obs[12].to_degrees() as f64,obs[13].to_degrees() as f64],
                 still:tilt(&obs)<15. && obs[..3].iter().all(|v|v.abs()<0.2) && obs[26..28].iter().all(|v|v.abs()<0.15) && model.command_twist.iter().all(|v|v.abs()<0.01),yaw:model.body_yaw};
             let exploration=state.autonomy.explorer.tick(now,input);
@@ -1764,7 +1787,11 @@ fn native_policy_loop(
             let fresh=autonomous || state.demo.active || state.drive.as_ref().is_some_and(|d|d.updated.elapsed()<Duration::from_millis(250));
             let target=if exploring {exploration}else if autonomous {[0.;3]}else if state.demo.active {state.demo.output.twist}else{state.drive.as_ref().map(|d|d.current()).unwrap_or([0.;3])};
             // Obstacle/sensor stops must not retain the smoothing tail.
-            crate::walk_profile::smooth_twist(&mut walk_twist,target,fresh && !(exploring && target==[0.;3]))
+            if exploring && target[0]>0. {
+                // Navigation already supplies a timed acceleration ramp; a second EMA
+                // would extend the requested 0.5-second start beyond its deadline.
+                walk_twist=target;target
+            }else{crate::walk_profile::smooth_twist(&mut walk_twist,target,fresh && !(autonomous && target==[0.;3]))}
         } else {walk_twist=[0.;3];model.skill_profile.twist(&model.kind,model.progress)};
         let rear_pose=model.skill_profile.rear_hook.then(||rear_geometry.sample_with_transfer(&obs,&model.home));
         if let Some((pose,standing,_,_,transfer))=rear_pose {
@@ -1794,7 +1821,22 @@ fn native_policy_loop(
             let bounds=[control::effective_angle_limits(31,cal,limits[&31])?,control::effective_angle_limits(32,cal,limits[&32])?];
             let autonomous={let s=read_shared();model.kind=="xgoduck" && s.autonomy.mode==crate::autonomy::Mode::Standby};
             let sensing=autonomous && read_shared().autonomy.explorer.selected;
-            if sensing {
+            let leisure={let state=read_shared();
+                if state.autonomy.mode==crate::autonomy::Mode::Standby && state.autonomy.explorer.selected {state.autonomy.behavior.head}else{None}};
+            if leisure.is_none(){leisure_head=None;}
+            if let Some(pose)=leisure {
+                sensing_head=None;head_offset=[0.;2];quack_head_offset=[0.;2];quack_neck_offset=[0.;2];
+                let bounds=[bounds[0],bounds[1],control::effective_angle_limits(33,cal,limits[&33])?];
+                let home=[model.home[6].to_degrees() as f64,model.home[7].to_degrees() as f64,model.home[8].to_degrees() as f64];
+                let measured=std::array::from_fn(|n|obs[12+n].to_degrees() as f64+home[n]);
+                let desired=std::array::from_fn(|n|home[n]+pose[n]);
+                let target=crate::head_control::sensing_target(&mut leisure_head,measured,desired,bounds);
+                for (axis,id) in [31u8,32,33].into_iter().enumerate(){
+                    let (goal,sent,saturated)=skill_target(id,target[axis].to_radians(),cal,limits[&id],true)?;
+                    goals.insert(id,goal);model.sent[6+axis]=sent.to_degrees();
+                    if saturated && !model.saturated.contains(&id){model.saturated.push(id);}
+                }
+            } else if sensing {
                 let pose=read_shared().autonomy.explorer.head;
                 let home=[model.home[6].to_degrees() as f64,model.home[7].to_degrees() as f64];
                 let measured=[obs[12].to_degrees() as f64+home[0],obs[13].to_degrees() as f64+home[1]];
@@ -1810,7 +1852,7 @@ fn native_policy_loop(
                     desired};
                 crate::vision::step(&mut head_offset,desired,[model.sent[6],model.sent[7]],bounds);
             } else {sensing_head=None;crate::head_control::step(&mut head_offset,input,[model.sent[6],model.sent[7]],bounds);}
-            let expressive=!(autonomous && read_shared().autonomy.explorer.selected) && crate::quack::head_allowed(&model.kind,model.progress,model.skill_profile.sit_settle(),model.command_twist,input,read_shared().demo.active);
+            let expressive=leisure.is_none() && !(autonomous && read_shared().autonomy.explorer.selected) && crate::quack::head_allowed(&model.kind,model.progress,model.skill_profile.sit_settle(),model.command_twist,input,read_shared().demo.active);
             let desired=if expressive {quack_cycle.as_ref().map(|(at,a)|a.head_degrees(at.elapsed())).unwrap_or([0.;2])} else {[0.;2]};
             crate::quack::step_head(&mut quack_head_offset,desired,[model.sent[6]+head_offset[0],model.sent[7]+head_offset[1]],bounds);
             let neck_bounds=control::effective_angle_limits(30,cal,limits[&30])?;
@@ -1827,7 +1869,7 @@ fn native_policy_loop(
                 let (goal,sent,saturated)=skill_target(id,raw,cal,limits[&id],true)?;
                 goals.insert(id,goal);model.sent[*n]=sent.to_degrees();if saturated && !model.saturated.contains(&id){model.saturated.push(id);}
             }
-        } else {sensing_head=None;head_offset=[0.;2];quack_head_offset=[0.;2];quack_neck_offset=[0.;2];write_shared().head_intent.clear();}
+        } else {leisure_head=None;sensing_head=None;head_offset=[0.;2];quack_head_offset=[0.;2];quack_neck_offset=[0.;2];write_shared().head_intent.clear();}
         if mouth_owned {
             let degrees=read_shared().mouth_degrees;
             goals.insert(34,control::target(34,feedback[&34]["position"].as_i64().unwrap() as i32,cal,mouth_limits.0,mouth_limits.1,degrees.to_radians(),true)?);
@@ -1836,16 +1878,23 @@ fn native_policy_loop(
         autonomy_deadline(shared)?;
         // Recheck fresh perception and ownership after inference, before UART output.
         // A new obstacle or manual takeover must discard the in-flight moving target.
+        if let Some(epoch)=autonomy_epoch {
+            let state=read_shared();
+            if state.autonomy.mode!=crate::autonomy::Mode::Standby || state.autonomy.epoch!=epoch {
+                drop(state);leisure_head=None;walk_twist=[0.;3];model.command_twist=[0.;3];clock.wait();continue;
+            }
+        }
         if let Some(epoch)=exploration_epoch {
-            let valid={let mut s=write_shared();let range=crate::exploration::range(&s);let camera=s.vision.fresh(Instant::now());
+            let valid={let mut s=write_shared();let range=crate::exploration::range(&s);
                 s.autonomy.mode==crate::autonomy::Mode::Standby && s.autonomy.epoch==epoch &&
-                s.autonomy.explorer.permits_motion(Instant::now(),epoch,range,camera,model.command_twist)};
+                s.autonomy.explorer.permits_motion(Instant::now(),epoch,range,model.command_twist)};
             if !valid {walk_twist=[0.;3];model.command_twist=[0.;3];clock.wait();continue;}
         }
         let write_at=Instant::now();control::goals(bus,goals)?;timing.record(write_at);
         let trace_at=Instant::now();
         trace.frame(json!({"type":"inference","mono":crate::telemetry::monotonic(),"kind":model.kind,"policySha256":model.sha,"commandTwist":model.command_twist,
             "rollerHeading":roller_diagnostic,
+            "mixedBehavior":read_shared().autonomy.behavior.status(),
             "exploration":if exploration_epoch.is_some(){read_shared().autonomy.explorer.status()}else{Value::Null},
             "observation":obs,"rawActionRadians":action,"emaPreviousRadians":model.filtered_action,"filteredActionRadians":filtered,"homeRadians":model.home,
             "preClipTargetDegrees":model.raw,"sentTargetDegrees":model.sent,"goals":goals,"feedbackBeforeWrite":feedback,"readDiagnostics":bus.diagnostics,
