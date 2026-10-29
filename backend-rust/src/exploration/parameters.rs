@@ -32,7 +32,7 @@ pub const TURN_MAX_DEGREES:f64=90.;
 pub const TURN_TIMEOUT_SECONDS:f64=10.;
 pub const SCAN_ANGLES:[f64;3]=[30.,60.,90.];
 pub const LOOK_UP:f64=-15.;
-pub const FORWARD_SECONDS:[f64;2]=[3.,10.];
+pub const FORWARD_SECONDS:[f64;2]=[6.,12.];
 pub const CHATTER_SECONDS:[u64;2]=[3,7];
 
 pub const BLOCKED_REMINDER_SECONDS:f64=10.;
@@ -50,3 +50,11 @@ pub const SCAN_SAMPLES:u8=3;
 pub const FORWARD_RAMP_SECONDS:f64=0.5;
 
 pub const U_TURN_DEGREES:f64=180.;
+
+/// Rejected frames must not extend this wall-clock recovery budget.
+pub const RANGE_RECOVERY_SECONDS:f64=30.;
+pub const MAX_SCAN_RETRIES:u8=2;
+pub const RANGE_RETRY_STABLE:std::time::Duration=std::time::Duration::from_millis(500);
+
+/// Tolerate a brief ranging dropout during established forward travel.
+pub const RANGE_DROPOUT_GRACE:std::time::Duration=std::time::Duration::from_millis(500);

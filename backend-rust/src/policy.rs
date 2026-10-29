@@ -1616,6 +1616,7 @@ fn native_policy_loop(
                 sit_settle:model.skill_profile.sit_settle(),ready:state.autonomy.ready,busy:busy || state.pending_skill.is_some(),
                 obstacle:crate::exploration::range(&state).is_some_and(|r|r.mm<=crate::exploration::parameters::STOP_MM),
                 round_done:state.autonomy.explorer.round_done,
+                exploration_deferred:state.autonomy.explorer.deferred,range_ready:crate::exploration::range(&state).is_some(),
                 available:[bank.contains_key("sitstand_sit") && bank.contains_key("sitstand_stand"),bank.contains_key("xgoduck_roulade"),bank.contains_key("dance10")]};
             let was_exploring=state.autonomy.behavior.exploring();
             let obstacle=input.obstacle;

@@ -1,0 +1,60 @@
+{
+  "models": [
+    {
+      "kind": "swizzle_prepare",
+      "available": true
+    },
+    {
+      "kind": "swizzle",
+      "available": true
+    },
+    {
+      "kind": "swizzle_crouch",
+      "available": true
+    },
+    {
+      "kind": "xgoduck",
+      "available": true
+    },
+    {
+      "kind": "xgoduck_getup",
+      "available": true
+    },
+    {
+      "kind": "xgoduck_pick",
+      "available": true
+    },
+    {
+      "kind": "xgoduck_roulade",
+      "available": true
+    },
+    {
+      "kind": "kick_left",
+      "available": true
+    },
+    {
+      "kind": "kick_right",
+      "available": true
+    },
+    {
+      "kind": "dance10",
+      "available": true
+    },
+    {
+      "kind": "sitstand_sit",
+      "available": true
+    },
+    {
+      "kind": "sitstand_stand",
+      "available": true
+    },
+    {
+      "kind": "flamingo_hold",
+      "available": true
+    },
+    {
+      "kind": "flamingo_lower",
+      "available": true
+    }
+  ]
+}

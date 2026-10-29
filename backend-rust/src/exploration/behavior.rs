@@ -15,11 +15,12 @@ enum Phase { #[default] Choose, Starting, Holding, Returning }
 #[derive(Default)]
 pub struct Scheduler {
     phase:Phase, pub activity:Option<Activity>, since:Option<Instant>, hold:f64,
-    seen:bool, gaze:Gaze, pub head:Option<[f64;3]>, pub reason:String,
+    retry_exploration:bool, range_ready_since:Option<Instant>, seen:bool, gaze:Gaze, pub head:Option<[f64;3]>, pub reason:String,
 }
 pub struct Input<'a> {
     pub now:Instant, pub active:bool, pub kind:&'a str, pub progress:f64, pub sit_settle:f64,
     pub ready:bool, pub busy:bool, pub obstacle:bool, pub round_done:bool,
+    pub exploration_deferred:bool, pub range_ready:bool,
     // Sit requires both directions. Missing skills are reported and skipped, never queued.
     pub available:[bool;3],
 }
@@ -27,10 +28,10 @@ pub struct Input<'a> {
 pub struct Output {pub skill:Option<&'static str>, pub voice:Option<&'static str>}
 impl Scheduler {
     pub fn reset(&mut self){*self=Self::default();}
-    pub fn pause(&mut self){self.head=None;self.gaze=Gaze::default();}
+    pub fn pause(&mut self){self.range_ready_since=None;self.head=None;self.gaze=Gaze::default();}
     pub fn observing(&self)->bool {self.phase==Phase::Holding && matches!(self.activity,Some(Activity::Sit|Activity::Look)) && self.head.is_some()}
     pub fn exploring(&self)->bool {self.activity==Some(Activity::Explore) && self.phase==Phase::Holding}
-    pub fn status(&self)->Value {json!({"observing":self.observing(),"activity":self.activity.map(Activity::name),"phase":format!("{:?}",self.phase),"holdSeconds":self.hold,"headDegrees":self.head,"reason":self.reason,"parameters":super::parameters::BEHAVIOR.status()})}
+    pub fn status(&self)->Value {json!({"retryExploration":self.retry_exploration,"observing":self.observing(),"activity":self.activity.map(Activity::name),"phase":format!("{:?}",self.phase),"holdSeconds":self.hold,"headDegrees":self.head,"reason":self.reason,"parameters":super::parameters::BEHAVIOR.status()})}
     pub fn tick(&mut self,i:Input<'_>)->anyhow::Result<Output>{
         let mut rng=rand::thread_rng();
         self.step(i,rng.gen_range(0..100),rng.gen_range(0. ..=1.))
@@ -54,6 +55,9 @@ impl Scheduler {
         }
         let activity=self.activity.expect("active round has an activity");
         let age=i.now.saturating_duration_since(self.since.unwrap()).as_secs_f64();
+        if self.retry_exploration {
+            if i.range_ready && i.ready && !i.busy {self.range_ready_since.get_or_insert(i.now);}else{self.range_ready_since=None;}
+        }
         if matches!(self.phase,Phase::Starting|Phase::Returning) {
             anyhow::ensure!(age<p.transition_timeout_seconds,"自主{}动作衔接超时",activity.name());
         }
@@ -70,15 +74,31 @@ impl Scheduler {
             return Ok(out);
         }
         if activity==Activity::Explore {
+            if i.exploration_deferred {
+                self.activity=Some(Activity::Look);self.phase=Phase::Holding;self.since=Some(i.now);
+                self.hold=p.look_seconds[0]+fraction*(p.look_seconds[1]-p.look_seconds[0]);
+                self.retry_exploration=true;self.range_ready_since=None;self.gaze=Gaze::default();
+                self.reason="探索测距/扫描暂不可用，原地张望后重试".into();
+                self.head=Some(self.gaze.tick(i.now,0.,i.obstacle,i.busy,p).0);
+                return Ok(out);
+            }
             if i.round_done {self.finish();}
             return Ok(out);
         }
         let seated=activity==Activity::Sit;
         if (seated && (i.kind!="sitstand_sit" || i.progress<i.sit_settle)) || (!seated && i.kind!="xgoduck") {return Ok(out);}
         if age>=self.hold {
-            if seated {out.skill=Some("sitstand_stand");self.phase=Phase::Returning;self.seen=false;self.since=Some(i.now);}
-            else {self.finish();}
-            return Ok(out);
+            if self.retry_exploration {
+                if self.range_ready_since.is_some_and(|t|i.now.saturating_duration_since(t)>=super::parameters::RANGE_RETRY_STABLE) {
+                    self.retry_exploration=false;self.activity=Some(Activity::Explore);self.since=Some(i.now);
+                    self.reason.clear();self.head=None;return Ok(out);
+                }
+                self.reason="继续原地张望，等待测距恢复".into();
+            } else {
+                if seated {out.skill=Some("sitstand_stand");self.phase=Phase::Returning;self.seen=false;self.since=Some(i.now);}
+                else {self.finish();}
+                return Ok(out);
+            }
         }
         let (head,voice)=self.gaze.tick(i.now,age,i.obstacle,i.busy,p);
         self.head=Some(head);out.voice=voice;Ok(out)
@@ -89,7 +109,29 @@ impl Scheduler {
 #[cfg(test)] mod tests {
     use super::*;
     use std::time::Duration;
-    fn input(t:Instant)->Input<'static>{Input{now:t,active:true,kind:"xgoduck",progress:0.,sit_settle:2.,ready:true,busy:false,obstacle:false,round_done:false,available:[true;3]}}
+    fn input(t:Instant)->Input<'static>{Input{now:t,active:true,kind:"xgoduck",progress:0.,sit_settle:2.,ready:true,busy:false,obstacle:false,round_done:false,exploration_deferred:false,range_ready:true,available:[true;3]}}
+    #[test] fn deferred_exploration_observes_without_body_skills_and_requires_stable_range_to_retry(){
+        let t=Instant::now();let mut s=Scheduler::default();s.step(input(t),60,0.).unwrap();
+        let mut i=input(t+Duration::from_secs(6));i.exploration_deferred=true;i.range_ready=false;
+        let out=s.step(i,10,0.).unwrap();assert!(out.skill.is_none());assert!(s.observing());assert!(!s.exploring());assert!(s.retry_exploration);
+        for n in 7..=30 {
+            let mut i=input(t+Duration::from_secs(n));i.range_ready=false;
+            let out=s.step(i,10,0.).unwrap();assert!(out.skill.is_none());assert!(s.observing());
+        }
+        s.step(input(t+Duration::from_millis(31000)),10,0.).unwrap();assert!(!s.exploring());
+        let mut i=input(t+Duration::from_millis(31400));i.range_ready=false;s.step(i,10,0.).unwrap();
+        s.step(input(t+Duration::from_millis(32000)),10,0.).unwrap();assert!(!s.exploring());
+        s.step(input(t+Duration::from_millis(32499)),10,0.).unwrap();assert!(!s.exploring());
+        s.step(input(t+Duration::from_millis(32500)),10,0.).unwrap();assert!(s.exploring());assert!(!s.retry_exploration);assert!(s.head.is_none());
+    }
+    #[test] fn cancellation_and_feedback_pause_do_not_carry_recovery_readiness(){
+        let t=Instant::now();let mut s=Scheduler::default();s.step(input(t),60,0.).unwrap();
+        let mut i=input(t);i.exploration_deferred=true;s.step(i,0,0.).unwrap();
+        s.step(input(t+Duration::from_secs(20)),0,0.).unwrap();assert!(s.range_ready_since.is_some());
+        s.pause();assert!(s.range_ready_since.is_none());
+        let mut i=input(t+Duration::from_secs(21));i.active=false;s.step(i,0,0.).unwrap();
+        assert!(!s.retry_exploration);assert!(s.head.is_none() && s.activity.is_none());
+    }
     #[test] fn camera_window_only_covers_standing_or_settled_seated_observation(){
         let t=Instant::now();
         for draw in [0,10,20,30,60] {

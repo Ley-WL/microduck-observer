@@ -33,6 +33,9 @@ enum Phase {#[default] Observe, Forward, Stop, Left, Right, Center, Turn, Retrea
 pub struct Explorer {
     pub selected:bool,
     pub round_done:bool,
+    pub deferred:bool,
+    range_wait_since:Option<Instant>, scan_retries:u8,
+    range_missing_since:Option<Instant>, range_seen:bool,
     phase:Phase, epoch:u64, since:Option<Instant>, settled:Option<Instant>,
     last_frame:u64, samples:u8, nearest:Option<f64>, left:Option<f64>, right:Option<f64>,
     wide_scan:bool, scan_index:usize, scan_ranges:[Option<f64>;6], left_angle:f64, right_angle:f64,
@@ -92,6 +95,7 @@ impl Explorer {
             Phase::Stop=>Some("explore_obstacle"),Phase::Blocked=>Some("explore_blocked"),_=>None
         };
         if let Some(voice)=voice{self.event=Some((voice,now));}
+        if matches!(phase,Phase::Forward|Phase::Turn|Phase::Retreat) {self.range_wait_since=None;self.scan_retries=0;}
         if phase==Phase::Forward {self.forward_seconds=rand::thread_rng().gen_range(FORWARD_SECONDS[0]..=FORWARD_SECONDS[1]);}
         if phase==Phase::Turn {self.turn_last_yaw=None;self.turn_progress=0.;self.turn_degrees=rand::thread_rng().gen_range(TURN_MIN_DEGREES..=TURN_MAX_DEGREES);}
         if phase==Phase::Retreat {self.retreat_seconds=rand::thread_rng().gen_range(RETREAT_SECONDS[0]..=RETREAT_SECONDS[1]);}
@@ -121,6 +125,27 @@ impl Explorer {
         }
     }
     fn block(&mut self,now:Instant,reason:&str){self.enter(Phase::Blocked,now);self.reason=reason.into();self.head=[0.;2];}
+    fn defer(&mut self,now:Instant,reason:&str) {
+        self.enter(Phase::Observe,now);self.head=[LOOK_UP,0.];self.deferred=true;
+        self.left=None;self.right=None;self.scan_ranges=[None;6];self.event=None;
+        self.forward_since=None;self.retreat_available=false;self.reason=reason.into();
+    }
+    fn range_available(&mut self,now:Instant,range:Option<Range>)->bool {
+        if range.is_some_and(|r|r.mm.is_finite() && (0. ..=NO_TARGET).contains(&r.mm)) {
+            self.range_missing_since=None;self.range_seen=true;true
+        }else{self.range_missing_since.get_or_insert(now);false}
+    }
+    fn brief_range_dropout(&self,now:Instant)->bool {
+        self.range_seen && self.range_missing_since.is_some_and(|t|now.saturating_duration_since(t)<RANGE_DROPOUT_GRACE)
+    }
+    fn forward_command(&mut self,now:Instant,yaw:f64) {
+        if self.forward_since.is_none(){self.forward_since=Some(now);self.travel_yaw=yaw;}
+        let elapsed=now.saturating_duration_since(self.forward_since.unwrap()).as_secs_f64();
+        if elapsed>=self.forward_seconds {
+            self.attempts=0;self.forward_since=None;self.enter(Phase::Observe,now);self.round_done=true;
+            self.reason="本段随机前进结束，抬头重新扫描".into();
+        }else{self.twist[0]=FORWARD_SPEED*(elapsed/FORWARD_RAMP_SECONDS).clamp(0.,1.) as f32;self.reason.clear();}
+    }
     pub fn tick(&mut self,now:Instant,i:Input)->[f32;3] {
         self.twist=[0.;3];
         if !self.selected || !i.active {self.reset();return self.twist;}
@@ -129,10 +154,33 @@ impl Explorer {
         if self.next_chatter.is_none(){self.schedule_chatter(now);}
         self.no_target=i.range.is_some_and(|r|r.mm==NO_TARGET);
         self.distance=i.range.filter(|r|r.mm!=NO_TARGET).map(|r|r.mm);
-        if self.phase==Phase::Blocked {return self.twist;}
-        if i.range.is_none_or(|r|!r.mm.is_finite() || !(0. ..=NO_TARGET).contains(&r.mm)) || !i.yaw.is_finite() || i.head.iter().any(|v|!v.is_finite()) {
-            self.enter(Phase::Observe,now);self.event=None;self.head=[LOOK_UP,0.];self.forward_since=None;self.retreat_available=false;
-            self.reason="等待新鲜ToF数据或采集异常恢复".into();return self.twist;
+        if self.phase==Phase::Blocked || self.deferred {return self.twist;}
+        if self.range_wait_since.is_some_and(|t|now.saturating_duration_since(t).as_secs_f64()>=RANGE_RECOVERY_SECONDS) {
+            self.defer(now,"ToF测距反复异常，本轮暂停，转入原地观察后重试");return self.twist;
+        }
+        let range_available=self.range_available(now,i.range);
+        let pose_valid=i.yaw.is_finite() && i.head.iter().all(|v|v.is_finite());
+        if !range_available || !pose_valid {
+            let facing=pose_valid && i.head.iter().zip(self.scan_head()).all(|(a,b)|(a-b).abs()<MOTION_ALIGNMENT_DEGREES);
+            if !range_available && self.brief_range_dropout(now) && pose_valid {
+                if self.phase==Phase::Forward && self.forward_since.is_some() && facing && !self.forward_near.confirmed {
+                    self.forward_command(now,i.yaw);
+                    if self.phase==Phase::Forward {self.reason="ToF短暂异常，容忍窗口内继续直行".into();}
+                    return self.twist;
+                }
+                if matches!(self.phase,Phase::Observe|Phase::Stop|Phase::Left|Phase::Right|Phase::Center) {
+                    self.range_wait_since.get_or_insert(now);
+                    self.settled=None;self.samples=0;self.nearest=None;
+                    self.reason="ToF短暂异常，保持当前角度等待重新采样".into();return self.twist;
+                }
+            }
+            self.range_wait_since.get_or_insert(now);
+            // Repeated invalid frames clear samples, not the recovery deadline.
+            if self.phase!=Phase::Observe {self.enter(Phase::Observe,now);}
+            self.settled=None;self.samples=0;self.nearest=None;self.forward_near=NearFilter::default();
+            self.left=None;self.right=None;self.scan_ranges=[None;6];
+            self.event=None;self.head=[LOOK_UP,0.];self.forward_since=None;self.retreat_available=false;
+            self.reason="ToF测距不可用，已暂停移动，等待恢复".into();return self.twist;
         }
         let r=i.range.unwrap();
         let obstacle=self.forward_near.observe(now,Some(r),STOP_MM,true);
@@ -155,13 +203,7 @@ impl Explorer {
                 self.reason=if !facing {"行走中头部朝向偏差超过12度".into()}else{format!("前方ToF距离{:.0}mm，连续遮挡至少500ms，触发450mm停步",r.mm)};
                 self.enter(Phase::Stop,now);self.forward_since=None;return self.twist;
             }
-            if self.forward_since.is_none(){self.forward_since=Some(now);self.travel_yaw=i.yaw;}
-            if self.forward_since.is_some_and(|t|now.saturating_duration_since(t).as_secs_f64()>=self.forward_seconds) {
-                self.attempts=0;self.forward_since=None;self.enter(Phase::Observe,now);self.round_done=true;
-                self.reason="本段随机前进结束，抬头重新扫描".into();return self.twist;
-            }
-            self.twist[0]=FORWARD_SPEED*(now.saturating_duration_since(self.forward_since.unwrap()).as_secs_f64()/FORWARD_RAMP_SECONDS).clamp(0.,1.) as f32;
-            self.reason.clear();return self.twist;
+            self.forward_command(now,i.yaw);return self.twist;
         }
         if self.phase==Phase::Turn {
             if !facing {self.block(now,"转向时头部朝向偏差超过12度，等待人工接管");return self.twist;}
@@ -176,6 +218,10 @@ impl Explorer {
             return self.twist;
         }
         if elapsed>SCAN_TIMEOUT_SECONDS {
+            self.scan_retries+=1;
+            if self.scan_retries>=MAX_SCAN_RETRIES {
+                self.defer(now,"扫描连续超时，本轮暂停，转入原地观察后重试");return self.twist;
+            }
             // Re-center before taking a new front reading. Keep the turn-attempt
             // budget, but never reuse partial side measurements from a failed scan.
             self.left=None;self.right=None;self.scan_ranges=[None;6];
@@ -185,12 +231,16 @@ impl Explorer {
             self.enter(Phase::Observe,now);
             self.reason="扫描等待超时，头部回正后重新观察".into();return self.twist;
         }
-        if !aligned || !i.still {self.settled=None;self.samples=0;self.nearest=None;return self.twist;}
+        if !aligned || !i.still {
+            self.settled=None;self.samples=0;self.nearest=None;
+            self.reason=if !aligned {"等待头部到达测距角度"}else{"等待身体站稳后测距"}.into();return self.twist;
+        }
         let settled=*self.settled.get_or_insert(now);
         // Let pre-settle ToF frames age out; count distinct frames only.
-        if now.saturating_duration_since(settled)<SCAN_SETTLE || !new_frame{return self.twist;}
+        if now.saturating_duration_since(settled)<SCAN_SETTLE || !new_frame{self.reason="测距可用，等待稳定采样".into();return self.twist;}
         self.samples=self.samples.saturating_add(1);self.nearest=Some(self.nearest.unwrap_or(r.mm).min(r.mm));
-        if self.samples<SCAN_SAMPLES{return self.twist;}
+        if self.samples<SCAN_SAMPLES{self.reason="正在收集不同ToF帧".into();return self.twist;}
+        // Partial scan samples do not establish navigation recovery.
         let distance=self.nearest.unwrap();
         match self.phase {
             Phase::Observe=>{self.reason="抬头扫描左右通路".into();self.start_scan(now,distance<CLEAR_MM);},
@@ -217,9 +267,11 @@ impl Explorer {
     }
     pub fn permits_motion(&mut self,now:Instant,epoch:u64,range:Option<Range>,command:[f32;3])->bool{
         if !self.selected || self.epoch!=epoch{return false;}
-        if range.is_none_or(|r|!r.mm.is_finite() || !(0. ..=NO_TARGET).contains(&r.mm)) {
-            self.forward_near=NearFilter::default();
-            return command==[0.;3];
+        if self.deferred || self.phase==Phase::Blocked {return command==[0.;3];}
+        if !self.range_available(now,range) {
+            return command==[0.;3] || (self.phase==Phase::Forward && self.forward_since.is_some()
+                && self.brief_range_dropout(now) && !self.forward_near.confirmed
+                && command[0]>0. && command[0]<=FORWARD_SPEED && command[1]==0. && command[2]==0.);
         }
         let forward=self.forward_near.observe(now,range,STOP_MM,true);
         if command==[0.;3]{return true;}
@@ -241,7 +293,7 @@ impl Explorer {
             else{return None;};
         self.last_call=Some(now);self.last_voice=Some(voice);self.sound=true;self.schedule_chatter(now);Some(voice)
     }
-    pub fn status(&self)->Value {json!({"excludedTofZones":EXCLUDED_ZONES,"requiredTofZones":64-EXCLUDED_ZONES.len(),"lastVoice":self.last_voice,"selected":self.selected,"behavior":match self.phase{Phase::Observe=>"抬头观察",Phase::Forward=>"缓慢前进",Phase::Stop=>"障碍停步",Phase::Left=>"向左测距",Phase::Right=>"向右测距",Phase::Center=>"头部回正",Phase::Turn=>if self.turn_degrees==U_TURN_DEGREES {"原地掉头"}else{"朝通路转向"},Phase::Retreat=>"短退后重新扫描",Phase::Blocked=>"等待人工接管"},"reason":self.reason,"distanceMm":self.distance,"rangeAssessment":if self.no_target{"no-target"}else if self.distance.is_some(){"target"}else{"unavailable"},"leftMm":self.left.filter(|v|*v!=NO_TARGET),"rightMm":self.right.filter(|v|*v!=NO_TARGET),"leftNoTarget":self.left==Some(NO_TARGET),"rightNoTarget":self.right==Some(NO_TARGET),"forwardBurstSeconds":self.forward_seconds,"forwardBurstRangeSeconds":FORWARD_SECONDS,"turnDegrees":self.turn_degrees,"turnProgressDegrees":self.turn_progress.to_degrees(),"uTurnDegrees":U_TURN_DEGREES,"wideScan":self.wide_scan,"normalScanAnglesDegrees":[SCAN_ANGLES[0],-SCAN_ANGLES[0]],"forwardRampSeconds":FORWARD_RAMP_SECONDS,"scanAnglesDegrees":[30,60,90,-30,-60,-90],"scanDistancesMm":self.scan_ranges.map(|v|v.filter(|d|*d!=NO_TARGET)),"scanNoTarget":self.scan_ranges.map(|v|v==Some(NO_TARGET)),"turnRangeDegrees":[TURN_MIN_DEGREES,TURN_MAX_DEGREES],"turnTimeoutSeconds":TURN_TIMEOUT_SECONDS,"retreatSeconds":self.retreat_seconds,"headDegrees":self.head,"commandTwist":self.twist,"attempts":self.attempts,"obstacleConfirmMs":OBSTACLE_CONFIRM.as_millis(),"obstacleConfirmed":self.forward_near.confirmed,"turnObstacleConfirmed":false,"chatterRangeSeconds":CHATTER_SECONDS,"blockedReminderSeconds":BLOCKED_REMINDER_SECONDS,"stopMm":STOP_MM,"clearMm":CLEAR_MM})}
+    pub fn status(&self)->Value {json!({"rangeDropoutGraceMs":RANGE_DROPOUT_GRACE.as_millis(),"deferred":self.deferred,"rangeRecoverySeconds":RANGE_RECOVERY_SECONDS,"scanRetryLimit":MAX_SCAN_RETRIES,"excludedTofZones":EXCLUDED_ZONES,"requiredTofZones":64-EXCLUDED_ZONES.len(),"lastVoice":self.last_voice,"selected":self.selected,"behavior":match self.phase{Phase::Observe=>"抬头观察",Phase::Forward=>"缓慢前进",Phase::Stop=>"障碍停步",Phase::Left=>"向左测距",Phase::Right=>"向右测距",Phase::Center=>"头部回正",Phase::Turn=>if self.turn_degrees==U_TURN_DEGREES {"原地掉头"}else{"朝通路转向"},Phase::Retreat=>"短退后重新扫描",Phase::Blocked=>"等待人工接管"},"reason":self.reason,"distanceMm":self.distance,"rangeAssessment":if self.no_target{"no-target"}else if self.distance.is_some(){"target"}else{"unavailable"},"leftMm":self.left.filter(|v|*v!=NO_TARGET),"rightMm":self.right.filter(|v|*v!=NO_TARGET),"leftNoTarget":self.left==Some(NO_TARGET),"rightNoTarget":self.right==Some(NO_TARGET),"forwardBurstSeconds":self.forward_seconds,"forwardBurstRangeSeconds":FORWARD_SECONDS,"turnDegrees":self.turn_degrees,"turnProgressDegrees":self.turn_progress.to_degrees(),"uTurnDegrees":U_TURN_DEGREES,"wideScan":self.wide_scan,"normalScanAnglesDegrees":[SCAN_ANGLES[0],-SCAN_ANGLES[0]],"forwardRampSeconds":FORWARD_RAMP_SECONDS,"scanAnglesDegrees":[30,60,90,-30,-60,-90],"scanDistancesMm":self.scan_ranges.map(|v|v.filter(|d|*d!=NO_TARGET)),"scanNoTarget":self.scan_ranges.map(|v|v==Some(NO_TARGET)),"turnRangeDegrees":[TURN_MIN_DEGREES,TURN_MAX_DEGREES],"turnTimeoutSeconds":TURN_TIMEOUT_SECONDS,"retreatSeconds":self.retreat_seconds,"headDegrees":self.head,"commandTwist":self.twist,"attempts":self.attempts,"obstacleConfirmMs":OBSTACLE_CONFIRM.as_millis(),"obstacleConfirmed":self.forward_near.confirmed,"turnObstacleConfirmed":false,"chatterRangeSeconds":CHATTER_SECONDS,"blockedReminderSeconds":BLOCKED_REMINDER_SECONDS,"stopMm":STOP_MM,"clearMm":CLEAR_MM})}
 }
 
 fn path()->std::path::PathBuf {std::path::PathBuf::from(std::env::var("MICRODUCK_CALIBRATION_FILE").unwrap_or("./state/calibration.json".into())).with_file_name("autonomy.json")}
@@ -264,6 +316,55 @@ async fn set(axum::extract::State(a):axum::extract::State<crate::App>,headers:ax
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn transient_forward_dropout_continues_but_shared_deadline_stops_at_500ms(){
+        let t=Instant::now();let mut e=explorer();e.enter(Phase::Forward,t);e.forward_seconds=12.;
+        run(&mut e,t,0,1,1000.);assert_eq!(run(&mut e,t,600,2,1000.),[0.2,0.,0.]);
+        // The post-inference check sees the loss first; tick must share its deadline.
+        assert!(e.permits_motion(t+Duration::from_millis(700),1,None,[0.2,0.,0.]));
+        for ms in [720,1000,1199] {
+            let mut i=input(ms,1000.);i.range=None;
+            assert_eq!(e.tick(t+Duration::from_millis(ms),i),[0.2,0.,0.]);
+            assert!(e.permits_motion(t+Duration::from_millis(ms),1,None,[0.2,0.,0.]));
+            assert_eq!(e.forward_since,Some(t));
+        }
+        assert!(!e.permits_motion(t+Duration::from_millis(1200),1,None,[0.2,0.,0.]));
+        let mut i=input(1200,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(1200),i),[0.;3]);
+        assert_eq!(e.phase,Phase::Observe);assert!(e.forward_since.is_none());
+    }
+    #[test] fn recovered_range_resets_dropout_window_without_restarting_forward_duration(){
+        let t=Instant::now();let mut e=explorer();e.enter(Phase::Forward,t);e.forward_seconds=6.;
+        run(&mut e,t,0,1,1000.);run(&mut e,t,500,2,1000.);
+        for ms in [1000,1400] {let mut i=input(ms,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(ms),i),[0.2,0.,0.]);}
+        run(&mut e,t,1450,3,1000.);assert!(e.range_missing_since.is_none());
+        let mut i=input(1600,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(1600),i),[0.2,0.,0.]);
+        run(&mut e,t,1700,4,1000.);run(&mut e,t,5900,5,1000.);
+        let mut i=input(5950,1000.);i.range=None;e.tick(t+Duration::from_millis(5950),i);
+        let mut i=input(6000,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(6000),i),[0.;3]);
+        assert!(e.round_done);assert_eq!(e.phase,Phase::Observe);
+    }
+    #[test] fn brief_scan_dropout_retains_angle_but_discards_unfinished_samples(){
+        let t=Instant::now();let mut e=explorer();settle(&mut e,t,1000.);let start=t+Duration::from_secs(1);
+        let since=e.since;let mut i=input(100,1000.);i.range=None;i.head=e.head;
+        e.tick(start,i);assert_eq!(e.phase,Phase::Left);assert_eq!(e.head,[LOOK_UP,30.]);assert_eq!(e.since,since);
+        assert_eq!(e.samples,0);assert!(e.settled.is_none());
+        let mut i=input(101,1000.);i.range=None;i.head=e.head;e.tick(start+Duration::from_millis(500),i);
+        assert_eq!(e.phase,Phase::Observe);assert_eq!(e.head,[LOOK_UP,0.]);
+    }
+    #[test] fn dropout_grace_never_starts_motion_or_bypasses_pose_and_ownership(){
+        let t=Instant::now();let mut e=explorer();e.enter(Phase::Forward,t);
+        let mut i=input(1,1000.);i.range=None;assert_eq!(e.tick(t,i),[0.;3]);
+        assert!(!e.permits_motion(t,1,None,[0.2,0.,0.]));
+        for fault in 0..3 {
+            let mut e=explorer();e.enter(Phase::Forward,t);run(&mut e,t,0,1,1000.);run(&mut e,t,500,2,1000.);
+            let mut i=input(3,1000.);i.range=None;
+            match fault {0=>i.head=[LOOK_UP,20.],1=>i.yaw=f64::NAN,_=>i.active=false}
+            assert_eq!(e.tick(t+Duration::from_millis(600),i),[0.;3]);
+            assert!(!e.permits_motion(t+Duration::from_millis(601),1,None,[0.2,0.,0.]));
+        }
+        let mut e=explorer();e.enter(Phase::Forward,t);run(&mut e,t,0,1,1000.);
+        assert!(!e.permits_motion(t,2,None,[0.2,0.,0.]));
+        assert!(!e.permits_motion(t,1,None,[0.,0.,1.]));
+    }
     #[test] fn clear_front_scans_only_thirty_and_new_front_obstacle_expands(){
         let t=Instant::now();let mut e=explorer();
         settle(&mut e,t,1000.);assert_eq!(e.phase,Phase::Left);assert!(!e.wide_scan);
@@ -278,9 +379,10 @@ async fn set(axum::extract::State(a):axum::extract::State<crate::App>,headers:ax
         for (ms,speed) in [(0,0.),(100,0.04),(250,0.1),(500,0.2),(700,0.2)] {
             let twist=run(&mut e,t,ms,ms+1,1000.);assert!((twist[0]-speed).abs()<1e-6,"{ms}: {twist:?}");
         }
-        let mut i=input(800,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(800),i),[0.;3]);
-        e.enter(Phase::Forward,t+Duration::from_secs(1));assert_eq!(run(&mut e,t,1000,1001,1000.),[0.;3]);
-        for n in 0..5 {run(&mut e,t,1100+n*100,1101+n,400.);}assert_eq!(run(&mut e,t,1600,1601,400.),[0.;3]);assert_eq!(e.phase,Phase::Stop);
+        let mut i=input(800,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(800),i),[0.2,0.,0.]);
+        let mut i=input(1300,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(1300),i),[0.;3]);
+        e.enter(Phase::Forward,t+Duration::from_secs(2));assert_eq!(run(&mut e,t,2000,2001,1000.),[0.;3]);
+        for n in 0..5 {run(&mut e,t,2100+n*100,2101+n,400.);}assert_eq!(run(&mut e,t,2600,2601,400.),[0.;3]);assert_eq!(e.phase,Phase::Stop);
     }
     #[test] fn walking_chatter_can_happen_within_a_normal_forward_burst(){
         let t=Instant::now();let mut e=explorer();e.enter(Phase::Forward,t);e.forward_seconds=10.;e.forward_since=Some(t);
@@ -332,6 +434,8 @@ async fn set(axum::extract::State(a):axum::extract::State<crate::App>,headers:ax
         for n in 10..20 {let mut i=input(100,1000.);i.head=e.head;e.tick(t+Duration::from_millis(n*100),i);}
         assert_eq!(e.scan_index,0);assert_eq!(e.scan_ranges,[None;6]);
         let mut i=input(101,1000.);i.range=None;e.tick(t+Duration::from_secs(2),i);
+        assert_eq!(e.phase,Phase::Left);assert_eq!(e.samples,0);assert_eq!(e.twist,[0.;3]);
+        let mut i=input(102,1000.);i.range=None;e.tick(t+Duration::from_millis(2500),i);
         assert_eq!(e.phase,Phase::Observe);assert_eq!(e.twist,[0.;3]);
         settle(&mut e,t+Duration::from_secs(3),1000.);
         assert_eq!(e.phase,Phase::Left);assert_eq!(e.scan_ranges,[None;6]);
@@ -499,6 +603,42 @@ async fn set(axum::extract::State(a):axum::extract::State<crate::App>,headers:ax
         assert!(!e.permits_motion(Instant::now(),1,None,[0.,0.,1.]));
         assert!(e.permits_motion(Instant::now(),1,None,[0.;3]));
     }
+    #[test] fn real_intermittent_tof_frames_cannot_restart_recovery_deadline_forever(){
+        let frames:Vec<Value>=serde_json::from_str(include_str!("../tests/fixtures/exploration-tof-intermittent.json")).unwrap();
+        let mut telemetry=Telemetry::new(false);telemetry.started=Instant::now()-Duration::from_secs(1);
+        telemetry.tof=json!({"enabled":true,"state":"streaming"});
+        let t=Instant::now();let mut e=explorer();let mut rejected=0;let mut progressed=false;
+        for (n,data) in frames.iter().cycle().take(120).enumerate() {
+            telemetry.sample("tof",data.clone(),true,Instant::now());let r=range(&telemetry);if r.is_none(){rejected+=1;}
+            let mut i=input(n as u64+1,1000.);i.range=r;i.head=e.head;
+            let now=t+Duration::from_millis(n as u64*300);let command=e.tick(now,i);
+            if command[0]>0. {progressed=true;assert!(r.is_some() || e.brief_range_dropout(now));}
+        }
+        assert_eq!(rejected,36);assert!(e.deferred || progressed);
+        if e.deferred {assert_eq!(e.scan_ranges,[None;6]);assert!(!e.permits_motion(t,1,None,[0.2,0.,0.]));}
+    }
+    #[test] fn temporary_range_failure_recovers_only_after_fresh_settled_samples(){
+        let t=Instant::now();let mut e=explorer();let mut i=input(1,1000.);i.range=None;
+        e.tick(t,i);assert_eq!(e.range_wait_since,Some(t));
+        let mut i=input(2,1000.);i.head=[20.,0.];e.tick(t+Duration::from_millis(200),i);
+        assert!(e.reason.contains("头部"));assert_eq!(e.range_wait_since,Some(t));
+        settle(&mut e,t+Duration::from_secs(1),1000.);
+        assert_eq!(e.phase,Phase::Left);assert_eq!(e.range_wait_since,Some(t));assert!(!e.deferred);
+        settle(&mut e,t+Duration::from_secs(3),1000.);
+        settle(&mut e,t+Duration::from_secs(5),1000.);
+        settle(&mut e,t+Duration::from_secs(7),1000.);
+        assert_eq!(e.phase,Phase::Forward);assert!(e.range_wait_since.is_none());
+    }
+    #[test] fn permanent_range_loss_and_repeated_unsteady_scans_defer_without_releasing_hard_block(){
+        let t=Instant::now();let mut e=explorer();
+        for n in 0..=1500 {let mut i=input(n+1,1000.);i.range=None;assert_eq!(e.tick(t+Duration::from_millis(n*20),i),[0.;3]);}
+        assert!(e.deferred);
+        e.reset();e.epoch=1;e.enter(Phase::Observe,t);
+        for n in 1..=2 {let mut i=input(n,1000.);i.still=false;e.tick(t+Duration::from_millis(n*6001),i);}
+        assert!(e.deferred);assert_eq!(e.phase,Phase::Observe);
+        e.reset();e.epoch=1;e.block(t,"转向超时");let mut i=input(1,1000.);i.range=None;
+        e.tick(t+Duration::from_secs(60),i);assert_eq!(e.phase,Phase::Blocked);assert!(!e.deferred);
+    }
     #[test] fn no_target_frame_is_distinct_from_stale_or_broken_capture(){
         let mut s=Telemetry::new(false);s.started=Instant::now()-Duration::from_secs(1);s.tof=json!({"enabled":true,"state":"streaming"});
         let data=json!({"distanceMm":vec![8;64],"status":vec![0;64],"captureClockVerified":true});
@@ -520,7 +660,7 @@ async fn set(axum::extract::State(a):axum::extract::State<crate::App>,headers:ax
         assert_eq!(run(&mut e,t,8500,1001,NO_TARGET),[0.2,0.,0.]);
         assert_eq!(e.head,[LOOK_UP,0.]);assert!(e.status()["distanceMm"].is_null());
         assert_eq!(e.status()["rangeAssessment"],"no-target");
-        assert_eq!(run(&mut e,t,18001,1001,NO_TARGET),[0.;3]);assert_eq!(e.phase,Phase::Observe);
+        assert_eq!(run(&mut e,t,20001,1001,NO_TARGET),[0.;3]);assert_eq!(e.phase,Phase::Observe);
         assert!(!e.permits_motion(Instant::now(),1,None,[0.2,0.,0.]));
         assert!(e.permits_motion(Instant::now(),1,Some(Range{seq:1002,mm:300.}),[0.2,0.,0.]));
     }
@@ -550,11 +690,11 @@ async fn set(axum::extract::State(a):axum::extract::State<crate::App>,headers:ax
         assert_eq!(run(&mut e,t,9999,1,100.),[0.,0.,-1.]);assert_eq!(run(&mut e,t,10000,2,100.),[0.;3]);assert_eq!(e.phase,Phase::Blocked);
         assert!(e.reason.contains("超时"));
     }
-    #[test] fn random_bursts_last_three_to_ten_seconds_and_still_stop_for_obstacles(){
+    #[test] fn random_bursts_last_six_to_twelve_seconds_and_still_stop_for_obstacles(){
         let t=Instant::now();let mut durations=std::collections::BTreeSet::new();
         for _ in 0..50 {
             let mut e=explorer();e.enter(Phase::Forward,t);e.head=[LOOK_UP,0.];durations.insert((e.forward_seconds*1000.) as u64);
-            assert!((3. ..=10.).contains(&e.forward_seconds));e.forward_seconds=10.;
+            assert!((6. ..=12.).contains(&e.forward_seconds));e.forward_seconds=10.;
             assert_eq!(run(&mut e,t,0,1,1000.),[0.;3]);
             let mut i=input(2,1000.);i.head=[LOOK_UP+5.,4.];
             assert_eq!(e.tick(t+Duration::from_millis(2900),i),[0.2,0.,0.]);
@@ -587,7 +727,7 @@ async fn set(axum::extract::State(a):axum::extract::State<crate::App>,headers:ax
         assert!(!f.observe(t+Duration::from_millis(1200),None,450.,true));
         let mut f=NearFilter::default();for n in 0..20 {assert!(!f.observe(t+Duration::from_millis(n*50),Some(Range{seq:1,mm:5.}),450.,true));}
     }
-    #[test] fn prewrite_check_shares_filter_and_sensor_faults_still_stop_immediately(){
+    #[test] fn prewrite_check_shares_obstacle_filter_and_does_not_restart_stopped_motion(){
         let t=Instant::now();let mut e=explorer();e.enter(Phase::Forward,t);e.head=[LOOK_UP,0.];
         for n in 0..5 {assert!((run(&mut e,t,n*100,n+1,5.)[0]-0.04*n as f32).abs()<1e-6);
             assert!(e.permits_motion(t+Duration::from_millis(n*100+1),1,Some(Range{seq:n+1,mm:5.}),[0.2,0.,0.]));}

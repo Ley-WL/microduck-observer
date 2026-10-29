@@ -1,0 +1,78 @@
+{
+  "elapsedSeconds": 20.002225913000075,
+  "pids": [
+    2493
+  ],
+  "cpuPercentOneCore": 20.047768770543556,
+  "boardBefore": {
+    "temperatureC": 65.0,
+    "cpuFrequencyMhz": 1800.0
+  },
+  "boardAfter": {
+    "temperatureC": 63.888,
+    "cpuFrequencyMhz": 1800.0
+  },
+  "received": {
+    "imu.orientation": 300,
+    "imu.raw": 300,
+    "joints": 301,
+    "system": 20
+  },
+  "receivedHz": {
+    "imu.orientation": 14.998330751030093,
+    "imu.raw": 14.998330751030093,
+    "joints": 15.04832518686686,
+    "system": 0.9998887167353395
+  },
+  "observedSerialScanHz": {
+    "count": 301,
+    "mean": 14.963688316300262,
+    "p50": 14.96344072082606,
+    "p95": 14.967628507449392,
+    "max": 14.967846247316388
+  },
+  "jointOldestAgeMs": {
+    "count": 301,
+    "mean": 10.472512511628103,
+    "p50": 10.128022000002474,
+    "p95": 15.100154000005233,
+    "max": 69.48010500000083
+  },
+  "sampledJointFrames": 301,
+  "completeSampledJointFrames": 301,
+  "missingSampledRowsById": {},
+  "torqueBefore": {
+    "10": 0,
+    "11": 0,
+    "12": 0,
+    "13": 0,
+    "14": 0,
+    "20": 0,
+    "21": 0,
+    "22": 0,
+    "23": 0,
+    "24": 0,
+    "30": 0,
+    "31": 0,
+    "32": 0,
+    "33": 0,
+    "34": 0
+  },
+  "torqueAfter": {
+    "10": 0,
+    "11": 0,
+    "12": 0,
+    "13": 0,
+    "14": 0,
+    "20": 0,
+    "21": 0,
+    "22": 0,
+    "23": 0,
+    "24": 0,
+    "30": 0,
+    "31": 0,
+    "32": 0,
+    "33": 0,
+    "34": 0
+  }
+}

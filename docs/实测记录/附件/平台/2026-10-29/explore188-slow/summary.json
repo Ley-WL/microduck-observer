@@ -1,0 +1,17 @@
+{
+  "sampleCount": 100,
+  "sampledSeconds": 63.833,
+  "estimatedStateSeconds": {
+    "waiting": 48.302,
+    "forward": 15.531
+  },
+  "partialScanToObserveTimes": [
+    15.979,
+    20.046,
+    21.755,
+    24.901,
+    38.446,
+    59.808
+  ],
+  "note": "HTTP sparse samples; transition times approximate. Not all invalid frames captured. No motor commands or changes."
+}

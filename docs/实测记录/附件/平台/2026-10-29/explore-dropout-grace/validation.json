@@ -1,0 +1,24 @@
+{
+  "backendTests": {
+    "passed": 416,
+    "failed": 0,
+    "ignored": 1
+  },
+  "forwardSeconds": [
+    6,
+    12
+  ],
+  "dropoutGraceMs": 500,
+  "deployed": false,
+  "sourceSha256": {
+    "backend-rust\\src\\exploration.rs": "47d1d8f67017850b060748e5ba3d0d27f0845641ef5020c83348d8bf3cde550d",
+    "backend-rust\\src\\exploration\\parameters.rs": "37b658af104d4dea7896cf99face775abcc9a95b74b848147537dcd545212a4a"
+  },
+  "coverage": [
+    "499ms continues / 500ms stops with shared prewrite timer",
+    "valid range resets dropout timer but not forward duration",
+    "scan angle retained during short dropout; sustained loss recenters",
+    "no startup without ranging; invalid pose and ownership stop",
+    "existing obstacle confirmation and recovery tests"
+  ]
+}

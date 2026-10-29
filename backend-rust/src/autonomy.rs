@@ -72,7 +72,7 @@ impl Autonomy {
  #[test] fn manual_stop_and_fall_clear_mixed_activity(){
     for action in 0..3 {
         let(mut a,t)=ready();a.start("s",t).unwrap();
-        a.behavior.tick(crate::exploration::behavior::Input{now:t,active:true,kind:"xgoduck",progress:0.,sit_settle:2.,ready:true,busy:false,obstacle:false,round_done:false,available:[true;3]}).unwrap();
+        a.behavior.tick(crate::exploration::behavior::Input{now:t,active:true,kind:"xgoduck",progress:0.,sit_settle:2.,ready:true,busy:false,obstacle:false,round_done:false,exploration_deferred:false,range_ready:true,available:[true;3]}).unwrap();
         assert!(a.behavior.activity.is_some());
         match action {0=>a.input(true,t),1=>a.stop("用户停止"),_=>{a.fall(t);}}
         assert!(a.behavior.activity.is_none());assert!(a.behavior.head.is_none());
