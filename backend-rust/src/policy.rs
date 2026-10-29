@@ -1769,7 +1769,8 @@ fn native_policy_loop(
                 "driveSequence":state.drive.as_ref().map(|d|d.sequence),
                 "driveAgeMs":state.drive.as_ref().map(|d|d.updated.elapsed().as_secs_f64()*1000.),
                 "fresh":fresh,"dtSeconds":dt,"bodyYawRad":model.body_yaw,
-                "targetYawRad":roller_heading.target,"headingErrorRad":command[2]});
+                "targetYawRad":roller_heading.target,"headingErrorRad":command[2],
+                "modelDriveCommand":command[0],"turnAssistRemainingSeconds":roller_heading.assist_remaining_seconds()});
             command
         } else if model.kind=="xgoduck" {
             let mut state=write_shared();
