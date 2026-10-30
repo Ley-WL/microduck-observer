@@ -1,0 +1,19 @@
+{
+  "backendTests": {
+    "passed": 418,
+    "failed": 0,
+    "ignored": 1
+  },
+  "sourceSha256": {
+    "backend-rust/src/exploration.rs": "226cba499ce91c7b169ed20bd2b488e2154e93569bb4c40c0382d44e65d6318b",
+    "backend-rust/src/exploration/parameters.rs": "bd6955367673c3c5453c885bc9196a2e729c21aae680af6f4c9919a495964738"
+  },
+  "coverage": [
+    "first clear at left 30/60/90 and right 60; later angles not sampled",
+    "head arrival, settled distinct sampling and recentering required",
+    "post-turn front clear advances without side scan; new obstacle rescans",
+    "attempt limit and sustained range loss discard candidate",
+    "all directions blocked retains U-turn",
+    "existing dropout grace and 6-12s forward burst retained"
+  ]
+}
