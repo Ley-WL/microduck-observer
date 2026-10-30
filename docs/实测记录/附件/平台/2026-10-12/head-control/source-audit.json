@@ -1,8 +1,0 @@
-{
-  "baseCommit": "8356a5eb31317cb9133aa5924df58c090d480d7d",
-  "sourceArchiveSha256": "128c51fecd6c9b01a9f89915f7b9d93e60f9a2e21f1e068f9fd964c17c1234bf",
-  "preservedConcurrentDeployment": "runtime-20261012-211600 roulade voltage_adapt=false fix and corrected failure wording retained in final source",
-  "hardwareMotion": false,
-  "forcedRebuildVerification": "Touched all Rust sources, reran tests and ARM compilation after confirming runtime-20261012-211600. Rebuilt SHA256 remains 375b2ab03f01e121b4dd6a4002a6935ea495421d48e3d507c15069b91db46224, identical to deployed runtime-20261012-213014; roll_disables_voltage_scaling_without_changing_other_skills passes.",
-  "binarySha256": "375b2ab03f01e121b4dd6a4002a6935ea495421d48e3d507c15069b91db46224"
-}

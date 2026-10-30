@@ -1,9 +1,0 @@
-{
-  "backend-rust\\src\\policy.rs": "55ae81855a864b7be5d99ee2bd0480a216113e18f2859901bece8bee0e5a2b5b",
-  "backend-rust\\src\\control.rs": "ce078428dbb84bc342216d02bced52411aa903c796b26554dd2c254d43823601",
-  "backend-rust\\src\\telemetry.rs": "0d107ba2589af7b2778163f70582371f1402eb708f861124e485573ff5d9b093",
-  "backend-rust\\src\\main.rs": "78b46adb07e5485c1028a68e0c2dc6361faa6a5fcbcb3fd50cb4ee6a12326a9c",
-  "deploy\\staging\\kissqy-mechanical-20261011\\install.py": "3879f69492377a5bc621e7ac52f4e4dfac59a03c4ab99901c6c1ad4c354d87b4",
-  "tools\\deploy-kissqy-mechanical.py": "a5453529eab3a8c680863bc1d823304bb2654eee16859e03190ea669e3c94985",
-  "backend-rust\\target\\aarch64-unknown-linux-gnu\\release\\microduck-observer": "efc9ae1041fc7bc87c18645dac5754d1ed07e1dc42e9d2e0f8ea2d5eb71b50f5"
-}

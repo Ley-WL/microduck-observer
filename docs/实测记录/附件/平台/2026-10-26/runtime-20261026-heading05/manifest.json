@@ -1,8 +1,0 @@
-{
-  "bin/microduck-observer": "19d03f39e78755cb5bd58480758e1cc0d3d404d72ae1dfa030a6cf852a95e432",
-  "preserve-device-settings.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-  "policy-swizzle.json": "e51fe1e25f80738834f6654ac09ee0cdf4e53dfad075696b1cd18ee6b5272266",
-  "verify_rust_hardware.py": "4f783ef4c02ee8c9438ee631312606a88aae0db1e95be7c282af42ecf923e818",
-  "measure_runtime.py": "0b562a61677a4fc8c481d2501798b8e750f4b0cdff4269f2cacd45fcdb3bcedb",
-  "ws_reader.py": "80ed9c472d6437e017e1161fe1297e06b2c81acf62f23c74eb06c13de55b5adc"
-}

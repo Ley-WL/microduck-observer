@@ -1,2 +1,0 @@
-8fdaf12c7478a8314a63647a466bfa34ba1f15a7d9a5cb3b6ffa242719666168  /home/radxa/microduck-observer/current/models/xgoduck_roulade.onnx
-{"d":20,"p":5}

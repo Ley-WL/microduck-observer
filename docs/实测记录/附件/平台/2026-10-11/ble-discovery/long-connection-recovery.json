@@ -1,9 +1,0 @@
-{
-  "beforeServoState": "disabled",
-  "all15TorqueZero": true,
-  "bluetoothDisconnectExit": 0,
-  "bluetoothDisconnectOutput": "Attempting to disconnect from 4B:00:F8:7B:58:58\n[\u001b[0;93mCHG\u001b[0m] Device 4B:00:F8:7B:58:58 ServicesResolved: no\n[\u001b[0;93mCHG\u001b[0m] Device 4B:00:F8:7B:58:58 Connected: no\nDisconnection successful",
-  "serviceRestart": false,
-  "hardwareMotion": false,
-  "identityChanged": false
-}

@@ -1,9 +1,0 @@
-{
-  "exit_codes": "all zero",
-  "rga_cpu_fallbacks": 0,
-  "rga_errors": 0,
-  "sample_detection_counts_match": true,
-  "max_allowed_box_coordinate_delta_px": 4,
-  "max_allowed_score_delta": 0.05,
-  "boundary": "four sample comparisons only; not accuracy validation"
-}

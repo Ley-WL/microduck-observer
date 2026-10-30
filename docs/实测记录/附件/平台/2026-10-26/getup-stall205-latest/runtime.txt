@@ -1,2 +1,0 @@
-/home/radxa/microduck-observer/releases/runtime-20261026-144728
-b8046c3653a1dfd86b2c43363f8a0d88708bc142728a13cb3371f3b6faee7ba8  /proc/2031/exe

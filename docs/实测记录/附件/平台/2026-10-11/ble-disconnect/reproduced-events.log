@@ -1,4 +1,0 @@
-Oct 11 19:32:29 microduck microduck-observer[1942]: DuckLink BLE notifications stopped by BlueZ
-Oct 11 19:32:56 microduck microduck-observer[1942]: DuckLink BLE request rejected: fragment-sequence-size-timeout
-Oct 11 19:32:56 microduck microduck-observer[1942]: DuckLink BLE request rejected: request-sequence-gap
-Oct 11 19:32:57 microduck microduck-observer[1942]: DuckLink BLE notifications stopped by BlueZ

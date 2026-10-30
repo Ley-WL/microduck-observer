@@ -1,3 +1,0 @@
-/home/radxa/microduck-observer/releases/runtime-20261024-120921/bin/microduck-observer
-cd5372ae394ff3a06c765b31ce06883cad946bccd3392b4203b5c438517ad0b1  /proc/1597/exe
-{"ready": true, "bus": "/dev/i2c-3", "motionSent": false, "sensorCommandsSent": false, "preparedAtUnixMs": 1792815017436, "pid": 1562, "mode": "0660", "group": "i2c"}

@@ -1,9 +1,0 @@
-{
-  "base": "0c0af236",
-  "overlays": [
-    "exploration.rs (same as 095403)",
-    "quack.rs (short autonomous calls)"
-  ],
-  "tests": "9 quack tests passed",
-  "binarySha256": "8359b220038725fabb6935928d142d83be7ae9d25501d3f326a154984ffe87df"
-}

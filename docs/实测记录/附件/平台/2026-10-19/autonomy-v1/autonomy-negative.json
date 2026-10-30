@@ -1,1 +1,0 @@
-{"httpStatus": 409, "rejected": {"detail": "自主会话或序号已过期"}, "autonomy": {"behavior": "已关闭", "controlSource": "manual", "enabled": false, "ready": false, "reason": "", "recoveryRemainingSeconds": null, "state": "off"}, "all15Disabled": true, "physicalMotionTested": false}

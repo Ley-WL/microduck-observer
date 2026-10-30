@@ -1,9 +1,0 @@
-[Unit]
-Description=MicroDuck restricted Observer OTA request
-[Service]
-ExecStart=/usr/local/lib/microduck-observer-ota-helper
-StandardInput=socket
-StandardOutput=socket
-StandardError=journal
-TimeoutStartSec=12
-NoNewPrivileges=yes

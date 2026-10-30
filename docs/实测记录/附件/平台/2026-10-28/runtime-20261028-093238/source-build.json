@@ -1,8 +1,0 @@
-{
-  "baseCommit": "d37780c5de4b4bfd3130a8c8f206744a1dfd8d53",
-  "branch": "fix/revert-voltage-compensation",
-  "change": "Revert voltage changes from 0bf8bc9",
-  "binarySha256": "3d48e906de9a058dd2ba286fe85ceae2fddc98700dbb49496cf4ada4264dcdc6",
-  "rustTestsPassed": 370,
-  "rustTestsIgnored": 1
-}
