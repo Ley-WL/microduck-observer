@@ -18,3 +18,15 @@ __pycache__/
 
 # OTA verification key is public; private PEM files remain excluded.
 !deploy/ota-public.pem
+
+# Track only the nine main experiment records; keep raw artifacts local.
+/docs/实测记录/*
+!/docs/实测记录/README.md
+!/docs/实测记录/01-主板与接线.md
+!/docs/实测记录/02-IMU实测.md
+!/docs/实测记录/03-舵机实测.md
+!/docs/实测记录/04-网络与观测平台.md
+!/docs/实测记录/05-摄像头实测.md
+!/docs/实测记录/06-ToF实测.md
+!/docs/实测记录/07-HAT实测.md
+!/docs/实测记录/08-NPU实测.md
