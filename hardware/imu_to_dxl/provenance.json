@@ -1,0 +1,70 @@
+{
+  "repository": "https://github.com/jyg9/microduck-community-kit",
+  "commit": "14b6e768a3e97a05e437cf2a17efa3dfd926f648",
+  "source_path": "hardware/imu_to_dxl",
+  "import_date": "2026-11-02",
+  "changes": "原样复制；未修改上游文件。",
+  "verification": "逐文件SHA256一致；ZIP CRC完整性通过。未执行CAD设计检查或实物验证。",
+  "files": [
+    {
+      "path": "docs/1.jpg",
+      "bytes": 337676,
+      "sha256": "853e6d106c32d036e6c68e0abe49fb6f24b37c0f56fa12bb311a1d4ac8d985c0"
+    },
+    {
+      "path": "imu_to_dxl.kicad_pcb",
+      "bytes": 1283284,
+      "sha256": "3da112d293f1801c4068061b43124c554910155ddcdbd6d12c39340a7ba2578b"
+    },
+    {
+      "path": "imu_to_dxl.kicad_pro",
+      "bytes": 21005,
+      "sha256": "ab9ae090032a54fb54fa3712ab91053d9375f77d6dd91790425f66753d69405b"
+    },
+    {
+      "path": "imu_to_dxl.kicad_sch",
+      "bytes": 360898,
+      "sha256": "c79c3fe54916c9ca88ab209097e49b9230539dfea2cba9d432b2dea9c36741db"
+    },
+    {
+      "path": "imu_to_dxl_10p.kicad_pcb",
+      "bytes": 10913564,
+      "sha256": "4672e681714fe849966910a66ddce79d9b8fea88d19e612d70cc6baa07168b73"
+    },
+    {
+      "path": "LICENCE.txt",
+      "bytes": 9051,
+      "sha256": "998bbda42e05647f92645d2cb0f230e74a857251d45a00b872ba46c273236a7e"
+    },
+    {
+      "path": "production/bom.csv",
+      "bytes": 1313,
+      "sha256": "c71473eb11773e3725f6f7f6000e1e48cecc13214cf661b0ed6a8c6a30c56f34"
+    },
+    {
+      "path": "production/designators.csv",
+      "bytes": 596,
+      "sha256": "d0bc5242f06b346c4f6a98002ee03fa50d953fdffcc3f9f4f1bba1798632d619"
+    },
+    {
+      "path": "production/imu_to_dxl_v1.0.0_10p_gerber.zip",
+      "bytes": 911044,
+      "sha256": "e43f361d7e2aa2f5dd02e50eabc1b1d9d2a38795b7641608e54e5733cc7ce44b"
+    },
+    {
+      "path": "production/netlist.ipc",
+      "bytes": 272076,
+      "sha256": "1c2c1d8554c8e5ae14396fa3d5345a57d772f01ded6398a65e413229dcab0ee1"
+    },
+    {
+      "path": "production/positions.csv",
+      "bytes": 18329,
+      "sha256": "4fe99a9202c0be8cb13e3efdee70fd0cc17ad24eb2d8ee31d42f72b49066df74"
+    },
+    {
+      "path": "README.md",
+      "bytes": 408,
+      "sha256": "3c04424e03cbc359024fd3f029d87c29d40186450fa35803726ce9b771059571"
+    }
+  ]
+}

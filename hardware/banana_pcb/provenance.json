@@ -1,0 +1,45 @@
+{
+  "repository": "https://github.com/jyg9/microduck-community-kit",
+  "commit": "14b6e768a3e97a05e437cf2a17efa3dfd926f648",
+  "source_path": "hardware/banana_pcb",
+  "import_date": "2026-11-02",
+  "changes": "原样复制；未修改上游文件。",
+  "verification": "逐文件SHA256一致；ZIP CRC完整性通过。未执行CAD设计检查或实物验证。",
+  "files": [
+    {
+      "path": "banana_pcb.kicad_pcb",
+      "bytes": 418246,
+      "sha256": "33273f7f4c87199a5f5a0a6427736b8b0e122f421c459741a1810b4f69228ece"
+    },
+    {
+      "path": "banana_pcb.kicad_pro",
+      "bytes": 15887,
+      "sha256": "5ec6def67a1bb993b4f22b8053f5b92f53a653dea9452f0115a35bd3ad7c7d25"
+    },
+    {
+      "path": "banana_pcb.kicad_sch",
+      "bytes": 7047,
+      "sha256": "074734ee3076af9c0cad255d044fe526f6e1d589117a20ee442cd9311bf0ce12"
+    },
+    {
+      "path": "docs/img/1.jpg",
+      "bytes": 58812,
+      "sha256": "70b43aa1a23328ecffe0970b0419f81cc6f86e70568058f915f163c183c9c81c"
+    },
+    {
+      "path": "LICENCE.txt",
+      "bytes": 9051,
+      "sha256": "998bbda42e05647f92645d2cb0f230e74a857251d45a00b872ba46c273236a7e"
+    },
+    {
+      "path": "production/banana_pcb.zip",
+      "bytes": 14609,
+      "sha256": "39a255b23ebf158f61daf837360fdfe0fd55220ae6194f927cd0513773c45966"
+    },
+    {
+      "path": "README.md",
+      "bytes": 383,
+      "sha256": "82c070dd3fd49b825e07c5cb9282d6dee9c15625d64046225edfb29df5bb4fa3"
+    }
+  ]
+}

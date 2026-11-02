@@ -1,0 +1,55 @@
+{
+  "repository": "https://github.com/jyg9/microduck-community-kit",
+  "commit": "14b6e768a3e97a05e437cf2a17efa3dfd926f648",
+  "source_path": "hardware/dxl_hub",
+  "import_date": "2026-11-02",
+  "changes": "原样复制；未修改上游文件。",
+  "verification": "逐文件SHA256一致；ZIP CRC完整性通过。未执行CAD设计检查或实物验证。",
+  "files": [
+    {
+      "path": "docs/1.jpg",
+      "bytes": 304243,
+      "sha256": "dbd2ecbd15e54af8260a71657aa961392d625aebd91243ca26835a8599291be7"
+    },
+    {
+      "path": "docs/2.jpg",
+      "bytes": 56496,
+      "sha256": "96d97b09ce565a18b25757b12c8ff17e9cd9e111b4f421093568798b86ec998a"
+    },
+    {
+      "path": "docs/3.jpg",
+      "bytes": 53919,
+      "sha256": "4894d96322e8fcc088efbdd3692e5382119680144bc7219d184b47d32eff4730"
+    },
+    {
+      "path": "dxl_hub.kicad_pcb",
+      "bytes": 337594,
+      "sha256": "ff03ee200424227daa3d1c3c0308f471d0eb058f826d6d7a18c8184f619580cf"
+    },
+    {
+      "path": "dxl_hub.kicad_pro",
+      "bytes": 15979,
+      "sha256": "ee00bd72e45f541cb30a915be5005df5a52ae228f52e94364785db76ac6cd1e1"
+    },
+    {
+      "path": "dxl_hub.kicad_sch",
+      "bytes": 58923,
+      "sha256": "0acfb69cdbea8ba0cd5b18f91846562408aa8e120d6d7cf8fa630676f9aae2f6"
+    },
+    {
+      "path": "LICENCE.txt",
+      "bytes": 9051,
+      "sha256": "998bbda42e05647f92645d2cb0f230e74a857251d45a00b872ba46c273236a7e"
+    },
+    {
+      "path": "production/dxl_hub_v0.3_gerber_1p.zip",
+      "bytes": 22418,
+      "sha256": "ef50a9816db33e3581058d1b649db25e43d0f277a62ce9f1a60ad45dd6e10cd8"
+    },
+    {
+      "path": "README.md",
+      "bytes": 735,
+      "sha256": "572048e917d1c5f1e88ccac77eefc1b56cbbfa038ca8743e80d333527c97921d"
+    }
+  ]
+}
