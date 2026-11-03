@@ -287,6 +287,7 @@ struct Input {
     quack:QuackGesture,
     autonomy_since:Option<std::time::Instant>,
     autonomy_fired:bool,
+    dpad_blocked:bool,
     previous: Sample,
     neutral_seen: bool,
     drive_armed: bool,
@@ -308,6 +309,15 @@ impl Input {
     fn update_mapped<'a>(&mut self, sample:&Sample, ready:bool, diagnostic_only:bool, now:std::time::Instant, bindings:&'a crate::pad_bindings::Config)->Option<&'a str> {
         if self.binding_revision.is_some_and(|revision|revision!=bindings.revision) {*self=Self::default();}
         self.binding_revision=Some(bindings.revision);
+        // A diagonal/opposing direction is not a single-button gesture. Keep
+        // directional actions blocked until the whole D-pad has been released,
+        // so sliding off a diagonal cannot dispatch its remaining direction.
+        let direction_count=sample.dpad.iter().filter(|pressed|**pressed).count();
+        if direction_count==0 {self.dpad_blocked=false;}
+        else if direction_count>1 {self.dpad_blocked=true;}
+        let blocked=self.dpad_blocked;
+        let action_button=|key:&str|sample.button(key)
+            && !(blocked && matches!(key,"up"|"left"|"right"));
         if diagnostic_only {
             self.roller_since=None;self.roller_fired=false;
             self.autonomy_since=None;self.autonomy_fired=false;
@@ -330,7 +340,7 @@ impl Input {
         let long_start = !self.start_triggered && self.start_since
             .is_some_and(|since| now.duration_since(since) >= Duration::from_secs(2));
         if long_start { self.start_triggered = true; }
-        let autonomous_down=sample.dpad[3] && !sample.dpad[..3].iter().any(|v|*v) && !sample.keys.iter().any(|v|*v) && sample.centered();
+        let autonomous_down=!self.dpad_blocked && sample.dpad[3] && !sample.dpad[..3].iter().any(|v|*v) && !sample.keys.iter().any(|v|*v) && sample.centered();
         if !autonomous_down {self.autonomy_since=None;self.autonomy_fired=false;}
         else if self.neutral_seen && !self.previous.dpad[3] {self.autonomy_since=Some(now);}
         let long_autonomy=!self.autonomy_fired && self.autonomy_since.is_some_and(|at|now.duration_since(at)>=Duration::from_millis(1500));
@@ -342,7 +352,7 @@ impl Input {
         let roller_start=!self.roller_mode && !self.roller_fired && self.roller_since.is_some_and(|at|now.duration_since(at)>=Duration::from_secs(1));
         if roller_start {self.roller_fired=true;}
         let edge = |key| sample.down(key) && !self.previous.down(key);
-        let getup_key=crate::pad_bindings::BUTTONS.into_iter().find(|key|bindings.action(key)=="getup" && sample.button(key));
+        let getup_key=crate::pad_bindings::BUTTONS.into_iter().find(|key|bindings.action(key)=="getup" && action_button(key));
         if getup_key!=self.getup_key {self.y_hold_ticks=0;self.y_hold_triggered=false;self.getup_key=getup_key;}
         if getup_key.is_some() && sample.centered() {
             self.y_hold_ticks = self.y_hold_ticks.saturating_add(1);
@@ -358,7 +368,7 @@ impl Input {
         if edge(BACK)||edge(B)||long_y||long_start {self.quack=QuackGesture::default();}
         let custom=crate::pad_bindings::BUTTONS.into_iter().find_map(|key| {
             let action=bindings.action(key);
-            if !sample.button(key) || (self.previous.button(key) && !(action=="roulade" && self.roll_running)) {return None;}
+            if !action_button(key) || (self.previous.button(key) && !(action=="roulade" && self.roll_running)) {return None;}
             let alone=sample.keys.iter().filter(|v|**v).count()+sample.dpad.iter().filter(|v|**v).count()==1;
             match action {
                 "standup" if sample.centered()=>Some("stand"),
@@ -1038,6 +1048,67 @@ mod tests {
         i.update(&Sample::default(),true,false);assert_eq!(i.update(&lb,true,true),None);
     }
 
+    #[test]
+    fn mixed_dpad_directions_never_dispatch_and_require_full_release() {
+        let t=std::time::Instant::now();let neutral=Sample::default();
+        for first in 0..4 {for second in first+1..4 {
+            let mut input=Input::default();input.update_at(&neutral,true,false,t);
+            let mut diagonal=Sample::default();diagonal.dpad[first]=true;diagonal.dpad[second]=true;
+            assert_eq!(input.update_at(&diagonal,true,false,t+Duration::from_millis(20)),None);
+            assert_eq!(input.update_at(&diagonal,true,false,t+Duration::from_secs(2)),None);
+            // Even a newly pressed third direction cannot become an action.
+            for (step,remaining) in (0..4).enumerate() {
+                let mut one=Sample::default();one.dpad[remaining]=true;
+                assert_eq!(input.update_at(&one,true,false,t+Duration::from_millis(3000+step as u64*3000)),None);
+                assert_eq!(input.update_at(&one,true,false,t+Duration::from_millis(5000+step as u64*3000)),None);
+            }
+            input.update_at(&neutral,true,false,t+Duration::from_secs(15));
+            let mut right=Sample::default();right.dpad[2]=true;
+            assert_eq!(input.update_at(&right,true,false,t+Duration::from_millis(15020)),Some("roulade"));
+        }}
+    }
+    #[test]
+    fn diagonal_cancels_roll_refresh_and_cannot_start_remapped_getup() {
+        let t=std::time::Instant::now();let neutral=Sample::default();
+        let mut input=Input::default();input.update_at(&neutral,true,false,t);
+        let mut right=Sample::default();right.dpad[2]=true;
+        assert_eq!(input.update_at(&right,true,false,t+Duration::from_millis(20)),Some("roulade"));
+        input.roll_running=true;
+        let mut diagonal=right.clone();diagonal.dpad[3]=true;
+        assert_eq!(input.update_at(&diagonal,false,false,t+Duration::from_millis(40)),None);
+        assert_eq!(input.update_at(&right,false,false,t+Duration::from_millis(60)),None);
+        let mut config=crate::pad_bindings::Config::default();config.bindings.insert("up".into(),"getup".into());
+        let mut input=Input::default();input.update_mapped(&neutral,true,false,t,&config);
+        let mut diagonal=Sample::default();diagonal.dpad[0]=true;diagonal.dpad[1]=true;
+        for tick in 0..25 {
+            assert_eq!(input.update_mapped(&diagonal,true,false,t+Duration::from_millis(tick*40),&config),None);
+        }
+    }
+    #[test]
+    fn diagonal_requires_release_before_a_new_down_hold_can_toggle_autonomy() {
+        let t=std::time::Instant::now(); let neutral=Sample::default();
+        let mut input=Input::default(); input.update_at(&neutral,true,false,t);
+        let mut down=Sample::default();down.dpad[3]=true;
+        input.update_at(&down,true,false,t+Duration::from_millis(20));
+        let mut diagonal=down.clone();diagonal.dpad[1]=true;
+        assert_eq!(input.update_at(&diagonal,true,false,t+Duration::from_secs(1)),None);
+        assert_eq!(input.update_at(&down,true,false,t+Duration::from_secs(2)),None);
+        assert_eq!(input.update_at(&down,true,false,t+Duration::from_secs(4)),None);
+        input.update_at(&neutral,true,false,t+Duration::from_secs(5));
+        assert_eq!(input.update_at(&down,true,false,t+Duration::from_secs(6)),None);
+        assert_eq!(input.update_at(&down,true,false,t+Duration::from_millis(7499)),None);
+        assert_eq!(input.update_at(&down,true,false,t+Duration::from_millis(7500)),Some("autonomy"));
+    }
+    #[test]
+    fn mixed_dpad_never_blocks_emergency_controls() {
+        let t=std::time::Instant::now();let neutral=Sample::default();
+        for (key,expected) in [(BACK,"estop"),(B,"release")] {
+            let mut input=Input::default();input.update_at(&neutral,true,false,t);
+            let mut pressed=Sample::default();pressed.dpad[0]=true;pressed.dpad[2]=true;
+            pressed.keys[BUTTONS.iter().position(|code|*code==key).unwrap()]=true;
+            assert_eq!(input.update_at(&pressed,true,false,t+Duration::from_millis(20)),Some(expected));
+        }
+    }
     #[test] fn autonomy_long_press_fires_once_and_requires_fresh_release(){
         let mut i=Input::default();let t=std::time::Instant::now();let neutral=Sample::default();let mut down=neutral.clone();down.dpad[3]=true;
         assert_eq!(i.update_at(&down,true,false,t),None);
