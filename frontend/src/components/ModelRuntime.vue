@@ -44,14 +44,14 @@ onUnmounted(()=>{padGeneration++;if(padPoll)clearInterval(padPoll);});
 const rearHook=ref(false), flamingoSide=ref('左');
 const lease=driveLease(sessionStorage,state.endpoint);
 const session=ref(lease.session),pressed=ref(''), skillQueued=ref(false), commandState=ref('');
-const skills=[{key:'flamingo',name:'火烈鸟'},{key:'dance',name:'十拍鸭子舞'},{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'},{key:'kick_left',name:'左脚踢球'},{key:'kick_right',name:'右脚踢球'}];
+const skills=[{key:'crouch',name:'蹲下'},{key:'crouch_stand',name:'蹲姿站起'},{key:'flamingo',name:'火烈鸟'},{key:'dance',name:'十拍鸭子舞'},{key:'sit',name:'坐下'},{key:'standup',name:'站起'},{key:'getup',name:'倒地起身'},{key:'pick',name:'拾取'},{key:'roulade',name:'翻滚'},{key:'kick_left',name:'左脚踢球'},{key:'kick_right',name:'右脚踢球'}];
 const skillAvailable=ref<Record<string,boolean>>({});
 const nearbyPads=ref<{address:string;name:string;likelyController:boolean}[]>([]), bluetoothBusy=ref(false), bluetoothMessage=ref('');
 const visibleBluetoothDevices=computed(()=>nearbyPads.value.filter(device=>{const name=device.name.toLocaleLowerCase();return name.includes('xbox')||name.includes('wireless controller')||name.includes('gamesir');}));
 async function scanBluetooth(){bluetoothBusy.value=true;bluetoothMessage.value='正在扫描主板附近的蓝牙设备…';nearbyPads.value=[];try{const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/gamepad/bluetooth/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(18000)});const data=await response.json();if(!response.ok)throw new Error(data.detail||'扫描失败');nearbyPads.value=data.devices||[];const controllers=visibleBluetoothDevices.value.length;bluetoothMessage.value=controllers?`发现 ${controllers} 个疑似手柄，请核对后连接。`:nearbyPads.value.length?`发现 ${nearbyPads.value.length} 台设备，但没有名称匹配 Xbox、Wireless Controller 或 GameSir 的设备。`:'没有发现设备。请让手柄进入蓝牙配对模式后重试。';}catch(e){bluetoothMessage.value=String(e);}finally{bluetoothBusy.value=false;}}
 async function pairBluetooth(address:string){bluetoothBusy.value=true;bluetoothMessage.value='正在配对、信任并连接所选设备…';try{const response=await fetch(state.endpoint.replace(/\/$/,'')+'/api/v1/gamepad/bluetooth/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address}),signal:AbortSignal.timeout(55000)});const data=await response.json();if(!response.ok)throw new Error(data.detail||'连接失败');bluetoothMessage.value=data.message;}catch(e){const detail=String(e);bluetoothMessage.value=/AuthenticationFailed/i.test(detail)?'蓝牙配对认证未完成。主板没有保存这只手柄的配对；请断开它与手机、电脑或接收器的连接，关机后按 B + Home 进入 PC 蓝牙模式，确认指示灯快速闪烁，再立即扫描并配对。':/ConnectionAttemptFailed|Device not available/i.test(detail)?'扫描到手柄，但它目前没有接受连接。请确保手柄指示灯快速闪烁；若慢闪，按住 Home + Screenshot 约 2 秒直到快闪，然后马上重新扫描并配对。也请确认它没有连着手机或无线接收器。':detail;}finally{bluetoothBusy.value=false;}}
 
-const canStand=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && (control.value?.standAllowed??(control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??4))) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
+const canStand=computed(()=>live.value && control.value?.state==='policy' && ['sitstand_sit','crouch_sit'].includes(control.value?.activeSkill) && (control.value?.standAllowed??(control.value?.skillProgressSeconds>=(control.value?.sitSettleSeconds??4))) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 const available=computed(()=>modelAvailable.value);
 const resetSticks=ref(0);
 const seatedHead=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='sitstand_sit' && control.value?.skillProgressSeconds>=control.value?.sitSettleSeconds && !control.value?.feedbackHolding && !pending.value && !!session.value && control.value?.driveSession===session.value);
@@ -71,6 +71,8 @@ const allowed=computed(():Record<string,boolean>=>{
   ...Object.fromEntries(customActions.value.map(a=>[a.id,canDrive.value])),
   autonomy:live.value && !pending.value && (autonomousOwned.value || (canDrive.value && !!control.value?.autonomy?.ready && !demoOwned.value)),
   demo:!recovering.value && live.value && !pending.value && (demoOwned.value || (canDrive.value && !!control.value?.demo?.ready)),
+  crouch:!!skillAvailable.value.crouch && (canDrive.value || (live.value && board.ready && !busy.value)),
+  crouch_stand:!!skillAvailable.value.crouch_stand && live.value && !pending.value && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && control.value?.state==='policy' && control.value?.activeSkill==='crouch_sit' && control.value?.standAllowed,
   standup:!!skillAvailable.value.standup && (canStand.value || (live.value && board.ready && !busy.value)),
   sit:!!skillAvailable.value.sit && (canDrive.value || (live.value && board.ready && !busy.value)),
   getup:!recovering.value && !!skillAvailable.value.getup && (canDrive.value || canRecover.value || (live.value && board.ready && !busy.value)),
@@ -91,7 +93,7 @@ const busy=computed(()=>pending.value || ['preflight','moving','policy','disabli
 const live=computed(()=>state.connection==='在线' && state.joints?.source==='hardware' && state.jointsAge<500);
 const canDrive=computed(()=>live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && !control.value?.feedbackHolding && !skillQueued.value && (!control.value?.activeSkill || control.value.activeSkill==='xgoduck') && !!session.value && control.value?.driveSession===session.value && !pending.value);
 const rollOwned=computed(()=>live.value && control.value?.state==='policy' && control.value?.activeSkill==='xgoduck_roulade' && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
-const canRecover=computed(()=>live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && ['xgoduck','xgoduck_pick','xgoduck_roulade','kick_left','kick_right','sitstand_sit','sitstand_stand'].includes(control.value?.activeSkill) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
+const canRecover=computed(()=>live.value && control.value?.state==='policy' && control.value?.kind==='xgoduck' && ['xgoduck','xgoduck_pick','xgoduck_roulade','kick_left','kick_right','sitstand_sit','sitstand_stand','crouch_sit','crouch_stand'].includes(control.value?.activeSkill) && !control.value?.feedbackHolding && !!session.value && control.value?.driveSession===session.value && !pending.value);
 let acknowledgedSequence=0;
 watch(session,()=>{acknowledgedSequence=0;commandState.value='';});
 const hold=gamepadInput(async(input,sequence)=>{
@@ -123,6 +125,7 @@ onMounted(()=>{demoHeartbeat=setInterval(()=>{if(demoOwned.value && demoFocused 
 onUnmounted(()=>{if(demoHeartbeat)clearInterval(demoHeartbeat);leaveDemo();window.removeEventListener('blur',leaveDemo);window.removeEventListener('pagehide',leaveDemo);});
 let rollRequestPending=false;
 async function extra(action:string,angleDeg?:number){
+  if(action==='standup' && control.value?.activeSkill==='crouch_sit')action='crouch_stand';
   if(action==='roulade'){
     if(rollRequestPending || !allowed.value.roulade)return;
     rollRequestPending=true;hold.release();
@@ -145,9 +148,9 @@ async function extra(action:string,angleDeg?:number){
   const independent=action==='quack';
   if(independent){if(quackPending.value)return;quackPending.value=true;}else{release();pending.value=true;}failed.value=false;
   try{
-    const start=action==='roller_prepare' || (['getup','standup','sit'].includes(action) && !running.value);
+    const start=action==='roller_prepare' || (['getup','standup','sit','crouch','crouch_stand'].includes(action) && !running.value);
     const path=start?'start':action==='quack'?'quack':action==='mouth'?'mouth':'skill';
-    const body=start?{kind:action==='roller_prepare'?'swizzle_prepare':action==='sit'?'sitstand_sit':action==='standup'?'sitstand_stand':'xgoduck_getup',speed:0,revision:board.data?.revision}:angleDeg!=null && !running.value?{id:34,angleDeg,revision:board.data?.revision}:{session:session.value,sequence:hold.nextSequence(),skill:action,angleDeg};
+    const body=start?{kind:action==='roller_prepare'?'swizzle_prepare':action==='crouch_stand'?'crouch_stand':action==='crouch'?'crouch_sit':action==='sit'?'sitstand_sit':action==='standup'?'sitstand_stand':'xgoduck_getup',speed:0,revision:board.data?.revision}:angleDeg!=null && !running.value?{id:34,angleDeg,revision:board.data?.revision}:{session:session.value,sequence:hold.nextSequence(),skill:action,angleDeg};
     const url=action==='quack' && !running.value?'/api/v1/servos/quack':angleDeg!=null && !running.value?'/api/v1/servos/angle':'/api/v1/policy/'+path;
     if(action==='quack' && !running.value)Object.assign(body,{revision:board.data?.revision});
     const response=await fetch(state.endpoint.replace(/\/$/,'')+url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
@@ -191,7 +194,7 @@ async function refreshModelInfo(){
     crouchAvailable.value=response.ok && !!result.models?.find((model:{kind:string;available:boolean})=>model.kind==='swizzle_crouch')?.available;
     rearHook.value=['hd1910_rear_hook_v27','hd1910_rear_hook_native','hd1910_rear_hook_native_gated','hd1910_rear_hook_v62b'].includes(result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.runtimeKind);
     flamingoSide.value=result.models?.find((model:{kind:string})=>model.kind==='flamingo_hold')?.metadata?.swingFoot==='right'?'右':'左';
-    for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='flamingo'?'flamingo_hold':skill.key==='dance'?'dance10':skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':skill.key.startsWith('kick_')?skill.key:'xgoduck_'+skill.key))?.available;
+    for(const skill of skills)skillAvailable.value[skill.key]=!!result.models?.find((model:{kind:string;available:boolean})=>model.kind===(skill.key==='crouch'?'crouch_sit':skill.key==='crouch_stand'?'crouch_stand':skill.key==='flamingo'?'flamingo_hold':skill.key==='dance'?'dance10':skill.key==='sit'?'sitstand_sit':skill.key==='standup'?'sitstand_stand':skill.key.startsWith('kick_')?skill.key:'xgoduck_'+skill.key))?.available;
     }
   catch { if(token===modelInfoGeneration)modelAvailable.value=false; }
 }
@@ -212,6 +215,7 @@ async function run(action:'start'|'stop'|'shadow'|'disable'|'home') {
 </script>
 <template>
   <div class="runtime-panel">
+    <div class="runtime-metrics"><b>双脚蹲起</b><button :disabled="!allowed.crouch" @click="extra('crouch')">蹲下</button><button :disabled="!allowed.crouch_stand" @click="extra('crouch_stand')">站起</button><span>双脚支撑，蹲下后持续保持</span></div>
     <div class="runtime-overview"><div class="runtime-title"><span>网页手柄</span><strong>点击按键 · 按住摇杆</strong><small>T4 Nova Lite 布局</small></div></div>
     <div v-if="control?.state==='policy'" class="runtime-metrics" role="status"><span>近 1 秒实际推理 <b>{{ Number.isFinite(control?.cycleCosts?.inferenceHzLast1s) ? control.cycleCosts.inferenceHzLast1s.toFixed(1)+' Hz' : '—' }}</b></span></div>
     <details class="bluetooth-setup"><summary>连接实物蓝牙手柄</summary><p>手柄关机时同时短按 <b>B + Home</b> 进入蓝牙配对，再扫描。确认名称和设备后点“配对并连接”。</p><div class="bluetooth-actions"><button :disabled="bluetoothBusy" @click="scanBluetooth">{{ bluetoothBusy?'请稍候…':'扫描主板附近设备' }}</button><span role="status">{{ bluetoothMessage }}</span></div><div class="bluetooth-devices"><div v-for="device in visibleBluetoothDevices" :key="device.address" class="bluetooth-device"><span><b>{{ device.name }}</b> · {{ device.address }}<small>疑似 Xbox / GameSir 手柄</small></span><button :disabled="bluetoothBusy" @click="pairBluetooth(device.address)">配对并连接</button></div></div><small>仅列出名称包含 Xbox、Wireless Controller 或 GameSir 的设备。扫描和配对由主板执行，不要求登录后台。配对后若网页未显示实物输入，还需主板内核提供手柄输入设备。</small></details>

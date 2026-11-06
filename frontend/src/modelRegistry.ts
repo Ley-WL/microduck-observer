@@ -1,5 +1,5 @@
 export const modelSlots = [
-  { id: 'walk', label: '行走' }, { id: 'sitstand', label: '坐下 / 站起' },
+  { id: 'crouch', label: '双脚蹲下 / 站起' }, { id: 'walk', label: '行走' }, { id: 'sitstand', label: '坐下 / 站起' },
   { id: 'getup', label: '倒地起身' }, { id: 'pick', label: '拾取' },
   { id: 'roulade', label: '翻滚' }, { id: 'kick_left', label: '左脚踢球' },
   { id: 'kick_right', label: '右脚踢球' }, { id: 'dance', label: '舞蹈' },

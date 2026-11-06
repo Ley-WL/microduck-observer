@@ -17,8 +17,8 @@ function hiddenAutonomy(){if(document.hidden)cancelAutonomy();}
 window.addEventListener('blur',cancelAutonomy);document.addEventListener('visibilitychange',hiddenAutonomy);
 onUnmounted(()=>{autonomyHold.cancel();window.removeEventListener('blur',cancelAutonomy);document.removeEventListener('visibilitychange',hiddenAutonomy);});
 function action(key:string){return props.bindings?.[key] ?? 'none';}
-function label(key:string){return bindingLabel(props.bindings,key,props.actionLabels);}
-function title(key:string){return `${key.toUpperCase()} ${label(key)}${action(key)==='getup'?' · 长按0.56秒':''}`;}
+function label(key:string){if(key==='x' && !props.roller && action(key)==='sit')return '短按坐下 / 长按蹲下';return bindingLabel(props.bindings,key,props.actionLabels);}
+function title(key:string){return `${key.toUpperCase()} ${label(key)}${key==='x' && !props.roller && action(key)==='sit'?' · 长按0.7秒':action(key)==='getup'?' · 长按0.56秒':''}`;}
 function enabled(key:string){return !!props.bindings && !!props.allowed[action(key)];}
 function held(key:string){return !!props.feedback?.buttons[key];}
 const turboHeld=ref(false),boosted=computed(()=>turboHeld.value);
@@ -43,7 +43,7 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
     <button class="menu-button start" :class="{physical:held('start')}" disabled aria-label="Start 预留，未启用" title="Start：预留按键，暂不执行动作">▷<small>预留</small></button>
     <div class="face-buttons">
       <MappedPadButton class="face y" :class="{physical:held('y')}" :action="action('y')" :enabled="enabled('y')" :reset="reset" :aria-label="title('y')" :title="title('y')" @action="emit('action',$event)"><b>Y</b><small>{{ label('y') }}</small></MappedPadButton>
-      <MappedPadButton class="face x" :class="{physical:held('x')}" :action="action('x')" :enabled="enabled('x')" :reset="reset" :aria-label="title('x')" :title="title('x')" @action="emit('action',$event)"><b>X</b><small>{{ label('x') }}</small></MappedPadButton>
+      <MappedPadButton class="face x" :class="{physical:held('x')}" :long-action="!roller && action('x')==='sit' ? 'crouch' : undefined" :action="action('x')" :enabled="enabled('x')" :reset="reset" :aria-label="title('x')" :title="title('x')" @action="emit('action',$event)"><b>X</b><small>{{ label('x') }}</small></MappedPadButton>
       <button class="face b" :class="{physical:held('b')}" :disabled="!allowed.stop" aria-label="B 停止保持" @click="emit('action','stop')"><b>B</b><small>停止</small></button>
       <MappedPadButton class="face a" :class="{physical:held('a')}" :action="action('a')" :enabled="enabled('a')" :reset="reset" :aria-label="title('a')" :title="title('a')" @action="emit('action',$event)"><b>A</b><small>{{ label('a') }}</small></MappedPadButton>
     </div>
@@ -56,7 +56,7 @@ watch(boosted,()=>{if(bodyEngaged)body(...lastBody);});
     </div>
     <span class="grip left-grip">按住拖动</span><span class="grip right-grip">松开回中</span>
   </div>
-  <div class="pad-footer"><span><i/> 按键动作见标签，可在「手柄设置」修改 · 起身需长按</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
+  <div class="pad-footer"><span><i/> 按键动作见标签，可在「手柄设置」修改 · 倒地起身需长按</span><button class="estop" :disabled="!allowed.disable" @click="emit('action','disable')">■ 急停卸力</button></div>
 </div>
 </template>
 <style scoped>

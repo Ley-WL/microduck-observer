@@ -1,0 +1,52 @@
+[
+  {
+    "slot": "walk",
+    "file": "walk_observer_hd1910_823g_ft11000.onnx",
+    "sha256": "21a3afdf6a120ad910227b5023e16456c263e1c73e38275ad52aca0e1bb8000f",
+    "kinds": [
+      "xgoduck"
+    ]
+  },
+  {
+    "slot": "crouch",
+    "file": "crouch_hd1910_823g_3000.onnx",
+    "sha256": "a5bcb51c82fd21737ba1dce3cb7e93c78d98b0909ae6926f57708fcde2fb4cfe",
+    "kinds": [
+      "crouch_sit",
+      "crouch_stand"
+    ]
+  },
+  {
+    "slot": "roulade",
+    "file": "roll_hd1910_823g_10000.onnx",
+    "sha256": "f992714ea08e8c7a2157071160b077b87f5a5a7814b40b74957815b1db74edd4",
+    "kinds": [
+      "xgoduck_roulade"
+    ]
+  },
+  {
+    "slot": "getup",
+    "file": "standup_hd1910_823g_10000.onnx",
+    "sha256": "e14d8f4d6d80b02efefbbb23b69b27e244de35ef92dd4ed65ae8305f9fa6dd3d",
+    "kinds": [
+      "xgoduck_getup"
+    ]
+  },
+  {
+    "slot": "sitstand",
+    "file": "sitstand_hd1910_823g_10000.onnx",
+    "sha256": "1f72ffdf18e67f5895bba4a10d9567b76e69718104d108ab78d1b8187f87bdca",
+    "kinds": [
+      "sitstand_sit",
+      "sitstand_stand"
+    ]
+  },
+  {
+    "slot": "pick",
+    "file": "pick_hd1910_823g_1001.onnx",
+    "sha256": "6e26c9deafe7812dd29dffa0247ef48ecdf796e3b9a710107f28371346ef644a",
+    "kinds": [
+      "xgoduck_pick"
+    ]
+  }
+]

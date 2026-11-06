@@ -1,0 +1,189 @@
+{
+  "artifactType": "training-policy",
+  "controlHz": 50,
+  "actorObservationDim": 61,
+  "actionDim": 14,
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "homeRadians": [
+    0.0,
+    -0.0873,
+    -0.4579,
+    -0.0049,
+    0.453,
+    0.3491,
+    0.3491,
+    0.0,
+    0.0,
+    0.0,
+    0.0873,
+    0.4579,
+    0.0049,
+    -0.453
+  ],
+  "actuatorParamsSha256": "ef2d51adfb1cc0831b9b02ca19aa9176fceecdf725148d084378d7d9a64afceb",
+  "task": "Mjlab-Velocity-Flat-MicroDuck",
+  "runtimeKind": "xgoduck",
+  "policySha256": "21a3afdf6a120ad910227b5023e16456c263e1c73e38275ad52aca0e1bb8000f",
+  "hardwareValidated": false,
+  "geometry": "replica / HD1910 / observer backend mechanical limits",
+  "observationNormalization": "embedded_in_onnx_once",
+  "actionSemantics": "HOME + raw action; scale1; no EMA; observer mechanical target clamp",
+  "runtimeActionAlpha": 0,
+  "deploymentProvenance": {
+    "userRequested": true,
+    "formalAcceptancePassed": false
+  },
+  "walkExecution": {
+    "schema": "kissqy-r17-v1",
+    "policySha256": "21a3afdf6a120ad910227b5023e16456c263e1c73e38275ad52aca0e1bb8000f",
+    "actionScale": 0.9,
+    "headNewWeight": 1.0,
+    "legsNewWeight": 0.7,
+    "gains": {
+      "p": 5,
+      "d": 0
+    },
+    "gainSource": "existing board P5/D0; compatible execution schema, not donor provenance"
+  },
+  "completedTrainingUpdates": 11000,
+  "trainingTargetClipRadians": {
+    "left_hip_yaw": [
+      -0.4363323129985824,
+      0.5235987755982988
+    ],
+    "left_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "left_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ],
+    "neck_pitch": [
+      -1.5707963267948966,
+      1.2217304763960306
+    ],
+    "head_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "head_yaw": [
+      -2.9670597283903604,
+      2.9670597283903604
+    ],
+    "head_roll": [
+      -0.3490658503988659,
+      0.3490658503988659
+    ],
+    "right_hip_yaw": [
+      -0.5235987755982988,
+      0.4363323129985824
+    ],
+    "right_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "right_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ]
+  },
+  "mechanicalPhysicalJointLimitsRadians": {
+    "left_hip_yaw": [
+      -0.4363323129985824,
+      0.5235987755982988
+    ],
+    "left_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "left_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "left_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ],
+    "neck_pitch": [
+      -1.5707963267948966,
+      1.2217304763960306
+    ],
+    "head_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "head_yaw": [
+      -2.9670597283903604,
+      2.9670597283903604
+    ],
+    "head_roll": [
+      -0.3490658503988659,
+      0.3490658503988659
+    ],
+    "right_hip_yaw": [
+      -0.5235987755982988,
+      0.4363323129985824
+    ],
+    "right_hip_roll": [
+      -0.3839724354387525,
+      0.3839724354387525
+    ],
+    "right_hip_pitch": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_knee": [
+      -1.5707963267948966,
+      1.5707963267948966
+    ],
+    "right_ankle": [
+      -1.2217304763960306,
+      1.2217304763960306
+    ]
+  },
+  "modelSource": "Ley-WL/microduck-rl",
+  "sourceArtifact": "models/walk_observer_hd1910_823g_ft11000",
+  "trainingMassKg": 0.823,
+  "simulationValidated": true,
+  "userFeedback": {
+    "date": "2026-11-06",
+    "device": "192.168.137.50",
+    "result": "User approved physical model behavior and requested Observer submission; not a comprehensive quantitative acceptance."
+  }
+}

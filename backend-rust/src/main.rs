@@ -369,7 +369,7 @@ async fn scenario(State(a): State<App>, Json(v): Json<Value>) -> Response {
 }
 async fn policy_info(State(a): State<App>) -> Json<Value> {
     let meta = policy::metadata_for("xgoduck");
-    let models: Vec<Value> = ["swizzle_prepare","swizzle","swizzle_crouch","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","flamingo_hold","flamingo_lower"].iter().map(|kind| {
+    let models: Vec<Value> = ["swizzle_prepare","swizzle","swizzle_crouch","xgoduck","xgoduck_getup","xgoduck_pick","xgoduck_roulade","kick_left","kick_right","dance10","sitstand_sit","sitstand_stand","crouch_sit","crouch_stand","flamingo_hold","flamingo_lower"].iter().map(|kind| {
         let metadata=policy::metadata_for(kind);
         let gains=gains::current();
         json!({"kind":kind,"policy":policy::model_id(kind),"available":metadata.is_some(),"metadata":metadata,"runtimeGains":{"p":gains.p,"d":gains.d,"source":"model-gains.json","appliesOn":"next-model-start"}})
@@ -639,7 +639,7 @@ async fn policy_action(
         }
         if swizzle::control_mode(&s.control) {return error(StatusCode::CONFLICT,"轮滑模式中，先卸力并拆轮再启动普通动作");}
     }
-    if action=="home" && matches!(kind,"xgoduck_getup"|"sitstand_stand") {return error(StatusCode::BAD_REQUEST,"起身从当前姿态启动，不使用站立HOME");}
+    if action=="home" && matches!(kind,"xgoduck_getup"|"sitstand_stand"|"crouch_stand") {return error(StatusCode::BAD_REQUEST,"起身从当前姿态启动，不使用站立HOME");}
     let permit = match a.gate.clone().try_acquire_owned() {
         Ok(p) => p,
         Err(_) => return error(StatusCode::CONFLICT, "已有标定或运动任务正在执行"),
@@ -671,7 +671,7 @@ async fn policy_action(
             let _ = rx.await;
         });
         return Json(
-            json!({"state":"preflight","policy":policy::model_id(kind),"kind":kind,"driveSession":drive_session,"message":if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand") {"动作模型启动，从当前姿态对齐使能后推理"} else {"模型启动，先过渡到所选模型姿势，再持续推理"}}),
+            json!({"state":"preflight","policy":policy::model_id(kind),"kind":kind,"driveSession":drive_session,"message":if matches!(kind,"xgoduck_getup"|"sitstand_sit"|"sitstand_stand"|"crouch_sit"|"crouch_stand") {"动作模型启动，从当前姿态对齐使能后推理"} else {"模型启动，先过渡到所选模型姿势，再持续推理"}}),
         )
         .into_response();
     }

@@ -27,11 +27,12 @@ impl Gate {
         let next=next?;
         if next!="xgoduck" || active=="xgoduck" {return Some(next);}
         match active {
+            "crouch_sit"=>Some("crouch_stand".into()),
             "sitstand_sit"=>Some("sitstand_stand".into()),
             "flamingo_hold"=>Some("flamingo_lower".into()),
             "xgoduck_roulade" if !phase_done=>None,
             _ if self.ready=>Some(next),
-            "xgoduck_getup"|"sitstand_stand"=>None,
+            "xgoduck_getup"|"sitstand_stand"|"crouch_stand"=>None,
             _=>Some("xgoduck_getup".into()),
         }
     }

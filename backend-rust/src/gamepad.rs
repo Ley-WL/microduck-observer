@@ -277,6 +277,8 @@ impl QuackGesture {
 }
 #[derive(Default)]
 struct Input {
+    x_since: Option<std::time::Instant>,
+    x_fired: bool,
     roll_running: bool,
     roller_mode: bool,
     roller_skating: bool,
@@ -319,6 +321,7 @@ impl Input {
         let action_button=|key:&str|sample.button(key)
             && !(blocked && matches!(key,"up"|"left"|"right"));
         if diagnostic_only {
+            self.x_since=None;self.x_fired=false;
             self.roller_since=None;self.roller_fired=false;
             self.autonomy_since=None;self.autonomy_fired=false;
             self.quack=QuackGesture::default();
@@ -366,7 +369,20 @@ impl Input {
         }
         let quack_action=if self.neutral_seen {self.quack.update(sample.down(RT),now)} else {None};
         if edge(BACK)||edge(B)||long_y||long_start {self.quack=QuackGesture::default();}
+        // X short press dispatches on release; a long press consumes that release.
+        let dual_x=!self.roller_mode && bindings.action("x")=="sit";
+        let x_valid=dual_x && sample.centered() && !sample.dpad.iter().any(|v|*v)
+            && sample.keys.iter().enumerate().all(|(k,v)|!*v || BUTTONS[k]==X);
+        let mut x_action=None;
+        if !x_valid || !self.neutral_seen {self.x_since=None;self.x_fired=false;}
+        else if sample.down(X) {
+            if edge(X) {self.x_since=Some(now);self.x_fired=false;}
+            if !self.x_fired && self.x_since.is_some_and(|at|now.duration_since(at)>=Duration::from_millis(700)) {
+                self.x_fired=true;x_action=Some("crouch");
+            }
+        } else if let Some(at)=self.x_since.take() {if !self.x_fired {x_action=Some(if now.duration_since(at)>=Duration::from_millis(700) {"crouch"} else {"sit"});}}
         let custom=crate::pad_bindings::BUTTONS.into_iter().find_map(|key| {
+            if dual_x && key=="x" {return None;}
             let action=bindings.action(key);
             if !action_button(key) || (self.previous.button(key) && !(action=="roulade" && self.roll_running)) {return None;}
             let alone=sample.keys.iter().filter(|v|**v).count()+sample.dpad.iter().filter(|v|**v).count()==1;
@@ -392,7 +408,7 @@ impl Input {
             else if self.roller_mode {custom.filter(|action|*action=="quack").or(quack_action)}
             else if long_autonomy {Some("autonomy")}
             else if long_y {Some("getup")}
-            else {custom.or(quack_action)};
+            else {x_action.or(custom).or(quack_action)};
         if sample.neutral() {
             self.neutral_seen = true;
         }
@@ -606,7 +622,7 @@ pub fn spawn(app: App, router: Router) {
                             report(&app, "手柄已停止保持并释放控制");
                         } else {
                             if !motion.leased {
-                                if !matches!(action, "roller_prepare" | "stand" | "getup" | "quack") {
+                                if !matches!(action, "roller_prepare" | "stand" | "getup" | "quack" | "sit" | "crouch") {
                                     if action=="autonomy" {crate::quack::announce("auto_reject");}
                                     report(&app, "手柄尚未取得模型控制权，请先回中并使用配置的站立/起身键；若由网页/App启动，请先在原端停止保持");
                                     continue;
@@ -655,6 +671,20 @@ pub fn spawn(app: App, router: Router) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test] fn x_short_long_press_and_cancel_are_exclusive() {
+        let t=std::time::Instant::now();let mut i=Input::default();let neutral=Sample::default();let x=sample(&[X],[0.;4]);
+        i.update_at(&neutral,true,false,t);
+        assert_eq!(i.update_at(&x,true,false,t),None);
+        assert_eq!(i.update_at(&neutral,true,false,t+Duration::from_millis(699)),Some("sit"));
+        i.update_at(&x,true,false,t+Duration::from_secs(1));
+        assert_eq!(i.update_at(&x,true,false,t+Duration::from_millis(1700)),Some("crouch"));
+        assert_eq!(i.update_at(&x,true,false,t+Duration::from_secs(2)),None);
+        assert_eq!(i.update_at(&neutral,true,false,t+Duration::from_secs(3)),None);
+        i.update_at(&x,true,false,t+Duration::from_secs(4));
+        assert_eq!(i.update_at(&sample(&[X,BACK],[0.;4]),true,false,t+Duration::from_millis(4100)),Some("estop"));
+        assert_eq!(i.update_at(&neutral,true,false,t+Duration::from_secs(5)),None);
+    }
+
     #[test] fn custom_mapping_uses_new_actions_once_and_preserves_fixed_controls(){
         let mut config=crate::pad_bindings::Config::default();config.bindings.insert("x".into(),"kick_left".into());
         let mut input=Input::default();let now=std::time::Instant::now();
@@ -687,7 +717,7 @@ mod tests {
     #[test] fn changing_bindings_while_held_requires_release_and_diagnostic_blocks_actions(){
         let mut config=crate::pad_bindings::Config::default();let mut input=Input::default();let now=std::time::Instant::now();
         input.update_mapped(&Sample::default(),true,false,now,&config);
-        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),Some("sit"));
+        assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),None);
         config.bindings.insert("x".into(),"dance".into());config.revision+=1;
         assert_eq!(input.update_mapped(&sample(&[X],[0.;4]),true,false,now,&config),None);
         assert!(!input.drive_armed);
@@ -992,8 +1022,8 @@ mod tests {
     fn sit_and_kicks_do_not_require_lb() {
         let mut input = Input::default();
         input.update(&Sample::default(), true, false);
-        assert_eq!(input.update(&sample(&[X], [0.; 4]), true, false), Some("sit"));
-        input.update(&Sample::default(), true, false);
+        assert_eq!(input.update(&sample(&[X], [0.; 4]), true, false), None);
+        assert_eq!(input.update(&Sample::default(), true, false),Some("sit"));
         let mut left = Sample::default();
         left.dpad[1] = true;
         assert_eq!(input.update(&left, true, false), Some("flamingo"));

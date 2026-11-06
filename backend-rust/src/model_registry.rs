@@ -5,13 +5,14 @@ use std::{collections::BTreeSet, io::Write, path::{Path, PathBuf}, sync::{Mutex,
 
 pub const MAX_MODEL_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = 24 * 1024 * 1024;
-pub const SLOTS: [&str; 11] = ["walk","sitstand","getup","pick","roulade","kick_left","kick_right","dance","flamingo","swizzle","roller_crouch"];
+pub const SLOTS: [&str; 12] = ["crouch","walk","sitstand","getup","pick","roulade","kick_left","kick_right","dance","flamingo","swizzle","roller_crouch"];
 static CURRENT: OnceLock<Mutex<Value>> = OnceLock::new();
 
 fn builtin_kinds(slot: &str) -> Result<&'static [&'static str]> {
     Ok(match slot {
         "swizzle" => &["swizzle_prepare","swizzle"],
         "roller_crouch" => &["swizzle_crouch"],
+        "crouch" => &["crouch_sit","crouch_stand"],
         "walk" => &["xgoduck"], "sitstand" => &["sitstand_sit","sitstand_stand"],
         "getup" => &["xgoduck_getup"], "pick" => &["xgoduck_pick"], "roulade" => &["xgoduck_roulade"],
         "kick_left" => &["kick_left"], "kick_right" => &["kick_right"], "dance" => &["dance10"],
@@ -51,7 +52,7 @@ pub fn init() -> Result<()> {
 }
 // Additive migration preserves saved choices and rollback entries.
 fn add_swizzle_slot(value: &mut Value) -> Result<()> {
-    for slot in ["swizzle","roller_crouch"] {
+    for slot in ["swizzle","roller_crouch","crouch"] {
     if value["selected"][slot].is_null() {
         let bundled=defaults();
         let item=bundled["models"].as_array().unwrap().iter().find(|v|v["slot"]==slot).unwrap().clone();
@@ -139,7 +140,7 @@ fn inspect_path(slot: &str, path: &Path, warm: bool) -> Result<Value> {
 // Copy only execution settings, never a template model's training or acceptance claims.
 fn template_metadata(source: &Value) -> Value {
     let mut result=json!({});
-    for key in "artifactType controlHz actorObservationDim actionDim jointOrder homeRadians runtimeKind task actionScale actionEmaOldWeight actionEmaNewWeight actionSemantics runtimeActionAlpha observationNormalization normalization previousAction lastActionObservation headMapping commandEncoding commandGains commandHeightM commandSide durationSeconds phasePeriodSeconds endPhase lowerMinSeconds holdSeconds entrySeconds returnSeconds entryTimeoutSeconds settleSeconds transferSettleTicks poseEntryConsecutiveReadyTicks poseGate supportFoot swingFoot targetEncoding targetLimits voltageAdaptation encoderContract walkExecution skillExecution sitExecution kickFoot standSeconds sitSettleSeconds skillPhysicsRevision trainingTargetClipRadians mechanicalPhysicalJointLimitsRadians mechanicalExecutionContract assembledBodyGroundContactMeshes uprightHoldSeconds getupMinSeconds executionTargetLimitsDegrees angleLimitsRevision".split_whitespace() {
+    for key in "artifactType controlHz actorObservationDim actionDim jointOrder homeRadians runtimeKind task actionScale actionEmaOldWeight actionEmaNewWeight actionSemantics runtimeActionAlpha observationNormalization normalization previousAction lastActionObservation headMapping commandEncoding commandGains commandHeightM commandSide durationSeconds phasePeriodSeconds endPhase lowerMinSeconds holdSeconds entrySeconds returnSeconds entryTimeoutSeconds settleSeconds transferSettleTicks poseEntryConsecutiveReadyTicks poseGate supportFoot swingFoot targetEncoding targetLimits voltageAdaptation sensorLowPass encoderContract walkExecution skillExecution sitExecution kickFoot standSeconds sitSettleSeconds skillPhysicsRevision trainingTargetClipRadians mechanicalPhysicalJointLimitsRadians mechanicalExecutionContract assembledBodyGroundContactMeshes uprightHoldSeconds getupMinSeconds executionTargetLimitsDegrees angleLimitsRevision".split_whitespace() {
         if let Some(value)=source.get(key) {result[key]=value.clone();}
     }
     for field in ["walkExecution","skillExecution","sitExecution"] {
@@ -363,7 +364,7 @@ pub fn update(action: &str, body: &Value) -> Result<Value> {
         select_in(&mut r,"flamingo","flamingo-official").unwrap();
         assert_eq!(r["previous"]["flamingo"],"flamingo-right");
         assert!(select_in(&mut r,"walk","flamingo-official").is_err());
-        assert_eq!(r["selected"]["walk"],"walk-default");
+        assert_eq!(r["selected"]["walk"],"approved-walk-823g");
         select_in(&mut r,"flamingo","flamingo-right").unwrap();
         assert_eq!(r["previous"]["flamingo"],"flamingo-official");
     }

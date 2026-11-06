@@ -154,10 +154,10 @@ impl Telemetry {
         if self.autonomy.recovering(){return false;}
         if self.autonomous_input(session,sequence,true){self.autonomy.input(false,Instant::now());}
         if self.drive.as_ref().is_some_and(|d|d.session==session && sequence>d.sequence) {self.cancel_demo("人工动作接管",true);}
-        let recovery_allowed=kind=="xgoduck_getup" && (matches!(self.control["activeSkill"].as_str(),Some("sitstand_sit"|"sitstand_stand"|"xgoduck_getup"))
+        let recovery_allowed=kind=="xgoduck_getup" && (matches!(self.control["activeSkill"].as_str(),Some("sitstand_sit"|"sitstand_stand"|"crouch_sit"|"crouch_stand"|"xgoduck_getup"))
             || (self.control["recoveryFallen"]==true && matches!(self.control["activeSkill"].as_str(),Some("xgoduck_pick"|"xgoduck_roulade"|"kick_left"|"kick_right"))));
         if self.pending_quack || self.quack_running || self.control["state"]!="policy" || self.control["kind"]!="xgoduck"
-            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || recovery_allowed || (kind=="flamingo_lower" && self.control["activeSkill"]=="flamingo_hold") || (kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit" && self.control["standAllowed"].as_bool().unwrap_or_else(||self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.))))
+            || self.control["feedbackHolding"]==true || !(self.control["activeSkill"]=="xgoduck" || recovery_allowed || (kind=="flamingo_lower" && self.control["activeSkill"]=="flamingo_hold") || (((kind=="sitstand_stand" && self.control["activeSkill"]=="sitstand_sit") || (kind=="crouch_stand" && self.control["activeSkill"]=="crouch_sit")) && self.control["standAllowed"].as_bool().unwrap_or_else(||self.control["skillProgressSeconds"].as_f64().unwrap_or(0.)>=self.control["sitSettleSeconds"].as_f64().unwrap_or(2.))))
             || self.pending_skill.is_some() { return false; }
         let Some(drive)=self.drive.as_mut() else {return false;};
         if !drive.update(session,sequence,[0.;3]) {return false;}
@@ -187,6 +187,18 @@ mod drive_tests {
         assert!(!s.queue_skill("s",3,"flamingo_lower"));s.pending_skill=None;
         assert!(!s.queue_skill("s",2,"flamingo_lower"));s.control["feedbackHolding"]=json!(true);
         assert!(!s.queue_skill("s",3,"flamingo_lower"));
+    }
+    #[test]
+    fn grounded_crouch_only_accepts_its_own_stand_action() {
+        let mut state=Telemetry::new(true);
+        state.drive=Some(DriveCommand{session:"s".into(),sequence:1,twist:[0.;3],updated:Instant::now()});
+        state.control=json!({"state":"policy","kind":"xgoduck","activeSkill":"crouch_sit","standAllowed":false});
+        assert!(!state.queue_skill("s",2,"crouch_stand"));
+        state.control["standAllowed"]=json!(true);
+        assert!(!state.queue_skill("s",2,"sitstand_stand"));
+        assert!(!state.queue_skill("foreign",2,"crouch_stand"));
+        assert!(state.queue_skill("s",2,"crouch_stand"));
+        assert_eq!(state.pending_skill.as_deref(),Some("crouch_stand"));
     }
     #[test]
     fn replica_sit_window_blocks_early_stand() {

@@ -366,6 +366,7 @@ impl Motion {
             .ok_or_else(|| anyhow::anyhow!("缺少指令序号"))?;
         ensure!(self.sequence.is_none_or(|last| seq > last), "指令序号过期");
         let action = body["action"].as_str().unwrap_or("");
+        let action=if matches!(action,"stand"|"standup") && self.control()["activeSkill"]=="crouch_sit" {"crouch_stand"} else {action};
         if !matches!(action,"drive"|"strafe_left"|"strafe_right") {
             self.app.telemetry.write().unwrap().log("INFO",self.source,&format!("控制动作已收到：{action}，seq={seq}"));
         }
@@ -373,7 +374,7 @@ impl Motion {
             [
                 "drive",
                 "stand",
-                "prepare", "roller_prepare", "roller_crouch",
+                "prepare", "roller_prepare", "roller_crouch", "crouch", "crouch_stand",
                 "idle",
                 "estop",
                 "reset",
@@ -444,9 +445,9 @@ impl Motion {
             "reset"=>{self.zero();self.stopped=false;self.error.clear();},
             _ if self.stopped=>{},
             "idle"=>self.halt(false).await?,
-            "roller_prepare"|"prepare"|"stand"|"getup"|"standup" if self.drive.is_none()=>{
+            "roller_prepare"|"prepare"|"sit"|"crouch"|"crouch_stand"|"stand"|"getup"|"standup" if self.drive.is_none()=>{
                 self.zero();let cal=self.request("calibration",None).await?;
-                let kind=match action {"roller_prepare"=>crate::swizzle::PREPARE,"prepare"=>"sitstand_sit","getup"=>"xgoduck_getup",_=>"sitstand_stand"};
+                let kind=match action {"roller_prepare"=>crate::swizzle::PREPARE,"prepare"|"sit"=>"sitstand_sit","crouch"=>"crouch_sit","crouch_stand"=>"crouch_stand","getup"=>"xgoduck_getup",_=>"sitstand_stand"};
                 let result=self.request("policy/start",Some(json!({"kind":kind,"speed":0,"revision":cal["revision"]}))).await?;
                 self.drive=Some(result["driveSession"].as_str().ok_or_else(||anyhow::anyhow!("missing drive session"))?.into());self.drive_seq=0;self.phase="starting".into();
                 self.error.clear();
@@ -484,7 +485,7 @@ impl Motion {
                 else {let cal=self.request("calibration",None).await?;self.request("servos/quack",Some(json!({"revision":cal["revision"],"voice":body["voice"]}))).await?;}
                 self.error.clear();
             },
-            value if matches!(value,"flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"mouth_open"|"mouth_close") || crate::model_registry::is_custom(value)=>{
+            value if matches!(value,"flamingo"|"dance"|"getup"|"pick"|"roulade"|"kick_left"|"kick_right"|"sit"|"standup"|"crouch"|"crouch_stand"|"mouth_open"|"mouth_close") || crate::model_registry::is_custom(value)=>{
                 self.zero();let mouth=action.starts_with("mouth_");
                 if let Some(session)=&self.drive {self.drive_seq+=1;
                     self.request(if mouth{"policy/mouth"}else{"policy/skill"},Some(json!({"session":session,"sequence":self.drive_seq,"skill":action,"angleDeg":if action=="mouth_open"{30}else{-5}}))).await?;self.pending=!mouth;
@@ -665,6 +666,13 @@ pub(crate) mod tests {
     }
     fn drive(seq: u64) -> Value {
         json!({"seq":seq,"action":"drive","forward":1,"turn":0,"speed":0.5})
+    }
+    #[tokio::test]
+    async fn stand_routes_to_matching_crouch_actor_without_dwell() {
+        let (mut m,calls,_tmp)=fixture();m.open().unwrap();m.drive=Some("ble-session".into());m.phase="active".into();
+        m.app.telemetry.write().unwrap().control=json!({"state":"policy","kind":"xgoduck","activeSkill":"crouch_sit","driveSession":"ble-session","skillProgressSeconds":0.02,"standAllowed":true});
+        m.command(json!({"seq":1,"action":"stand"})).await.unwrap();
+        let requests=calls.lock().unwrap();let (_,body)=requests.iter().find(|(p,_)|p=="/api/v1/policy/skill").unwrap();assert_eq!(body["skill"],"crouch_stand");
     }
     #[tokio::test]
     async fn seated_sticks_and_quack_preserve_head_without_walking() {

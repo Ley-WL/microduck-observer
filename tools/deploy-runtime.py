@@ -21,6 +21,7 @@ parser.add_argument('--roller-crouch-model',action='store_true',help='Add offici
 parser.add_argument('--swizzle-model',action='store_true',help='Add HD1910 roller model and verify its ARM fixture; never start motion')
 parser.add_argument('--dance-model',action='store_true',help='Add the dance10 model and verify ARM inference before activation')
 parser.add_argument('--retire-legacy-models',action='store_true',help='Remove retired stand/walk files from the new release and verify common gains')
+parser.add_argument('--approved-823g-models',action='store_true',help='Install six approved versioned 823g actors and verify selected native policies')
 args=parser.parse_args()
 assert sum([args.rear_hook_model,args.rear_hook_native_model,args.rear_hook_gated_model])<=1,'Select one rear-hook contract'
 name='runtime-'+datetime.now(timezone(timedelta(hours=8))).strftime('%Y%m%d-%H%M%S')
@@ -30,6 +31,8 @@ evidence.mkdir(parents=True)
 binary=root/'backend-rust/target/aarch64-unknown-linux-gnu/release/microduck-observer'
 assert binary.read_bytes()[:4]==b'\x7fELF' and int.from_bytes(binary.read_bytes()[18:20],'little')==183
 assert b'/api/v1/tof' in binary.read_bytes(), 'Build the current Observer source: ToF API missing from ARM binary'
+if args.approved_823g_models:
+    assert all(marker in binary.read_bytes() for marker in [b'crouch_sit',b'approved-getup-823g',b'approved-roulade-823g']),'Build the approved 823g runtime before packaging'
 if args.roller_crouch_model:
     assert all(marker in binary.read_bytes() for marker in [b'swizzle_crouch',b'rollerCrouchRemainingSeconds']),'Build the current crouch runtime before packaging'
 if args.rear_hook_native_model or args.rear_hook_gated_model:
@@ -42,6 +45,10 @@ with tarfile.open(stage/'payload.tar.gz','w:gz') as archive:
         archive.add(marker,arcname=marker.name)
     if args.align_walk_scale:
         archive.add(root/'models/xgoduck_walk.metadata.json',arcname='walk-scale-update.json')
+    if args.approved_823g_models:
+        archive.add(root/'models/approved-823g.json',arcname='approved-823g.json')
+        for item in json.loads((root/'models/approved-823g.json').read_text()):
+            for path in [root/'models'/item['file'],(root/'models'/item['file']).with_suffix('.metadata.json')]:archive.add(path,arcname='models/'+path.name)
     if args.retire_legacy_models:
         marker=stage/'common-gains-migration.json';marker.write_text('{}')
         archive.add(marker,arcname=marker.name)
@@ -212,6 +219,15 @@ shutil.copy2(new/'ws_reader.py',stage/'ws_reader.py')
 model_env=dict(os.environ,MICRODUCK_POLICY_PATH=str(new/'models/xgoduck_walk.onnx'),ORT_DYLIB_PATH=str(new/'lib/libonnxruntime.so'),MICRODUCK_GAINS_FILE='/var/lib/microduck-observer/model-gains.json')
 model_check=subprocess.run([str(new/'bin/microduck-observer'),'--verify-model-bank'],env=model_env,capture_output=True,text=True,check=True)
 (stage/'installed-model-bank.json').write_text(model_check.stdout)
+approved_file=new/'approved-823g.json'
+approved=json.loads(approved_file.read_text()) if approved_file.exists() else []
+if approved:
+    approved_file.unlink()
+    bank=json.loads(model_check.stdout.splitlines()[-1])['models']
+    for item in approved:
+        assert sha(new/'models'/item['file'])==item['sha256']
+        assert all(any(m['kind']==kind and m['sha256']==item['sha256'] for m in bank) for kind in item['kinds']),'Approved model selection mismatch'
+
 subprocess.run([sys.executable,str(new/'verify_rust_hardware.py'),'--release',str(new),'--workspace',str(stage)],check=True)
 assert idle(get('snapshot'))
 legacy_installation=before['calibration']['imu'].get('mountingQuaternion') is None
@@ -296,6 +312,10 @@ try:
         with urllib.request.urlopen(request,timeout=5) as response:assert json.load(response)['debug']==gamepad_mode
     assert {svc:subprocess.run(['systemctl','is-enabled',svc],capture_output=True,text=True).stdout.strip() for svc in ['tofd','rsyslog']}==service_states
     result={'installed':True,'release':str(new),'previousRelease':str(old),'calibrationModelsGainsIdentityUnchanged':not legacy_installation,'legacyImuInstallationMigrated':legacy_installation,'assetsHttpVerified':True,'readonlySnapshots':20,'hardwareMotion':False,'audioPermissionsConfigured':True,'inputPermissionsConfigured':True,'serviceEnableStatesPreserved':service_states,'binarySha256':sha(new/'bin/microduck-observer')}
+    if approved:
+        live=get('policy')['models']
+        assert all(any(m['kind']==kind and m['available'] and m['metadata']['policySha256']==item['sha256'] for m in live) for item in approved for kind in item['kinds'])
+        result.update(approved823gModels=approved,physicalAccepted=False)
     if crouch_reports:result.update(rollerCrouchModelSha256=crouch_reports[0]['policySha256'],rollerCrouchArmFixtures=crouch_reports,rollerCrouchAvailable=True,existingModelsUnchanged=True,physicalAccepted=False)
     if swizzle_report:result.update(swizzleModelSha256=swizzle_report['policySha256'],swizzleArmFixture=swizzle_report,swizzleAvailable=True,existingModelsUnchanged=True,physicalAccepted=False)
     if walk_update:result.update(walkScaleUpdate=walk_update,calibrationModelsGainsIdentityUnchanged=False,calibrationWeightsGainsIdentityUnchanged=True)

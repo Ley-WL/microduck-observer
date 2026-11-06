@@ -1,0 +1,69 @@
+{
+  "actionDim": 14,
+  "actionEmaNewWeight": 1,
+  "actionEmaOldWeight": 0,
+  "actionSemantics": "HOME + raw action, no EMA, raw previous action",
+  "actorObservationDim": 61,
+  "artifactType": "training-policy",
+  "commandEncoding": "phase cos/sin, period4 end0.7",
+  "completedTrainingUpdates": 1001,
+  "controlHz": 50,
+  "hardwareValidated": false,
+  "homeRadians": [
+    0.0,
+    -0.0873,
+    -0.4579,
+    -0.0049,
+    0.453,
+    0.3491,
+    0.3491,
+    0.0,
+    0.0,
+    0.0,
+    0.0873,
+    0.4579,
+    0.0049,
+    -0.453
+  ],
+  "jointOrder": [
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle",
+    "neck_pitch",
+    "head_pitch",
+    "head_yaw",
+    "head_roll",
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle"
+  ],
+  "modelSource": "Ley-WL/microduck-rl",
+  "observationNormalization": "embedded_in_onnx_once",
+  "policySha256": "6e26c9deafe7812dd29dffa0247ef48ecdf796e3b9a710107f28371346ef644a",
+  "runtimeKind": "kissqy_ground_pick",
+  "simulationValidated": true,
+  "skillExecution": {
+    "actionScale": 1,
+    "durationSeconds": 2.8,
+    "gains": {
+      "d": 20,
+      "p": 5
+    },
+    "policySha256": "6e26c9deafe7812dd29dffa0247ef48ecdf796e3b9a710107f28371346ef644a",
+    "schema": "kissqy-skills-v1"
+  },
+  "task": "Mjlab-GroundPick-Flat-MicroDuck",
+  "trainingSeed": 221149,
+  "walkExecution": null,
+  "sourceArtifact": "models/pick_hd1910_823g_1001",
+  "trainingMassKg": 0.823,
+  "userFeedback": {
+    "date": "2026-11-06",
+    "device": "192.168.137.50",
+    "result": "User approved physical model behavior and requested Observer submission; not a comprehensive quantitative acceptance."
+  }
+}
