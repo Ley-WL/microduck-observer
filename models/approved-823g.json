@@ -26,8 +26,8 @@
   },
   {
     "slot": "getup",
-    "file": "standup_hd1910_823g_10000.onnx",
-    "sha256": "e14d8f4d6d80b02efefbbb23b69b27e244de35ef92dd4ed65ae8305f9fa6dd3d",
+    "file": "standup_hd1910_823g_20000.onnx",
+    "sha256": "f8612a5f60f375121615910f6722775fbf77ef064ca3ff8f6e18e6a78eddb25b",
     "kinds": [
       "xgoduck_getup"
     ]

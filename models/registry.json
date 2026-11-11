@@ -124,9 +124,9 @@
     },
     {
       "id": "approved-getup-823g",
-      "label": "跌倒起身 823g · 10000",
+      "label": "跌倒起身 823g · 20000",
       "slot": "getup",
-      "file": "standup_hd1910_823g_10000.onnx"
+      "file": "standup_hd1910_823g_20000.onnx"
     },
     {
       "id": "approved-sitstand-823g",

@@ -3010,7 +3010,7 @@ mod tests {
     fn donor_skills_have_separate_model_paths_and_never_accept_walk_speed() {
         for kind in ["xgoduck_getup","xgoduck_pick","xgoduck_roulade"] {
             assert_eq!(request_profile(&json!({"kind":kind})).unwrap(),(kind,0.));
-            let expected=match kind {"xgoduck_getup"=>"standup_hd1910_823g_10000.onnx","xgoduck_pick"=>"pick_hd1910_823g_1001.onnx",_=>"roll_hd1910_823g_10000.onnx"};
+            let expected=match kind {"xgoduck_getup"=>"standup_hd1910_823g_20000.onnx","xgoduck_pick"=>"pick_hd1910_823g_1001.onnx",_=>"roll_hd1910_823g_10000.onnx"};
             assert_eq!(path_for(kind).unwrap().file_name().unwrap(),expected);
             assert!(request_profile(&json!({"kind":kind,"speed":0.1})).is_err());
         }
@@ -3318,7 +3318,7 @@ pub fn preflight_model_at(kind: &str, path: &std::path::Path) -> Result<()> {
         assert!(!same_sit_actor("crouch_sit","sitstand_stand","a","a",&[0.;14],&[0.;14]));
     }
     #[test] fn getup_and_roll_require_raw_823g_contract() {
-        for (kind,text) in [("xgoduck_getup",include_str!("../../models/standup_hd1910_823g_10000.metadata.json")),("xgoduck_roulade",include_str!("../../models/roll_hd1910_823g_10000.metadata.json"))] {
+        for (kind,text) in [("xgoduck_getup",include_str!("../../models/standup_hd1910_823g_20000.metadata.json")),("xgoduck_roulade",include_str!("../../models/roll_hd1910_823g_10000.metadata.json"))] {
             let m:Value=serde_json::from_str(text).unwrap();validate_skill_metadata(kind,&m).unwrap();
             let p=SkillProfile::from_metadata(&m);assert!(p.donor());assert!(!p.voltage_adapt());
             for (key,value) in [("sensorLowPass",json!(true)),("actionEmaOldWeight",json!(0.45)),("actionScale",json!(0.9))] {let mut bad=m.clone();bad[key]=value;assert!(validate_skill_metadata(kind,&bad).is_err());}
